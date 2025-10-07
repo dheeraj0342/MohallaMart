@@ -2,25 +2,82 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #111827;
+  --primary-brand: #2E7D32;
+  --primary-hover: #1B5E20;
+  --secondary-brand: #F97316;
+  --secondary-hover: #EA580C;
+  --accent-brand: #FBBF24;
+  --neutral-light: #F3F4F6;
+  --neutral-dark: #1F2937;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary-brand: var(--primary-brand);
+  --color-secondary-brand: var(--secondary-brand);
+  --color-accent-brand: var(--accent-brand);
+  --font-sans: var(--font-inter);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #1F2937;
+    --foreground: #F3F4F6;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--neutral-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-brand);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
+/* Additional MohallaMart brand styling */
+::selection {
+  background-color: var(--accent-brand);
+  color: var(--neutral-dark);
+}
+
+::-moz-selection {
+  background-color: var(--accent-brand);
+  color: var(--neutral-dark);
+}
+
+/* Focus states for accessibility */
+*:focus {
+  outline: 2px solid var(--primary-brand);
+  outline-offset: 2px;
+}
+
+/* Link hover effects */
+a:hover {
+  transition: color 0.2s ease-in-out;
+}
+
+/* Button hover effects */
+button:hover {
+  transition: all 0.2s ease-in-out;
 }
