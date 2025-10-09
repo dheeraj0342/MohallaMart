@@ -47,6 +47,8 @@ interface StoreState {
   // Search State
   searchQuery: string
   setSearchQuery: (query: string) => void
+  isSearchOpen: boolean
+  setSearchOpen: (isOpen: boolean) => void
 }
 
 export const useStore = create<StoreState>()(
@@ -98,6 +100,8 @@ export const useStore = create<StoreState>()(
       // Search State
       searchQuery: '',
       setSearchQuery: (query) => set({ searchQuery: query }),
+      isSearchOpen: false,
+      setSearchOpen: (isOpen) => set({ isSearchOpen: isOpen }),
     }),
     {
       name: 'mohallamart-storage',
