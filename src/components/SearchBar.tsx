@@ -10,27 +10,38 @@ interface SearchResult {
   title: string
   category: string
   description: string
+  price?: string
+  emoji?: string
 }
 
 const mockSearchData: SearchResult[] = [
-  { id: '1', title: '10-Minute Delivery', category: 'Feature', description: 'Ultra-fast delivery model' },
-  { id: '2', title: 'Hyperlocal Network', category: 'Feature', description: 'Dense network of dark stores' },
-  { id: '3', title: 'Quality Assurance', category: 'Feature', description: 'Rigorous quality control' },
-  { id: '4', title: 'Blinkit', category: 'Platform', description: 'Quick commerce platform comparison' },
-  { id: '5', title: 'Swiggy Instamart', category: 'Platform', description: 'Food delivery and quick commerce' },
-  { id: '6', title: 'Dark Stores', category: 'Concept', description: 'Micro-warehouses for quick delivery' },
-  { id: '7', title: 'Last Mile Delivery', category: 'Concept', description: 'Final step of delivery process' },
-  { id: '8', title: 'Mobile App', category: 'Feature', description: 'Mobile-first shopping experience' },
+  { id: '1', title: 'Fresh Bananas', category: 'Fruits', description: 'Organic ripe bananas (1kg)', price: '₹89', emoji: '🍌' },
+  { id: '2', title: 'Organic Apples', category: 'Fruits', description: 'Red delicious apples (1kg)', price: '₹180', emoji: '🍎' },
+  { id: '3', title: 'Fresh Milk', category: 'Dairy', description: 'Full cream milk (1L)', price: '₹65', emoji: '🥛' },
+  { id: '4', title: 'Whole Wheat Bread', category: 'Bakery', description: 'Fresh baked bread loaf', price: '₹45', emoji: '🍞' },
+  { id: '5', title: 'Tomatoes', category: 'Vegetables', description: 'Fresh red tomatoes (1kg)', price: '₹60', emoji: '🍅' },
+  { id: '6', title: 'Basmati Rice', category: 'Grains', description: 'Premium basmati rice (5kg)', price: '₹650', emoji: '🌾' },
+  { id: '7', title: 'Greek Yogurt', category: 'Dairy', description: 'Plain Greek yogurt (500g)', price: '₹120', emoji: '🥛' },
+  { id: '8', title: 'Green Tea', category: 'Beverages', description: 'Organic green tea bags', price: '₹250', emoji: '🍵' },
+  { id: '9', title: 'Chicken Breast', category: 'Meat', description: 'Fresh chicken breast (1kg)', price: '₹380', emoji: '🍗' },
+  { id: '10', title: 'Mixed Vegetables', category: 'Vegetables', description: 'Fresh mixed vegetable pack', price: '₹150', emoji: '🥕' },
 ]
 
-const trendingSearches = ['Grocery delivery', 'Fast delivery', 'Local products', 'Neighborhood shopping']
+const trendingSearches = ['Organic fruits', 'Fresh vegetables', 'Daily essentials', 'Breakfast items', 'Snacks', 'Beverages']
+
+const popularCategories = [
+  { name: 'Fruits & Vegetables', icon: '🥕', searches: '2k+ searches' },
+  { name: 'Dairy Products', icon: '🥛', searches: '1.5k+ searches' },
+  { name: 'Snacks & Beverages', icon: '🍿', searches: '1.2k+ searches' },
+  { name: 'Personal Care', icon: '🧴', searches: '900+ searches' },
+]
 
 export default function SearchBar() {
   const [isOpen, setIsOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const searchRef = useRef<HTMLDivElement>(null)
-  const { searchQuery, setSearchQuery } = useStore()
+  const { setSearchQuery } = useStore()
 
   useEffect(() => {
     if (query.trim()) {
@@ -57,6 +68,34 @@ export default function SearchBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Ctrl+Z to open search
+      if (event.ctrlKey && event.key === 'z') {
+        event.preventDefault()
+        setIsOpen(true)
+        // Focus the search input
+        const searchInput = searchRef.current?.querySelector('input')
+        if (searchInput) {
+          searchInput.focus()
+        }
+      }
+      
+      // Esc to close search
+      if (event.key === 'Escape') {
+        setIsOpen(false)
+        // Blur the search input
+        const searchInput = searchRef.current?.querySelector('input')
+        if (searchInput) {
+          searchInput.blur()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   const handleSearch = (searchTerm: string) => {
     setQuery(searchTerm)
     setSearchQuery(searchTerm)
@@ -73,25 +112,34 @@ export default function SearchBar() {
     <div ref={searchRef} className="relative w-full max-w-2xl">
       {/* Search Input */}
       <div className="relative">
-        <div             className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-neutral-400" />
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
         </div>
         <input
           type="text"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
           onFocus={() => setIsOpen(true)}
-          placeholder="Search features, services, products..."
-          className="w-full pl-10 pr-10 py-2.5 border-2 border-neutral-300 rounded-lg focus:outline-none focus:border-primary-brand transition-colors"
+          placeholder="Search for groceries, fruits, vegetables, dairy..."
+          className="w-full pl-10 pr-20 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
         />
-        {query && (
-          <button
-            onClick={clearSearch}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        )}
+        
+        {/* Keyboard shortcut indicator */}
+        <div className="absolute inset-y-0 right-0 pr-3 flex items-center space-x-2">
+          {query && (
+            <button
+              onClick={clearSearch}
+              className="text-gray-400 hover:text-gray-600 p-1"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+          <div className="hidden sm:flex items-center space-x-1 text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
+            <kbd className="font-mono">Ctrl</kbd>
+            <span>+</span>
+            <kbd className="font-mono">Z</kbd>
+          </div>
+        </div>
       </div>
 
       {/* Search Results Dropdown */}
@@ -101,58 +149,107 @@ export default function SearchBar() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute top-full mt-2 w-full bg-white rounded-lg shadow-2xl border border-neutral-200 max-h-96 overflow-y-auto z-50"
+            className="absolute top-full mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-200 max-h-96 overflow-y-auto z-50"
           >
+            {/* Keyboard shortcut info bar */}
+            <div className="px-4 py-2 bg-gray-50 border-b border-gray-100 flex items-center justify-between text-xs text-gray-500">
+              <span>🔍 Search for products and categories</span>
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1">
+                  <kbd className="bg-white px-1.5 py-0.5 rounded border text-xs font-mono">Esc</kbd>
+                  <span>to close</span>
+                </div>
+              </div>
+            </div>
             {query.trim() && results.length > 0 ? (
               <div className="py-2">
-                <div className="px-4 py-2 text-xs font-semibold text-neutral-500 uppercase">
-                  Search Results ({results.length})
+                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-gray-100">
+                  🛒 Products Found ({results.length})
                 </div>
                 {results.map((result) => (
                   <button
                     key={result.id}
-                    className="w-full px-4 py-3 hover:bg-neutral-50 text-left transition-colors border-b border-neutral-100 last:border-b-0"
+                    className="w-full px-4 py-3 hover:bg-green-50 text-left transition-colors border-b border-gray-50 last:border-b-0 group"
                     onClick={() => {
                       setQuery(result.title)
                       setSearchQuery(result.title)
                       setIsOpen(false)
                     }}
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="font-medium text-neutral-900">{result.title}</div>
-                        <div className="text-sm text-neutral-600 mt-1">{result.description}</div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3 flex-1">
+                        <div className="text-2xl">{result.emoji}</div>
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900 group-hover:text-green-700">{result.title}</div>
+                          <div className="text-sm text-gray-600 mt-1">{result.description}</div>
+                        </div>
                       </div>
-                      <span className="ml-2 px-2 py-1 text-xs font-medium bg-primary-100 text-primary-brand rounded">
-                        {result.category}
-                      </span>
+                      <div className="text-right">
+                        {result.price && (
+                          <div className="font-bold text-green-600 text-lg">{result.price}</div>
+                        )}
+                        <span className="inline-block mt-1 px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                          {result.category}
+                        </span>
+                      </div>
                     </div>
                   </button>
                 ))}
               </div>
             ) : query.trim() && results.length === 0 ? (
-              <div className="px-4 py-8 text-center text-neutral-500">
-                <Search className="h-12 w-12 mx-auto mb-2 text-neutral-300" />
-                <p>No results found for "{query}"</p>
+              <div className="px-4 py-8 text-center text-gray-500">
+                <Search className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                <p className="text-lg font-medium mb-1">No products found</p>
+                <p className="text-sm">Try searching for &quot;{query}&quot; with different keywords</p>
+                <div className="mt-4 text-xs text-gray-400">
+                  💡 Tip: Try searching for categories like &quot;fruits&quot;, &quot;dairy&quot;, or &quot;snacks&quot;
+                </div>
               </div>
             ) : (
               <div className="py-2">
-                <div className="px-4 py-2 text-xs font-semibold text-neutral-500 uppercase flex items-center">
+                {/* Popular Categories */}
+                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-gray-100">
+                  🔥 Popular Categories
+                </div>
+                {popularCategories.map((category, index) => (
+                  <button
+                    key={index}
+                    className="w-full px-4 py-3 hover:bg-orange-50 text-left transition-colors border-b border-gray-50"
+                    onClick={() => {
+                      setQuery(category.name)
+                      setSearchQuery(category.name)
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center text-gray-700">
+                        <span className="text-2xl mr-3">{category.icon}</span>
+                        <div>
+                          <div className="font-medium">{category.name}</div>
+                          <div className="text-xs text-gray-500">{category.searches}</div>
+                        </div>
+                      </div>
+                      <div className="text-orange-500 text-sm">→</div>
+                    </div>
+                  </button>
+                ))}
+                
+                {/* Trending Searches */}
+                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase flex items-center border-b border-gray-100 mt-2">
                   <TrendingUp className="h-4 w-4 mr-1" />
                   Trending Searches
                 </div>
                 {trendingSearches.map((trend, index) => (
                   <button
                     key={index}
-                    className="w-full px-4 py-3 hover:bg-neutral-50 text-left transition-colors border-b border-neutral-100 last:border-b-0"
+                    className="w-full px-4 py-3 hover:bg-gray-50 text-left transition-colors border-b border-gray-50 last:border-b-0"
                     onClick={() => {
                       setQuery(trend)
                       setSearchQuery(trend)
                     }}
                   >
-                    <div className="flex items-center text-neutral-700">
-                      <TrendingUp className="h-4 w-4 mr-3 text-primary-brand" />
-                      {trend}
+                    <div className="flex items-center text-gray-700">
+                      <TrendingUp className="h-4 w-4 mr-3 text-green-600" />
+                      <span className="font-medium">{trend}</span>
                     </div>
                   </button>
                 ))}
