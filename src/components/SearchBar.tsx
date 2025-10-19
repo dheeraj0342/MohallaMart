@@ -135,7 +135,7 @@ export default function SearchBar() {
           {/* Search Input */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+              <Search className="h-5 w-5 text-neutral-500" />
             </div>
             <input
               ref={inputRef}
@@ -144,7 +144,7 @@ export default function SearchBar() {
               onChange={(e) => handleSearch(e.target.value)}
               onFocus={() => setSearchOpen(true)}
               placeholder="Search for groceries, fruits, vegetables, dairy..."
-              className="w-full pl-10 pr-20 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm shadow-lg"
+              className="w-full pl-10 pr-20 py-3 bg-white border-2 border-neutral-200 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand transition-all duration-200 hover:border-neutral-300 text-sm shadow-lg"
             />
             
             {/* Keyboard shortcut indicator */}
@@ -152,7 +152,7 @@ export default function SearchBar() {
               {query && (
                 <button
                   onClick={clearSearch}
-                  className="text-gray-400 hover:text-gray-600 p-1"
+                  className="text-neutral-500 hover:text-primary-brand p-1 transition-colors"
                   aria-label="Clear search"
                 >
                   <X className="h-4 w-4" />
@@ -160,7 +160,7 @@ export default function SearchBar() {
               )}
               <button
                 onClick={closeSearch}
-                className="text-gray-400 hover:text-gray-600 p-1"
+                className="text-neutral-500 hover:text-primary-brand p-1 transition-colors"
                 aria-label="Close search"
               >
                 <X className="h-5 w-5" />
@@ -196,7 +196,7 @@ export default function SearchBar() {
                     {results.map((result) => (
                       <button
                         key={result.id}
-                        className="w-full px-4 py-3 hover:bg-green-50 text-left transition-colors border-b border-gray-50 last:border-b-0 group"
+                        className="w-full px-4 py-3 hover:bg-primary-50 text-left transition-colors border-b border-gray-50 last:border-b-0 group"
                         onClick={() => {
                           setQuery(result.title)
                           setSearchQuery(result.title)
@@ -207,15 +207,15 @@ export default function SearchBar() {
                           <div className="flex items-center space-x-3 flex-1">
                             <div className="text-2xl">{result.emoji}</div>
                             <div className="flex-1">
-                              <div className="font-medium text-gray-900 group-hover:text-green-700">{result.title}</div>
+                              <div className="font-medium text-neutral-900 group-hover:text-primary-brand">{result.title}</div>
                               <div className="text-sm text-gray-600 mt-1">{result.description}</div>
                             </div>
                           </div>
                           <div className="text-right">
                             {result.price && (
-                              <div className="font-bold text-green-600 text-lg">{result.price}</div>
+                              <div className="font-bold text-primary-brand text-lg">{result.price}</div>
                             )}
-                            <span className="inline-block mt-1 px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                            <span className="inline-block mt-1 px-2 py-1 text-xs font-medium bg-primary-100 text-primary-brand rounded-full">
                               {result.category}
                             </span>
                           </div>
@@ -275,7 +275,7 @@ export default function SearchBar() {
                         }}
                       >
                         <div className="flex items-center text-gray-700">
-                          <TrendingUp className="h-4 w-4 mr-3 text-green-600" />
+                          <TrendingUp className="h-4 w-4 mr-3 text-primary-brand" />
                           <span className="font-medium">{trend}</span>
                         </div>
                       </button>

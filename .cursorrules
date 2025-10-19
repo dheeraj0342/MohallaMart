@@ -1,0 +1,155 @@
+# MohallaMart - Next.js Quick Commerce Platform
+
+## Project Overview
+MohallaMart is a modern quick-commerce marketplace platform built with Next.js 15, TypeScript, and Tailwind CSS. The application focuses on neighborhood delivery services with features like authentication, search, cart management, and responsive design.
+
+## Tech Stack
+- **Framework**: Next.js 15.5.3 with App Router
+- **Language**: TypeScript (strict mode)
+- **Styling**: Tailwind CSS v4 with custom MohallaMart brand colors
+- **State Management**: Zustand with persistence
+- **Authentication**: Supabase Auth
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Font**: Inter (Google Fonts)
+
+## Project Structure
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── auth/              # Authentication pages
+│   ├── globals.css        # Global styles with MohallaMart colors
+│   ├── layout.tsx         # Root layout with hydration fixes
+│   └── page.tsx           # Homepage (component-based)
+├── components/            # Reusable React components
+│   ├── auth/              # Authentication forms (LoginForm, SignupForm)
+│   ├── sections/          # Homepage sections (Hero, Features, etc.)
+│   ├── Navbar.tsx         # Main navigation
+│   ├── SearchBar.tsx      # Search functionality
+│   ├── CartSidebar.tsx    # Shopping cart
+│   └── LocationModal.tsx  # Location selection
+├── hooks/                 # Custom React hooks
+│   └── useAuth.ts         # Supabase authentication hook
+├── lib/                   # Utility libraries
+│   └── supabase.ts        # Supabase client configuration
+└── store/                 # Zustand state management
+    └── useStore.ts        # Global app state
+```
+
+## Coding Standards
+
+### TypeScript
+- Use strict TypeScript with proper type definitions
+- Define interfaces for all props and state objects
+- Use `interface` for object shapes, `type` for unions/primitives
+- Always type function parameters and return values
+- Use proper generic types for hooks and components
+
+### React Best Practices
+- Use functional components with hooks
+- Implement proper error boundaries and loading states
+- Use `'use client'` directive only when necessary for client-side features
+- Optimize re-renders with proper dependency arrays
+- Use proper key props for list items
+
+### Styling Guidelines
+- **Primary Colors**: Forest Green (#2E7D32) for main actions
+- **Secondary Colors**: Vibrant Orange (#F97316) for CTAs
+- **Accent Colors**: Sunny Yellow (#FBBF24) for highlights
+- **Neutral Colors**: Proper gray scale for text and backgrounds
+- Use Tailwind CSS classes with custom CSS variables for brand colors
+- Implement responsive design (mobile-first approach)
+- Use consistent spacing, typography, and component patterns
+
+### Component Architecture
+- Create modular, reusable components in appropriate directories
+- Use proper prop drilling vs context/state management
+- Implement proper component composition
+- Use compound components pattern where applicable
+- Export components cleanly with proper TypeScript types
+
+## Authentication Flow
+- Uses Supabase for user authentication
+- Implements email/password signup and login
+- Stores user state in Zustand store with persistence
+- Handles session management and auto-logout
+- Includes proper error handling and loading states
+
+## State Management
+- **Zustand Store**: Global state for cart, user, location, and search
+- **Persistence**: Cart and user data persisted in localStorage
+- **Actions**: Proper actions for state updates with TypeScript types
+
+## File Naming Conventions
+- **Components**: PascalCase (e.g., `HeroSection.tsx`)
+- **Hooks**: camelCase starting with `use` (e.g., `useAuth.ts`)
+- **Utilities**: camelCase (e.g., `supabase.ts`)
+- **Types**: PascalCase interfaces, camelCase for generic types
+- **Constants**: UPPER_SNAKE_CASE for constants
+
+## Dependencies Guidelines
+- **Avoid**: Installing unnecessary packages
+- **Prefer**: Built-in Next.js features and well-maintained packages
+- **Required**: Keep dependencies up to date and security-focused
+- **State**: Use Zustand over Redux for simplicity
+- **Animations**: Framer Motion for smooth interactions
+
+## Performance Considerations
+- Use Next.js Image component for optimized images
+- Implement proper loading states and error boundaries
+- Optimize bundle size with proper imports
+- Use React.memo and useMemo where appropriate
+- Implement proper SEO with Next.js metadata
+
+## Accessibility Requirements
+- Use proper semantic HTML elements
+- Implement ARIA labels and roles where needed
+- Ensure keyboard navigation works properly
+- Maintain proper color contrast ratios
+- Use focus management for modals and dropdowns
+
+## Form Handling
+- Use controlled components with proper state management
+- Implement client-side validation with user feedback
+- Use proper input types and attributes
+- Handle form submissions with loading states and error handling
+
+## API Integration
+- Use Supabase client for authentication and data
+- Implement proper error handling for API calls
+- Use TypeScript for API response types
+- Handle loading and error states properly
+
+## Mobile Responsiveness
+- Design mobile-first with Tailwind responsive classes
+- Test on various screen sizes (320px to 2560px)
+- Use touch-friendly interface elements
+- Optimize for mobile performance
+
+## Code Quality Standards
+- Write self-documenting code with clear variable names
+- Use proper comments for complex logic
+- Follow consistent formatting with Prettier
+- Implement proper error handling throughout
+- Use proper TypeScript types to prevent runtime errors
+
+## Security Considerations
+- Never expose sensitive data in client-side code
+- Use environment variables for API keys and secrets
+- Implement proper authentication checks
+- Sanitize user inputs
+- Use HTTPS in production
+
+## Deployment
+- Optimize for production builds
+- Use proper environment configuration
+- Implement proper SEO and metadata
+- Consider performance monitoring and analytics
+
+## Common Patterns to Use
+- Custom hooks for reusable logic
+- Compound components for complex UI
+- Render props or children patterns where appropriate
+- Proper error boundaries
+- Loading skeleton components
+

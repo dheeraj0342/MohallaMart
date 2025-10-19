@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { User as SupabaseUser } from '@supabase/supabase-js'
 
 interface CartItem {
   id: string
@@ -10,9 +11,11 @@ interface CartItem {
 }
 
 interface User {
+  id: string
   name: string
   email: string
   phone?: string
+  avatar_url?: string
 }
 
 interface Location {
@@ -37,8 +40,11 @@ interface StoreState {
 
   // User State
   user: User | null
+  supabaseUser: SupabaseUser | null
   setUser: (user: User | null) => void
+  setSupabaseUser: (user: SupabaseUser | null) => void
   isLoggedIn: () => boolean
+  signOut: () => void
 
   // Location State
   location: Location | null
@@ -90,8 +96,11 @@ export const useStore = create<StoreState>()(
 
       // User State
       user: null,
+      supabaseUser: null,
       setUser: (user) => set({ user }),
-      isLoggedIn: () => get().user !== null,
+      setSupabaseUser: (user) => set({ supabaseUser: user }),
+      isLoggedIn: () => get().user !== null || get().supabaseUser !== null,
+      signOut: () => set({ user: null, supabaseUser: null }),
 
       // Location State
       location: null,
@@ -108,6 +117,7 @@ export const useStore = create<StoreState>()(
       partialize: (state) => ({
         cart: state.cart,
         user: state.user,
+        supabaseUser: state.supabaseUser,
         location: state.location,
       }),
     }

@@ -1,9 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Menu, X, ShoppingCart, User, MapPin, Search as SearchIcon, Clock, Percent } from 'lucide-react'
+import { Menu, X, ShoppingCart, User, MapPin, Search as SearchIcon, Clock, Percent, LogOut } from 'lucide-react'
 import { useStore } from '@/store/useStore'
+import { useAuth } from '@/hooks/useAuth'
 import LocationModal from './LocationModal'
+import SearchBar from './SearchBar'
 import CartSidebar from './CartSidebar'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
@@ -14,6 +16,7 @@ export default function Navbar() {
   const [isCartOpen, setIsCartOpen] = useState(false)
   
   const { location, getTotalItems, user, setSearchOpen, isSearchOpen } = useStore()
+  const { logout } = useAuth()
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -83,12 +86,12 @@ export default function Navbar() {
             {!useStore.getState().isSearchOpen && (
               <div className="hidden md:flex flex-1 max-w-xl mx-8">
                 <div className="relative w-full">
-                  <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 pointer-events-none" />
+                  <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500 h-5 w-5 pointer-events-none" />
                   <input
                     type="text"
                     readOnly
                     placeholder="Search for groceries, fruits, vegetables..."
-                    className="w-full pl-10 pr-24 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all cursor-pointer"
+                    className="w-full pl-10 pr-24 py-3 bg-white border-2 border-neutral-200 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand transition-all duration-200 hover:border-neutral-300 cursor-pointer"
                     onClick={() => setSearchOpen(true)}
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1 pointer-events-none">
@@ -105,15 +108,34 @@ export default function Navbar() {
             {/* Action Buttons - Desktop */}
             <div className="hidden md:flex items-center space-x-4">
               {/* User Account */}
-              <button className="flex items-center text-gray-700 hover:text-primary-brand px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                <User className="h-5 w-5 mr-2" />
-                <div className="text-left">
-                  <div className="text-xs text-gray-500">Account</div>
-                  <div className="text-sm font-medium">
-                    {user ? user.name : 'Sign In'}
+              {user ? (
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center text-gray-700 px-3 py-2 rounded-lg">
+                    <User className="h-5 w-5 mr-2" />
+                    <div className="text-left">
+                      <div className="text-xs text-gray-500">Account</div>
+                      <div className="text-sm font-medium">{user.name}</div>
+                    </div>
                   </div>
+                  <button 
+                    onClick={logout}
+                    className="flex items-center text-gray-700 hover:text-red-600 px-3 py-2 rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut className="h-5 w-5 mr-2" />
+                    <span className="text-sm">Logout</span>
+                  </button>
                 </div>
-              </button>
+              ) : (
+                <Link href="/auth">
+                  <button className="flex items-center text-gray-700 hover:text-primary-brand px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                    <User className="h-5 w-5 mr-2" />
+                    <div className="text-left">
+                      <div className="text-xs text-gray-500">Account</div>
+                      <div className="text-sm font-medium">Sign In</div>
+                    </div>
+                  </button>
+                </Link>
+              )}
 
               {/* Cart Button */}
               <button 
@@ -249,15 +271,40 @@ export default function Navbar() {
 
                   {/* Mobile User Account */}
                   <div className="border-t pt-3">
-                    <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                      <User className="h-5 w-5 mr-3 text-gray-600" />
-                      <div>
-                        <div className="text-xs text-gray-500">Account</div>
-                        <div className="text-sm font-medium text-gray-800">
-                          {user ? user.name : 'Sign In / Sign Up'}
+                    {user ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center w-full text-left p-3 bg-gray-50 rounded-lg">
+                          <User className="h-5 w-5 mr-3 text-gray-600" />
+                          <div>
+                            <div className="text-xs text-gray-500">Account</div>
+                            <div className="text-sm font-medium text-gray-800">{user.name}</div>
+                          </div>
                         </div>
+                        <button 
+                          onClick={() => {
+                            logout()
+                            setIsMenuOpen(false)
+                          }}
+                          className="flex items-center w-full text-left p-3 hover:bg-red-50 rounded-lg transition-colors text-red-600"
+                        >
+                          <LogOut className="h-5 w-5 mr-3" />
+                          <div>
+                            <div className="text-xs text-red-500">Sign Out</div>
+                            <div className="text-sm font-medium">Logout</div>
+                          </div>
+                        </button>
                       </div>
-                    </button>
+                    ) : (
+                      <Link href="/auth" onClick={() => setIsMenuOpen(false)}>
+                        <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                          <User className="h-5 w-5 mr-3 text-gray-600" />
+                          <div>
+                            <div className="text-xs text-gray-500">Account</div>
+                            <div className="text-sm font-medium text-gray-800">Sign In / Sign Up</div>
+                          </div>
+                        </button>
+                      </Link>
+                    )}
                   </div>
                 </div>
               </motion.div>

@@ -81,3 +81,29 @@ a:hover {
 button:hover {
   transition: all 0.2s ease-in-out;
 }
+
+/* Form input improvements */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+textarea {
+  transition: all 0.2s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="tel"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary-brand);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+/* Custom checkbox styling */
+input[type="checkbox"] {
+  accent-color: var(--primary-brand);
+}
