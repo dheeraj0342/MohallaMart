@@ -1,7 +1,7 @@
-# MohallaMart - Next.js Quick Commerce Platform
+# MohallaMart: A Local Shop E-Commerce Platform
 
 ## Project Overview
-MohallaMart is a modern quick-commerce marketplace platform built with Next.js 15, TypeScript, and Tailwind CSS. The application focuses on neighborhood delivery services with features like authentication, search, cart management, and responsive design.
+MohallaMart bridges the gap between digital convenience and local commerce through innovative multi-tenant architecture. Built with Next.js 15, TypeScript, and Tailwind CSS, it features authentication, search, cart management, and responsive design for neighborhood delivery services.
 
 ## Tech Stack
 - **Framework**: Next.js 15.5.3 with App Router
@@ -92,7 +92,19 @@ src/
 - **Prefer**: Built-in Next.js features and well-maintained packages
 - **Required**: Keep dependencies up to date and security-focused
 - **State**: Use Zustand over Redux for simplicity
-- **Animations**: Framer Motion for smooth interactions
+- **Animations**: Framer Motion for limited, strategic uses only
+
+## Animation Guidelines (Framer Motion)
+- **Limited Usage**: Only use Framer Motion for essential interactions, not every component
+- **Strategic Applications**: 
+  - Modal animations (slide in/out)
+  - Page transitions on route changes
+  - Important button hover/focus states
+  - Cart sidebar slide animations
+  - Loading state animations
+- **Avoid Overuse**: Don't animate every card, text, or simple hover effect
+- **Performance First**: Use CSS transitions for simple animations when possible
+- **Accessibility**: Respect `prefers-reduced-motion` user preference
 
 ## Performance Considerations
 - Use Next.js Image component for optimized images
