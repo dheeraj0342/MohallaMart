@@ -1,155 +1,90 @@
-# MohallaMart - Quick Commerce Platform Guide
+# MohallaMart - Neighborhood Marketplace
 
-A comprehensive educational website showcasing the operational functionalities of quick-commerce platforms Blinkit and Swiggy Instamart. Built with Next.js 15, TypeScript, Tailwind CSS, and Framer Motion.
+A modern quick-commerce platform built with Next.js 15, TypeScript, and Tailwind CSS. Features authentication, search, cart management, and responsive design.
 
-## 🌟 Features
+## 🚀 Quick Start
 
-### Dynamic Functionality
-- **Location Detection**: Geolocation API integration with manual city/area selection
-- **Search System**: Client-side search with trending suggestions and real-time filtering
-- **Shopping Cart**: Persistent cart with Zustand state management
-- **Responsive Design**: Mobile-first approach with hamburger menu
-- **Smooth Animations**: Framer Motion for delightful user interactions
-
-### Pages
-- **Home**: Overview of MohallaMart with key features, services, and customer approach
-
-### Components
-- **Navbar**: Sticky navigation with search, location, and cart
-- **LocationModal**: Interactive location selector with geolocation
-- **SearchBar**: Dynamic search with autocomplete
-- **CartSidebar**: Slide-in cart with quantity management
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
 ```bash
 git clone <repository-url>
 cd MohallaMart
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. Run the development server:
-```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+Open [http://localhost:3000](http://localhost:3000) to view it.
+
+## ✨ Features
+
+- **🔐 Authentication**: Supabase login/signup with email verification
+- **🔍 Smart Search**: Real-time product search with trending suggestions
+- **🛒 Shopping Cart**: Persistent cart with quantity management
+- **📍 Location**: Geolocation detection with manual selection
+- **📱 Responsive**: Mobile-first design with smooth animations
+- **🎨 Modern UI**: MohallaMart brand colors and consistent styling
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 15.5.3 (React 19)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS 4
-- **State Management**: Zustand with persistence
+- **Framework**: Next.js 15.5.3 + TypeScript
+- **Styling**: Tailwind CSS 4 with custom brand colors
+- **State**: Zustand with localStorage persistence
+- **Auth**: Supabase authentication
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
-- **Font**: Inter (Google Fonts)
 
-## 📁 Project Structure
+## 🎨 Brand Colors
+
+- **Primary**: Forest Green (#2E7D32)
+- **Secondary**: Vibrant Orange (#F97316)
+- **Accent**: Sunny Yellow (#FBBF24)
+
+## 📁 Key Files
 
 ```
-MohallaMart/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx              # Home page
-│   │   ├── layout.tsx            # Root layout
-│   │   └── globals.css           # Global styles
-│   ├── components/
-│   │   ├── Navbar.tsx            # Navigation component
-│   │   ├── LocationModal.tsx     # Location selector
-│   │   ├── SearchBar.tsx         # Search component
-│   │   └── CartSidebar.tsx       # Shopping cart
-│   └── store/
-│       └── useStore.ts           # Zustand store
-├── public/                        # Static assets
-├── tailwind.config.ts            # Tailwind configuration
-├── tsconfig.json                 # TypeScript configuration
-└── package.json                  # Dependencies
+src/
+├── app/
+│   ├── auth/page.tsx          # Authentication page
+│   └── page.tsx               # Homepage (modular components)
+├── components/
+│   ├── auth/                  # Login/signup forms
+│   ├── sections/              # Homepage sections
+│   ├── Navbar.tsx             # Navigation with auth
+│   ├── SearchBar.tsx          # Search functionality
+│   └── CartSidebar.tsx        # Shopping cart
+├── hooks/
+│   └── useAuth.ts             # Authentication hook
+├── lib/
+│   └── supabase.ts            # Supabase client
+└── store/
+    └── useStore.ts            # Global state management
 ```
 
-## 🎨 Key Implementations
+## 🔧 Setup Requirements
 
-### State Management (Zustand)
-Persistent storage for:
-- Shopping cart items
-- User information
-- Location preferences
-- Search queries
+1. **Environment Variables** (create `.env.local`):
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-### Geolocation API
-- Auto-detect user location
-- Fallback to manual selection
-- Mock reverse geocoding for demo
-
-### Search System
-- Client-side filtering
-- Trending searches
-- Category-based results
-- Real-time autocomplete
-
-### Animations
-- Page transitions
-- Card hover effects
-- Modal animations
-- Button interactions
+2. **Supabase Setup**: Follow `env.example` for configuration
 
 ## 📱 Responsive Design
 
-- **Mobile**: < 768px - Hamburger menu, stacked layouts
-- **Tablet**: 768px - 1024px - 2-column grids
-- **Desktop**: > 1024px - Full navigation, 3-column grids
+- Mobile-first approach with hamburger menu
+- Smooth animations and transitions
+- Touch-friendly interface elements
 
-## 🔧 Configuration
-
-### Tailwind Theme
-Custom MohallaMart brand colors defined in `tailwind.config.ts`:
-- Primary: Forest Green (#2E7D32) for main actions
-- Secondary: Vibrant Orange (#F97316) for CTAs
-- Accent: Sunny Yellow (#FBBF24) for highlights
-- Neutral: Gray shades for text and backgrounds
-
-### TypeScript
-Strict mode enabled for type safety across all components.
-
-## 📝 Scripts
+## 🚀 Scripts
 
 ```bash
-npm run dev      # Start development server
-npm run build    # Build for production
-npm run start    # Start production server
-npm run lint     # Run ESLint
+npm run dev      # Development server
+npm run build    # Production build
+npm run start    # Production server
+npm run lint     # ESLint
 ```
 
-## 🌐 Browser Support
+Built with ❤️ by the MohallaMart Team
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-
-## 📄 License
-
-This project is for educational purposes.
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull requests.
-
-## 📧 Contact
-
-For questions or feedback, please reach out through the contact section on the website.
-
----
-
-Built with ❤️ using Next.js and modern web technologies
+```
+Developed by [@dheeraj0342](https://github.com/dheeraj0342), [@Snehagupta00](https://github.com/Snehagupta00), [@vipinyadav01](https://github.com/vipinyadav01), [@Himanshu-Raghav](https://github.com/Himanshu-Raghav), [@mohd-ajlal](https://github.com/mohd-ajlal), and [@Yashsharma2004](https://github.com/Yashsharma2004).
+```
