@@ -1,8 +1,6 @@
-# MohallaMart - Neighborhood Marketplace
+# MohallaMart: A Local Shop E-Commerce Platform
 
-A modern quick-commerce platform built with Next.js 15, TypeScript, and Tailwind CSS. Features authentication, search, cart management, and responsive design.
-
-## 🚀 Quick Start
+Bridging the gap between digital convenience and local commerce through innovative multi-tenant architecture.
 
 ```bash
 git clone <repository-url>
