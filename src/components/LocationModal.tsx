@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { X, MapPin, Loader2, Navigation } from 'lucide-react'
 import { useStore } from '@/store/useStore'
 import { motion, AnimatePresence } from 'framer-motion'

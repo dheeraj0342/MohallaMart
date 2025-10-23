@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import SearchBar from "@/components/SearchBar";
+import ConvexProviderWrapper from "@/components/ConvexProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -14,7 +15,11 @@ export const metadata: Metadata = {
   description: "MohallaMart is your trusted neighborhood marketplace connecting communities with quality products and reliable delivery services. Fast delivery, local partnerships, and exceptional customer service.",
   keywords: ["neighborhood marketplace", "grocery delivery", "quick commerce", "local partnerships", "MohallaMart"],
   authors: [{ name: "MohallaMart Team" }],
-  viewport: "width=device-width, initial-scale=1",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -47,11 +52,13 @@ export default function RootLayout({
         className={`${inter.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
-        <Navbar />
-        <main>{children}</main>
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-2xl px-4">
-          <SearchBar />
-        </div>
+        <ConvexProviderWrapper>
+          <Navbar />
+          <main>{children}</main>
+          <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-2xl px-4">
+            <SearchBar />
+          </div>
+        </ConvexProviderWrapper>
       </body>
     </html>
   );

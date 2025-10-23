@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { User as SupabaseUser } from '@supabase/supabase-js'
+import { Id } from '../../convex/_generated/dataModel'
 
 interface CartItem {
   id: string
@@ -8,6 +9,7 @@ interface CartItem {
   price: number
   quantity: number
   image?: string
+  productId?: Id<"products">
 }
 
 interface User {
@@ -37,6 +39,7 @@ interface StoreState {
   clearCart: () => void
   getTotalItems: () => number
   getTotalPrice: () => number
+  syncCartWithConvex: (userId: string) => Promise<void>
 
   // User State
   user: User | null
@@ -45,16 +48,22 @@ interface StoreState {
   setSupabaseUser: (user: SupabaseUser | null) => void
   isLoggedIn: () => boolean
   signOut: () => void
+  syncUserWithConvex: (user: User) => Promise<void>
 
   // Location State
   location: Location | null
   setLocation: (location: Location) => void
+  syncLocationWithConvex: (userId: string, location: Location) => Promise<void>
 
   // Search State
   searchQuery: string
   setSearchQuery: (query: string) => void
   isSearchOpen: boolean
   setSearchOpen: (isOpen: boolean) => void
+
+  // Convex State
+  isConvexConnected: boolean
+  setConvexConnected: (connected: boolean) => void
 }
 
 export const useStore = create<StoreState>()(
@@ -111,6 +120,26 @@ export const useStore = create<StoreState>()(
       setSearchQuery: (query) => set({ searchQuery: query }),
       isSearchOpen: false,
       setSearchOpen: (isOpen) => set({ isSearchOpen: isOpen }),
+
+      // Convex State
+      isConvexConnected: false,
+      setConvexConnected: (connected) => set({ isConvexConnected: connected }),
+
+      // Convex Integration Methods
+      syncCartWithConvex: async (userId) => {
+        // This will be implemented with actual Convex calls
+        console.log('Syncing cart with Convex for user:', userId);
+      },
+
+      syncUserWithConvex: async (user) => {
+        // This will be implemented with actual Convex calls
+        console.log('Syncing user with Convex:', user);
+      },
+
+      syncLocationWithConvex: async (userId, location) => {
+        // This will be implemented with actual Convex calls
+        console.log('Syncing location with Convex:', userId, location);
+      },
     }),
     {
       name: 'mohallamart-storage',

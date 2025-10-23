@@ -66,7 +66,7 @@ export default function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormPro
         alert('Please check your email to confirm your account!')
         onSuccess?.()
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)

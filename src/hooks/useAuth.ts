@@ -4,7 +4,6 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useStore } from '@/store/useStore'
-import { User } from '@supabase/supabase-js'
 
 export const useAuth = () => {
   const router = useRouter()

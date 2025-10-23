@@ -33,7 +33,7 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
       } else {
         onSuccess?.()
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)
@@ -146,7 +146,7 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
         </form>
 
         <div className="mt-6 text-center">
-          <span className="text-neutral-600">Don't have an account? </span>
+          <span className="text-neutral-600">Don&apos;t have an account? </span>
           <button
             onClick={onSwitchToSignup}
             className="text-primary-brand hover:text-primary-brand-hover font-medium"

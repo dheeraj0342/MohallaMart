@@ -5,7 +5,6 @@ import { Menu, X, ShoppingCart, User, MapPin, Search as SearchIcon, Clock, Perce
 import { useStore } from '@/store/useStore'
 import { useAuth } from '@/hooks/useAuth'
 import LocationModal from './LocationModal'
-import SearchBar from './SearchBar'
 import CartSidebar from './CartSidebar'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
@@ -15,7 +14,7 @@ export default function Navbar() {
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   
-  const { location, getTotalItems, user, setSearchOpen, isSearchOpen } = useStore()
+  const { location, getTotalItems, user, setSearchOpen } = useStore()
   const { logout } = useAuth()
 
   const toggleMenu = () => {
