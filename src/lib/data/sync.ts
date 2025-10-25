@@ -337,7 +337,10 @@ export class DataSyncManager {
   static async getProduct(productId: string, useCache: boolean = true) {
     try {
       // 1. Try Redis cache first (if enabled and useCache is true)
-      // TODO: Implement Redis caching
+      if (useCache) {
+        // TODO: Implement Redis caching
+        console.log('Cache enabled for product fetch');
+      }
       
       // 2. Get from Supabase
       const { data: product, error } = await supabase
@@ -364,6 +367,9 @@ export class DataSyncManager {
   static async searchProducts(query: string, filters?: Record<string, unknown>) {
     try {
       // 1. Try Redis cache first
+      if (filters) {
+        console.log('Search filters applied:', filters);
+      }
       // TODO: Implement Redis caching for search results
       
       // 2. Search in Typesense

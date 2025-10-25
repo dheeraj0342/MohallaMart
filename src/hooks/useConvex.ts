@@ -63,31 +63,27 @@ const mockProducts: MockProduct[] = [
 // Mock hook implementations
 const useMockQuery = <T>(data: T): T | undefined => {
   const [result, setResult] = useState<T | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setResult(data);
-      setIsLoading(false);
     }, 500);
 
     return () => clearTimeout(timer);
   }, [data]);
 
-  return isLoading ? undefined : result;
+  return result;
 };
 
 const useMockMutation = (mockFn: () => Promise<unknown>) => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const mutate = async (..._args: unknown[]) => {
-    setIsLoading(true);
+  const mutate = async () => {
     try {
       const result = await mockFn();
       console.log("Mock mutation result:", result);
       return result;
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.error("Mock mutation error:", error);
+      throw error;
     }
   };
 
@@ -175,7 +171,7 @@ export const useAvailableProducts = (limit?: number) => {
 };
 
 // Cart hooks
-export const useCart = (_userId: string) => {
+export const useCart = () => {
   return useMockQuery([]);
 };
 
@@ -195,16 +191,16 @@ export const useClearCart = () => {
   return useMockMutation(async () => ({ success: true }));
 };
 
-export const useCartTotal = (_userId: string) => {
+export const useCartTotal = () => {
   return useMockQuery({ totalItems: 0, totalPrice: 0 });
 };
 
 // Order hooks
-export const useUserOrders = (_userId: string) => {
+export const useUserOrders = () => {
   return useMockQuery([]);
 };
 
-export const useOrder = (_orderId: string) => {
+export const useOrder = () => {
   return useMockQuery(null);
 };
 
@@ -228,16 +224,16 @@ export const useCancelOrder = () => {
   return useMockMutation(async () => ({ success: true }));
 };
 
-export const useOrdersByStatus = (_status: string) => {
+export const useOrdersByStatus = () => {
   return useMockQuery([]);
 };
 
 // Location hooks
-export const useUserLocations = (_userId: string) => {
+export const useUserLocations = () => {
   return useMockQuery([]);
 };
 
-export const useDefaultLocation = (_userId: string) => {
+export const useDefaultLocation = () => {
   return useMockQuery(null);
 };
 
@@ -258,11 +254,11 @@ export const useSetDefaultLocation = () => {
 };
 
 // Notification hooks
-export const useUserNotifications = (_userId: string, _unreadOnly?: boolean) => {
+export const useUserNotifications = () => {
   return useMockQuery([]);
 };
 
-export const useUnreadCount = (_userId: string) => {
+export const useUnreadCount = () => {
   return useMockQuery(0);
 };
 

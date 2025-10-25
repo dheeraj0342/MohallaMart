@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import SearchBar from "@/components/SearchBar";
 import ConvexProviderWrapper from "@/components/ConvexProvider";
 import InngestProvider from "@/components/InngestProvider";
+import TRPCProvider from "@/components/TRPCProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,15 +54,17 @@ export default function RootLayout({
         className={`${inter.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
-        <ConvexProviderWrapper>
-          <InngestProvider>
-            <Navbar />
-            <main>{children}</main>
-            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-2xl px-4">
-              <SearchBar />
-            </div>
-          </InngestProvider>
-        </ConvexProviderWrapper>
+        <TRPCProvider>
+          <ConvexProviderWrapper>
+            <InngestProvider>
+              <Navbar />
+              <main>{children}</main>
+              <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-2xl px-4">
+                <SearchBar />
+              </div>
+            </InngestProvider>
+          </ConvexProviderWrapper>
+        </TRPCProvider>
       </body>
     </html>
   );

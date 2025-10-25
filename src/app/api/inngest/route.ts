@@ -1,51 +1,42 @@
-import { serve } from "inngest/next";
-import { inngest } from "@/lib/inngest";
-import { 
-  sendWelcomeEmail,
-  sendOrderConfirmation,
-  sendOrderUpdate,
-  indexProduct,
-  cleanupExpiredSessions,
-  sendNotification,
-  trackAnalytics,
-  processOutOfStockAlert,
-  syncUserData,
-  syncProductData,
-  syncOrderData,
-  syncInventoryUpdate,
-  scheduledCleanup,
-  monitorDataSync
-} from "@/lib/inngest/functions";
+import { serveHandler } from "@/lib/inngest/serve";
+import { NextRequest, NextResponse } from "next/server";
 
-// Serve all Inngest functions
-export const { GET, POST, PUT } = serve({
-  client: inngest,
-  functions: [
-    // Email and notification functions
-    sendWelcomeEmail,
-    sendOrderConfirmation,
-    sendOrderUpdate,
-    sendNotification,
-    
-    // Search and indexing functions
-    indexProduct,
-    
-    // Data synchronization functions
-    syncUserData,
-    syncProductData,
-    syncOrderData,
-    syncInventoryUpdate,
-    
-    // Cleanup and monitoring functions
-    cleanupExpiredSessions,
-    scheduledCleanup,
-    monitorDataSync,
-    
-    // Analytics and inventory functions
-    trackAnalytics,
-    processOutOfStockAlert,
-  ],
-  streaming: "allow",
-  // Vercel deployment protection configuration
-  signingKey: process.env.INNGEST_SIGNING_KEY,
-});
+// Wrapper function to handle errors
+const handleInngestRequest = async (request: NextRequest, method: string) => {
+  try {
+    // Check if required environment variables are present
+    if (!process.env.INNGEST_SIGNING_KEY) {
+      console.error('INNGEST_SIGNING_KEY is missing');
+      return NextResponse.json(
+        { error: 'Inngest configuration error' },
+        { status: 500 }
+      );
+    }
+
+    // Get the appropriate handler method
+    const handler = serveHandler[method as keyof typeof serveHandler];
+    if (!handler) {
+      return NextResponse.json(
+        { error: 'Method not allowed' },
+        { status: 405 }
+      );
+    }
+
+    // Call the handler
+    return await handler(request, {});
+  } catch (error) {
+    console.error('Inngest API error:', error);
+    return NextResponse.json(
+      { 
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+};
+
+// Export the serve handler methods with error handling
+export const GET = (request: NextRequest) => handleInngestRequest(request, 'GET');
+export const POST = (request: NextRequest) => handleInngestRequest(request, 'POST');
+export const PUT = (request: NextRequest) => handleInngestRequest(request, 'PUT');

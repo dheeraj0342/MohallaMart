@@ -1,274 +1,112 @@
-# Inngest Configuration for MohallaMart
+# Inngest Setup Guide
 
-This document explains the Inngest configuration and setup for background job processing in the MohallaMart application.
+This guide will help you set up Inngest for the MohallaMart application to fix the 500 and 401 errors.
 
-## Overview
+## Prerequisites
 
-Inngest is configured to handle reliable background job processing for various operations like:
-- Email notifications (welcome emails, order confirmations)
-- Search indexing (products, shops)
-- Analytics tracking
-- Data cleanup tasks
-- Inventory management alerts
+1. An Inngest account at [https://app.inngest.com](https://app.inngest.com)
+2. A deployed or local development environment
 
-## Architecture
+## Step 1: Create Inngest Account and App
 
-```
-src/
-├── lib/
-│   └── inngest/
-│       ├── functions.ts    # Background job functions
-│       ├── events.ts       # Event helper functions
-│       └── inngest.ts      # Inngest client configuration
-├── app/
-│   └── api/
-│       └── inngest/
-│           └── route.ts    # API endpoint for Inngest functions
-└── components/
-    └── InngestProvider.tsx # Client-side provider
-```
+1. Go to [https://app.inngest.com](https://app.inngest.com)
+2. Sign up for a free account
+3. Create a new app called "mohallamart" (or any name you prefer)
+4. Note down your app ID
 
-## Configuration
+## Step 2: Get Your Keys
 
-### Environment Variables
+In your Inngest dashboard:
 
-Add these environment variables to your `.env.local` file:
+1. Go to **Settings** → **Keys**
+2. Copy the following values:
+   - **Event Key** (starts with `key_`)
+   - **Signing Key** (starts with `signkey_`)
 
-```env
+## Step 3: Set Environment Variables
+
+Create a `.env.local` file in your project root (if it doesn't exist) and add:
+
+```bash
 # Inngest Configuration
-INNGEST_EVENT_KEY=your_inngest_event_key
-INNGEST_SIGNING_KEY=your_inngest_signing_key
+INNGEST_EVENT_KEY=your_event_key_here
+INNGEST_SIGNING_KEY=your_signing_key_here
 INNGEST_ENV=development
+
+# For production, use:
+# INNGEST_ENV=production
 ```
 
-Get these values from your [Inngest dashboard](https://app.inngest.com).
+## Step 4: Verify Setup
 
-### Client Configuration
-
-The Inngest client is configured in `src/lib/inngest.ts` with:
-- Event schemas for type safety
-- Helper functions for sending events
-- Proper error handling
-
-## Available Events
-
-### User Events
-- `user/created` - Triggered when a new user registers
-- `user/updated` - Triggered when user information is updated
-- `user/deleted` - Triggered when a user account is deleted
-
-### Order Events
-- `order/created` - Triggered when a new order is placed
-- `order/updated` - Triggered when order status changes
-- `order/cancelled` - Triggered when an order is cancelled
-
-### Product Events
-- `product/created` - Triggered when a new product is added
-- `product/updated` - Triggered when product information is updated
-- `product/out_of_stock` - Triggered when a product goes out of stock
-
-### Notification Events
-- `notification/send` - Generic notification sending event
-
-### Analytics Events
-- `analytics/track` - Event tracking for analytics
-
-### Search Events
-- `search/index` - Product/shop indexing for search
-
-### Cleanup Events
-- `cleanup/expired_sessions` - Clean up expired user sessions
-- `cleanup/old_logs` - Clean up old log entries
-
-## Background Functions
-
-### Email Functions
-- **sendWelcomeEmail** - Sends welcome email to new users
-- **sendOrderConfirmation** - Sends order confirmation emails
-- **sendOrderUpdate** - Sends order status update notifications
-
-### Search Functions
-- **indexProduct** - Indexes products in search engine (Typesense)
-
-### Cleanup Functions
-- **cleanupExpiredSessions** - Removes expired user sessions
-- **scheduledCleanup** - Daily scheduled cleanup tasks
-
-### Notification Functions
-- **sendNotification** - Generic notification sender (email, SMS, push)
-
-### Analytics Functions
-- **trackAnalytics** - Tracks events for analytics
-
-### Inventory Functions
-- **processOutOfStockAlert** - Handles out-of-stock notifications
-
-## Usage Examples
-
-### Sending Events
-
-```typescript
-import { userEvents, orderEvents, workflows } from '@/lib/inngest/events';
-
-// Send a single event
-await userEvents.created({
-  userId: "user123",
-  email: "user@example.com",
-  name: "John Doe"
-});
-
-// Use workflow for complex operations
-await workflows.userRegistration({
-  userId: "user123",
-  email: "user@example.com",
-  name: "John Doe"
-});
-```
-
-### Creating Custom Functions
-
-```typescript
-import { inngest } from '@/lib/inngest';
-
-export const customFunction = inngest.createFunction(
-  { id: "custom-function" },
-  { event: "custom/event" },
-  async ({ event, step }) => {
-    return await step.run("process-data", async () => {
-      // Your custom logic here
-      return { success: true };
-    });
-  }
-);
-```
-
-## Development
-
-### Local Development
-
-1. Install dependencies:
-   ```bash
-   npm install inngest zod
-   ```
-
-2. Set up environment variables in `.env.local`
-
-3. Run your Next.js development server:
+1. Start your development server:
    ```bash
    npm run dev
    ```
 
-4. Inngest functions will be available at `/api/inngest`
+2. Check the console for validation messages:
+   - ✅ `Inngest configuration valid` - Everything is set up correctly
+   - ❌ `Inngest configuration invalid` - Missing required variables
 
-### Testing Functions
+## Step 5: Test Functions
 
-You can test Inngest functions locally using the Inngest CLI:
+1. Go to your Inngest dashboard
+2. Navigate to **Functions** tab
+3. You should see all your functions listed:
+   - `send-welcome-email`
+   - `send-order-confirmation`
+   - `monitor-data-sync`
+   - `scheduled-cleanup`
+   - And more...
 
+## Troubleshooting
+
+### 500 Errors
+- **Cause**: Missing environment variables or function errors
+- **Solution**: Ensure all required environment variables are set
+- **Check**: Look for validation warnings in console
+
+### 401 Errors
+- **Cause**: Invalid or missing signing key
+- **Solution**: Verify `INNGEST_SIGNING_KEY` is correct
+- **Check**: Ensure the signing key starts with `signkey_`
+
+### Function Not Appearing
+- **Cause**: Functions not properly exported or registered
+- **Solution**: Check that functions are included in the serve handler
+- **Check**: Verify function IDs are unique
+
+## Environment Variables Reference
+
+### Required Variables
 ```bash
-# Install Inngest CLI
-npm install -g inngest-cli
+INNGEST_EVENT_KEY=key_...          # Your Inngest event key
+INNGEST_SIGNING_KEY=signkey_...     # Your Inngest signing key
+```
 
-# Run local development server
-inngest-cli dev
+### Optional Variables
+```bash
+INNGEST_ENV=development             # Environment (development/production)
+INNGEST_DEPLOYMENT_PROTECTION_KEY=... # For Vercel deployment protection
 ```
 
 ## Production Deployment
 
-### Environment Setup
+For production deployment:
 
-1. Create an Inngest account at [app.inngest.com](https://app.inngest.com)
-2. Create a new app in your Inngest dashboard
-3. Get your event key and signing key
-4. Set environment variables in your production environment
-
-### Deployment Considerations
-
-- Ensure your application supports long-running servers (not serverless)
-- Set up proper monitoring and alerting for failed jobs
-- Configure retry policies for critical functions
-- Monitor function performance and optimize as needed
+1. Set `INNGEST_ENV=production`
+2. Ensure all environment variables are set in your deployment platform
+3. Verify functions are registered in the Inngest dashboard
+4. Monitor function execution in the Inngest dashboard
 
 ## Monitoring
 
-### Inngest Dashboard
+- **Dashboard**: [https://app.inngest.com](https://app.inngest.com)
+- **Function Logs**: Available in the Inngest dashboard
+- **Error Tracking**: Built-in error reporting and retry logic
 
-Monitor your functions in the Inngest dashboard:
-- Function execution status
-- Error rates and logs
-- Performance metrics
-- Event history
+## Support
 
-### Error Handling
-
-All functions include proper error handling:
-- Automatic retries with exponential backoff
-- Error logging and monitoring
-- Graceful failure handling
-
-## Best Practices
-
-1. **Event Naming**: Use consistent naming conventions (e.g., `entity/action`)
-2. **Type Safety**: Always define event schemas with Zod
-3. **Error Handling**: Implement proper error handling in all functions
-4. **Monitoring**: Set up monitoring and alerting for critical functions
-5. **Testing**: Test functions thoroughly before deployment
-6. **Documentation**: Document all custom events and functions
-
-## Integration Points
-
-### Email Services
-- Integrate with SendGrid, Resend, or your preferred email service
-- Update the email functions in `functions.ts`
-
-### Search Services
-- Integrate with Typesense for product indexing
-- Update the search indexing functions
-
-### Analytics Services
-- Integrate with Mixpanel, Amplitude, or Google Analytics
-- Update the analytics tracking functions
-
-### Notification Services
-- Integrate with OneSignal for push notifications
-- Integrate with Twilio for SMS notifications
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Function not triggering**: Check event names and schemas
-2. **Environment variables**: Ensure all required env vars are set
-3. **Network issues**: Check firewall and network configuration
-4. **Function timeouts**: Optimize function performance or increase timeout
-
-### Debug Mode
-
-Enable debug mode in development:
-```typescript
-const inngest = new Inngest({
-  id: "mohallamart",
-  isDev: process.env.NODE_ENV === "development",
-});
-```
-
-## Security
-
-- Never expose signing keys in client-side code
-- Use proper authentication for API endpoints
-- Validate all event data with schemas
-- Implement rate limiting for event sending
-
-## Performance
-
-- Use step functions for long-running operations
-- Implement proper caching strategies
-- Monitor function execution times
-- Optimize database queries in functions
-
-## Future Enhancements
-
-- Add more sophisticated retry policies
-- Implement function versioning
-- Add more comprehensive monitoring
-- Create function templates for common patterns
-- Add automated testing for functions
+- **Documentation**: [https://www.inngest.com/docs](https://www.inngest.com/docs)
+- **Community**: [https://discord.gg/inngest](https://discord.gg/inngest)
+- **GitHub**: [https://github.com/inngest/inngest](https://github.com/inngest/inngest)

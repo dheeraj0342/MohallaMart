@@ -2,7 +2,7 @@ import { Inngest } from "inngest";
 import { z } from "zod";
 
 // Define event schemas for type safety
-const eventSchemas = {
+export const eventSchemas = {
   // User events
   "user/created": z.object({
     userId: z.string(),
@@ -102,10 +102,33 @@ const eventSchemas = {
   }),
 } as const;
 
+// Validate required environment variables
+const validateInngestConfig = () => {
+  const requiredEnvVars = {
+    INNGEST_EVENT_KEY: process.env.INNGEST_EVENT_KEY,
+    INNGEST_SIGNING_KEY: process.env.INNGEST_SIGNING_KEY,
+  };
+
+  const missingVars = Object.entries(requiredEnvVars)
+    .filter(([, value]) => !value)
+    .map(([key]) => key);
+
+  if (missingVars.length > 0) {
+    console.warn(`Missing Inngest environment variables: ${missingVars.join(', ')}`);
+    console.warn('Inngest functions may not work properly without these variables');
+  }
+
+  return missingVars.length === 0;
+};
+
+// Validate configuration on import
+validateInngestConfig();
+
 // Create Inngest client
 export const inngest = new Inngest({
   id: "mohallamart",
   eventKey: process.env.INNGEST_EVENT_KEY,
+  isDev: process.env.NODE_ENV === "development",
 });
 
 // Export event types for use in functions

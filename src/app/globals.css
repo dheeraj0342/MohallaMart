@@ -2,14 +2,17 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #111827;
-  --primary-brand: #2E7D32;
-  --primary-hover: #1B5E20;
-  --secondary-brand: #F97316;
-  --secondary-hover: #EA580C;
-  --accent-brand: #FBBF24;
-  --neutral-light: #F3F4F6;
-  --neutral-dark: #1F2937;
+  --foreground: #1a1a1a;
+  --primary-brand: #1e40af;
+  --primary-hover: #1e3a8a;
+  --secondary-brand: #64748b;
+  --secondary-hover: #475569;
+  --accent-brand: #0f172a;
+  --neutral-light: #f8fafc;
+  --neutral-dark: #0f172a;
+  --success: #059669;
+  --warning: #d97706;
+  --error: #dc2626;
 }
 
 @theme inline {
@@ -23,8 +26,10 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1F2937;
-    --foreground: #F3F4F6;
+    --background: #0f172a;
+    --foreground: #f1f5f9;
+    --neutral-light: #1e293b;
+    --neutral-dark: #f1f5f9;
   }
 }
 
@@ -100,7 +105,7 @@ input[type="number"]:focus,
 textarea:focus {
   outline: none;
   border-color: var(--primary-brand);
-  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
 }
 
 /* Custom checkbox styling */
