@@ -3,13 +3,38 @@
 :root {
   --background: #ffffff;
   --foreground: #1a1a1a;
-  --primary-brand: #1e40af;
-  --primary-hover: #1e3a8a;
-  --secondary-brand: #64748b;
-  --secondary-hover: #475569;
-  --accent-brand: #0f172a;
+  
+  /* MohallaMart Brand Colors */
+  --color-primary: #2E7D32;        /* Forest Green - Main actions */
+  --color-primary-hover: #1B5E20;  /* Darker green for hover */
+  --color-secondary: #F97316;      /* Vibrant Orange - CTAs */
+  --color-secondary-hover: #EA580C; /* Darker orange for hover */
+  --color-accent: #FBBF24;         /* Sunny Yellow - Highlights */
+  --color-accent-hover: #F59E0B;   /* Darker yellow for hover */
+  
+  /* Legacy support - map to new colors */
+  --primary-brand: var(--color-primary);
+  --primary-hover: var(--color-primary-hover);
+  --secondary-brand: var(--color-secondary);
+  --secondary-hover: var(--color-secondary-hover);
+  --accent-brand: var(--color-accent);
+  
+  /* Neutral colors */
+  --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-300: #d1d5db;
+  --neutral-400: #9ca3af;
+  --neutral-500: #6b7280;
+  --neutral-600: #4b5563;
+  --neutral-700: #374151;
+  --neutral-800: #1f2937;
+  --neutral-900: #111827;
+  
   --neutral-light: #f8fafc;
   --neutral-dark: #0f172a;
+  
+  /* Status colors */
   --success: #059669;
   --warning: #d97706;
   --error: #dc2626;
