@@ -2,6 +2,7 @@
 // Only import Redis on server-side
 let Redis: typeof import('ioredis').default | undefined;
 if (typeof window === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   Redis = require('ioredis').default;
 }
 
@@ -15,8 +16,11 @@ export interface RedisConfig {
   lazyConnect: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RedisClient = any;
+
 class RedisService {
-  private client: any;
+  private client: RedisClient;
   private config: RedisConfig;
 
   constructor() {

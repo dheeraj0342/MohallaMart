@@ -17,6 +17,11 @@
   --color-error: #DC2626;          /* Red - Errors */
   --color-info: #0284C7;           /* Sky Blue - Information */
   
+  /* Error/Alert backgrounds and borders */
+  --error-bg: #FEF2F2;            /* Light red background for errors */
+  --error-border: #FECACA;        /* Light red border for errors */
+  --error-text: #DC2626;          /* Red text for errors */
+  
   /* Legacy support - map to new colors */
   --primary-brand: var(--color-primary);
   --primary-hover: var(--color-primary-hover);
@@ -51,6 +56,9 @@
   --color-primary-brand: var(--primary-brand);
   --color-secondary-brand: var(--secondary-brand);
   --color-accent-brand: var(--accent-brand);
+  --color-error-bg: var(--error-bg);
+  --color-error-border: var(--error-border);
+  --color-error-text: var(--error-text);
   --font-sans: var(--font-inter);
 }
 

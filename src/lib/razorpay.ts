@@ -85,6 +85,7 @@ class RazorpayService {
 
   // Verify payment signature
   verifyPayment(razorpayOrderId: string, razorpayPaymentId: string, razorpaySignature: string): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const crypto = require('crypto');
     const expectedSignature = crypto
       .createHmac('sha256', this.config.key_secret)

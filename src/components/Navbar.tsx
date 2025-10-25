@@ -31,7 +31,7 @@ export default function Navbar() {
   return (
     <>
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-green-600 to-orange-500 text-white py-2 text-center text-sm">
+      <div className="bg-linear-to-r from-primary-brand to-secondary-brand text-white py-2 text-center text-sm">
         <div className="flex items-center justify-center space-x-6">
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1" />
@@ -50,13 +50,13 @@ export default function Navbar() {
           <div className="flex justify-between items-center py-3">
             {/* Logo & Location */}
             <div className="flex items-center space-x-4">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Link href="/">
                   <div className="flex items-center cursor-pointer group">
                     <div className="text-3xl mr-2">🛒</div>
                     <div>
-                      <h1 className="text-xl font-bold text-primary-brand group-hover:text-green-700 transition-colors">
-                        Mohalla<span className="text-orange-500">Mart</span>
+                      <h1 className="text-xl font-bold text-primary-brand group-hover:text-primary-hover transition-colors">
+                        Mohalla<span className="text-secondary-brand">Mart</span>
                       </h1>
                       <p className="text-xs text-gray-500 -mt-1">Groceries in minutes</p>
                     </div>
@@ -139,7 +139,7 @@ export default function Navbar() {
               {/* Cart Button */}
               <button 
                 onClick={() => setIsCartOpen(true)}
-                className="bg-primary-brand text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors flex items-center relative shadow-sm hover:shadow-md"
+                className="bg-primary-brand text-white px-6 py-3 rounded-xl hover:bg-primary-hover transition-colors flex items-center relative shadow-sm hover:shadow-md"
               >
                 <ShoppingCart className="h-5 w-5 mr-2" />
                 <div className="text-left">
@@ -152,7 +152,7 @@ export default function Navbar() {
                   <motion.span 
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg"
+                    className="absolute -top-2 -right-2 bg-secondary-brand text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg"
                   >
                     {getTotalItems()}
                   </motion.span>
@@ -181,7 +181,7 @@ export default function Navbar() {
                   <motion.span 
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
+                    className="absolute -top-1 -right-1 bg-secondary-brand text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
                   >
                     {getTotalItems()}
                   </motion.span>
