@@ -1,16 +1,21 @@
 @import "tailwindcss";
-
 :root {
   --background: #ffffff;
   --foreground: #1a1a1a;
   
-  /* MohallaMart Brand Colors */
-  --color-primary: #2E7D32;        /* Forest Green - Main actions */
-  --color-primary-hover: #1B5E20;  /* Darker green for hover */
-  --color-secondary: #F97316;      /* Vibrant Orange - CTAs */
-  --color-secondary-hover: #EA580C; /* Darker orange for hover */
-  --color-accent: #FBBF24;         /* Sunny Yellow - Highlights */
-  --color-accent-hover: #F59E0B;   /* Darker yellow for hover */
+  /* Local Commerce Platform Brand Colors */
+  --color-primary: #0F766E;        /* Deep Teal - Trust & Local Connection */
+  --color-primary-hover: #0D4F4A;  /* Darker teal for hover */
+  --color-secondary: #DC2626;      /* Vibrant Red - Urgency & CTAs */
+  --color-secondary-hover: #991B1B; /* Darker red for hover */
+  --color-accent: #F59E0B;         /* Warm Amber - Local warmth & highlights */
+  --color-accent-hover: #D97706;   /* Darker amber for hover */
+  
+  /* Supporting colors for marketplace feel */
+  --color-success: #059669;        /* Emerald - Transaction success */
+  --color-warning: #EA580C;        /* Orange - Alerts & caution */
+  --color-error: #DC2626;          /* Red - Errors */
+  --color-info: #0284C7;           /* Sky Blue - Information */
   
   /* Legacy support - map to new colors */
   --primary-brand: var(--color-primary);
@@ -19,7 +24,7 @@
   --secondary-hover: var(--color-secondary-hover);
   --accent-brand: var(--color-accent);
   
-  /* Neutral colors */
+  /* Neutral colors - refined grays */
   --neutral-50: #f9fafb;
   --neutral-100: #f3f4f6;
   --neutral-200: #e5e7eb;
@@ -34,10 +39,10 @@
   --neutral-light: #f8fafc;
   --neutral-dark: #0f172a;
   
-  /* Status colors */
-  --success: #059669;
-  --warning: #d97706;
-  --error: #dc2626;
+  /* Contextual colors for local commerce */
+  --color-merchant: #7C3AED;       /* Purple - Seller/Merchant actions */
+  --color-customer: #0F766E;       /* Teal - Customer actions */
+  --color-transaction: #059669;    /* Emerald - Payment/Transaction success */
 }
 
 @theme inline {
@@ -85,7 +90,7 @@ html {
   background: var(--primary-hover);
 }
 
-/* Additional MohallaMart brand styling */
+/* Local commerce platform styling */
 ::selection {
   background-color: var(--accent-brand);
   color: var(--neutral-dark);
@@ -130,10 +135,25 @@ input[type="number"]:focus,
 textarea:focus {
   outline: none;
   border-color: var(--primary-brand);
-  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
 }
 
 /* Custom checkbox styling */
 input[type="checkbox"] {
   accent-color: var(--primary-brand);
+}
+
+/* Merchant vs Customer differentiation */
+.merchant-action {
+  color: var(--color-merchant);
+  border-color: var(--color-merchant);
+}
+
+.customer-action {
+  color: var(--color-customer);
+  border-color: var(--color-customer);
+}
+
+.transaction-success {
+  color: var(--color-transaction);
 }
