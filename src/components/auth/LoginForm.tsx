@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase, getEmailRedirectUrl } from '@/lib/supabase'
 import { Eye, EyeOff, Mail, Lock, Loader2, ShoppingBag, Truck, Shield, Clock } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
@@ -38,6 +38,28 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError('Please enter your email address first')
+      return
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${getEmailRedirectUrl()}?next=/auth/reset-password`,
+      })
+
+      if (error) {
+        setError(error.message)
+      } else {
+        setError('')
+        alert('Password reset link sent! Please check your email.')
+      }
+    } catch {
+      setError('Failed to send reset email')
     }
   }
 
@@ -187,6 +209,7 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
                   </label>
                   <button
                     type="button"
+                    onClick={handleForgotPassword}
                     className="text-xs text-primary-brand hover:text-primary-hover font-medium"
                   >
                     Forgot?

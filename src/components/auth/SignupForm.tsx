@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase, getEmailRedirectUrl } from '@/lib/supabase'
 import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, ShoppingBag, Percent, Gift, Star } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
@@ -52,6 +52,7 @@ export default function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormPro
         email: formData.email,
         password: formData.password,
         options: {
+          emailRedirectTo: getEmailRedirectUrl(),
           data: {
             full_name: formData.fullName,
             phone: formData.phone,
@@ -64,7 +65,7 @@ export default function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormPro
       } else {
         setError('')
         // Show success message
-        alert('Please check your email to confirm your account!')
+        alert('Success! Please check your email to confirm your account. Check your spam folder if you don\'t see it.')
         onSuccess?.()
       }
     } catch {
