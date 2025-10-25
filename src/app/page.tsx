@@ -7,7 +7,6 @@ import {
   ServicesSection,
   CTASection,
   AboutSection,
-  Footer
 } from '@/components/sections'
 
 export default function HomePage() {
@@ -19,7 +18,6 @@ export default function HomePage() {
       <ServicesSection />
       <CTASection />
       <AboutSection />
-      <Footer />
     </div>
   )
 }
