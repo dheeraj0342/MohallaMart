@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import React, { ReactNode } from "react";
 import { ConvexProvider as ConvexProviderBase } from "convex/react";
@@ -17,11 +17,13 @@ if (convexUrl) {
   try {
     convex = new ConvexReactClient(convexUrl);
   } catch (error) {
-    console.warn('Failed to initialize Convex client:', error);
+    console.warn("Failed to initialize Convex client:", error);
   }
 }
 
-export default function ConvexProviderWrapper({ children }: ConvexProviderWrapperProps) {
+export default function ConvexProviderWrapper({
+  children,
+}: ConvexProviderWrapperProps) {
   const { setConvexConnected } = useStore();
 
   // If Convex client is not available (e.g., during build), render children without provider
@@ -38,7 +40,11 @@ export default function ConvexProviderWrapper({ children }: ConvexProviderWrappe
 }
 
 // Component to handle Convex connection status
-function ConvexConnectionHandler({ onConnectionChange }: { onConnectionChange: (connected: boolean) => void }) {
+function ConvexConnectionHandler({
+  onConnectionChange,
+}: {
+  onConnectionChange: (connected: boolean) => void;
+}) {
   // This will be implemented with actual Convex connection monitoring
   // For now, we'll assume connection is successful
   React.useEffect(() => {

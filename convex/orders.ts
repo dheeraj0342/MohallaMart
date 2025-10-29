@@ -6,13 +6,15 @@ export const createOrder = mutation({
   args: {
     user_id: v.id("users"),
     shop_id: v.id("shops"),
-    items: v.array(v.object({
-      product_id: v.id("products"),
-      name: v.string(),
-      price: v.number(),
-      quantity: v.number(),
-      total_price: v.number(),
-    })),
+    items: v.array(
+      v.object({
+        product_id: v.id("products"),
+        name: v.string(),
+        price: v.number(),
+        quantity: v.number(),
+        total_price: v.number(),
+      }),
+    ),
     subtotal: v.number(),
     delivery_fee: v.number(),
     tax: v.number(),
@@ -22,10 +24,12 @@ export const createOrder = mutation({
       city: v.string(),
       pincode: v.string(),
       state: v.string(),
-      coordinates: v.optional(v.object({
-        lat: v.number(),
-        lng: v.number(),
-      })),
+      coordinates: v.optional(
+        v.object({
+          lat: v.number(),
+          lng: v.number(),
+        }),
+      ),
     }),
     payment_method: v.string(),
     notes: v.optional(v.string()),
@@ -80,14 +84,16 @@ export const getOrder = query({
 export const getOrdersByUser = query({
   args: {
     user_id: v.id("users"),
-    status: v.optional(v.union(
-      v.literal("pending"),
-      v.literal("confirmed"),
-      v.literal("preparing"),
-      v.literal("out_for_delivery"),
-      v.literal("delivered"),
-      v.literal("cancelled")
-    )),
+    status: v.optional(
+      v.union(
+        v.literal("pending"),
+        v.literal("confirmed"),
+        v.literal("preparing"),
+        v.literal("out_for_delivery"),
+        v.literal("delivered"),
+        v.literal("cancelled"),
+      ),
+    ),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -99,9 +105,7 @@ export const getOrdersByUser = query({
       query = query.filter((q) => q.eq(q.field("status"), args.status));
     }
 
-    const orders = await query
-      .order("desc")
-      .collect();
+    const orders = await query.order("desc").collect();
 
     if (args.limit) {
       return orders.slice(0, args.limit);
@@ -115,14 +119,16 @@ export const getOrdersByUser = query({
 export const getOrdersByShop = query({
   args: {
     shop_id: v.id("shops"),
-    status: v.optional(v.union(
-      v.literal("pending"),
-      v.literal("confirmed"),
-      v.literal("preparing"),
-      v.literal("out_for_delivery"),
-      v.literal("delivered"),
-      v.literal("cancelled")
-    )),
+    status: v.optional(
+      v.union(
+        v.literal("pending"),
+        v.literal("confirmed"),
+        v.literal("preparing"),
+        v.literal("out_for_delivery"),
+        v.literal("delivered"),
+        v.literal("cancelled"),
+      ),
+    ),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -134,9 +140,7 @@ export const getOrdersByShop = query({
       query = query.filter((q) => q.eq(q.field("status"), args.status));
     }
 
-    const orders = await query
-      .order("desc")
-      .collect();
+    const orders = await query.order("desc").collect();
 
     if (args.limit) {
       return orders.slice(0, args.limit);
@@ -156,7 +160,7 @@ export const updateOrderStatus = mutation({
       v.literal("preparing"),
       v.literal("out_for_delivery"),
       v.literal("delivered"),
-      v.literal("cancelled")
+      v.literal("cancelled"),
     ),
     delivery_time: v.optional(v.string()),
   },
@@ -184,7 +188,7 @@ export const updatePaymentStatus = mutation({
       v.literal("pending"),
       v.literal("paid"),
       v.literal("failed"),
-      v.literal("refunded")
+      v.literal("refunded"),
     ),
   },
   handler: async (ctx, args) => {
@@ -220,7 +224,9 @@ export const cancelOrder = mutation({
 
     await ctx.db.patch(args.id, {
       status: "cancelled",
-      notes: args.reason ? `${order.notes || ""}\nCancellation reason: ${args.reason}` : order.notes,
+      notes: args.reason
+        ? `${order.notes || ""}\nCancellation reason: ${args.reason}`
+        : order.notes,
       updated_at: Date.now(),
     });
 
@@ -245,7 +251,7 @@ export const getOrderItems = query({
           ...item,
           product,
         };
-      })
+      }),
     );
 
     return itemsWithProducts;
@@ -265,32 +271,43 @@ export const getOrderStats = query({
 
     // Filter by user
     if (args.user_id) {
-      orders = orders.filter(order => order.user_id === args.user_id);
+      orders = orders.filter((order) => order.user_id === args.user_id);
     }
 
     // Filter by shop
     if (args.shop_id) {
-      orders = orders.filter(order => order.shop_id === args.shop_id);
+      orders = orders.filter((order) => order.shop_id === args.shop_id);
     }
 
     // Filter by date range
     if (args.start_date) {
-      orders = orders.filter(order => order.created_at >= args.start_date!);
+      orders = orders.filter((order) => order.created_at >= args.start_date!);
     }
     if (args.end_date) {
-      orders = orders.filter(order => order.created_at <= args.end_date!);
+      orders = orders.filter((order) => order.created_at <= args.end_date!);
     }
 
     const stats = {
       total_orders: orders.length,
       total_revenue: orders.reduce((sum, order) => sum + order.total_amount, 0),
-      pending_orders: orders.filter(order => order.status === "pending").length,
-      confirmed_orders: orders.filter(order => order.status === "confirmed").length,
-      preparing_orders: orders.filter(order => order.status === "preparing").length,
-      out_for_delivery_orders: orders.filter(order => order.status === "out_for_delivery").length,
-      delivered_orders: orders.filter(order => order.status === "delivered").length,
-      cancelled_orders: orders.filter(order => order.status === "cancelled").length,
-      average_order_value: orders.length > 0 ? orders.reduce((sum, order) => sum + order.total_amount, 0) / orders.length : 0,
+      pending_orders: orders.filter((order) => order.status === "pending")
+        .length,
+      confirmed_orders: orders.filter((order) => order.status === "confirmed")
+        .length,
+      preparing_orders: orders.filter((order) => order.status === "preparing")
+        .length,
+      out_for_delivery_orders: orders.filter(
+        (order) => order.status === "out_for_delivery",
+      ).length,
+      delivered_orders: orders.filter((order) => order.status === "delivered")
+        .length,
+      cancelled_orders: orders.filter((order) => order.status === "cancelled")
+        .length,
+      average_order_value:
+        orders.length > 0
+          ? orders.reduce((sum, order) => sum + order.total_amount, 0) /
+            orders.length
+          : 0,
     };
 
     return stats;
@@ -320,10 +337,7 @@ export const getRecentOrders = query({
         .order("desc")
         .collect();
     } else {
-      orders = await ctx.db
-        .query("orders")
-        .order("desc")
-        .collect();
+      orders = await ctx.db.query("orders").order("desc").collect();
     }
 
     if (args.limit) {

@@ -24,11 +24,13 @@ export const eventSchemas = {
   "order/created": z.object({
     orderId: z.string(),
     userId: z.string(),
-    items: z.array(z.object({
-      productId: z.string(),
-      quantity: z.number(),
-      price: z.number(),
-    })),
+    items: z.array(
+      z.object({
+        productId: z.string(),
+        quantity: z.number(),
+        price: z.number(),
+      }),
+    ),
     totalAmount: z.number(),
     deliveryAddress: z.object({
       street: z.string(),
@@ -39,7 +41,14 @@ export const eventSchemas = {
   }),
   "order/updated": z.object({
     orderId: z.string(),
-    status: z.enum(["pending", "confirmed", "preparing", "out_for_delivery", "delivered", "cancelled"]),
+    status: z.enum([
+      "pending",
+      "confirmed",
+      "preparing",
+      "out_for_delivery",
+      "delivered",
+      "cancelled",
+    ]),
     updatedBy: z.string(),
   }),
   "order/cancelled": z.object({
@@ -86,6 +95,19 @@ export const eventSchemas = {
     timestamp: z.string().optional(),
   }),
 
+  // Shopkeeper workflow events
+  "shopkeeper/applied": z.object({
+    userId: z.string(),
+    email: z.string().email().optional(),
+    name: z.string().optional(),
+    appliedAt: z.string().optional(),
+  }),
+  "shopkeeper/approved": z.object({
+    userId: z.string(),
+    approvedBy: z.string().optional(),
+    approvedAt: z.string().optional(),
+  }),
+
   // Search events
   "search/index": z.object({
     type: z.enum(["product", "shop", "user"]),
@@ -114,8 +136,12 @@ const validateInngestConfig = () => {
     .map(([key]) => key);
 
   if (missingVars.length > 0) {
-    console.warn(`Missing Inngest environment variables: ${missingVars.join(', ')}`);
-    console.warn('Inngest functions may not work properly without these variables');
+    console.warn(
+      `Missing Inngest environment variables: ${missingVars.join(", ")}`,
+    );
+    console.warn(
+      "Inngest functions may not work properly without these variables",
+    );
   }
 
   return missingVars.length === 0;
@@ -133,13 +159,13 @@ export const inngest = new Inngest({
 
 // Export event types for use in functions
 export type InngestEvents = {
-  [K in keyof typeof eventSchemas]: z.infer<typeof eventSchemas[K]>;
+  [K in keyof typeof eventSchemas]: z.infer<(typeof eventSchemas)[K]>;
 };
 
 // Helper function to send events with proper typing
 export const sendEvent = async <T extends keyof InngestEvents>(
   eventName: T,
-  data: InngestEvents[T]
+  data: InngestEvents[T],
 ) => {
   return await inngest.send({
     name: eventName,
@@ -148,6 +174,8 @@ export const sendEvent = async <T extends keyof InngestEvents>(
 };
 
 // Helper function to send multiple events
-export const sendEvents = async (events: Array<{ name: string; data: Record<string, unknown> }>) => {
+export const sendEvents = async (
+  events: Array<{ name: string; data: Record<string, unknown> }>,
+) => {
   return await inngest.send(events);
 };

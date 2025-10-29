@@ -15,8 +15,15 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "MohallaMart - Your Trusted Neighborhood Marketplace",
-  description: "MohallaMart is your trusted neighborhood marketplace connecting communities with quality products and reliable delivery services. Fast delivery, local partnerships, and exceptional customer service.",
-  keywords: ["neighborhood marketplace", "grocery delivery", "quick commerce", "local partnerships", "MohallaMart"],
+  description:
+    "MohallaMart is your trusted neighborhood marketplace connecting communities with quality products and reliable delivery services. Fast delivery, local partnerships, and exceptional customer service.",
+  keywords: [
+    "neighborhood marketplace",
+    "grocery delivery",
+    "quick commerce",
+    "local partnerships",
+    "MohallaMart",
+  ],
   authors: [{ name: "MohallaMart Team" }],
 };
 
@@ -51,7 +58,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body 
+      <body
         className={`${inter.variable} font-sans antialiased`}
         suppressHydrationWarning
       >

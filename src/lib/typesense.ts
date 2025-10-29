@@ -1,5 +1,5 @@
 // Typesense configuration and utilities
-import { Client as TypesenseClient } from 'typesense';
+import { Client as TypesenseClient } from "typesense";
 
 export interface TypesenseConfig {
   nodes: Array<{
@@ -42,17 +42,19 @@ class TypesenseService {
     this.config = {
       nodes: [
         {
-          host: process.env.TYPESENSE_HOST || 'localhost',
-          port: parseInt(process.env.TYPESENSE_PORT || '8108'),
-          protocol: 'http',
+          host: process.env.TYPESENSE_HOST || "localhost",
+          port: parseInt(process.env.TYPESENSE_PORT || "8108"),
+          protocol: "http",
         },
       ],
-      apiKey: process.env.TYPESENSE_API_KEY || '',
+      apiKey: process.env.TYPESENSE_API_KEY || "",
       connectionTimeoutSeconds: 2,
     };
 
     if (!this.config.apiKey) {
-      console.warn('Typesense API key is not set. Please set TYPESENSE_API_KEY environment variable.');
+      console.warn(
+        "Typesense API key is not set. Please set TYPESENSE_API_KEY environment variable.",
+      );
     }
 
     this.client = new TypesenseClient(this.config);
@@ -68,15 +70,19 @@ class TypesenseService {
         sort_by: params.sort_by,
         per_page: params.per_page || 20,
         page: params.page || 1,
-        highlight_full_fields: params.highlight_full_fields || 'name,description',
+        highlight_full_fields:
+          params.highlight_full_fields || "name,description",
         snippet_threshold: params.snippet_threshold || 30,
         num_typos: params.num_typos || 2,
       };
 
-      const result = await this.client.collections('products').documents().search(searchParams);
+      const result = await this.client
+        .collections("products")
+        .documents()
+        .search(searchParams);
       return result as SearchResult;
     } catch (error) {
-      console.error('Error searching products:', error);
+      console.error("Error searching products:", error);
       throw error;
     }
   }
@@ -91,15 +97,19 @@ class TypesenseService {
         sort_by: params.sort_by,
         per_page: params.per_page || 20,
         page: params.page || 1,
-        highlight_full_fields: params.highlight_full_fields || 'name,description',
+        highlight_full_fields:
+          params.highlight_full_fields || "name,description",
         snippet_threshold: params.snippet_threshold || 30,
         num_typos: params.num_typos || 2,
       };
 
-      const result = await this.client.collections('shops').documents().search(searchParams);
+      const result = await this.client
+        .collections("shops")
+        .documents()
+        .search(searchParams);
       return result as SearchResult;
     } catch (error) {
-      console.error('Error searching shops:', error);
+      console.error("Error searching shops:", error);
       throw error;
     }
   }
@@ -107,9 +117,12 @@ class TypesenseService {
   // Index a product
   async indexProduct(product: Record<string, unknown>): Promise<unknown> {
     try {
-      return await this.client.collections('products').documents().create(product);
+      return await this.client
+        .collections("products")
+        .documents()
+        .create(product);
     } catch (error) {
-      console.error('Error indexing product:', error);
+      console.error("Error indexing product:", error);
       throw error;
     }
   }
@@ -117,29 +130,38 @@ class TypesenseService {
   // Index a shop
   async indexShop(shop: Record<string, unknown>): Promise<unknown> {
     try {
-      return await this.client.collections('shops').documents().create(shop);
+      return await this.client.collections("shops").documents().create(shop);
     } catch (error) {
-      console.error('Error indexing shop:', error);
+      console.error("Error indexing shop:", error);
       throw error;
     }
   }
 
   // Update a product
-  async updateProduct(id: string, product: Record<string, unknown>): Promise<unknown> {
+  async updateProduct(
+    id: string,
+    product: Record<string, unknown>,
+  ): Promise<unknown> {
     try {
-      return await this.client.collections('products').documents(id).update(product);
+      return await this.client
+        .collections("products")
+        .documents(id)
+        .update(product);
     } catch (error) {
-      console.error('Error updating product:', error);
+      console.error("Error updating product:", error);
       throw error;
     }
   }
 
   // Update a shop
-  async updateShop(id: string, shop: Record<string, unknown>): Promise<unknown> {
+  async updateShop(
+    id: string,
+    shop: Record<string, unknown>,
+  ): Promise<unknown> {
     try {
-      return await this.client.collections('shops').documents(id).update(shop);
+      return await this.client.collections("shops").documents(id).update(shop);
     } catch (error) {
-      console.error('Error updating shop:', error);
+      console.error("Error updating shop:", error);
       throw error;
     }
   }
@@ -147,9 +169,9 @@ class TypesenseService {
   // Delete a product
   async deleteProduct(id: string): Promise<unknown> {
     try {
-      return await this.client.collections('products').documents(id).delete();
+      return await this.client.collections("products").documents(id).delete();
     } catch (error) {
-      console.error('Error deleting product:', error);
+      console.error("Error deleting product:", error);
       throw error;
     }
   }
@@ -157,31 +179,37 @@ class TypesenseService {
   // Delete a shop
   async deleteShop(id: string): Promise<unknown> {
     try {
-      return await this.client.collections('shops').documents(id).delete();
+      return await this.client.collections("shops").documents(id).delete();
     } catch (error) {
-      console.error('Error deleting shop:', error);
+      console.error("Error deleting shop:", error);
       throw error;
     }
   }
 
   // Get search suggestions
-  async getSearchSuggestions(query: string, limit: number = 5): Promise<string[]> {
+  async getSearchSuggestions(
+    query: string,
+    limit: number = 5,
+  ): Promise<string[]> {
     try {
       const searchParams = {
         q: query,
-        query_by: 'name,description',
+        query_by: "name,description",
         per_page: limit,
         page: 1,
-        highlight_full_fields: 'name',
+        highlight_full_fields: "name",
         snippet_threshold: 20,
         num_typos: 1,
       };
 
-      const results = await this.client.collections('products').documents().search(searchParams) as SearchResult;
-      
-      return results.hits.map(hit => hit.document.name as string);
+      const results = (await this.client
+        .collections("products")
+        .documents()
+        .search(searchParams)) as SearchResult;
+
+      return results.hits.map((hit) => hit.document.name as string);
     } catch (error) {
-      console.error('Error getting search suggestions:', error);
+      console.error("Error getting search suggestions:", error);
       return [];
     }
   }
@@ -192,19 +220,19 @@ class TypesenseService {
       // This would typically be implemented with analytics data
       // For now, return some sample popular searches
       return [
-        'milk',
-        'bread',
-        'eggs',
-        'rice',
-        'vegetables',
-        'fruits',
-        'snacks',
-        'beverages',
-        'dairy',
-        'groceries'
+        "milk",
+        "bread",
+        "eggs",
+        "rice",
+        "vegetables",
+        "fruits",
+        "snacks",
+        "beverages",
+        "dairy",
+        "groceries",
       ].slice(0, limit);
     } catch (error) {
-      console.error('Error getting popular searches:', error);
+      console.error("Error getting popular searches:", error);
       return [];
     }
   }

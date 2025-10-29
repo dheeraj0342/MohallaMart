@@ -1,6 +1,6 @@
 /**
  * Data Synchronization Layer
- * 
+ *
  * This module handles data synchronization between:
  * - Supabase (Primary Database)
  * - Convex (Real-time Layer)
@@ -9,14 +9,19 @@
  * - Typesense (Search)
  */
 
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 // import { inngest } from '@/lib/inngest';
-import { userEvents, orderEvents, productEvents, searchEvents } from '@/lib/inngest/events';
+import {
+  userEvents,
+  orderEvents,
+  productEvents,
+  searchEvents,
+} from "@/lib/inngest/events";
 
 // Initialize clients
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
 
 // Convex client will be initialized when Convex is set up
@@ -40,7 +45,7 @@ export class DataSyncManager {
     try {
       // 1. Create user in Supabase (primary database)
       const { data: supabaseUser, error: supabaseError } = await supabase
-        .from('users')
+        .from("users")
         .insert({
           id: userData.id,
           email: userData.email,
@@ -74,7 +79,7 @@ export class DataSyncManager {
 
       // 4. Update search index
       await searchEvents.index({
-        type: 'user',
+        type: "user",
         id: userData.id,
         data: {
           name: userData.name,
@@ -84,7 +89,7 @@ export class DataSyncManager {
 
       return supabaseUser;
     } catch (error) {
-      console.error('Error creating user:', error);
+      console.error("Error creating user:", error);
       throw error;
     }
   }
@@ -105,7 +110,7 @@ export class DataSyncManager {
     try {
       // 1. Create product in Supabase
       const { data: supabaseProduct, error: supabaseError } = await supabase
-        .from('products')
+        .from("products")
         .insert({
           id: productData.id,
           name: productData.name,
@@ -146,7 +151,7 @@ export class DataSyncManager {
 
       // 4. Update search index
       await searchEvents.index({
-        type: 'product',
+        type: "product",
         id: productData.id,
         data: {
           name: productData.name,
@@ -159,7 +164,7 @@ export class DataSyncManager {
 
       return supabaseProduct;
     } catch (error) {
-      console.error('Error creating product:', error);
+      console.error("Error creating product:", error);
       throw error;
     }
   }
@@ -187,7 +192,7 @@ export class DataSyncManager {
     try {
       // 1. Create order in Supabase
       const { data: supabaseOrder, error: supabaseError } = await supabase
-        .from('orders')
+        .from("orders")
         .insert({
           id: orderData.id,
           user_id: orderData.userId,
@@ -195,7 +200,7 @@ export class DataSyncManager {
           total_amount: orderData.totalAmount,
           delivery_address: orderData.deliveryAddress,
           payment_method: orderData.paymentMethod,
-          status: 'pending',
+          status: "pending",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -230,7 +235,7 @@ export class DataSyncManager {
 
       return supabaseOrder;
     } catch (error) {
-      console.error('Error creating order:', error);
+      console.error("Error creating order:", error);
       throw error;
     }
   }
@@ -242,9 +247,9 @@ export class DataSyncManager {
     try {
       // 1. Update stock in Supabase
       const { data: product, error: fetchError } = await supabase
-        .from('products')
-        .select('stock, name, shop_id')
-        .eq('id', productId)
+        .from("products")
+        .select("stock, name, shop_id")
+        .eq("id", productId)
         .single();
 
       if (fetchError) throw fetchError;
@@ -253,12 +258,12 @@ export class DataSyncManager {
       const isOutOfStock = newStock === 0;
 
       const { error: updateError } = await supabase
-        .from('products')
+        .from("products")
         .update({
           stock: newStock,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', productId);
+        .eq("id", productId);
 
       if (updateError) throw updateError;
 
@@ -285,7 +290,7 @@ export class DataSyncManager {
 
       return { productId, newStock, isOutOfStock };
     } catch (error) {
-      console.error('Error updating product stock:', error);
+      console.error("Error updating product stock:", error);
       throw error;
     }
   }
@@ -295,18 +300,24 @@ export class DataSyncManager {
    */
   static async updateOrderStatus(
     orderId: string,
-    status: 'pending' | 'confirmed' | 'preparing' | 'out_for_delivery' | 'delivered' | 'cancelled',
-    updatedBy: string
+    status:
+      | "pending"
+      | "confirmed"
+      | "preparing"
+      | "out_for_delivery"
+      | "delivered"
+      | "cancelled",
+    updatedBy: string,
   ) {
     try {
       // 1. Update status in Supabase
       const { error: updateError } = await supabase
-        .from('orders')
+        .from("orders")
         .update({
           status,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', orderId);
+        .eq("id", orderId);
 
       if (updateError) throw updateError;
 
@@ -326,7 +337,7 @@ export class DataSyncManager {
 
       return { orderId, status, updatedBy };
     } catch (error) {
-      console.error('Error updating order status:', error);
+      console.error("Error updating order status:", error);
       throw error;
     }
   }
@@ -339,14 +350,14 @@ export class DataSyncManager {
       // 1. Try Redis cache first (if enabled and useCache is true)
       if (useCache) {
         // TODO: Implement Redis caching
-        console.log('Cache enabled for product fetch');
+        console.log("Cache enabled for product fetch");
       }
-      
+
       // 2. Get from Supabase
       const { data: product, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', productId)
+        .from("products")
+        .select("*")
+        .eq("id", productId)
         .single();
 
       if (error) throw error;
@@ -356,7 +367,7 @@ export class DataSyncManager {
 
       return product;
     } catch (error) {
-      console.error('Error getting product:', error);
+      console.error("Error getting product:", error);
       throw error;
     }
   }
@@ -364,29 +375,32 @@ export class DataSyncManager {
   /**
    * Search products with Typesense integration
    */
-  static async searchProducts(query: string, filters?: Record<string, unknown>) {
+  static async searchProducts(
+    query: string,
+    filters?: Record<string, unknown>,
+  ) {
     try {
       // 1. Try Redis cache first
       if (filters) {
-        console.log('Search filters applied:', filters);
+        console.log("Search filters applied:", filters);
       }
       // TODO: Implement Redis caching for search results
-      
+
       // 2. Search in Typesense
       // TODO: Implement Typesense search
-      
+
       // 3. Fallback to Supabase search if Typesense is unavailable
       const { data: products, error } = await supabase
-        .from('products')
-        .select('*')
-        .ilike('name', `%${query}%`)
+        .from("products")
+        .select("*")
+        .ilike("name", `%${query}%`)
         .limit(20);
 
       if (error) throw error;
 
       return products;
     } catch (error) {
-      console.error('Error searching products:', error);
+      console.error("Error searching products:", error);
       throw error;
     }
   }
@@ -401,7 +415,7 @@ export const dataSyncEvents = {
    * Handle user creation event
    */
   async handleUserCreated(eventData: Record<string, unknown>) {
-    console.log('Handling user created event:', eventData);
+    console.log("Handling user created event:", eventData);
     // Additional processing logic here
   },
 
@@ -409,7 +423,7 @@ export const dataSyncEvents = {
    * Handle order creation event
    */
   async handleOrderCreated(eventData: Record<string, unknown>) {
-    console.log('Handling order created event:', eventData);
+    console.log("Handling order created event:", eventData);
     // Additional processing logic here
   },
 
@@ -417,7 +431,7 @@ export const dataSyncEvents = {
    * Handle product update event
    */
   async handleProductUpdated(eventData: Record<string, unknown>) {
-    console.log('Handling product updated event:', eventData);
+    console.log("Handling product updated event:", eventData);
     // Additional processing logic here
   },
 };

@@ -25,6 +25,7 @@ Open [http://localhost:3000](http://localhost:3000) to view it.
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Framework**: Next.js 15.5.3 with App Router
 - **Language**: TypeScript (strict mode)
 - **Styling**: Tailwind CSS (integrated with CSS custom properties) + Shadcn UI components
@@ -34,6 +35,7 @@ Open [http://localhost:3000](http://localhost:3000) to view it.
 - **Font**: Inter (Google Fonts)
 
 ### Backend & Database
+
 - **Backend**: Convex (realtime backend) + tRPC (type-safe APIs)
 - **Database**: Supabase (PostgreSQL) + Redis (caching layer)
 - **Authentication**: Supabase Auth with OTP support
@@ -41,6 +43,7 @@ Open [http://localhost:3000](http://localhost:3000) to view it.
 - **Background Jobs**: Inngest (reliable job processing)
 
 ### External Services
+
 - **Payments**: Razorpay (payment gateway)
 - **Maps**: Google Maps API (location services)
 - **Notifications**: OneSignal (push notifications) + Twilio/MSG91 (SMS)
@@ -96,6 +99,7 @@ src/
 ## 🔧 Setup Requirements
 
 1. **Environment Variables** (create `.env.local`):
+
 ```env
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url

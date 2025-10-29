@@ -1,26 +1,26 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import { CheckCircle } from 'lucide-react'
+import { motion } from "framer-motion";
+import { CheckCircle } from "lucide-react";
 
 const stats = [
-  { value: '50K+', label: 'Happy Customers' },
-  { value: '100+', label: 'Local Partners' },
-  { value: '4.9★', label: 'Average Rating' },
-  { value: '24/7', label: 'Customer Support' }
-]
+  { value: "50K+", label: "Happy Customers" },
+  { value: "100+", label: "Local Partners" },
+  { value: "4.9★", label: "Average Rating" },
+  { value: "24/7", label: "Customer Support" },
+];
 
 const missionPoints = [
-  'Community-focused approach',
-  'Local business support',
-  'Quality product guarantee'
-]
+  "Community-focused approach",
+  "Local business support",
+  "Quality product guarantee",
+];
 
 export default function AboutSection() {
   return (
     <section id="about" className="py-20 bg-neutral-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div 
+        <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -31,7 +31,8 @@ export default function AboutSection() {
             About MohallaMart
           </h2>
           <p className="text-xl text-neutral-600 max-w-3xl mx-auto">
-            Your trusted neighborhood marketplace connecting communities with quality products and services
+            Your trusted neighborhood marketplace connecting communities with
+            quality products and services
           </p>
         </motion.div>
 
@@ -46,14 +47,15 @@ export default function AboutSection() {
               Our Mission
             </h3>
             <p className="text-neutral-600 mb-6">
-              MohallaMart is dedicated to revolutionizing neighborhood commerce by connecting 
-              local communities with quality products and services. We believe in supporting 
-              local businesses while providing customers with convenient, reliable, and 
-              affordable shopping experiences.
+              MohallaMart is dedicated to revolutionizing neighborhood commerce
+              by connecting local communities with quality products and
+              services. We believe in supporting local businesses while
+              providing customers with convenient, reliable, and affordable
+              shopping experiences.
             </p>
             <div className="space-y-4">
               {missionPoints.map((point, index) => (
-                <motion.div 
+                <motion.div
                   key={point}
                   className="flex items-center"
                   initial={{ opacity: 0, x: -20 }}
@@ -67,8 +69,8 @@ export default function AboutSection() {
               ))}
             </div>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             className="bg-white p-8 rounded-xl shadow-lg"
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -77,7 +79,7 @@ export default function AboutSection() {
           >
             <div className="grid grid-cols-2 gap-6 text-center">
               {stats.map((stat, index) => (
-                <motion.div 
+                <motion.div
                   key={stat.label}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -95,5 +97,5 @@ export default function AboutSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

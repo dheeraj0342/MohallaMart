@@ -9,7 +9,7 @@ export const createNotification = mutation({
       v.literal("order_update"),
       v.literal("promotion"),
       v.literal("system"),
-      v.literal("delivery")
+      v.literal("delivery"),
     ),
     title: v.string(),
     message: v.string(),
@@ -36,12 +36,14 @@ export const getNotificationsByUser = query({
   args: {
     user_id: v.id("users"),
     is_read: v.optional(v.boolean()),
-    type: v.optional(v.union(
-      v.literal("order_update"),
-      v.literal("promotion"),
-      v.literal("system"),
-      v.literal("delivery")
-    )),
+    type: v.optional(
+      v.union(
+        v.literal("order_update"),
+        v.literal("promotion"),
+        v.literal("system"),
+        v.literal("delivery"),
+      ),
+    ),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -57,9 +59,7 @@ export const getNotificationsByUser = query({
       query = query.filter((q) => q.eq(q.field("type"), args.type));
     }
 
-    const notifications = await query
-      .order("desc")
-      .collect();
+    const notifications = await query.order("desc").collect();
 
     if (args.limit) {
       return notifications.slice(0, args.limit);
@@ -98,8 +98,8 @@ export const markAllNotificationsAsRead = mutation({
 
     await Promise.all(
       notifications.map((notification) =>
-        ctx.db.patch(notification._id, { is_read: true })
-      )
+        ctx.db.patch(notification._id, { is_read: true }),
+      ),
     );
 
     return notifications.length;
@@ -149,7 +149,7 @@ export const createOrderUpdateNotification = mutation({
       v.literal("preparing"),
       v.literal("out_for_delivery"),
       v.literal("delivered"),
-      v.literal("cancelled")
+      v.literal("cancelled"),
     ),
     order_number: v.string(),
   },
@@ -249,7 +249,7 @@ export const createDeliveryNotification = mutation({
   },
   handler: async (ctx, args) => {
     const title = `Delivery Update - Order ${args.order_number}`;
-    const message = args.delivery_time 
+    const message = args.delivery_time
       ? `Your order will be delivered at ${args.delivery_time}`
       : "Your order is out for delivery";
 
@@ -285,25 +285,37 @@ export const getNotificationStats = query({
 
     // Filter by user
     if (args.user_id) {
-      notifications = notifications.filter(notification => notification.user_id === args.user_id);
+      notifications = notifications.filter(
+        (notification) => notification.user_id === args.user_id,
+      );
     }
 
     // Filter by date range
     if (args.start_date) {
-      notifications = notifications.filter(notification => notification.created_at >= args.start_date!);
+      notifications = notifications.filter(
+        (notification) => notification.created_at >= args.start_date!,
+      );
     }
     if (args.end_date) {
-      notifications = notifications.filter(notification => notification.created_at <= args.end_date!);
+      notifications = notifications.filter(
+        (notification) => notification.created_at <= args.end_date!,
+      );
     }
 
     const stats = {
       total_notifications: notifications.length,
-      unread_notifications: notifications.filter(n => !n.is_read).length,
-      sent_notifications: notifications.filter(n => n.is_sent).length,
-      order_update_notifications: notifications.filter(n => n.type === "order_update").length,
-      promotion_notifications: notifications.filter(n => n.type === "promotion").length,
-      system_notifications: notifications.filter(n => n.type === "system").length,
-      delivery_notifications: notifications.filter(n => n.type === "delivery").length,
+      unread_notifications: notifications.filter((n) => !n.is_read).length,
+      sent_notifications: notifications.filter((n) => n.is_sent).length,
+      order_update_notifications: notifications.filter(
+        (n) => n.type === "order_update",
+      ).length,
+      promotion_notifications: notifications.filter(
+        (n) => n.type === "promotion",
+      ).length,
+      system_notifications: notifications.filter((n) => n.type === "system")
+        .length,
+      delivery_notifications: notifications.filter((n) => n.type === "delivery")
+        .length,
     };
 
     return stats;
@@ -316,15 +328,15 @@ export const deleteOldNotifications = mutation({
     older_than_days: v.number(),
   },
   handler: async (ctx, args) => {
-    const cutoffDate = Date.now() - (args.older_than_days * 24 * 60 * 60 * 1000);
-    
+    const cutoffDate = Date.now() - args.older_than_days * 24 * 60 * 60 * 1000;
+
     const oldNotifications = await ctx.db
       .query("notifications")
       .filter((q) => q.lt(q.field("created_at"), cutoffDate))
       .collect();
 
     await Promise.all(
-      oldNotifications.map((notification) => ctx.db.delete(notification._id))
+      oldNotifications.map((notification) => ctx.db.delete(notification._id)),
     );
 
     return oldNotifications.length;

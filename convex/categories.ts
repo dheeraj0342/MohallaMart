@@ -54,7 +54,9 @@ export const getAllCategories = query({
 
     // Filter by is_active if needed
     if (args.is_active !== undefined) {
-      categories = categories.filter((cat: any) => cat.is_active === args.is_active);
+      categories = categories.filter(
+        (cat: any) => cat.is_active === args.is_active,
+      );
     }
 
     // Sort by sort_order
@@ -124,15 +126,18 @@ export const searchCategories = query({
     // Filter by search query
     if (args.query) {
       const searchTerm = args.query.toLowerCase();
-      categories = categories.filter((category) =>
-        category.name.toLowerCase().includes(searchTerm) ||
-        category.description?.toLowerCase().includes(searchTerm)
+      categories = categories.filter(
+        (category) =>
+          category.name.toLowerCase().includes(searchTerm) ||
+          category.description?.toLowerCase().includes(searchTerm),
       );
     }
 
     // Filter by active status
     if (args.is_active !== undefined) {
-      categories = categories.filter((category) => category.is_active === args.is_active);
+      categories = categories.filter(
+        (category) => category.is_active === args.is_active,
+      );
     }
 
     // Sort by sort_order
@@ -188,7 +193,9 @@ export const getCategoryTree = query({
     // Filter by active status
     let filteredCategories = categories;
     if (args.is_active !== undefined) {
-      filteredCategories = categories.filter((category) => category.is_active === args.is_active);
+      filteredCategories = categories.filter(
+        (category) => category.is_active === args.is_active,
+      );
     }
 
     // Build tree structure
@@ -246,7 +253,9 @@ export const getCategoryWithProductCount = query({
       .withIndex("by_category", (q) => q.eq("category_id", args.id))
       .collect();
 
-    const availableProducts = products.filter((product) => product.is_available);
+    const availableProducts = products.filter(
+      (product) => product.is_available,
+    );
 
     return {
       ...category,

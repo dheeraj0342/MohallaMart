@@ -1,26 +1,26 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { AnimatePresence } from 'framer-motion'
-import { useStore } from '@/store/useStore'
-import LoginForm from '@/components/auth/LoginForm'
-import SignupForm from '@/components/auth/SignupForm'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { AnimatePresence } from "framer-motion";
+import { useStore } from "@/store/useStore";
+import LoginForm from "@/components/auth/LoginForm";
+import SignupForm from "@/components/auth/SignupForm";
 
 export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true)
-  const router = useRouter()
-  const { isLoggedIn } = useStore()
+  const [isLogin, setIsLogin] = useState(true);
+  const router = useRouter();
+  const { isLoggedIn } = useStore();
 
   useEffect(() => {
     if (isLoggedIn()) {
-      router.push('/')
+      router.push("/");
     }
-  }, [isLoggedIn, router])
+  }, [isLoggedIn, router]);
 
   const handleAuthSuccess = () => {
-    router.push('/')
-  }
+    router.push("/");
+  };
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -40,5 +40,5 @@ export default function AuthPage() {
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }

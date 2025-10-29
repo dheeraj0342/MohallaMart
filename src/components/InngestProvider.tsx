@@ -10,16 +10,16 @@ export default function InngestProvider({ children }: InngestProviderProps) {
   useEffect(() => {
     // Initialize Inngest client-side features if needed
     // This is mainly for development and monitoring purposes
-    
+
     if (process.env.NODE_ENV === "development") {
       console.log("Inngest client initialized for development");
-      
+
       // Test Inngest connection (server-side only)
       const testConnection = async () => {
         try {
           // Only test on server-side
-          if (typeof window === 'undefined') {
-            const { inngest } = await import('@/lib/inngest');
+          if (typeof window === "undefined") {
+            const { inngest } = await import("@/lib/inngest");
             await inngest.send({
               name: "test/connection",
               data: {

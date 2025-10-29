@@ -2,13 +2,13 @@ import { inngest } from "../inngest";
 
 // Utility function to wrap functions with error handling
 export const withErrorHandling = <T extends unknown[], R>(
-  fn: (...args: T) => Promise<R>
+  fn: (...args: T) => Promise<R>,
 ) => {
   return async (...args: T): Promise<R> => {
     try {
       return await fn(...args);
     } catch (error) {
-      console.error('Inngest function error:', error);
+      console.error("Inngest function error:", error);
       throw error;
     }
   };
@@ -23,24 +23,26 @@ export const sendWelcomeEmail = inngest.createFunction(
     console.log(`Processing welcome email for user: ${name}`);
 
     if (!email) {
-      console.log(`No email provided for user ${userId}, skipping welcome email`);
+      console.log(
+        `No email provided for user ${userId}, skipping welcome email`,
+      );
       return;
     }
 
     return await step.run("send-welcome-email", async () => {
       // TODO: Integrate with your email service (SendGrid, Resend, etc.)
       console.log(`Sending welcome email to ${email} for user ${userId}`);
-      
+
       // Simulate email sending
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       return {
         success: true,
         message: `Welcome email sent to ${email}`,
         userId,
       };
     });
-  }
+  },
 );
 
 export const sendOrderConfirmation = inngest.createFunction(
@@ -54,12 +56,14 @@ export const sendOrderConfirmation = inngest.createFunction(
       // TODO: Get user email from database
       const userEmail = "user@example.com"; // Replace with actual user lookup
       console.log(`Sending confirmation to: ${userEmail}`);
-      
-      console.log(`Sending order confirmation for order ${orderId} to user ${userId}`);
-      
+
+      console.log(
+        `Sending order confirmation for order ${orderId} to user ${userId}`,
+      );
+
       // Simulate email sending
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       return {
         success: true,
         message: `Order confirmation sent for order ${orderId}`,
@@ -67,7 +71,7 @@ export const sendOrderConfirmation = inngest.createFunction(
         userId,
       };
     });
-  }
+  },
 );
 
 export const sendOrderUpdate = inngest.createFunction(
@@ -79,11 +83,13 @@ export const sendOrderUpdate = inngest.createFunction(
 
     return await step.run("send-order-update", async () => {
       // TODO: Get user details and send appropriate notification
-      console.log(`Sending order update for order ${orderId} with status ${status}`);
-      
+      console.log(
+        `Sending order update for order ${orderId} with status ${status}`,
+      );
+
       // Simulate notification sending
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       return {
         success: true,
         message: `Order update sent for order ${orderId}`,
@@ -91,7 +97,7 @@ export const sendOrderUpdate = inngest.createFunction(
         status,
       };
     });
-  }
+  },
 );
 
 // Search indexing functions
@@ -105,10 +111,10 @@ export const indexProduct = inngest.createFunction(
     return await step.run("index-product", async () => {
       // TODO: Integrate with Typesense or your search service
       console.log(`Indexing ${type} with id ${id}`);
-      
+
       // Simulate indexing
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
       return {
         success: true,
         message: `${type} indexed successfully`,
@@ -116,7 +122,7 @@ export const indexProduct = inngest.createFunction(
         type,
       };
     });
-  }
+  },
 );
 
 // Cleanup functions
@@ -129,17 +135,17 @@ export const cleanupExpiredSessions = inngest.createFunction(
     return await step.run("cleanup-expired-sessions", async () => {
       // TODO: Implement actual session cleanup logic
       console.log(`Cleaning up sessions older than ${olderThan}`);
-      
+
       // Simulate cleanup
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       return {
         success: true,
         message: "Expired sessions cleaned up",
         cleanedCount: 42, // Replace with actual count
       };
     });
-  }
+  },
 );
 
 // Notification functions
@@ -152,12 +158,14 @@ export const sendNotification = inngest.createFunction(
 
     return await step.run("send-notification", async () => {
       // TODO: Integrate with OneSignal, Twilio, or other notification services
-      console.log(`Sending ${type} notification to user ${userId} with template ${template}`);
-      
+      console.log(
+        `Sending ${type} notification to user ${userId} with template ${template}`,
+      );
+
       // Simulate notification sending based on type
       const delay = type === "email" ? 1000 : type === "sms" ? 500 : 300;
-      await new Promise(resolve => setTimeout(resolve, delay));
-      
+      await new Promise((resolve) => setTimeout(resolve, delay));
+
       return {
         success: true,
         message: `${type} notification sent to user ${userId}`,
@@ -166,7 +174,7 @@ export const sendNotification = inngest.createFunction(
         template,
       };
     });
-  }
+  },
 );
 
 // Analytics functions
@@ -180,10 +188,10 @@ export const trackAnalytics = inngest.createFunction(
     return await step.run("track-analytics", async () => {
       // TODO: Integrate with your analytics service (Mixpanel, Amplitude, etc.)
       console.log(`Tracking analytics event: ${eventName} for user ${userId}`);
-      
+
       // Simulate analytics tracking
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
       return {
         success: true,
         message: `Analytics event tracked: ${eventName}`,
@@ -191,7 +199,7 @@ export const trackAnalytics = inngest.createFunction(
         userId,
       };
     });
-  }
+  },
 );
 
 // Inventory management functions
@@ -203,11 +211,13 @@ export const processOutOfStockAlert = inngest.createFunction(
 
     return await step.run("process-out-of-stock-alert", async () => {
       // TODO: Send notifications to shop owners and update inventory
-      console.log(`Processing out of stock alert for product ${name} (${productId}) in shop ${shopId}`);
-      
+      console.log(
+        `Processing out of stock alert for product ${name} (${productId}) in shop ${shopId}`,
+      );
+
       // Simulate processing
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       return {
         success: true,
         message: `Out of stock alert processed for product ${name}`,
@@ -215,7 +225,7 @@ export const processOutOfStockAlert = inngest.createFunction(
         shopId,
       };
     });
-  }
+  },
 );
 
 // Data synchronization functions
@@ -230,10 +240,10 @@ export const syncUserData = inngest.createFunction(
       try {
         // TODO: Implement user data synchronization
         console.log(`Syncing user data for user ${userId}`);
-        
+
         // Simulate sync without making actual HTTP requests
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
         return {
           success: true,
           message: `User data synced successfully for user ${userId}`,
@@ -249,7 +259,7 @@ export const syncUserData = inngest.createFunction(
         };
       }
     });
-  }
+  },
 );
 
 export const syncProductData = inngest.createFunction(
@@ -257,13 +267,15 @@ export const syncProductData = inngest.createFunction(
   { event: "product/created" },
   async ({ event, step }) => {
     const { productId, name, price, category, shopId } = event.data;
-    console.log(`Syncing product: ${name}, price: ${price}, category: ${category}, shop: ${shopId}`);
+    console.log(
+      `Syncing product: ${name}, price: ${price}, category: ${category}, shop: ${shopId}`,
+    );
 
     return await step.run("sync-product-data", async () => {
       try {
         // TODO: Implement product data synchronization
         console.log(`Syncing product data for product ${productId}`);
-        
+
         return {
           success: true,
           message: `Product data synced successfully for product ${productId}`,
@@ -274,7 +286,7 @@ export const syncProductData = inngest.createFunction(
         throw error;
       }
     });
-  }
+  },
 );
 
 export const syncOrderData = inngest.createFunction(
@@ -282,13 +294,15 @@ export const syncOrderData = inngest.createFunction(
   { event: "order/created" },
   async ({ event, step }) => {
     const { orderId, userId, items, totalAmount, deliveryAddress } = event.data;
-    console.log(`Order details: ${items.length} items, total: ${totalAmount}, address: ${deliveryAddress}, user: ${userId}`);
+    console.log(
+      `Order details: ${items.length} items, total: ${totalAmount}, address: ${deliveryAddress}, user: ${userId}`,
+    );
 
     return await step.run("sync-order-data", async () => {
       try {
         // TODO: Implement order data synchronization
         console.log(`Syncing order data for order ${orderId}`);
-        
+
         return {
           success: true,
           message: `Order data synced successfully for order ${orderId}`,
@@ -299,7 +313,7 @@ export const syncOrderData = inngest.createFunction(
         throw error;
       }
     });
-  }
+  },
 );
 
 export const syncInventoryUpdate = inngest.createFunction(
@@ -332,7 +346,7 @@ export const syncInventoryUpdate = inngest.createFunction(
       message: "No inventory update needed",
       productId,
     };
-  }
+  },
 );
 
 // Scheduled functions (cron jobs)
@@ -343,39 +357,49 @@ export const scheduledCleanup = inngest.createFunction(
     return await step.run("scheduled-cleanup", async () => {
       try {
         console.log("Running scheduled cleanup tasks");
-        
+
         // Check if Inngest is properly configured
         if (!process.env.INNGEST_EVENT_KEY) {
-          console.warn("INNGEST_EVENT_KEY not configured, skipping cleanup event sending");
+          console.warn(
+            "INNGEST_EVENT_KEY not configured, skipping cleanup event sending",
+          );
           return {
             success: false,
-            message: "Scheduled cleanup skipped due to missing INNGEST_EVENT_KEY",
+            message:
+              "Scheduled cleanup skipped due to missing INNGEST_EVENT_KEY",
           };
         }
-        
+
         // Trigger cleanup events with error handling
         try {
           await inngest.send({
             name: "cleanup/expired_sessions",
             data: {
-              olderThan: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
+              olderThan: new Date(
+                Date.now() - 7 * 24 * 60 * 60 * 1000,
+              ).toISOString(), // 7 days ago
             },
           });
         } catch (error) {
-          console.error("Failed to send expired sessions cleanup event:", error);
+          console.error(
+            "Failed to send expired sessions cleanup event:",
+            error,
+          );
         }
 
         try {
           await inngest.send({
             name: "cleanup/old_logs",
             data: {
-              olderThan: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
+              olderThan: new Date(
+                Date.now() - 30 * 24 * 60 * 60 * 1000,
+              ).toISOString(), // 30 days ago
             },
           });
         } catch (error) {
           console.error("Failed to send old logs cleanup event:", error);
         }
-        
+
         return {
           success: true,
           message: "Scheduled cleanup completed",
@@ -389,7 +413,7 @@ export const scheduledCleanup = inngest.createFunction(
         };
       }
     });
-  }
+  },
 );
 
 // Data synchronization monitoring function
@@ -401,33 +425,38 @@ export const monitorDataSync = inngest.createFunction(
       try {
         // Check if required environment variables are present
         const requiredEnvVars = [
-          'NEXT_PUBLIC_SUPABASE_URL',
-          'NEXT_PUBLIC_CONVEX_URL',
-          'REDIS_URL',
-          'TYPESENSE_API_KEY'
+          "NEXT_PUBLIC_SUPABASE_URL",
+          "NEXT_PUBLIC_CONVEX_URL",
+          "REDIS_URL",
+          "TYPESENSE_API_KEY",
         ];
-        
-        const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-        
+
+        const missingVars = requiredEnvVars.filter(
+          (varName) => !process.env[varName],
+        );
+
         if (missingVars.length > 0) {
-          console.warn(`Missing environment variables for data sync monitoring: ${missingVars.join(', ')}`);
+          console.warn(
+            `Missing environment variables for data sync monitoring: ${missingVars.join(", ")}`,
+          );
           return {
             success: false,
-            message: "Data sync monitoring skipped due to missing environment variables",
+            message:
+              "Data sync monitoring skipped due to missing environment variables",
             missingVars,
             timestamp: new Date().toISOString(),
           };
         }
-        
+
         // TODO: Implement data sync monitoring
         // Check for inconsistencies between services
         // Log sync status and performance metrics
-        
+
         console.log("Monitoring data synchronization across services");
-        
+
         // Simulate monitoring without making actual HTTP requests
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
         return {
           success: true,
           message: "Data sync monitoring completed",
@@ -444,5 +473,40 @@ export const monitorDataSync = inngest.createFunction(
         };
       }
     });
-  }
+  },
+);
+
+// Shopkeeper workflow functions
+export const onShopkeeperApplied = inngest.createFunction(
+  { id: "shopkeeper-applied" },
+  { event: "shopkeeper/applied" },
+  async ({ event, step }) => {
+    const { userId, email, name } = event.data;
+    // Notify admins and log analytics
+    await step.run("notify-admin-of-application", async () => {
+      console.log(
+        `Shopkeeper application received from ${name || userId} (${email || "no email"})`,
+      );
+      // TODO: Integrate admin notification (email/push)
+    });
+    await step.run("track-application-analytics", async () => {
+      console.log(`Analytics: shopkeeper_applied for ${userId}`);
+    });
+    return { success: true };
+  },
+);
+
+export const onShopkeeperApproved = inngest.createFunction(
+  { id: "shopkeeper-approved" },
+  { event: "shopkeeper/approved" },
+  async ({ event, step }) => {
+    const { userId, approvedBy } = event.data;
+    await step.run("prepare-onboarding", async () => {
+      console.log(
+        `Preparing onboarding for approved shopkeeper ${userId} by ${approvedBy || "admin"}`,
+      );
+      // TODO: Seed default shop settings, send welcome, etc.
+    });
+    return { success: true };
+  },
 );

@@ -1,9 +1,9 @@
 // Redis configuration and utilities
 // Only import Redis on server-side
-let Redis: typeof import('ioredis').default | undefined;
-if (typeof window === 'undefined') {
+let Redis: typeof import("ioredis").default | undefined;
+if (typeof window === "undefined") {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  Redis = require('ioredis').default;
+  Redis = require("ioredis").default;
 }
 
 export interface RedisConfig {
@@ -25,24 +25,24 @@ class RedisService {
 
   constructor() {
     this.config = {
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
+      host: process.env.REDIS_HOST || "localhost",
+      port: parseInt(process.env.REDIS_PORT || "6379"),
       password: process.env.REDIS_PASSWORD,
-      db: parseInt(process.env.REDIS_DB || '0'),
+      db: parseInt(process.env.REDIS_DB || "0"),
       retryDelayOnFailover: 100,
       maxRetriesPerRequest: 3,
       lazyConnect: true,
     };
 
     // Only create Redis client on server-side
-    if (typeof window === 'undefined' && Redis) {
+    if (typeof window === "undefined" && Redis) {
       this.client = new Redis(this.config);
     } else {
       // Create a mock client for browser
       this.client = {
         on: () => {},
         get: () => Promise.resolve(null),
-        set: () => Promise.resolve('OK'),
+        set: () => Promise.resolve("OK"),
         del: () => Promise.resolve(0),
         exists: () => Promise.resolve(0),
         expire: () => Promise.resolve(0),
@@ -50,24 +50,24 @@ class RedisService {
         incr: () => Promise.resolve(0),
         decr: () => Promise.resolve(0),
         mget: () => Promise.resolve([]),
-        mset: () => Promise.resolve('OK'),
+        mset: () => Promise.resolve("OK"),
         keys: () => Promise.resolve([]),
-        quit: () => Promise.resolve('OK'),
-        status: 'ready'
+        quit: () => Promise.resolve("OK"),
+        status: "ready",
       };
     }
 
     // Handle connection events
-    this.client.on('connect', () => {
-      console.log('Redis connected');
+    this.client.on("connect", () => {
+      console.log("Redis connected");
     });
 
-    this.client.on('error', (error: unknown) => {
-      console.error('Redis error:', error);
+    this.client.on("error", (error: unknown) => {
+      console.error("Redis error:", error);
     });
 
-    this.client.on('close', () => {
-      console.log('Redis connection closed');
+    this.client.on("close", () => {
+      console.log("Redis connection closed");
     });
   }
 
@@ -76,7 +76,7 @@ class RedisService {
     try {
       return await this.client.get(key);
     } catch (error) {
-      console.error('Redis get error:', error);
+      console.error("Redis get error:", error);
       return null;
     }
   }
@@ -91,7 +91,7 @@ class RedisService {
       }
       return true;
     } catch (error) {
-      console.error('Redis set error:', error);
+      console.error("Redis set error:", error);
       return false;
     }
   }
@@ -102,7 +102,7 @@ class RedisService {
       const result = await this.client.del(key);
       return result > 0;
     } catch (error) {
-      console.error('Redis delete error:', error);
+      console.error("Redis delete error:", error);
       return false;
     }
   }
@@ -113,7 +113,7 @@ class RedisService {
       const result = await this.client.exists(key);
       return result === 1;
     } catch (error) {
-      console.error('Redis exists error:', error);
+      console.error("Redis exists error:", error);
       return false;
     }
   }
@@ -124,7 +124,7 @@ class RedisService {
       const result = await this.client.expire(key, ttlSeconds);
       return result === 1;
     } catch (error) {
-      console.error('Redis expire error:', error);
+      console.error("Redis expire error:", error);
       return false;
     }
   }
@@ -134,7 +134,7 @@ class RedisService {
     try {
       return await this.client.ttl(key);
     } catch (error) {
-      console.error('Redis TTL error:', error);
+      console.error("Redis TTL error:", error);
       return -1;
     }
   }
@@ -144,7 +144,7 @@ class RedisService {
     try {
       return await this.client.incr(key);
     } catch (error) {
-      console.error('Redis incr error:', error);
+      console.error("Redis incr error:", error);
       return 0;
     }
   }
@@ -154,7 +154,7 @@ class RedisService {
     try {
       return await this.client.decr(key);
     } catch (error) {
-      console.error('Redis decr error:', error);
+      console.error("Redis decr error:", error);
       return 0;
     }
   }
@@ -164,7 +164,7 @@ class RedisService {
     try {
       return await this.client.mget(...keys);
     } catch (error) {
-      console.error('Redis mget error:', error);
+      console.error("Redis mget error:", error);
       return keys.map(() => null);
     }
   }
@@ -175,7 +175,7 @@ class RedisService {
       await this.client.mset(keyValuePairs);
       return true;
     } catch (error) {
-      console.error('Redis mset error:', error);
+      console.error("Redis mset error:", error);
       return false;
     }
   }
@@ -185,7 +185,7 @@ class RedisService {
     try {
       return await this.client.keys(pattern);
     } catch (error) {
-      console.error('Redis keys error:', error);
+      console.error("Redis keys error:", error);
       return [];
     }
   }
@@ -194,7 +194,7 @@ class RedisService {
   async cache<T>(
     key: string,
     fn: () => Promise<T>,
-    ttlSeconds: number = 300
+    ttlSeconds: number = 300,
   ): Promise<T> {
     try {
       // Try to get from cache first
@@ -208,7 +208,7 @@ class RedisService {
       await this.set(key, JSON.stringify(result), ttlSeconds);
       return result;
     } catch (error) {
-      console.error('Redis cache error:', error);
+      console.error("Redis cache error:", error);
       // Fallback to executing function without caching
       return await fn();
     }
@@ -218,7 +218,7 @@ class RedisService {
   async getOrSet<T>(
     key: string,
     fn: () => Promise<T>,
-    ttlSeconds: number = 300
+    ttlSeconds: number = 300,
   ): Promise<T> {
     try {
       const cached = await this.get(key);
@@ -230,7 +230,7 @@ class RedisService {
       await this.set(key, JSON.stringify(result), ttlSeconds);
       return result;
     } catch (error) {
-      console.error('Redis getOrSet error:', error);
+      console.error("Redis getOrSet error:", error);
       return await fn();
     }
   }
@@ -244,7 +244,7 @@ class RedisService {
       const result = await this.client.del(...keys);
       return result;
     } catch (error) {
-      console.error('Redis clearCache error:', error);
+      console.error("Redis clearCache error:", error);
       return 0;
     }
   }

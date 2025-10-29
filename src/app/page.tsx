@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   HeroSection,
@@ -7,7 +7,7 @@ import {
   ServicesSection,
   CTASection,
   AboutSection,
-} from '@/components/sections'
+} from "@/components/sections";
 
 export default function HomePage() {
   return (
@@ -19,5 +19,5 @@ export default function HomePage() {
       <CTASection />
       <AboutSection />
     </div>
-  )
+  );
 }

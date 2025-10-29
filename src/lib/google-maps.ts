@@ -45,23 +45,25 @@ export interface GeocodingResult {
 
 class GoogleMapsService {
   private config: GoogleMapsConfig;
-  private baseUrl = 'https://maps.googleapis.com/maps/api';
+  private baseUrl = "https://maps.googleapis.com/maps/api";
 
   constructor() {
     this.config = {
-      apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-      libraries: ['places', 'geometry'],
+      apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+      libraries: ["places", "geometry"],
     };
 
     if (!this.config.apiKey) {
-      console.warn('Google Maps API key is not set. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable.');
+      console.warn(
+        "Google Maps API key is not set. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable.",
+      );
     }
   }
 
   // Geocode an address to get coordinates
   async geocodeAddress(address: string): Promise<GeocodingResult> {
     if (!this.config.apiKey) {
-      throw new Error('Google Maps API key is not configured');
+      throw new Error("Google Maps API key is not configured");
     }
 
     const encodedAddress = encodeURIComponent(address);
@@ -70,12 +72,14 @@ class GoogleMapsService {
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`Google Maps API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Google Maps API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error geocoding address:', error);
+      console.error("Error geocoding address:", error);
       throw error;
     }
   }
@@ -83,7 +87,7 @@ class GoogleMapsService {
   // Reverse geocode coordinates to get address
   async reverseGeocode(lat: number, lng: number): Promise<GeocodingResult> {
     if (!this.config.apiKey) {
-      throw new Error('Google Maps API key is not configured');
+      throw new Error("Google Maps API key is not configured");
     }
 
     const url = `${this.baseUrl}/geocode/json?latlng=${lat},${lng}&key=${this.config.apiKey}`;
@@ -91,12 +95,14 @@ class GoogleMapsService {
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`Google Maps API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Google Maps API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error reverse geocoding:', error);
+      console.error("Error reverse geocoding:", error);
       throw error;
     }
   }
@@ -104,7 +110,7 @@ class GoogleMapsService {
   // Get place details by place ID
   async getPlaceDetails(placeId: string): Promise<PlaceDetails> {
     if (!this.config.apiKey) {
-      throw new Error('Google Maps API key is not configured');
+      throw new Error("Google Maps API key is not configured");
     }
 
     const url = `${this.baseUrl}/place/details/json?place_id=${placeId}&fields=place_id,name,formatted_address,geometry,types,vicinity&key=${this.config.apiKey}`;
@@ -112,13 +118,15 @@ class GoogleMapsService {
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`Google Maps API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Google Maps API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       const data = await response.json();
       return data.result;
     } catch (error) {
-      console.error('Error getting place details:', error);
+      console.error("Error getting place details:", error);
       throw error;
     }
   }
@@ -128,14 +136,17 @@ class GoogleMapsService {
     const R = 6371; // Earth's radius in kilometers
     const dLat = this.toRadians(point2.lat - point1.lat);
     const dLng = this.toRadians(point2.lng - point1.lng);
-    
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(this.toRadians(point1.lat)) * Math.cos(this.toRadians(point2.lat)) *
-              Math.sin(dLng / 2) * Math.sin(dLng / 2);
-    
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.toRadians(point1.lat)) *
+        Math.cos(this.toRadians(point2.lat)) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
-    
+
     return distance;
   }
 
@@ -149,8 +160,8 @@ class GoogleMapsService {
     return {
       apiKey: this.config.apiKey,
       libraries: this.config.libraries,
-      region: 'IN',
-      language: 'en',
+      region: "IN",
+      language: "en",
     };
   }
 
@@ -158,7 +169,7 @@ class GoogleMapsService {
   isWithinDeliveryRadius(
     shopLocation: Location,
     customerLocation: Location,
-    maxRadiusKm: number
+    maxRadiusKm: number,
   ): boolean {
     const distance = this.calculateDistance(shopLocation, customerLocation);
     return distance <= maxRadiusKm;

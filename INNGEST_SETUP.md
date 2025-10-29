@@ -40,6 +40,7 @@ INNGEST_ENV=development
 ## Step 4: Verify Setup
 
 1. Start your development server:
+
    ```bash
    npm run dev
    ```
@@ -62,16 +63,19 @@ INNGEST_ENV=development
 ## Troubleshooting
 
 ### 500 Errors
+
 - **Cause**: Missing environment variables or function errors
 - **Solution**: Ensure all required environment variables are set
 - **Check**: Look for validation warnings in console
 
 ### 401 Errors
+
 - **Cause**: Invalid or missing signing key
 - **Solution**: Verify `INNGEST_SIGNING_KEY` is correct
 - **Check**: Ensure the signing key starts with `signkey_`
 
 ### Function Not Appearing
+
 - **Cause**: Functions not properly exported or registered
 - **Solution**: Check that functions are included in the serve handler
 - **Check**: Verify function IDs are unique
@@ -79,12 +83,14 @@ INNGEST_ENV=development
 ## Environment Variables Reference
 
 ### Required Variables
+
 ```bash
 INNGEST_EVENT_KEY=key_...          # Your Inngest event key
 INNGEST_SIGNING_KEY=signkey_...     # Your Inngest signing key
 ```
 
 ### Optional Variables
+
 ```bash
 INNGEST_ENV=development             # Environment (development/production)
 INNGEST_DEPLOYMENT_PROTECTION_KEY=... # For Vercel deployment protection

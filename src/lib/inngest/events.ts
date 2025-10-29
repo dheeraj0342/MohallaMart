@@ -7,64 +7,72 @@ import { sendEvent, type InngestEvents } from "../inngest";
 
 // User event helpers
 export const userEvents = {
-  created: (data: InngestEvents["user/created"]) => 
+  created: (data: InngestEvents["user/created"]) =>
     sendEvent("user/created", data),
-  
-  updated: (data: InngestEvents["user/updated"]) => 
+
+  updated: (data: InngestEvents["user/updated"]) =>
     sendEvent("user/updated", data),
-  
-  deleted: (data: InngestEvents["user/deleted"]) => 
+
+  deleted: (data: InngestEvents["user/deleted"]) =>
     sendEvent("user/deleted", data),
 };
 
 // Order event helpers
 export const orderEvents = {
-  created: (data: InngestEvents["order/created"]) => 
+  created: (data: InngestEvents["order/created"]) =>
     sendEvent("order/created", data),
-  
-  updated: (data: InngestEvents["order/updated"]) => 
+
+  updated: (data: InngestEvents["order/updated"]) =>
     sendEvent("order/updated", data),
-  
-  cancelled: (data: InngestEvents["order/cancelled"]) => 
+
+  cancelled: (data: InngestEvents["order/cancelled"]) =>
     sendEvent("order/cancelled", data),
 };
 
 // Product event helpers
 export const productEvents = {
-  created: (data: InngestEvents["product/created"]) => 
+  created: (data: InngestEvents["product/created"]) =>
     sendEvent("product/created", data),
-  
-  updated: (data: InngestEvents["product/updated"]) => 
+
+  updated: (data: InngestEvents["product/updated"]) =>
     sendEvent("product/updated", data),
-  
-  outOfStock: (data: InngestEvents["product/out_of_stock"]) => 
+
+  outOfStock: (data: InngestEvents["product/out_of_stock"]) =>
     sendEvent("product/out_of_stock", data),
 };
 
 // Notification event helpers
 export const notificationEvents = {
-  send: (data: InngestEvents["notification/send"]) => 
+  send: (data: InngestEvents["notification/send"]) =>
     sendEvent("notification/send", data),
 };
 
 // Analytics event helpers
 export const analyticsEvents = {
-  track: (data: InngestEvents["analytics/track"]) => 
+  track: (data: InngestEvents["analytics/track"]) =>
     sendEvent("analytics/track", data),
+};
+
+// Shopkeeper workflow events
+export const shopkeeperEvents = {
+  applied: (data: InngestEvents["shopkeeper/applied"]) =>
+    sendEvent("shopkeeper/applied", data),
+  approved: (data: InngestEvents["shopkeeper/approved"]) =>
+    sendEvent("shopkeeper/approved", data),
 };
 
 // Search event helpers
 export const searchEvents = {
-  index: (data: InngestEvents["search/index"]) => 
+  index: (data: InngestEvents["search/index"]) =>
     sendEvent("search/index", data),
 };
 
 // Cleanup event helpers
 export const cleanupEvents = {
-  expiredSessions: (data: InngestEvents["cleanup/expired_sessions"]) => 
+  expiredSessions: (data: InngestEvents["cleanup/expired_sessions"]) =>
     sendEvent("cleanup/expired_sessions", data),
-  
-  oldLogs: (data: InngestEvents["cleanup/old_logs"]) => 
+
+  oldLogs: (data: InngestEvents["cleanup/old_logs"]) =>
     sendEvent("cleanup/old_logs", data),
 };
 
@@ -148,7 +156,7 @@ export const workflows = {
 // Error handling wrapper for event sending
 export const safeSendEvent = async <T extends keyof InngestEvents>(
   eventName: T,
-  data: InngestEvents[T]
+  data: InngestEvents[T],
 ) => {
   try {
     return await sendEvent(eventName, data);

@@ -1,12 +1,17 @@
 /**
  * Practical Examples of Data Management with Inngest Integration
- * 
+ *
  * This file demonstrates how to use the data synchronization system
  * for common MohallaMart operations.
  */
 
-import { DataSyncManager } from './sync';
-import { workflows, userEvents, orderEvents, productEvents } from '@/lib/inngest/events';
+import { DataSyncManager } from "./sync";
+import {
+  workflows,
+  userEvents,
+  orderEvents,
+  productEvents,
+} from "@/lib/inngest/events";
 
 // Example 1: Complete User Registration Flow
 export async function registerNewUser() {
@@ -20,9 +25,9 @@ export async function registerNewUser() {
         address: "123 Main Street, Mumbai",
         preferences: {
           notifications: true,
-          newsletter: true
-        }
-      }
+          newsletter: true,
+        },
+      },
     };
 
     // This single call handles everything:
@@ -50,8 +55,11 @@ export async function createProductWithInventory() {
       category: "fruits",
       shopId: "shop_123",
       description: "Fresh organic apples from local farms",
-      images: ["https://example.com/apple1.jpg", "https://example.com/apple2.jpg"],
-      stock: 100
+      images: [
+        "https://example.com/apple1.jpg",
+        "https://example.com/apple2.jpg",
+      ],
+      stock: 100,
     };
 
     // Create product - automatically syncs across all services
@@ -59,7 +67,7 @@ export async function createProductWithInventory() {
 
     // Simulate inventory updates
     await DataSyncManager.updateProductStock(product.id, -10); // Sold 10 units
-    await DataSyncManager.updateProductStock(product.id, -5);  // Sold 5 more units
+    await DataSyncManager.updateProductStock(product.id, -5); // Sold 5 more units
 
     console.log("Product created and inventory updated:", product);
     return product;
@@ -79,22 +87,22 @@ export async function processOrderWorkflow() {
         {
           productId: "product_123",
           quantity: 2,
-          price: 150
+          price: 150,
         },
         {
           productId: "product_456",
           quantity: 1,
-          price: 200
-        }
+          price: 200,
+        },
       ],
       totalAmount: 500,
       deliveryAddress: {
         street: "456 Oak Avenue",
         city: "Mumbai",
         pincode: "400001",
-        state: "Maharashtra"
+        state: "Maharashtra",
       },
-      paymentMethod: "razorpay"
+      paymentMethod: "razorpay",
     };
 
     // Create order - automatically triggers:
@@ -107,7 +115,11 @@ export async function processOrderWorkflow() {
     // Update order status
     await DataSyncManager.updateOrderStatus(order.id, "confirmed", "shop_123");
     await DataSyncManager.updateOrderStatus(order.id, "preparing", "shop_123");
-    await DataSyncManager.updateOrderStatus(order.id, "out_for_delivery", "shop_123");
+    await DataSyncManager.updateOrderStatus(
+      order.id,
+      "out_for_delivery",
+      "shop_123",
+    );
 
     console.log("Order processed successfully:", order);
     return order;
@@ -124,7 +136,7 @@ export async function eventDrivenWorkflows() {
     await workflows.userRegistration({
       userId: "user_456",
       email: "jane.doe@example.com",
-      name: "Jane Doe"
+      name: "Jane Doe",
     });
 
     // Product indexing workflow
@@ -135,8 +147,8 @@ export async function eventDrivenWorkflows() {
         name: "Fresh Bananas",
         price: 80,
         category: "fruits",
-        shopId: "shop_456"
-      }
+        shopId: "shop_456",
+      },
     });
 
     console.log("Event-driven workflows completed successfully");
@@ -153,7 +165,7 @@ export async function directEventSending() {
     await userEvents.created({
       userId: "user_789",
       email: "bob.smith@example.com",
-      name: "Bob Smith"
+      name: "Bob Smith",
     });
 
     await productEvents.created({
@@ -161,7 +173,7 @@ export async function directEventSending() {
       name: "Fresh Mangoes",
       price: 120,
       category: "fruits",
-      shopId: "shop_789"
+      shopId: "shop_789",
     });
 
     await orderEvents.created({
@@ -171,16 +183,16 @@ export async function directEventSending() {
         {
           productId: "product_999",
           quantity: 3,
-          price: 120
-        }
+          price: 120,
+        },
       ],
       totalAmount: 360,
       deliveryAddress: {
         street: "789 Pine Street",
         city: "Delhi",
         pincode: "110001",
-        state: "Delhi"
-      }
+        state: "Delhi",
+      },
     });
 
     console.log("Direct events sent successfully");
@@ -215,7 +227,7 @@ export async function errorHandlingExample() {
     const userData = {
       id: "user_error_test",
       email: "error.test@example.com",
-      name: "Error Test User"
+      name: "Error Test User",
     };
 
     const user = await DataSyncManager.createUser(userData);
@@ -237,20 +249,20 @@ export async function batchOperations() {
         name: "Product 1",
         price: 100,
         category: "category1",
-        shopId: "shop_123"
+        shopId: "shop_123",
       },
       {
         id: "batch_product_2",
         name: "Product 2",
         price: 200,
         category: "category2",
-        shopId: "shop_123"
-      }
+        shopId: "shop_123",
+      },
     ];
 
     // Create multiple products
     const createdProducts = await Promise.all(
-      products.map(product => DataSyncManager.createProduct(product))
+      products.map((product) => DataSyncManager.createProduct(product)),
     );
 
     console.log("Batch operations completed:", createdProducts);
@@ -270,7 +282,7 @@ export async function realTimeUpdates() {
       name: "Real-time Product",
       price: 150,
       category: "test",
-      shopId: "shop_123"
+      shopId: "shop_123",
     });
 
     // Update stock - this will trigger real-time updates via Convex
@@ -291,7 +303,7 @@ export async function monitoringExample() {
     const user = await DataSyncManager.createUser({
       id: "monitor_user",
       email: "monitor@example.com",
-      name: "Monitor User"
+      name: "Monitor User",
     });
 
     const product = await DataSyncManager.createProduct({
@@ -299,14 +311,14 @@ export async function monitoringExample() {
       name: "Monitor Product",
       price: 100,
       category: "monitoring",
-      shopId: "shop_123"
+      shopId: "shop_123",
     });
 
     // This will trigger analytics tracking via Inngest
     await workflows.userRegistration({
       userId: user.id,
       email: user.email,
-      name: user.name
+      name: user.name,
     });
 
     console.log("Monitoring and analytics triggered");
@@ -328,5 +340,5 @@ export const examples = {
   errorHandlingExample,
   batchOperations,
   realTimeUpdates,
-  monitoringExample
+  monitoringExample,
 };

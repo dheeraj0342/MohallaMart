@@ -19,7 +19,8 @@ export const validateInngestEnv = (): ValidationResult => {
 
   const optionalVars = {
     INNGEST_ENV: process.env.INNGEST_ENV,
-    INNGEST_DEPLOYMENT_PROTECTION_KEY: process.env.INNGEST_DEPLOYMENT_PROTECTION_KEY,
+    INNGEST_DEPLOYMENT_PROTECTION_KEY:
+      process.env.INNGEST_DEPLOYMENT_PROTECTION_KEY,
   };
 
   const missingVars = Object.entries(requiredVars)
@@ -36,8 +37,8 @@ export const validateInngestEnv = (): ValidationResult => {
   });
 
   // Check for development environment
-  if (process.env.NODE_ENV === 'development' && !process.env.INNGEST_ENV) {
-    warnings.push('INNGEST_ENV not set, defaulting to development mode');
+  if (process.env.NODE_ENV === "development" && !process.env.INNGEST_ENV) {
+    warnings.push("INNGEST_ENV not set, defaulting to development mode");
   }
 
   return {
@@ -52,16 +53,20 @@ export const validateInngestEnv = (): ValidationResult => {
  */
 export const logValidationResults = (result: ValidationResult): void => {
   if (!result.isValid) {
-    console.error('❌ Inngest configuration invalid:');
-    console.error(`Missing required variables: ${result.missingVars.join(', ')}`);
-    console.error('Please set these environment variables to use Inngest functions');
+    console.error("❌ Inngest configuration invalid:");
+    console.error(
+      `Missing required variables: ${result.missingVars.join(", ")}`,
+    );
+    console.error(
+      "Please set these environment variables to use Inngest functions",
+    );
   } else {
-    console.log('✅ Inngest configuration valid');
+    console.log("✅ Inngest configuration valid");
   }
 
   if (result.warnings.length > 0) {
-    console.warn('⚠️  Inngest configuration warnings:');
-    result.warnings.forEach(warning => console.warn(`  - ${warning}`));
+    console.warn("⚠️  Inngest configuration warnings:");
+    result.warnings.forEach((warning) => console.warn(`  - ${warning}`));
   }
 };
 
@@ -75,18 +80,19 @@ export const validateAppEnv = (): ValidationResult => {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL,
     CONVEX_DEPLOYMENT: process.env.CONVEX_DEPLOYMENT,
-    
+
     // External services
     REDIS_URL: process.env.REDIS_URL,
     TYPESENSE_API_KEY: process.env.TYPESENSE_API_KEY,
     TYPESENSE_HOST: process.env.TYPESENSE_HOST,
-    
+
     // Payment
     RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
     RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
-    
+
     // Maps
-    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
+      process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   };
 
   const missingVars = Object.entries(requiredVars)
@@ -104,7 +110,9 @@ export const validateAppEnv = (): ValidationResult => {
 
   Object.entries(optionalVars).forEach(([key, value]) => {
     if (!value) {
-      warnings.push(`${key} is not set (optional but recommended for full functionality)`);
+      warnings.push(
+        `${key} is not set (optional but recommended for full functionality)`,
+      );
     }
   });
 

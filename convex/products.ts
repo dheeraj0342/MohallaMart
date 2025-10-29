@@ -65,15 +65,17 @@ export const getProductsByShop = query({
       .withIndex("by_shop", (q) => q.eq("shop_id", args.shop_id));
 
     if (args.is_available !== undefined) {
-      query = query.filter((q) => q.eq(q.field("is_available"), args.is_available));
+      query = query.filter((q) =>
+        q.eq(q.field("is_available"), args.is_available),
+      );
     }
 
     const products = await query.collect();
-    
+
     if (args.limit) {
       return products.slice(0, args.limit);
     }
-    
+
     return products;
   },
 });
@@ -91,15 +93,17 @@ export const getProductsByCategory = query({
       .withIndex("by_category", (q) => q.eq("category_id", args.category_id));
 
     if (args.is_available !== undefined) {
-      query = query.filter((q) => q.eq(q.field("is_available"), args.is_available));
+      query = query.filter((q) =>
+        q.eq(q.field("is_available"), args.is_available),
+      );
     }
 
     const products = await query.collect();
-    
+
     if (args.limit) {
       return products.slice(0, args.limit);
     }
-    
+
     return products;
   },
 });
@@ -121,16 +125,19 @@ export const searchProducts = query({
     // Filter by search query
     if (args.query) {
       const searchTerm = args.query.toLowerCase();
-      products = products.filter((product) =>
-        product.name.toLowerCase().includes(searchTerm) ||
-        product.description?.toLowerCase().includes(searchTerm) ||
-        product.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+      products = products.filter(
+        (product) =>
+          product.name.toLowerCase().includes(searchTerm) ||
+          product.description?.toLowerCase().includes(searchTerm) ||
+          product.tags.some((tag) => tag.toLowerCase().includes(searchTerm)),
       );
     }
 
     // Filter by category
     if (args.category_id) {
-      products = products.filter((product) => product.category_id === args.category_id);
+      products = products.filter(
+        (product) => product.category_id === args.category_id,
+      );
     }
 
     // Filter by shop
@@ -148,7 +155,9 @@ export const searchProducts = query({
 
     // Filter by availability
     if (args.is_available !== undefined) {
-      products = products.filter((product) => product.is_available === args.is_available);
+      products = products.filter(
+        (product) => product.is_available === args.is_available,
+      );
     }
 
     // Sort by relevance (featured first, then by rating)
@@ -193,14 +202,24 @@ export const updateProduct = mutation({
       ...(args.name && { name: args.name }),
       ...(args.description !== undefined && { description: args.description }),
       ...(args.price !== undefined && { price: args.price }),
-      ...(args.original_price !== undefined && { original_price: args.original_price }),
-      ...(args.stock_quantity !== undefined && { stock_quantity: args.stock_quantity }),
-      ...(args.min_order_quantity !== undefined && { min_order_quantity: args.min_order_quantity }),
-      ...(args.max_order_quantity !== undefined && { max_order_quantity: args.max_order_quantity }),
+      ...(args.original_price !== undefined && {
+        original_price: args.original_price,
+      }),
+      ...(args.stock_quantity !== undefined && {
+        stock_quantity: args.stock_quantity,
+      }),
+      ...(args.min_order_quantity !== undefined && {
+        min_order_quantity: args.min_order_quantity,
+      }),
+      ...(args.max_order_quantity !== undefined && {
+        max_order_quantity: args.max_order_quantity,
+      }),
       ...(args.unit && { unit: args.unit }),
       ...(args.images && { images: args.images }),
       ...(args.tags && { tags: args.tags }),
-      ...(args.is_available !== undefined && { is_available: args.is_available }),
+      ...(args.is_available !== undefined && {
+        is_available: args.is_available,
+      }),
       ...(args.is_featured !== undefined && { is_featured: args.is_featured }),
       updated_at: Date.now(),
     });
@@ -214,7 +233,11 @@ export const updateProductStock = mutation({
   args: {
     id: v.id("products"),
     quantity: v.number(),
-    operation: v.union(v.literal("add"), v.literal("subtract"), v.literal("set")),
+    operation: v.union(
+      v.literal("add"),
+      v.literal("subtract"),
+      v.literal("set"),
+    ),
   },
   handler: async (ctx, args) => {
     const product = await ctx.db.get(args.id);
@@ -223,7 +246,7 @@ export const updateProductStock = mutation({
     }
 
     let newQuantity = product.stock_quantity;
-    
+
     switch (args.operation) {
       case "add":
         newQuantity += args.quantity;
@@ -277,10 +300,11 @@ export const getProductsByTags = query({
   },
   handler: async (ctx, args) => {
     const products = await ctx.db.query("products").collect();
-    
-    const filteredProducts = products.filter((product) =>
-      product.tags.some(tag => args.tags.includes(tag)) &&
-      product.is_available
+
+    const filteredProducts = products.filter(
+      (product) =>
+        product.tags.some((tag) => args.tags.includes(tag)) &&
+        product.is_available,
     );
 
     // Sort by rating

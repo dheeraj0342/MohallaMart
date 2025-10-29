@@ -1,79 +1,92 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { supabase, getEmailRedirectUrl } from '@/lib/supabase'
-import { Eye, EyeOff, Mail, Lock, Loader2, ShoppingBag, Truck, Shield, Clock } from 'lucide-react'
-import { motion } from 'framer-motion'
-import Link from 'next/link'
+import { useState } from "react";
+import { supabase, getEmailRedirectUrl } from "@/lib/supabase";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  Loader2,
+  ShoppingBag,
+  Truck,
+  Shield,
+  Clock,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import Link from "next/link";
 
 interface LoginFormProps {
-  onSuccess?: () => void
-  onSwitchToSignup?: () => void
+  onSuccess?: () => void;
+  onSwitchToSignup?: () => void;
 }
 
-export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+export default function LoginForm({
+  onSuccess,
+  onSwitchToSignup,
+}: LoginFormProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
-      })
+      });
 
       if (error) {
-        setError(error.message)
+        setError(error.message);
       } else {
-        onSuccess?.()
+        onSuccess?.();
       }
     } catch {
-      setError('An unexpected error occurred')
+      setError("An unexpected error occurred");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleForgotPassword = async () => {
     if (!email) {
-      setError('Please enter your email address first')
-      return
+      setError("Please enter your email address first");
+      return;
     }
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${getEmailRedirectUrl()}?next=/auth/reset-password`,
-      })
+      });
 
       if (error) {
-        setError(error.message)
+        setError(error.message);
       } else {
-        setError('')
-        alert('Password reset link sent! Please check your email.')
+        setError("");
+        alert("Password reset link sent! Please check your email.");
       }
     } catch {
-      setError('Failed to send reset email')
+      setError("Failed to send reset email");
     }
-  }
+  };
 
   const features = [
-    { icon: Clock, text: '10-minute delivery' },
-    { icon: Shield, text: '100% genuine products' },
-    { icon: Truck, text: 'Free delivery above ₹199' },
-    { icon: ShoppingBag, text: '5000+ products' }
-  ]
+    { icon: Clock, text: "10-minute delivery" },
+    { icon: Shield, text: "100% genuine products" },
+    { icon: Truck, text: "Free delivery above ₹199" },
+    { icon: ShoppingBag, text: "5000+ products" },
+  ];
 
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Branding */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
@@ -98,7 +111,9 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
                   <h1 className="text-3xl font-bold">
                     Mohalla<span className="text-accent-brand">Mart</span>
                   </h1>
-                  <p className="text-sm opacity-90">Fresh groceries at your doorstep</p>
+                  <p className="text-sm opacity-90">
+                    Fresh groceries at your doorstep
+                  </p>
                 </div>
               </div>
             </Link>
@@ -109,7 +124,8 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
             <div>
               <h2 className="text-4xl font-bold mb-4">Welcome back!</h2>
               <p className="text-lg opacity-90">
-                Sign in to continue shopping for fresh groceries and daily essentials.
+                Sign in to continue shopping for fresh groceries and daily
+                essentials.
               </p>
             </div>
 
@@ -160,14 +176,20 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
                   Mohalla<span className="text-secondary-brand">Mart</span>
                 </h1>
               </div>
-              <p className="text-sm text-neutral-600">Fresh groceries at your doorstep</p>
+              <p className="text-sm text-neutral-600">
+                Fresh groceries at your doorstep
+              </p>
             </Link>
           </div>
 
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-neutral-100">
             <div className="mb-8">
-              <h2 className="text-3xl font-bold text-neutral-900 mb-2">Sign In</h2>
-              <p className="text-neutral-600">Enter your credentials to access your account</p>
+              <h2 className="text-3xl font-bold text-neutral-900 mb-2">
+                Sign In
+              </h2>
+              <p className="text-neutral-600">
+                Enter your credentials to access your account
+              </p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-5">
@@ -183,7 +205,10 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
               )}
 
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-neutral-700 mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-semibold text-neutral-700 mb-2"
+                >
                   Email Address
                 </label>
                 <div className="relative">
@@ -204,7 +229,10 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label htmlFor="password" className="block text-sm font-semibold text-neutral-700">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-semibold text-neutral-700"
+                  >
                     Password
                   </label>
                   <button
@@ -221,7 +249,7 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
                   </div>
                   <input
                     id="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -233,7 +261,11 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-4 flex items-center text-neutral-400 hover:text-primary-brand transition-colors"
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -244,7 +276,10 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
                   id="remember"
                   className="h-4 w-4 text-primary-brand focus:ring-primary-brand border-neutral-300 rounded"
                 />
-                <label htmlFor="remember" className="ml-2 text-sm text-neutral-700">
+                <label
+                  htmlFor="remember"
+                  className="ml-2 text-sm text-neutral-700"
+                >
                   Remember me for 30 days
                 </label>
               </div>
@@ -262,13 +297,15 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
                     Signing in...
                   </>
                 ) : (
-                  'Sign In'
+                  "Sign In"
                 )}
               </motion.button>
             </form>
 
             <div className="mt-6 text-center">
-              <span className="text-neutral-600">Don&apos;t have an account? </span>
+              <span className="text-neutral-600">
+                Don&apos;t have an account?{" "}
+              </span>
               <button
                 onClick={onSwitchToSignup}
                 className="text-primary-brand hover:text-primary-hover font-semibold"
@@ -283,26 +320,42 @@ export default function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProp
                 <div className="w-full border-t border-neutral-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-neutral-500">Or continue with</span>
+                <span className="px-4 bg-white text-neutral-500">
+                  Or continue with
+                </span>
               </div>
             </div>
 
             {/* Social Login */}
             <div className="grid grid-cols-2 gap-3">
-              <button disabled className="relative flex items-center justify-center space-x-2 px-4 py-3 border-2 border-neutral-200 rounded-xl bg-neutral-50 cursor-not-allowed opacity-60">
+              <button
+                disabled
+                className="relative flex items-center justify-center space-x-2 px-4 py-3 border-2 border-neutral-200 rounded-xl bg-neutral-50 cursor-not-allowed opacity-60"
+              >
                 <span className="text-xl">🔍</span>
-                <span className="text-sm font-medium text-neutral-700">Google</span>
-                <span className="absolute -top-2 -right-2 bg-accent-brand text-white text-xs font-bold px-2 py-0.5 rounded-full">Soon</span>
+                <span className="text-sm font-medium text-neutral-700">
+                  Google
+                </span>
+                <span className="absolute -top-2 -right-2 bg-accent-brand text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  Soon
+                </span>
               </button>
-              <button disabled className="relative flex items-center justify-center space-x-2 px-4 py-3 border-2 border-neutral-200 rounded-xl bg-neutral-50 cursor-not-allowed opacity-60">
+              <button
+                disabled
+                className="relative flex items-center justify-center space-x-2 px-4 py-3 border-2 border-neutral-200 rounded-xl bg-neutral-50 cursor-not-allowed opacity-60"
+              >
                 <span className="text-xl">📱</span>
-                <span className="text-sm font-medium text-neutral-700">Phone</span>
-                <span className="absolute -top-2 -right-2 bg-accent-brand text-white text-xs font-bold px-2 py-0.5 rounded-full">Soon</span>
+                <span className="text-sm font-medium text-neutral-700">
+                  Phone
+                </span>
+                <span className="absolute -top-2 -right-2 bg-accent-brand text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  Soon
+                </span>
               </button>
             </div>
           </div>
         </motion.div>
       </div>
     </div>
-  )
+  );
 }

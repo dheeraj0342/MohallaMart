@@ -17,12 +17,13 @@ Frontend → DataSyncManager → [Supabase, Convex, Inngest, Redis, Typesense]
 ## Data Flow
 
 ### 1. **Data Creation Flow**
+
 ```typescript
 // Create user data across all services
 const user = await DataSyncManager.createUser({
   id: "user123",
   email: "user@example.com",
-  name: "John Doe"
+  name: "John Doe",
 });
 
 // This automatically:
@@ -33,6 +34,7 @@ const user = await DataSyncManager.createUser({
 ```
 
 ### 2. **Event-Driven Updates**
+
 ```typescript
 // When data changes, events are triggered automatically
 await DataSyncManager.updateProductStock("product123", -5);
@@ -47,14 +49,15 @@ await DataSyncManager.updateProductStock("product123", -5);
 ## Available Data Operations
 
 ### User Management
+
 ```typescript
-import { DataSyncManager } from '@/lib/data/sync';
+import { DataSyncManager } from "@/lib/data/sync";
 
 // Create user
 const user = await DataSyncManager.createUser({
   id: "user123",
   email: "user@example.com",
-  name: "John Doe"
+  name: "John Doe",
 });
 
 // Get user data
@@ -62,6 +65,7 @@ const userData = await DataSyncManager.getProduct("user123");
 ```
 
 ### Product Management
+
 ```typescript
 // Create product
 const product = await DataSyncManager.createProduct({
@@ -70,7 +74,7 @@ const product = await DataSyncManager.createProduct({
   price: 150,
   category: "fruits",
   shopId: "shop123",
-  stock: 100
+  stock: 100,
 });
 
 // Update inventory
@@ -81,21 +85,20 @@ const products = await DataSyncManager.searchProducts("apples");
 ```
 
 ### Order Management
+
 ```typescript
 // Create order
 const order = await DataSyncManager.createOrder({
   id: "order123",
   userId: "user123",
-  items: [
-    { productId: "product123", quantity: 2, price: 150 }
-  ],
+  items: [{ productId: "product123", quantity: 2, price: 150 }],
   totalAmount: 300,
   deliveryAddress: {
     street: "123 Main St",
     city: "Mumbai",
     pincode: "400001",
-    state: "Maharashtra"
-  }
+    state: "Maharashtra",
+  },
 });
 
 // Update order status
@@ -105,6 +108,7 @@ await DataSyncManager.updateOrderStatus("order123", "confirmed", "shop123");
 ## Inngest Event Integration
 
 ### Automatic Event Triggers
+
 All data operations automatically trigger Inngest events:
 
 - **User Creation** → `user/created` event
@@ -114,6 +118,7 @@ All data operations automatically trigger Inngest events:
 - **Order Status Changes** → `order/updated` event
 
 ### Background Processing
+
 Inngest handles background processing for:
 
 1. **Email Notifications**
@@ -139,14 +144,15 @@ Inngest handles background processing for:
 ## Event-Driven Workflows
 
 ### User Registration Workflow
+
 ```typescript
-import { workflows } from '@/lib/inngest/events';
+import { workflows } from "@/lib/inngest/events";
 
 // Complete user registration with all background processing
 await workflows.userRegistration({
   userId: "user123",
   email: "user@example.com",
-  name: "John Doe"
+  name: "John Doe",
 });
 
 // This automatically triggers:
@@ -157,6 +163,7 @@ await workflows.userRegistration({
 ```
 
 ### Order Processing Workflow
+
 ```typescript
 // Complete order processing workflow
 await workflows.orderCreation({
@@ -178,21 +185,27 @@ await workflows.orderCreation({
 ## Data Synchronization Patterns
 
 ### 1. **Write-Through Pattern**
+
 All writes go through the DataSyncManager:
+
 ```typescript
 // Single write operation syncs to all services
 await DataSyncManager.createProduct(productData);
 ```
 
 ### 2. **Event-Driven Updates**
+
 Changes trigger automatic synchronization:
+
 ```typescript
 // Update triggers events for all dependent services
 await DataSyncManager.updateProductStock("product123", -5);
 ```
 
 ### 3. **Real-time Sync**
+
 Convex provides real-time updates to frontend:
+
 ```typescript
 // Frontend automatically receives updates via Convex
 const products = useQuery(api.products.list);
@@ -201,7 +214,9 @@ const products = useQuery(api.products.list);
 ## Monitoring and Observability
 
 ### Data Sync Monitoring
+
 Inngest monitors data synchronization:
+
 ```typescript
 // Automatic monitoring every 5 minutes
 export const monitorDataSync = inngest.createFunction(
@@ -210,12 +225,14 @@ export const monitorDataSync = inngest.createFunction(
   async ({ step }) => {
     // Check for inconsistencies between services
     // Log sync status and performance metrics
-  }
+  },
 );
 ```
 
 ### Error Handling
+
 Comprehensive error handling across all services:
+
 ```typescript
 try {
   await DataSyncManager.createUser(userData);
@@ -229,15 +246,17 @@ try {
 ## Best Practices
 
 ### 1. **Always Use DataSyncManager**
+
 ```typescript
 // ✅ Good - Use DataSyncManager
 await DataSyncManager.createProduct(productData);
 
 // ❌ Bad - Direct database access
-await supabase.from('products').insert(productData);
+await supabase.from("products").insert(productData);
 ```
 
 ### 2. **Handle Events Properly**
+
 ```typescript
 // ✅ Good - Use event helpers
 await userEvents.created(userData);
@@ -247,6 +266,7 @@ await inngest.send({ name: "user/created", data: userData });
 ```
 
 ### 3. **Use Workflows for Complex Operations**
+
 ```typescript
 // ✅ Good - Use workflows for complex operations
 await workflows.userRegistration(userData);
@@ -260,16 +280,19 @@ await analyticsEvents.track(...);
 ## Performance Optimization
 
 ### Caching Strategy
+
 - Redis cache for frequently accessed data
 - Automatic cache invalidation on updates
 - Cache warming for popular products
 
 ### Batch Operations
+
 - Batch multiple operations together
 - Use Inngest for reliable batch processing
 - Implement proper retry policies
 
 ### Monitoring
+
 - Track data sync performance
 - Monitor error rates
 - Set up alerts for critical failures
@@ -277,11 +300,13 @@ await analyticsEvents.track(...);
 ## Security Considerations
 
 ### Data Validation
+
 - All data validated with Zod schemas
 - Proper authentication checks
 - Input sanitization
 
 ### Access Control
+
 - Row-level security in Supabase
 - Proper permission checks
 - Audit logging for sensitive operations
@@ -306,17 +331,20 @@ await analyticsEvents.track(...);
    - Optimize queries
 
 ### Debug Mode
+
 Enable debug mode for development:
+
 ```typescript
 // In development, enable detailed logging
-if (process.env.NODE_ENV === 'development') {
-  console.log('Data sync operation:', operation);
+if (process.env.NODE_ENV === "development") {
+  console.log("Data sync operation:", operation);
 }
 ```
 
 ## Conclusion
 
 This data management system provides:
+
 - **Reliability**: Event-driven architecture with automatic retries
 - **Consistency**: Data synchronized across all services
 - **Performance**: Caching and optimization strategies

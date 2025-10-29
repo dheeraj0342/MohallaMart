@@ -1,7 +1,7 @@
 import { serve } from "inngest/next";
 import { inngest } from "../inngest";
 import { validateInngestEnv, logValidationResults } from "./validation";
-import { 
+import {
   sendWelcomeEmail,
   sendOrderConfirmation,
   sendOrderUpdate,
@@ -15,8 +15,9 @@ import {
   syncOrderData,
   syncInventoryUpdate,
   scheduledCleanup,
-  monitorDataSync
+  monitorDataSync,
 } from "./functions";
+import { onShopkeeperApplied, onShopkeeperApproved } from "./functions";
 
 // Validate environment variables on startup
 const validationResult = validateInngestEnv();
@@ -31,24 +32,26 @@ export const serveHandler = serve({
     sendOrderConfirmation,
     sendOrderUpdate,
     sendNotification,
-    
+
     // Search and indexing functions
     indexProduct,
-    
+
     // Data synchronization functions
     syncUserData,
     syncProductData,
     syncOrderData,
     syncInventoryUpdate,
-    
+
     // Cleanup and monitoring functions
     cleanupExpiredSessions,
     scheduledCleanup,
     monitorDataSync,
-    
+
     // Analytics and inventory functions
     trackAnalytics,
     processOutOfStockAlert,
+    onShopkeeperApplied,
+    onShopkeeperApproved,
   ],
   streaming: "allow",
   signingKey: process.env.INNGEST_SIGNING_KEY,

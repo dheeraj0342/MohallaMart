@@ -1,25 +1,36 @@
-'use client'
+"use client";
 
-import { X, Plus, Minus, ShoppingCart, Trash2 } from 'lucide-react'
-import { useStore } from '@/store/useStore'
-import { motion, AnimatePresence } from 'framer-motion'
+import { X, Plus, Minus, ShoppingCart, Trash2 } from "lucide-react";
+import { useStore } from "@/store/useStore";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CartSidebarProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
-  const { cart, removeFromCart, updateQuantity, getTotalItems, getTotalPrice, clearCart } = useStore()
+  const {
+    cart,
+    removeFromCart,
+    updateQuantity,
+    getTotalItems,
+    getTotalPrice,
+    clearCart,
+  } = useStore();
 
-  const handleQuantityChange = (id: string, currentQuantity: number, change: number) => {
-    const newQuantity = currentQuantity + change
+  const handleQuantityChange = (
+    id: string,
+    currentQuantity: number,
+    change: number,
+  ) => {
+    const newQuantity = currentQuantity + change;
     if (newQuantity > 0) {
-      updateQuantity(id, newQuantity)
+      updateQuantity(id, newQuantity);
     } else {
-      removeFromCart(id)
+      removeFromCart(id);
     }
-  }
+  };
 
   return (
     <AnimatePresence>
@@ -36,10 +47,10 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
 
           {/* Sidebar */}
           <motion.div
-            initial={{ x: '100%' }}
+            initial={{ x: "100%" }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed right-0 top-0 h-full w-full sm:w-96 bg-white shadow-2xl z-50 flex flex-col"
           >
             {/* Header */}
@@ -80,8 +91,12 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-neutral-900">{item.name}</h3>
-                          <p className="text-primary-brand font-medium mt-1">₹{item.price}</p>
+                          <h3 className="font-semibold text-neutral-900">
+                            {item.name}
+                          </h3>
+                          <p className="text-primary-brand font-medium mt-1">
+                            ₹{item.price}
+                          </p>
                         </div>
                         <button
                           onClick={() => removeFromCart(item.id)}
@@ -90,11 +105,13 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                           <Trash2 className="h-5 w-5" />
                         </button>
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3 bg-white rounded-lg border border-neutral-300">
                           <button
-                            onClick={() => handleQuantityChange(item.id, item.quantity, -1)}
+                            onClick={() =>
+                              handleQuantityChange(item.id, item.quantity, -1)
+                            }
                             className="p-2 hover:bg-neutral-100 rounded-l-lg transition-colors"
                           >
                             <Minus className="h-4 w-4 text-neutral-600" />
@@ -103,7 +120,9 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => handleQuantityChange(item.id, item.quantity, 1)}
+                            onClick={() =>
+                              handleQuantityChange(item.id, item.quantity, 1)
+                            }
                             className="p-2 hover:bg-neutral-100 rounded-r-lg transition-colors"
                           >
                             <Plus className="h-4 w-4 text-neutral-600" />
@@ -115,7 +134,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                       </div>
                     </motion.div>
                   ))}
-                  
+
                   {cart.length > 1 && (
                     <button
                       onClick={clearCart}
@@ -145,11 +164,11 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     <span>₹{getTotalPrice().toFixed(2)}</span>
                   </div>
                 </div>
-                
+
                 <button className="w-full bg-primary-brand text-white py-3 rounded-lg font-semibold hover:bg-primary-brand-hover transition-colors">
                   Proceed to Checkout
                 </button>
-                
+
                 <button
                   onClick={onClose}
                   className="w-full mt-2 text-neutral-600 hover:text-neutral-800 py-2 text-sm font-medium transition-colors"
@@ -162,5 +181,5 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
         </>
       )}
     </AnimatePresence>
-  )
+  );
 }

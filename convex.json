@@ -1,8 +1,5 @@
 {
   "node": {
-    "externalPackages": [
-      "ioredis",
-      "typesense"
-    ]
+    "externalPackages": ["ioredis", "typesense"]
   }
 }

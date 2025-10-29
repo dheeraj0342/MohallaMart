@@ -9,7 +9,11 @@ export default defineSchema({
     email: v.string(),
     phone: v.optional(v.string()),
     avatar_url: v.optional(v.string()),
-    role: v.union(v.literal("customer"), v.literal("shop_owner"), v.literal("admin")),
+    role: v.union(
+      v.literal("customer"),
+      v.literal("shop_owner"),
+      v.literal("admin"),
+    ),
     is_active: v.boolean(),
     created_at: v.number(),
     updated_at: v.number(),
@@ -28,24 +32,30 @@ export default defineSchema({
       city: v.string(),
       pincode: v.string(),
       state: v.string(),
-      coordinates: v.optional(v.object({
-        lat: v.number(),
-        lng: v.number(),
-      })),
+      coordinates: v.optional(
+        v.object({
+          lat: v.number(),
+          lng: v.number(),
+        }),
+      ),
     }),
     contact: v.object({
       phone: v.string(),
       email: v.optional(v.string()),
     }),
-    business_hours: v.optional(v.object({
-      monday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      tuesday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      wednesday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      thursday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      friday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      saturday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      sunday: v.optional(v.object({ open: v.string(), close: v.string() })),
-    })),
+    business_hours: v.optional(
+      v.object({
+        monday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        tuesday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        wednesday: v.optional(
+          v.object({ open: v.string(), close: v.string() }),
+        ),
+        thursday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        friday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        saturday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        sunday: v.optional(v.object({ open: v.string(), close: v.string() })),
+      }),
+    ),
     is_active: v.boolean(),
     rating: v.optional(v.number()),
     total_orders: v.number(),
@@ -120,15 +130,17 @@ export default defineSchema({
       v.literal("preparing"),
       v.literal("out_for_delivery"),
       v.literal("delivered"),
-      v.literal("cancelled")
+      v.literal("cancelled"),
     ),
-    items: v.array(v.object({
-      product_id: v.id("products"),
-      name: v.string(),
-      price: v.number(),
-      quantity: v.number(),
-      total_price: v.number(),
-    })),
+    items: v.array(
+      v.object({
+        product_id: v.id("products"),
+        name: v.string(),
+        price: v.number(),
+        quantity: v.number(),
+        total_price: v.number(),
+      }),
+    ),
     subtotal: v.number(),
     delivery_fee: v.number(),
     tax: v.number(),
@@ -138,17 +150,19 @@ export default defineSchema({
       city: v.string(),
       pincode: v.string(),
       state: v.string(),
-      coordinates: v.optional(v.object({
-        lat: v.number(),
-        lng: v.number(),
-      })),
+      coordinates: v.optional(
+        v.object({
+          lat: v.number(),
+          lng: v.number(),
+        }),
+      ),
     }),
     payment_method: v.string(),
     payment_status: v.union(
       v.literal("pending"),
       v.literal("paid"),
       v.literal("failed"),
-      v.literal("refunded")
+      v.literal("refunded"),
     ),
     delivery_time: v.optional(v.string()),
     notes: v.optional(v.string()),
@@ -198,7 +212,7 @@ export default defineSchema({
       v.literal("order_update"),
       v.literal("promotion"),
       v.literal("system"),
-      v.literal("delivery")
+      v.literal("delivery"),
     ),
     title: v.string(),
     message: v.string(),
@@ -219,10 +233,12 @@ export default defineSchema({
     city: v.string(),
     area: v.string(),
     pincode: v.optional(v.string()),
-    coordinates: v.optional(v.object({
-      lat: v.number(),
-      lng: v.number(),
-    })),
+    coordinates: v.optional(
+      v.object({
+        lat: v.number(),
+        lng: v.number(),
+      }),
+    ),
     is_default: v.boolean(),
     created_at: v.number(),
   })
@@ -249,6 +265,93 @@ export default defineSchema({
     value: v.any(),
     description: v.optional(v.string()),
     updated_at: v.number(),
+  }).index("by_key", ["key"]),
+
+  // Shopkeeper applications table
+  shopkeeper_applications: defineTable({
+    applicant_id: v.id("users"),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("approved"),
+      v.literal("rejected"),
+    ),
+    reviewer_id: v.optional(v.id("users")),
+    notes: v.optional(v.string()),
+    created_at: v.number(),
+    updated_at: v.number(),
   })
-    .index("by_key", ["key"]),
+    .index("by_applicant", ["applicant_id"])
+    .index("by_status", ["status"]),
+
+  // Admin audit logs
+  admin_audit_logs: defineTable({
+    action: v.string(),
+    target_user_id: v.id("users"),
+    performed_by: v.optional(v.id("users")),
+    metadata: v.optional(v.any()),
+    created_at: v.number(),
+  })
+    .index("by_target", ["target_user_id"])
+    .index("by_action", ["action"])
+    .index("by_created_at", ["created_at"]),
+
+  // Seller (Shopkeeper) registrations table
+  seller_registrations: defineTable({
+    user_id: v.id("users"),
+    pan: v.string(),
+    gstin: v.optional(v.string()),
+    bank: v.object({
+      account_holder: v.string(),
+      account_number: v.string(),
+      ifsc: v.string(),
+    }),
+    address: v.object({
+      street: v.string(),
+      city: v.string(),
+      state: v.string(),
+      pincode: v.string(),
+    }),
+    identity: v.object({
+      type: v.union(
+        v.literal("aadhaar"),
+        v.literal("passport"),
+        v.literal("voter_id"),
+        v.literal("driver_license"),
+      ),
+      number: v.string(),
+    }),
+    business: v.object({
+      type: v.union(
+        v.literal("individual"),
+        v.literal("proprietorship"),
+        v.literal("partnership"),
+        v.literal("company"),
+      ),
+      name: v.optional(v.string()),
+      documents: v.optional(v.array(v.string())),
+    }),
+    pickup_address: v.object({
+      street: v.string(),
+      city: v.string(),
+      state: v.string(),
+      pincode: v.string(),
+    }),
+    first_product: v.optional(
+      v.object({
+        name: v.optional(v.string()),
+        url: v.optional(v.string()),
+      }),
+    ),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("submitted"),
+      v.literal("reviewing"),
+      v.literal("approved"),
+      v.literal("rejected"),
+    ),
+    created_at: v.number(),
+    updated_at: v.number(),
+  })
+    .index("by_user", ["user_id"])
+    .index("by_status", ["status"]),
 });

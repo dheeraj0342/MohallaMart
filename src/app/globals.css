@@ -2,25 +2,24 @@
 
 @custom-variant dark (&:is(.dark *));
 :root {
-
-  /* Local Commerce Platform Brand Colors */
-  --color-primary: #0F766E;        /* Deep Teal - Trust & Local Connection */
-  --color-primary-hover: #0D4F4A;  /* Darker teal for hover */
-  --color-secondary: #DC2626;      /* Vibrant Red - Urgency & CTAs */
-  --color-secondary-hover: #991B1B; /* Darker red for hover */
-  --color-accent: #F59E0B;         /* Warm Amber - Local warmth & highlights */
-  --color-accent-hover: #D97706;   /* Darker amber for hover */
+  /* Local Commerce Platform Brand Colors (aligned with project spec) */
+  --color-primary: #2e7d32; /* Forest Green - Main actions */
+  --color-primary-hover: #255f27; /* Darker green for hover */
+  --color-secondary: #f97316; /* Vibrant Orange - CTAs */
+  --color-secondary-hover: #c85e12; /* Darker orange for hover */
+  --color-accent: #fbbf24; /* Sunny Yellow - Highlights */
+  --color-accent-hover: #d39e16; /* Darker yellow for hover */
 
   /* Supporting colors for marketplace feel */
-  --color-success: #059669;        /* Emerald - Transaction success */
-  --color-warning: #EA580C;        /* Orange - Alerts & caution */
-  --color-error: #DC2626;          /* Red - Errors */
-  --color-info: #0284C7;           /* Sky Blue - Information */
+  --color-success: #059669; /* Emerald - Transaction success */
+  --color-warning: #ea580c; /* Orange - Alerts & caution */
+  --color-error: #dc2626; /* Red - Errors */
+  --color-info: #0284c7; /* Sky Blue - Information */
 
   /* Error/Alert backgrounds and borders */
-  --error-bg: #FEF2F2;            /* Light red background for errors */
-  --error-border: #FECACA;        /* Light red border for errors */
-  --error-text: #DC2626;          /* Red text for errors */
+  --error-bg: #fef2f2; /* Light red background for errors */
+  --error-border: #fecaca; /* Light red border for errors */
+  --error-text: #dc2626; /* Red text for errors */
 
   /* Legacy support - map to new colors */
   --primary-brand: var(--color-primary);
@@ -46,9 +45,57 @@
   --neutral-dark: #18181b;
 
   /* Contextual colors for local commerce */
-  --color-merchant: #7C3AED;       /* Purple - Seller/Merchant actions */
-  --color-customer: #0F766E;       /* Teal - Customer actions */
-  --color-transaction: #059669;    /* Emerald - Payment/Transaction success */    --radius: 0.625rem;    --background: oklch(1 0 0);    --foreground: oklch(0.141 0.005 285.823);    --card: oklch(1 0 0);    --card-foreground: oklch(0.141 0.005 285.823);    --popover: oklch(1 0 0);    --popover-foreground: oklch(0.141 0.005 285.823);    --primary: oklch(0.21 0.006 285.885);    --primary-foreground: oklch(0.985 0 0);    --secondary: oklch(0.967 0.001 286.375);    --secondary-foreground: oklch(0.21 0.006 285.885);    --muted: oklch(0.967 0.001 286.375);    --muted-foreground: oklch(0.552 0.016 285.938);    --accent: oklch(0.967 0.001 286.375);    --accent-foreground: oklch(0.21 0.006 285.885);    --destructive: oklch(0.577 0.245 27.325);    --border: oklch(0.92 0.004 286.32);    --input: oklch(0.92 0.004 286.32);    --ring: oklch(0.705 0.015 286.067);    --chart-1: oklch(0.646 0.222 41.116);    --chart-2: oklch(0.6 0.118 184.704);    --chart-3: oklch(0.398 0.07 227.392);    --chart-4: oklch(0.828 0.189 84.429);    --chart-5: oklch(0.769 0.188 70.08);    --sidebar: oklch(0.985 0 0);    --sidebar-foreground: oklch(0.141 0.005 285.823);    --sidebar-primary: oklch(0.21 0.006 285.885);    --sidebar-primary-foreground: oklch(0.985 0 0);    --sidebar-accent: oklch(0.967 0.001 286.375);    --sidebar-accent-foreground: oklch(0.21 0.006 285.885);    --sidebar-border: oklch(0.92 0.004 286.32);    --sidebar-ring: oklch(0.705 0.015 286.067);
+  --color-merchant: #7c3aed; /* Purple - Seller/Merchant actions */
+  --color-customer: #2e7d32; /* Forest Green - Customer actions */
+  --color-transaction: #059669; /* Emerald - Payment/Transaction success */
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.21 0.006 285.885);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --ring: oklch(0.705 0.015 286.067);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-primary: oklch(0.21 0.006 285.885);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-ring: oklch(0.705 0.015 286.067);
+
+  /* Extended brand and semantic colors */
+  --tertiary-brand: #0ea5e9; /* Sky Blue */
+  --tertiary-hover: #0284c7; /* Darker Sky Blue */
+  --link: #2563eb; /* Indigo link */
+  --link-hover: #1d4ed8; /* Darker indigo */
+
+  /* Light background tints for alerts/badges */
+  --success-bg-light: #ecfdf5; /* Mint tint */
+  --success-fg: #065f46; /* Deep emerald text */
+  --warning-bg-light: #fffbeb; /* Amber tint */
+  --warning-fg: #92400e; /* Deep amber text */
+  --info-bg-light: #eff6ff; /* Sky tint */
+  --info-fg: #1e40af; /* Indigo text */
+  --error-bg-light: #fef2f2; /* Red tint */
+  --error-fg: #991b1b; /* Deep red text */
 }
 
 @theme inline {
@@ -99,12 +146,64 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --neutral-light: #27272a;
-    --neutral-dark: #fafafa;    --background: oklch(0.141 0.005 285.823);    --foreground: oklch(0.985 0 0);    --card: oklch(0.173 0.006 285.882);    --card-foreground: oklch(0.985 0 0);    --popover: oklch(0.141 0.005 285.823);    --popover-foreground: oklch(0.985 0 0);    --primary: oklch(0.985 0 0);    --primary-foreground: oklch(0.21 0.006 285.885);    --secondary: oklch(0.233 0.007 285.888);    --secondary-foreground: oklch(0.985 0 0);    --muted: oklch(0.233 0.007 285.888);    --muted-foreground: oklch(0.705 0.015 286.067);    --accent: oklch(0.233 0.007 285.888);    --accent-foreground: oklch(0.985 0 0);    --destructive: oklch(0.575 0.245 27.327);    --border: oklch(0.233 0.007 285.888);    --input: oklch(0.233 0.007 285.888);    --ring: oklch(0.796 0.018 286.034);    --chart-1: oklch(0.782 0.201 70.603);    --chart-2: oklch(0.649 0.167 184.713);    --chart-3: oklch(0.553 0.101 227.392);    --chart-4: oklch(0.876 0.162 84.429);    --chart-5: oklch(0.826 0.157 70.08);    --sidebar: oklch(0.173 0.006 285.882);    --sidebar-foreground: oklch(0.985 0 0);    --sidebar-primary: oklch(0.985 0 0);    --sidebar-primary-foreground: oklch(0.21 0.006 285.885);    --sidebar-accent: oklch(0.233 0.007 285.888);    --sidebar-accent-foreground: oklch(0.985 0 0);    --sidebar-border: oklch(0.233 0.007 285.888);    --sidebar-ring: oklch(0.796 0.018 286.034);
+    --neutral-dark: #fafafa;
+    --background: oklch(0.141 0.005 285.823);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.173 0.006 285.882);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.141 0.005 285.823);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.985 0 0);
+    --primary-foreground: oklch(0.21 0.006 285.885);
+    --secondary: oklch(0.233 0.007 285.888);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.233 0.007 285.888);
+    --muted-foreground: oklch(0.705 0.015 286.067);
+    --accent: oklch(0.233 0.007 285.888);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.575 0.245 27.327);
+    --border: oklch(0.233 0.007 285.888);
+    --input: oklch(0.233 0.007 285.888);
+    --ring: oklch(0.796 0.018 286.034);
+    --chart-1: oklch(0.782 0.201 70.603);
+    --chart-2: oklch(0.649 0.167 184.713);
+    --chart-3: oklch(0.553 0.101 227.392);
+    --chart-4: oklch(0.876 0.162 84.429);
+    --chart-5: oklch(0.826 0.157 70.08);
+    --sidebar: oklch(0.173 0.006 285.882);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.985 0 0);
+    --sidebar-primary-foreground: oklch(0.21 0.006 285.885);
+    --sidebar-accent: oklch(0.233 0.007 285.888);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(0.233 0.007 285.888);
+    --sidebar-ring: oklch(0.796 0.018 286.034);
+
+    /* Dark equivalents for extended colors */
+    --tertiary-brand: #38bdf8; /* Lighter sky for dark */
+    --tertiary-hover: #0ea5e9;
+    --link: #93c5fd; /* Light indigo */
+    --link-hover: #60a5fa;
+    --success-bg-light: #064e3b;
+    --success-fg: #a7f3d0;
+    --warning-bg-light: #78350f;
+    --warning-fg: #fde68a;
+    --info-bg-light: #1e3a8a;
+    --info-fg: #bfdbfe;
+    --error-bg-light: #7f1d1d;
+    --error-fg: #fecaca;
   }
 }
 
 body {
-  font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    var(--font-inter),
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
 }
 
 html {

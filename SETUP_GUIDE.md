@@ -106,6 +106,7 @@ CREATE POLICY "Users can update own profile" ON users
 ### 3. Redis Setup
 
 #### Option A: Local Redis
+
 ```bash
 # Install Redis (Ubuntu/Debian)
 sudo apt update
@@ -117,6 +118,7 @@ sudo systemctl enable redis-server
 ```
 
 #### Option B: Redis Cloud
+
 1. Go to [Redis Cloud](https://redis.com/redis-enterprise-cloud/)
 2. Create a free account and database
 3. Get your connection details
@@ -124,6 +126,7 @@ sudo systemctl enable redis-server
 ### 4. Typesense Setup
 
 #### Option A: Local Typesense
+
 ```bash
 # Install Typesense
 curl -O https://dl.typesense.org/releases/0.25.1/typesense-0.25.1-amd64.deb
@@ -135,6 +138,7 @@ sudo systemctl enable typesense-server
 ```
 
 #### Option B: Typesense Cloud
+
 1. Go to [Typesense Cloud](https://cloud.typesense.org/)
 2. Create a free cluster
 3. Get your API key and host
@@ -175,21 +179,25 @@ sudo systemctl enable typesense-server
 ## Installation and Running
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Start the development server:
+
 ```bash
 npm run dev
 ```
 
 3. In another terminal, start Convex:
+
 ```bash
 npx convex dev
 ```
 
 4. In another terminal, start Inngest:
+
 ```bash
 npx inngest-cli dev
 ```

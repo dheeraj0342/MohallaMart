@@ -18,8 +18,8 @@ export const addToCart = mutation({
     // Check if item already exists in cart
     const existingItem = await ctx.db
       .query("cart")
-      .withIndex("by_user_product", (q) => 
-        q.eq("user_id", args.user_id).eq("product_id", args.product_id)
+      .withIndex("by_user_product", (q) =>
+        q.eq("user_id", args.user_id).eq("product_id", args.product_id),
       )
       .first();
 
@@ -60,7 +60,7 @@ export const getCart = query({
           ...item,
           product,
         };
-      })
+      }),
     );
 
     return cartWithProducts;
@@ -82,8 +82,8 @@ export const updateCartItemQuantity = mutation({
 
     const cartItem = await ctx.db
       .query("cart")
-      .withIndex("by_user_product", (q) => 
-        q.eq("user_id", args.user_id).eq("product_id", args.product_id)
+      .withIndex("by_user_product", (q) =>
+        q.eq("user_id", args.user_id).eq("product_id", args.product_id),
       )
       .first();
 
@@ -109,8 +109,8 @@ export const removeFromCart = mutation({
   handler: async (ctx, args) => {
     const cartItem = await ctx.db
       .query("cart")
-      .withIndex("by_user_product", (q) => 
-        q.eq("user_id", args.user_id).eq("product_id", args.product_id)
+      .withIndex("by_user_product", (q) =>
+        q.eq("user_id", args.user_id).eq("product_id", args.product_id),
       )
       .first();
 
@@ -132,7 +132,7 @@ export const clearCart = mutation({
       .withIndex("by_user", (q) => q.eq("user_id", args.user_id))
       .collect();
 
-    await Promise.all(cartItems.map(item => ctx.db.delete(item._id)));
+    await Promise.all(cartItems.map((item) => ctx.db.delete(item._id)));
 
     return true;
   },
@@ -157,7 +157,7 @@ export const getCartSummary = query({
       if (product) {
         totalItems += item.quantity;
         totalPrice += product.price * item.quantity;
-        
+
         if (product.is_available && product.stock_quantity >= item.quantity) {
           availableItems += item.quantity;
         } else {
@@ -180,10 +180,12 @@ export const getCartSummary = query({
 export const syncCartWithConvex = mutation({
   args: {
     user_id: v.id("users"),
-    items: v.array(v.object({
-      product_id: v.id("products"),
-      quantity: v.number(),
-    })),
+    items: v.array(
+      v.object({
+        product_id: v.id("products"),
+        quantity: v.number(),
+      }),
+    ),
   },
   handler: async (ctx, args) => {
     // Clear existing cart
@@ -200,7 +202,10 @@ export const syncCartWithConvex = mutation({
         });
         results.push({ success: true, id: cartItemId });
       } catch (error) {
-        results.push({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
+        results.push({
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
       }
     }
 
@@ -212,8 +217,8 @@ export const syncCartWithConvex = mutation({
 async function removeFromCartHelper(ctx: any, user_id: any, product_id: any) {
   const cartItem = await ctx.db
     .query("cart")
-    .withIndex("by_user_product", (q: any) => 
-      q.eq("user_id", user_id).eq("product_id", product_id)
+    .withIndex("by_user_product", (q: any) =>
+      q.eq("user_id", user_id).eq("product_id", product_id),
     )
     .first();
 
@@ -238,7 +243,10 @@ async function clearCartHelper(ctx: any, args: { user_id: any }) {
 }
 
 // Helper function for addToCart
-async function addToCartHelper(ctx: any, args: { user_id: any; product_id: any; quantity: number }) {
+async function addToCartHelper(
+  ctx: any,
+  args: { user_id: any; product_id: any; quantity: number },
+) {
   // Check if product exists and is available
   const product = await ctx.db.get(args.product_id);
   if (!product || !product.is_available) {
@@ -248,8 +256,8 @@ async function addToCartHelper(ctx: any, args: { user_id: any; product_id: any; 
   // Check if item already exists in cart
   const existingItem = await ctx.db
     .query("cart")
-    .withIndex("by_user_product", (q: any) => 
-      q.eq("user_id", args.user_id).eq("product_id", args.product_id)
+    .withIndex("by_user_product", (q: any) =>
+      q.eq("user_id", args.user_id).eq("product_id", args.product_id),
     )
     .first();
 

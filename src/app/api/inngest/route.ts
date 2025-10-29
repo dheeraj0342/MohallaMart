@@ -6,10 +6,10 @@ const handleInngestRequest = async (request: NextRequest, method: string) => {
   try {
     // Check if required environment variables are present
     if (!process.env.INNGEST_SIGNING_KEY) {
-      console.error('INNGEST_SIGNING_KEY is missing');
+      console.error("INNGEST_SIGNING_KEY is missing");
       return NextResponse.json(
-        { error: 'Inngest configuration error' },
-        { status: 500 }
+        { error: "Inngest configuration error" },
+        { status: 500 },
       );
     }
 
@@ -17,26 +17,29 @@ const handleInngestRequest = async (request: NextRequest, method: string) => {
     const handler = serveHandler[method as keyof typeof serveHandler];
     if (!handler) {
       return NextResponse.json(
-        { error: 'Method not allowed' },
-        { status: 405 }
+        { error: "Method not allowed" },
+        { status: 405 },
       );
     }
 
     // Call the handler
     return await handler(request, {});
   } catch (error) {
-    console.error('Inngest API error:', error);
+    console.error("Inngest API error:", error);
     return NextResponse.json(
-      { 
-        error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error'
+      {
+        error: "Internal server error",
+        message: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
 
 // Export the serve handler methods with error handling
-export const GET = (request: NextRequest) => handleInngestRequest(request, 'GET');
-export const POST = (request: NextRequest) => handleInngestRequest(request, 'POST');
-export const PUT = (request: NextRequest) => handleInngestRequest(request, 'PUT');
+export const GET = (request: NextRequest) =>
+  handleInngestRequest(request, "GET");
+export const POST = (request: NextRequest) =>
+  handleInngestRequest(request, "POST");
+export const PUT = (request: NextRequest) =>
+  handleInngestRequest(request, "PUT");

@@ -13,7 +13,7 @@ if (convexUrl) {
   try {
     convex = new ConvexReactClient(convexUrl);
   } catch (error) {
-    console.warn('Failed to initialize Convex client:', error);
+    console.warn("Failed to initialize Convex client:", error);
   }
 }
 

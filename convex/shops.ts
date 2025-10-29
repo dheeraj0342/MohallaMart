@@ -12,24 +12,30 @@ export const createShop = mutation({
       city: v.string(),
       pincode: v.string(),
       state: v.string(),
-      coordinates: v.optional(v.object({
-        lat: v.number(),
-        lng: v.number(),
-      })),
+      coordinates: v.optional(
+        v.object({
+          lat: v.number(),
+          lng: v.number(),
+        }),
+      ),
     }),
     contact: v.object({
       phone: v.string(),
       email: v.optional(v.string()),
     }),
-    business_hours: v.optional(v.object({
-      monday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      tuesday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      wednesday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      thursday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      friday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      saturday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      sunday: v.optional(v.object({ open: v.string(), close: v.string() })),
-    })),
+    business_hours: v.optional(
+      v.object({
+        monday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        tuesday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        wednesday: v.optional(
+          v.object({ open: v.string(), close: v.string() }),
+        ),
+        thursday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        friday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        saturday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        sunday: v.optional(v.object({ open: v.string(), close: v.string() })),
+      }),
+    ),
   },
   handler: async (ctx, args) => {
     const shopId = await ctx.db.insert("shops", {
@@ -144,9 +150,10 @@ export const searchShops = query({
     // Filter by search query
     if (args.query) {
       const searchTerm = args.query.toLowerCase();
-      shops = shops.filter((shop) =>
-        shop.name.toLowerCase().includes(searchTerm) ||
-        shop.description?.toLowerCase().includes(searchTerm)
+      shops = shops.filter(
+        (shop) =>
+          shop.name.toLowerCase().includes(searchTerm) ||
+          shop.description?.toLowerCase().includes(searchTerm),
       );
     }
 
@@ -182,29 +189,39 @@ export const updateShop = mutation({
     id: v.id("shops"),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
-    address: v.optional(v.object({
-      street: v.string(),
-      city: v.string(),
-      pincode: v.string(),
-      state: v.string(),
-      coordinates: v.optional(v.object({
-        lat: v.number(),
-        lng: v.number(),
-      })),
-    })),
-    contact: v.optional(v.object({
-      phone: v.string(),
-      email: v.optional(v.string()),
-    })),
-    business_hours: v.optional(v.object({
-      monday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      tuesday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      wednesday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      thursday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      friday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      saturday: v.optional(v.object({ open: v.string(), close: v.string() })),
-      sunday: v.optional(v.object({ open: v.string(), close: v.string() })),
-    })),
+    address: v.optional(
+      v.object({
+        street: v.string(),
+        city: v.string(),
+        pincode: v.string(),
+        state: v.string(),
+        coordinates: v.optional(
+          v.object({
+            lat: v.number(),
+            lng: v.number(),
+          }),
+        ),
+      }),
+    ),
+    contact: v.optional(
+      v.object({
+        phone: v.string(),
+        email: v.optional(v.string()),
+      }),
+    ),
+    business_hours: v.optional(
+      v.object({
+        monday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        tuesday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        wednesday: v.optional(
+          v.object({ open: v.string(), close: v.string() }),
+        ),
+        thursday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        friday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        saturday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        sunday: v.optional(v.object({ open: v.string(), close: v.string() })),
+      }),
+    ),
     is_active: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
@@ -295,15 +312,29 @@ export const getShopStats = query({
       total_orders: orders.length,
       total_revenue: orders.reduce((sum, order) => sum + order.total_amount, 0),
       total_products: products.length,
-      available_products: products.filter(product => product.is_available).length,
-      out_of_stock_products: products.filter(product => product.stock_quantity === 0).length,
-      average_order_value: orders.length > 0 ? orders.reduce((sum, order) => sum + order.total_amount, 0) / orders.length : 0,
-      pending_orders: orders.filter(order => order.status === "pending").length,
-      confirmed_orders: orders.filter(order => order.status === "confirmed").length,
-      preparing_orders: orders.filter(order => order.status === "preparing").length,
-      out_for_delivery_orders: orders.filter(order => order.status === "out_for_delivery").length,
-      delivered_orders: orders.filter(order => order.status === "delivered").length,
-      cancelled_orders: orders.filter(order => order.status === "cancelled").length,
+      available_products: products.filter((product) => product.is_available)
+        .length,
+      out_of_stock_products: products.filter(
+        (product) => product.stock_quantity === 0,
+      ).length,
+      average_order_value:
+        orders.length > 0
+          ? orders.reduce((sum, order) => sum + order.total_amount, 0) /
+            orders.length
+          : 0,
+      pending_orders: orders.filter((order) => order.status === "pending")
+        .length,
+      confirmed_orders: orders.filter((order) => order.status === "confirmed")
+        .length,
+      preparing_orders: orders.filter((order) => order.status === "preparing")
+        .length,
+      out_for_delivery_orders: orders.filter(
+        (order) => order.status === "out_for_delivery",
+      ).length,
+      delivered_orders: orders.filter((order) => order.status === "delivered")
+        .length,
+      cancelled_orders: orders.filter((order) => order.status === "cancelled")
+        .length,
     };
 
     return stats;

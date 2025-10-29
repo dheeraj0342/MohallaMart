@@ -13,6 +13,7 @@ import type * as categories from "../categories.js";
 import type * as notifications from "../notifications.js";
 import type * as orders from "../orders.js";
 import type * as products from "../products.js";
+import type * as registrations from "../registrations.js";
 import type * as shops from "../shops.js";
 import type * as users from "../users.js";
 
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   notifications: typeof notifications;
   orders: typeof orders;
   products: typeof products;
+  registrations: typeof registrations;
   shops: typeof shops;
   users: typeof users;
 }>;

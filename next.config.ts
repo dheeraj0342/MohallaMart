@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['ioredis', 'typesense'],
+  serverExternalPackages: ["ioredis", "typesense"],
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // Don't resolve Node.js modules on the client to prevent this error on build
@@ -13,12 +13,12 @@ const nextConfig: NextConfig = {
         crypto: false,
         dns: false,
         async_hooks: false,
-        'node:async_hooks': false,
-        'node:fs': false,
-        'node:net': false,
-        'node:tls': false,
-        'node:crypto': false,
-        'node:dns': false,
+        "node:async_hooks": false,
+        "node:fs": false,
+        "node:net": false,
+        "node:tls": false,
+        "node:crypto": false,
+        "node:dns": false,
       };
     }
     return config;

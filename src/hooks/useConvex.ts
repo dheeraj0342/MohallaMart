@@ -25,7 +25,8 @@ const mockProducts: MockProduct[] = [
     description: "Organic ripe bananas (1kg)",
     price: 89,
     category: "Fruits",
-    image_url: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400",
+    image_url:
+      "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400",
     stock_quantity: 50,
     is_available: true,
     tags: ["organic", "fresh", "tropical", "healthy"],
@@ -38,7 +39,8 @@ const mockProducts: MockProduct[] = [
     description: "Red delicious apples (1kg)",
     price: 180,
     category: "Fruits",
-    image_url: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400",
+    image_url:
+      "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400",
     stock_quantity: 30,
     is_available: true,
     tags: ["organic", "red", "crisp", "healthy"],
@@ -51,7 +53,8 @@ const mockProducts: MockProduct[] = [
     description: "Full cream milk (1L)",
     price: 65,
     category: "Dairy",
-    image_url: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",
+    image_url:
+      "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",
     stock_quantity: 100,
     is_available: true,
     tags: ["fresh", "dairy", "full-cream", "daily"],
@@ -92,7 +95,11 @@ const useMockMutation = (mockFn: () => Promise<unknown>) => {
 
 // User hooks
 export const useUser = (userId: string) => {
-  return useMockQuery({ id: userId, name: "Test User", email: "test@example.com" });
+  return useMockQuery({
+    id: userId,
+    name: "Test User",
+    email: "test@example.com",
+  });
 };
 
 export const useCreateUser = () => {
@@ -104,51 +111,62 @@ export const useDeleteUser = () => {
 };
 
 // Product hooks
-export const useProducts = (category?: string, isAvailable?: boolean, limit?: number) => {
+export const useProducts = (
+  category?: string,
+  isAvailable?: boolean,
+  limit?: number,
+) => {
   let filteredProducts = mockProducts;
-  
+
   if (category) {
-    filteredProducts = filteredProducts.filter(p => p.category === category);
+    filteredProducts = filteredProducts.filter((p) => p.category === category);
   }
-  
+
   if (isAvailable !== undefined) {
-    filteredProducts = filteredProducts.filter(p => p.is_available === isAvailable);
+    filteredProducts = filteredProducts.filter(
+      (p) => p.is_available === isAvailable,
+    );
   }
-  
+
   if (limit) {
     filteredProducts = filteredProducts.slice(0, limit);
   }
-  
+
   return useMockQuery(filteredProducts);
 };
 
 export const useProduct = (productId: string) => {
-  const product = mockProducts.find(p => p._id === productId);
+  const product = mockProducts.find((p) => p._id === productId);
   return useMockQuery(product);
 };
 
-export const useSearchProducts = (query: string, category?: string, limit?: number) => {
-  let filteredProducts = mockProducts.filter(p => 
-    p.name.toLowerCase().includes(query.toLowerCase()) ||
-    p.description.toLowerCase().includes(query.toLowerCase()) ||
-    p.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+export const useSearchProducts = (
+  query: string,
+  category?: string,
+  limit?: number,
+) => {
+  let filteredProducts = mockProducts.filter(
+    (p) =>
+      p.name.toLowerCase().includes(query.toLowerCase()) ||
+      p.description.toLowerCase().includes(query.toLowerCase()) ||
+      p.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase())),
   );
-  
+
   if (category) {
-    filteredProducts = filteredProducts.filter(p => p.category === category);
+    filteredProducts = filteredProducts.filter((p) => p.category === category);
   }
-  
+
   if (limit) {
     filteredProducts = filteredProducts.slice(0, limit);
   }
-  
+
   return useMockQuery(filteredProducts);
 };
 
 export const useCreateProduct = () => {
-  return useMockMutation(async () => ({ 
-    _id: Date.now().toString(), 
-    success: true 
+  return useMockMutation(async () => ({
+    _id: Date.now().toString(),
+    success: true,
   }));
 };
 
@@ -161,12 +179,12 @@ export const useDeleteProduct = () => {
 };
 
 export const useProductsByCategory = (category: string) => {
-  const products = mockProducts.filter(p => p.category === category);
+  const products = mockProducts.filter((p) => p.category === category);
   return useMockQuery(products);
 };
 
 export const useAvailableProducts = (limit?: number) => {
-  const products = mockProducts.filter(p => p.is_available);
+  const products = mockProducts.filter((p) => p.is_available);
   return useMockQuery(limit ? products.slice(0, limit) : products);
 };
 
