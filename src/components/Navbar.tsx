@@ -197,7 +197,7 @@ export default function Navbar() {
                     </div>
                   </button>
                   {isAccountOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-100 rounded-lg shadow-lg z-50">
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-lg shadow-lg z-50">
                       {/* Role-based profile links */}
                       {dbUser?.role === "admin" ? (
                         <>
@@ -235,14 +235,6 @@ export default function Navbar() {
                           >
                             <User className="h-4 w-4 mr-2" />
                             Shopkeeper Profile
-                          </Link>
-                          <Link
-                            href="/profile"
-                            onClick={() => setIsAccountOpen(false)}
-                            className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-b"
-                          >
-                            <User className="h-4 w-4 mr-2" />
-                            My Profile
                           </Link>
                         </>
                       ) : (
