@@ -9,7 +9,7 @@ import { api } from "@/../convex/_generated/api";
 
 export const useAuth = () => {
   const router = useRouter();
-  const { supabaseUser, setSupabaseUser, setUser, signOut } = useStore();
+  const { supabaseUser, setSupabaseUser, setUser, signOut, user: storeUser } = useStore();
   const syncUser = useMutation(api.users.syncUserWithSupabase);
 
   useEffect(() => {
@@ -102,8 +102,9 @@ export const useAuth = () => {
     router.push("/");
   };
 
+  // Return store user if available (faster), otherwise supabase user
   return {
-    user: supabaseUser,
+    user: storeUser || supabaseUser,
     logout,
   };
 };

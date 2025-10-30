@@ -143,7 +143,7 @@ export default function Navbar() {
                 // Active shopkeeper
                 if (userRole === "shop_owner" && isActive) {
                   return (
-                    <Link href="/shopkeeper/profile">
+                    <Link href="/shopkeeper">
                       <button className="px-4 py-2 rounded-lg border text-sm font-medium transition-colors text-[var(--color-primary)] border-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white">
                         Shopkeeper Dashboard
                       </button>
@@ -198,12 +198,12 @@ export default function Navbar() {
                         </Link>
                       ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
                         <Link
-                          href="/shopkeeper/profile"
+                          href="/shopkeeper"
                           onClick={() => setIsAccountOpen(false)}
                           className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg border-b"
                         >
                           <User className="h-4 w-4 mr-2" />
-                          Shopkeeper Profile
+                          Shopkeeper Dashboard
                         </Link>
                       ) : (
                         <Link
@@ -450,14 +450,14 @@ export default function Navbar() {
                           </Link>
                         ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
                           <Link
-                            href="/shopkeeper/profile"
+                            href="/shopkeeper"
                             onClick={() => setIsMenuOpen(false)}
                           >
                             <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 bg-white rounded-lg transition-colors text-gray-700 border border-gray-200">
                               <User className="h-5 w-5 mr-3" />
                               <div>
                                 <div className="text-xs text-gray-500">Shopkeeper</div>
-                                <div className="text-sm font-medium">Profile</div>
+                                <div className="text-sm font-medium">Dashboard</div>
                               </div>
                             </button>
                           </Link>

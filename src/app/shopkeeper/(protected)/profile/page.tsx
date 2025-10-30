@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 import { Id } from "@/../convex/_generated/dataModel";
+import { useToast } from "@/hooks/useToast";
 
 type ShopAddress = {
   city?: string;
@@ -54,6 +55,7 @@ type DBUser = {
 
 export default function ShopkeeperProfilePage() {
   const { user } = useAuth();
+  const { success, error } = useToast();
   const dbUser = useQuery(
     api.users.getUser,
     user ? { id: user.id } : "skip",
@@ -99,16 +101,27 @@ export default function ShopkeeperProfilePage() {
     setSaving(true);
     try {
       await updateUser({ id: user.id, name, phone, avatar_url: avatar });
-      alert("Profile updated successfully");
-    } catch (error) {
-      alert("Failed to update profile");
-      console.error(error);
+      success("Profile updated successfully");
+    } catch (err) {
+      error("Failed to update profile");
+      console.error(err);
     } finally {
       setSaving(false);
     }
   };
 
-  if (user === null || dbUser === undefined) return null;
+  // Show loading state while data is being fetched
+  // user === null means still loading, dbUser === undefined means still loading
+  if (user === null || dbUser === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-brand mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   const totalOrders = shopStats?.total_orders || 0;
   const cancelledOrders = shopStats?.cancelled_orders || 0;

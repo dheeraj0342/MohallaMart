@@ -7,10 +7,12 @@ import { useMutation } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 import { Store } from "lucide-react";
 import Link from "next/link";
+import { useToast } from "@/hooks/useToast";
 
 export default function ShopkeeperApplyPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { success, error } = useToast();
   const requestRole = useMutation(api.users.requestShopkeeperRole);
   const [submitting, setSubmitting] = useState(false);
 
@@ -37,8 +39,10 @@ export default function ShopkeeperApplyPage() {
           }),
         });
       } catch {}
-      alert("Application submitted! Complete your seller registration next.");
+      success("Application submitted! Complete your seller registration next.");
       router.replace("/shopkeeper/registration");
+    } catch {
+      error("Failed to submit application. Please try again.");
     } finally {
       setSubmitting(false);
     }
