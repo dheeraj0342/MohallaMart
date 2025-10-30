@@ -110,17 +110,9 @@ export default function ProfileContent() {
     }
   };
 
-  // Show loading state while data is being fetched
-  // user === null means still loading, dbUser === undefined means still loading
-  if (user === null || dbUser === undefined) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-brand mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your profile...</p>
-        </div>
-      </div>
-    );
+  // Guard handles loading and auth checks, so we can safely assume user and dbUser exist here
+  if (!user || !dbUser) {
+    return null;
   }
 
   const totalOrders = shopStats?.total_orders || 0;

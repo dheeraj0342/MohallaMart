@@ -31,28 +31,9 @@ export default function DashboardContent() {
     rating?: number;
   }> | null | undefined;
 
-  // Show loading while data is being fetched
-  if (user === null || dbUser === undefined) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-brand mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If user is not logged in after loading complete
+  // Guard handles loading and auth checks, so we can safely assume user and dbUser exist here
   if (!user || !dbUser) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-brand mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   const shop = Array.isArray(shops) && shops.length > 0 ? shops[0] : null;
