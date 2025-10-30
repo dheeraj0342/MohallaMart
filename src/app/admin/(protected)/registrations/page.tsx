@@ -70,10 +70,10 @@ export default function AdminRegistrationsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-[var(--primary-brand)]">
+        <h1 className="text-3xl font-bold text-primary-brand">
           Shopkeeper Registrations
         </h1>
-        <div className="bg-[var(--primary-brand)]/10 p-3 rounded-full">
+        <div className="bg-primary-brand/10 p-3 rounded-full">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -84,7 +84,7 @@ export default function AdminRegistrationsPage() {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-[var(--primary-brand)]"
+            className="text-primary-brand"
           >
             <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
             <path d="M13 5v2" />
@@ -106,7 +106,7 @@ export default function AdminRegistrationsPage() {
               onClick={() => setSelectedStatus(status as typeof selectedStatus)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedStatus === status
-                  ? "bg-[var(--primary-brand)] text-white"
+                  ? "bg-primary-brand text-white"
                   : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
               }`}
             >
@@ -270,7 +270,7 @@ export default function AdminRegistrationsPage() {
                               href={reg.first_product.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[var(--primary-brand)] hover:underline"
+                              className="text-primary-brand hover:underline"
                             >
                               {reg.first_product.url}
                             </a>
