@@ -55,6 +55,45 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
+      {/* Quick Actions / Navigation */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+        <h2 className="text-xl font-semibold mb-4 text-secondary-brand">
+          Quick Actions
+        </h2>
+        <div className="grid md:grid-cols-3 gap-4">
+          <Link
+            href="/admin/registrations"
+            className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+          >
+            <div className="bg-primary-brand/10 p-3 rounded-lg group-hover:bg-primary-brand/20 transition-colors">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-primary-brand"
+              >
+                <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+                <path d="M13 5v2" />
+                <path d="M13 17v2" />
+                <path d="M13 11v2" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">View Registrations</h3>
+              <p className="text-sm text-gray-500">Review shopkeeper applications</p>
+            </div>
+          </Link>
+
+          {/* Add more quick action cards here as needed */}
+        </div>
+      </div>
+
       <div className="pt-4 border-t border-gray-200">
         <Link
           className="text-secondary-brand hover:text-secondary-brand/80 font-medium flex items-center gap-2"

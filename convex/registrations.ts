@@ -1,6 +1,85 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// Admin query to list all registrations
+export const listAllRegistrations = query({
+  args: {
+    status: v.optional(
+      v.union(
+        v.literal("draft"),
+        v.literal("submitted"),
+        v.literal("reviewing"),
+        v.literal("approved"),
+        v.literal("rejected")
+      )
+    ),
+  },
+  handler: async (ctx, args) => {
+    let registrationsQuery = ctx.db.query("seller_registrations");
+    
+    // Filter by status if provided
+    if (args.status) {
+      registrationsQuery = registrationsQuery.filter((q) =>
+        q.eq(q.field("status"), args.status)
+      );
+    }
+    
+    const registrations = await registrationsQuery.collect();
+    
+    // Fetch user details for each registration
+    const registrationsWithUsers = await Promise.all(
+      registrations.map(async (reg) => {
+        const user = await ctx.db.get(reg.user_id);
+        return {
+          ...reg,
+          user: user ? { id: user.id, name: user.name, email: user.email } : null,
+        };
+      })
+    );
+    
+    return registrationsWithUsers;
+  },
+});
+
+// Admin mutation to update registration status
+export const updateRegistrationStatus = mutation({
+  args: {
+    registrationId: v.id("seller_registrations"),
+    status: v.union(
+      v.literal("reviewing"),
+      v.literal("approved"),
+      v.literal("rejected")
+    ),
+    notes: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const registration = await ctx.db.get(args.registrationId);
+    if (!registration) throw new Error("Registration not found");
+    
+    // Update registration status
+    await ctx.db.patch(args.registrationId, {
+      status: args.status,
+      updated_at: Date.now(),
+    });
+    
+    // If approved, update user role to shop_owner
+    if (args.status === "approved") {
+      const user = await ctx.db.get(registration.user_id);
+      if (user && user.role !== "shop_owner") {
+        await ctx.db.patch(registration.user_id, {
+          role: "shop_owner",
+          is_active: true,
+        });
+      }
+    }
+    
+    // TODO: Send notification to user via email
+    // You can implement email notification here using your email service
+    
+    return { success: true };
+  },
+});
+
 export const getMyRegistration = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {

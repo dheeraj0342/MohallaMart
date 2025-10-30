@@ -21,6 +21,7 @@ export default function ShopkeeperRegistrationPage() {
     business?: { type?: "individual" | "proprietorship" | "partnership" | "company"; name?: string };
     pickup_address?: { street?: string; city?: string; state?: string; pincode?: string };
     first_product?: { name?: string; url?: string };
+    status?: "draft" | "submitted" | "reviewing" | "approved" | "rejected";
   } | null | undefined;
   const save = useMutation(api.registrations.upsertMyRegistration);
 
@@ -87,6 +88,107 @@ export default function ShopkeeperRegistrationPage() {
         </div>
       </div>
     );
+  }
+
+  // Show status message if registration is already submitted
+  if (registration && registration.status !== "draft") {
+    const getStatusMessage = () => {
+      switch (registration.status) {
+        case "submitted":
+          return {
+            title: "Registration Submitted!",
+            message: "Your application is under review. We will notify you via email once reviewed.",
+            color: "blue",
+          };
+        case "reviewing":
+          return {
+            title: "Under Review",
+            message: "Our team is currently reviewing your application. This typically takes 1-2 business days.",
+            color: "amber",
+          };
+        case "approved":
+          return {
+            title: "Registration Approved! 🎉",
+            message: "Congratulations! Your shopkeeper account has been approved. You can now start adding products.",
+            color: "green",
+          };
+        case "rejected":
+          return {
+            title: "Registration Needs Attention",
+            message: "Your application requires some corrections. Please contact support for more details.",
+            color: "red",
+          };
+        default:
+          return null;
+      }
+    };
+
+    const statusInfo = getStatusMessage();
+    if (statusInfo) {
+      return (
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-2xl mx-auto bg-white border-2 border-neutral-100 rounded-2xl p-8 shadow-lg">
+            <div className="text-center space-y-4">
+              <div
+                className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${
+                  statusInfo.color === "blue"
+                    ? "bg-blue-100"
+                    : statusInfo.color === "amber"
+                      ? "bg-amber-100"
+                      : statusInfo.color === "green"
+                        ? "bg-green-100"
+                        : "bg-red-100"
+                }`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={
+                    statusInfo.color === "blue"
+                      ? "text-blue-600"
+                      : statusInfo.color === "amber"
+                        ? "text-amber-600"
+                        : statusInfo.color === "green"
+                          ? "text-green-600"
+                          : "text-red-600"
+                  }
+                >
+                  {statusInfo.color === "approved" ? (
+                    <>
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                      <polyline points="22 4 12 14.01 9 11.01" />
+                    </>
+                  ) : (
+                    <>
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </>
+                  )}
+                </svg>
+              </div>
+              <h1 className="text-2xl font-bold text-neutral-900">{statusInfo.title}</h1>
+              <p className="text-neutral-600">{statusInfo.message}</p>
+              <div className="pt-4">
+                <button
+                  onClick={() => router.push("/")}
+                  className="px-6 py-3 bg-[var(--primary-brand)] hover:bg-[var(--primary-hover)] text-white rounded-xl font-medium transition-colors"
+                >
+                  Back to Home
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
   }
 
   const onSubmit = async (submit: boolean) => {
