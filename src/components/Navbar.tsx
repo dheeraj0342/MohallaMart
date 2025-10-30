@@ -198,25 +198,53 @@ export default function Navbar() {
                   </button>
                   {isAccountOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-100 rounded-lg shadow-lg z-50">
-                      {/* Role-based profile link */}
+                      {/* Role-based profile links */}
                       {dbUser?.role === "admin" ? (
-                        <Link
-                          href="/admin"
-                          onClick={() => setIsAccountOpen(false)}
-                          className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg border-b"
-                        >
-                          <User className="h-4 w-4 mr-2" />
-                          Admin Dashboard
-                        </Link>
+                        <>
+                          <Link
+                            href="/admin"
+                            onClick={() => setIsAccountOpen(false)}
+                            className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg border-b"
+                          >
+                            <User className="h-4 w-4 mr-2" />
+                            Admin Dashboard
+                          </Link>
+                          <Link
+                            href="/profile"
+                            onClick={() => setIsAccountOpen(false)}
+                            className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-b"
+                          >
+                            <User className="h-4 w-4 mr-2" />
+                            My Profile
+                          </Link>
+                        </>
                       ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
-                        <Link
-                          href="/shopkeeper"
-                          onClick={() => setIsAccountOpen(false)}
-                          className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg border-b"
-                        >
-                          <User className="h-4 w-4 mr-2" />
-                          Shopkeeper Dashboard
-                        </Link>
+                        <>
+                          <Link
+                            href="/shopkeeper"
+                            onClick={() => setIsAccountOpen(false)}
+                            className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg border-b"
+                          >
+                            <User className="h-4 w-4 mr-2" />
+                            Shopkeeper Dashboard
+                          </Link>
+                          <Link
+                            href="/shopkeeper/profile"
+                            onClick={() => setIsAccountOpen(false)}
+                            className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-b"
+                          >
+                            <User className="h-4 w-4 mr-2" />
+                            Shopkeeper Profile
+                          </Link>
+                          <Link
+                            href="/profile"
+                            onClick={() => setIsAccountOpen(false)}
+                            className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-b"
+                          >
+                            <User className="h-4 w-4 mr-2" />
+                            My Profile
+                          </Link>
+                        </>
                       ) : (
                         <Link
                           href="/profile"
