@@ -14,9 +14,7 @@ import {
   FileText
 } from "lucide-react";
 
-export const dynamic = 'force-dynamic';
-
-export default function ShopkeeperDashboardPage() {
+export default function DashboardContent() {
   const { user } = useAuth();
   const dbUser = useQuery(
     api.users.getUser,
@@ -264,3 +262,4 @@ function ActionCard({
     </Link>
   );
 }
+

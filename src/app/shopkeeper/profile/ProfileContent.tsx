@@ -7,8 +7,6 @@ import { api } from "@/../convex/_generated/api";
 import { Id } from "@/../convex/_generated/dataModel";
 import { useToast } from "@/hooks/useToast";
 
-export const dynamic = 'force-dynamic';
-
 type ShopAddress = {
   city?: string;
   state?: string;
@@ -55,7 +53,7 @@ type DBUser = {
   is_active: boolean;
 };
 
-export default function ShopkeeperProfilePage() {
+export default function ProfileContent() {
   const { user } = useAuth();
   const { success, error } = useToast();
   const dbUser = useQuery(

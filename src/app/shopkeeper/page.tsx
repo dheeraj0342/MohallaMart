@@ -31,21 +31,14 @@ export default function ShopkeeperPage() {
       // Still loading user data
       return;
     }
-
-    // Check user role and status
     if (dbUser?.role === "shop_owner" && dbUser?.is_active === true) {
-      // Active shopkeeper -> go to dashboard
-      router.replace("/shopkeeper/(protected)/profile");
+      router.replace("/shopkeeper/dashboard");
     } else if (dbUser?.role === "shop_owner" && dbUser?.is_active === false) {
-      // Pending shopkeeper -> go to registration or show pending status
       router.replace("/shopkeeper/registration");
     } else {
-      // Not a shopkeeper -> go to apply page
       router.replace("/shopkeeper/apply");
     }
   }, [user, dbUser, router]);
-
-  // Show loading state while redirecting
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
