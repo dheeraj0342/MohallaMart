@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabase, getEmailRedirectUrl } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { Eye, EyeOff, Mail, Lock, Loader2, Store } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";

@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useStore } from "@/store/useStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
@@ -14,11 +13,10 @@ export default function ShopkeeperGuard({
 }) {
   const router = useRouter();
   const { user } = useAuth();
-  const { user: profile } = useStore();
   const dbUser = useQuery(
     api.users.getUser,
     user ? { id: user.id } : "skip",
-  ) as any;
+  ) as { role?: string; is_active?: boolean } | null | undefined;
 
   useEffect(() => {
     if (user === null) return;

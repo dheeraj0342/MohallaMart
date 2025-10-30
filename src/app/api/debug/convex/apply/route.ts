@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
       // Pick any existing user (latest) when no userId provided
       const all = (await fetchQuery(api.users.getAllUsers, { limit: 1 }).catch(
         () => [],
-      )) as any[];
+      )) as Array<{ id: string }>;
       if (all.length === 0) {
         return NextResponse.json(
           { ok: false, error: "No users found to apply as shopkeeper" },
@@ -26,9 +26,9 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ ok: true, userId });
-  } catch (e: any) {
+  } catch (e: unknown) {
     return NextResponse.json(
-      { ok: false, error: e?.message || "Unknown error" },
+      { ok: false, error: (e as Error)?.message || "Unknown error" },
       { status: 500 },
     );
   }

@@ -6,7 +6,10 @@ export default async function AdminDashboardPage() {
   const pendingApplications = (await fetchQuery(
     api.users.listPendingShopkeeperApplications,
     {},
-  ).catch(() => [])) as any[];
+  ).catch(() => [])) as Array<{
+    applicationId: string;
+    applicant: { id: string; name: string; email: string };
+  }>;
   const pendingShopkeepers = await fetchQuery(api.users.listShopkeepers, {
     is_active: false,
   }).catch(() => []);
@@ -64,7 +67,7 @@ function ShopkeeperList({
   actionLabel,
   makeActive,
 }: {
-  shopkeepers: any[];
+  shopkeepers: Array<{ id: string; name: string; email: string }>;
   actionLabel: string;
   makeActive: boolean;
 }) {
@@ -90,7 +93,14 @@ function ShopkeeperList({
   );
 }
 
-function PendingApplicationsList({ apps }: { apps: any[] }) {
+function PendingApplicationsList({
+  apps,
+}: {
+  apps: Array<{
+    applicationId: string;
+    applicant: { id: string; name: string; email: string };
+  }>;
+}) {
   return (
     <ul className="divide-y">
       {apps.length === 0 && (

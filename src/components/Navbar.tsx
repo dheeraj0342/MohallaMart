@@ -31,7 +31,7 @@ export default function Navbar() {
   const dbUser = useQuery(
     api.users.getUser,
     user ? { id: user.id } : "skip",
-  ) as any;
+  ) as { role?: string; is_active?: boolean } | null | undefined;
   const { logout } = useAuth();
 
   const toggleMenu = () => {

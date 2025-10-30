@@ -93,7 +93,7 @@ export const useAuth = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [setSupabaseUser, setUser]);
+  }, [setSupabaseUser, setUser, syncUser]);
 
   const logout = async () => {
     await supabase.auth.signOut();

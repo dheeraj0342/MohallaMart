@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/../convex/_generated/api";
+import { Id } from "@/../convex/_generated/dataModel";
 
 type ShopAddress = {
   city?: string;
@@ -13,7 +14,7 @@ type ShopAddress = {
 };
 
 type Shop = {
-  _id: string;
+  _id: Id<"shops">;
   name: string;
   address: ShopAddress;
   rating: number;
@@ -28,7 +29,7 @@ type ShopStats = {
 };
 
 type Product = {
-  _id: string;
+  _id: Id<"products">;
   is_available: boolean;
 };
 
@@ -42,7 +43,7 @@ type Registration = {
 };
 
 type DBUser = {
-  _id: string;
+  _id: Id<"users">;
   id: string;
   name: string;
   email: string;
@@ -304,7 +305,6 @@ export default function ShopkeeperProfilePage() {
                     </span>
                     <HealthBadge
                       value={fulfilmentRate}
-                      maxValue={100}
                       format={(v) => `${v}%`}
                       threshold={90}
                     />
@@ -315,7 +315,6 @@ export default function ShopkeeperProfilePage() {
                     </span>
                     <HealthBadge
                       value={cancellationRate}
-                      maxValue={100}
                       format={(v) => `${v}%`}
                       threshold={5}
                       inverse
@@ -602,13 +601,11 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 
 function HealthBadge({
   value,
-  maxValue,
   format,
   threshold,
   inverse = false,
 }: {
   value: number;
-  maxValue: number;
   format: (v: number) => string;
   threshold: number;
   inverse?: boolean;

@@ -12,7 +12,16 @@ export default function ShopkeeperRegistrationPage() {
   const registration = useQuery(
     api.registrations.getMyRegistration,
     user ? { userId: user.id } : "skip",
-  ) as any;
+  ) as {
+    pan?: string;
+    gstin?: string;
+    bank?: { account_holder?: string; account_number?: string; ifsc?: string };
+    address?: { street?: string; city?: string; state?: string; pincode?: string };
+    identity?: { type?: "aadhaar" | "passport" | "voter_id" | "driver_license"; number?: string };
+    business?: { type?: "individual" | "proprietorship" | "partnership" | "company"; name?: string };
+    pickup_address?: { street?: string; city?: string; state?: string; pincode?: string };
+    first_product?: { name?: string; url?: string };
+  } | null | undefined;
   const save = useMutation(api.registrations.upsertMyRegistration);
 
   const [pan, setPan] = useState("");
@@ -51,9 +60,9 @@ export default function ShopkeeperRegistrationPage() {
       setCity(registration.address?.city || "");
       setStateValue(registration.address?.state || "");
       setPincode(registration.address?.pincode || "");
-      setIdType(registration.identity?.type || "aadhaar");
+      setIdType((registration.identity?.type || "aadhaar") as typeof idType);
       setIdNumber(registration.identity?.number || "");
-      setBizType(registration.business?.type || "individual");
+      setBizType((registration.business?.type || "individual") as typeof bizType);
       setBizName(registration.business?.name || "");
       setPickupStreet(registration.pickup_address?.street || "");
       setPickupCity(registration.pickup_address?.city || "");
@@ -242,13 +251,13 @@ export default function ShopkeeperRegistrationPage() {
             <div className="space-y-3">
               <select
                 value={idType}
-                onChange={(e) => setIdType(e.target.value as any)}
+                onChange={(e) => setIdType(e.target.value as typeof idType)}
                 className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[var(--primary-brand)] focus:border-[var(--primary-brand)]"
               >
                 <option value="aadhaar">Aadhaar</option>
                 <option value="passport">Passport</option>
                 <option value="voter_id">Voter ID</option>
-                <option value="driver_license">Driver's License</option>
+                <option value="driver_license">Driver&apos;s License</option>
               </select>
               <input
                 placeholder="Document Number"
@@ -266,7 +275,7 @@ export default function ShopkeeperRegistrationPage() {
             <div className="space-y-3">
               <select
                 value={bizType}
-                onChange={(e) => setBizType(e.target.value as any)}
+                onChange={(e) => setBizType(e.target.value as typeof bizType)}
                 className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[var(--primary-brand)] focus:border-[var(--primary-brand)]"
               >
                 <option value="individual">Individual</option>

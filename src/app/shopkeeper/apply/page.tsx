@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation } from "convex/react";
@@ -30,10 +30,10 @@ export default function ShopkeeperApplyPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             userId: activeUser.id,
-            email: (activeUser as any).email,
+            email: (activeUser as { email?: string }).email,
             name:
-              (activeUser as any).user_metadata?.full_name ||
-              (activeUser as any).user_metadata?.name,
+              (activeUser as { user_metadata?: { full_name?: string; name?: string } }).user_metadata?.full_name ||
+              (activeUser as { user_metadata?: { full_name?: string; name?: string } }).user_metadata?.name,
           }),
         });
       } catch {}

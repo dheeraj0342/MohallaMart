@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
       appliedAt: new Date().toISOString(),
     });
     return NextResponse.json({ ok: true });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "bad request" }, { status: 400 });
   }
 }

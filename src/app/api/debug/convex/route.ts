@@ -19,9 +19,9 @@ export async function GET() {
     );
 
     return NextResponse.json({ ok: true, wroteId: id, usersSample: users });
-  } catch (e: any) {
+  } catch (e: unknown) {
     return NextResponse.json(
-      { ok: false, error: e?.message || "Unknown error" },
+      { ok: false, error: (e as Error)?.message || "Unknown error" },
       { status: 500 },
     );
   }
