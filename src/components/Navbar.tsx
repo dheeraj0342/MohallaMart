@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Menu,
   X,
@@ -26,11 +26,22 @@ export default function Navbar() {
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpenState] = useState(false);
 
   const { location, getTotalItems, user, setSearchOpen } = useStore();
   const { logout } = useAuth();
   
-  // Safely call useQuery - it will return undefined during build if ConvexProvider is not available
+  // Sync search state with store
+  useEffect(() => {
+    setIsSearchOpenState(useStore.getState().isSearchOpen);
+    const unsubscribe = useStore.subscribe(
+      (state) => {
+        setIsSearchOpenState(state.isSearchOpen);
+      }
+    );
+    return unsubscribe;
+  }, []);
+  
   const dbUser = useQuery(
     api.users.getUser,
     user ? { id: user.id } : "skip",
@@ -50,7 +61,7 @@ export default function Navbar() {
   return (
     <>
       {/* Top Banner */}
-      <div className="bg-linear-to-r from-primary-brand to-secondary-brand text-white py-2 text-center text-sm">
+      <div className="bg-gradient-to-r from-primary-brand to-secondary-brand text-white py-2 text-center text-sm">
         <div className="flex items-center justify-center space-x-6">
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1" />
@@ -106,7 +117,7 @@ export default function Navbar() {
             </div>
 
             {/* Search Bar - Desktop (only show when search modal is closed) */}
-            {!useStore.getState().isSearchOpen && (
+            {!isSearchOpen && (
               <div className="hidden md:flex flex-1 max-w-xl mx-8">
                 <div className="relative w-full">
                   <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500 h-5 w-5 pointer-events-none" />
@@ -116,13 +127,14 @@ export default function Navbar() {
                     placeholder="Search for groceries, fruits, vegetables..."
                     className="w-full pl-10 pr-24 py-3 bg-white border-2 border-neutral-200 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand transition-all duration-200 hover:border-neutral-300 cursor-pointer"
                     onClick={() => setSearchOpen(true)}
+                    aria-label="Search"
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1 pointer-events-none">
                     <kbd className="hidden lg:inline-block px-2 py-1 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded">
                       Ctrl
                     </kbd>
                     <kbd className="hidden lg:inline-block px-2 py-1 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded">
-                      V{" "}
+                      K
                     </kbd>
                   </div>
                 </div>
@@ -144,7 +156,7 @@ export default function Navbar() {
                 if (userRole === "shop_owner" && isActive) {
                   return (
                     <Link href="/shopkeeper">
-                      <button className="px-4 py-2 rounded-lg border text-sm font-medium transition-colors text-[var(--color-primary)] border-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white">
+                      <button className="px-4 py-2 rounded-lg border text-sm font-medium transition-colors text-primary-brand border-primary-brand hover:bg-primary-brand hover:text-white">
                         Shopkeeper Dashboard
                       </button>
                     </Link>
@@ -163,7 +175,7 @@ export default function Navbar() {
                 // Regular customer or not logged in
                 return (
                   <Link href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}>
-                    <button className="px-4 py-2 rounded-lg border text-sm font-medium transition-colors text-[var(--color-secondary)] border-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white">
+                    <button className="px-4 py-2 rounded-lg border text-sm font-medium transition-colors text-secondary-brand border-secondary-brand hover:bg-secondary-brand hover:text-white">
                       Become a shopkeeper
                     </button>
                   </Link>
@@ -354,7 +366,8 @@ export default function Navbar() {
                 transition={{ duration: 0.2 }}
                 className="md:hidden border-t border-gray-100 overflow-hidden"
               >
-                <div className="px-4 py-4 space-y-3 bg-white">
+                <div className="px-4 py-4 space-y-3 bg-white"
+                     aria-label="Mobile navigation menu">
                   {/* Mobile Location */}
                   <button
                     onClick={() => {
@@ -391,16 +404,16 @@ export default function Navbar() {
 
                   {/* Mobile User Account */}
                   <div className="border-t pt-3 space-y-3">
-                    {/* Become Shopkeeper Button - only show if not admin */}
-                    {dbUser?.role !== "admin" && (
+                    {/* Become Shopkeeper Button - only show if not admin and not active shopkeeper */}
+                    {dbUser?.role !== "admin" && !(dbUser?.role === "shop_owner" && dbUser?.is_active === true) && (
                       <Link
                         href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        <button className="flex items-center w-full text-left p-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-lg transition-colors">
+                        <button className="flex items-center w-full text-left p-3 bg-primary-brand hover:bg-primary-hover text-white rounded-lg transition-colors">
                           <div className="h-5 w-5 mr-3">🏪</div>
                           <div>
-                            <div className="text-xs text-[var(--color-secondary)]">
+                            <div className="text-xs text-secondary-brand">
                               {dbUser?.role === "shop_owner" && !dbUser?.is_active 
                                 ? "Pending Application" 
                                 : "Grow with us"}
@@ -426,9 +439,10 @@ export default function Navbar() {
                               {user.name}
                             </div>
                           </div>
-                          <div className="text-xs font-semibold px-2 py-1 rounded bg-primary-100 text-primary-700">
+                          <div className="text-xs font-semibold px-2 py-1 rounded bg-primary-brand/10 text-primary-brand">
                             {dbUser?.role === "admin" ? "Admin" : 
-                             dbUser?.role === "shop_owner" && dbUser?.is_active ? "Shopkeeper" :
+                             dbUser?.role === "shop_owner" && dbUser?.is_active === true ? "Shopkeeper" :
+                             dbUser?.role === "shop_owner" && dbUser?.is_active === false ? "Pending" :
                              "Customer"}
                           </div>
                         </div>
