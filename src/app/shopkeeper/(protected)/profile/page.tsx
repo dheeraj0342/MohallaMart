@@ -7,6 +7,8 @@ import { api } from "@/../convex/_generated/api";
 import { Id } from "@/../convex/_generated/dataModel";
 import { useToast } from "@/hooks/useToast";
 
+export const dynamic = 'force-dynamic';
+
 type ShopAddress = {
   city?: string;
   state?: string;
