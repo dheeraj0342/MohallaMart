@@ -132,28 +132,37 @@ export default function Navbar() {
             {/* Action Buttons - Desktop */}
             <div className="hidden md:flex items-center space-x-4">
               {(() => {
-                const isShopOwner = dbUser?.role === "shop_owner";
+                const userRole = dbUser?.role;
                 const isActive = dbUser?.is_active === true;
-                if (isShopOwner && isActive) {
+                
+                // Don't show shopkeeper options for admin users
+                if (userRole === "admin") {
+                  return null;
+                }
+                
+                // Active shopkeeper
+                if (userRole === "shop_owner" && isActive) {
                   return (
-                    <Link href="/shopkeeper">
+                    <Link href="/shopkeeper/profile">
                       <button className="px-4 py-2 rounded-lg border text-sm font-medium transition-colors text-[var(--color-primary)] border-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white">
                         Shopkeeper Dashboard
                       </button>
                     </Link>
                   );
                 }
-                if (isShopOwner && !isActive) {
+                
+                // Pending shopkeeper
+                if (userRole === "shop_owner" && !isActive) {
                   return (
-                    <span className="px-4 py-2 rounded-lg border text-sm font-medium text-gray-600 border-gray-300">
-                      Application Pending
+                    <span className="px-4 py-2 rounded-lg border text-sm font-medium text-amber-600 border-amber-300 bg-amber-50">
+                      ⏳ Application Pending
                     </span>
                   );
                 }
+                
+                // Regular customer or not logged in
                 return (
-                  <Link
-                    href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}
-                  >
+                  <Link href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}>
                     <button className="px-4 py-2 rounded-lg border text-sm font-medium transition-colors text-[var(--color-secondary)] border-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white">
                       Become a shopkeeper
                     </button>
@@ -176,22 +185,22 @@ export default function Navbar() {
                     </div>
                   </button>
                   {isAccountOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-lg shadow-lg z-50">
+                    <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-100 rounded-lg shadow-lg z-50">
+                      {/* Role-based profile link */}
                       {dbUser?.role === "admin" ? (
                         <Link
                           href="/admin"
                           onClick={() => setIsAccountOpen(false)}
-                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg"
+                          className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg border-b"
                         >
                           <User className="h-4 w-4 mr-2" />
                           Admin Dashboard
                         </Link>
-                      ) : dbUser?.role === "shop_owner" &&
-                        dbUser?.is_active === true ? (
+                      ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
                         <Link
                           href="/shopkeeper/profile"
                           onClick={() => setIsAccountOpen(false)}
-                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg"
+                          className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg border-b"
                         >
                           <User className="h-4 w-4 mr-2" />
                           Shopkeeper Profile
@@ -200,18 +209,33 @@ export default function Navbar() {
                         <Link
                           href="/profile"
                           onClick={() => setIsAccountOpen(false)}
-                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg"
+                          className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg border-b"
                         >
                           <User className="h-4 w-4 mr-2" />
-                          Profile
+                          My Profile
                         </Link>
                       )}
+                      
+                      {/* Role indicator */}
+                      <div className="px-4 py-2 border-b bg-gray-50">
+                        <div className="text-xs font-semibold text-gray-500 uppercase">
+                          Role
+                        </div>
+                        <div className="text-sm font-medium text-gray-800 mt-1">
+                          {dbUser?.role === "admin" ? "👑 Admin" : 
+                           dbUser?.role === "shop_owner" && dbUser?.is_active === true ? "🏪 Active Shopkeeper" :
+                           dbUser?.role === "shop_owner" && dbUser?.is_active === false ? "⏳ Pending Shopkeeper" :
+                           "🛒 Customer"}
+                        </div>
+                      </div>
+                      
+                      {/* Logout button */}
                       <button
                         onClick={() => {
                           setIsAccountOpen(false);
                           logout();
                         }}
-                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-red-50 rounded-b-lg"
+                        className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-b-lg transition-colors"
                       >
                         <LogOut className="h-4 w-4 mr-2" />
                         Logout
@@ -366,40 +390,56 @@ export default function Navbar() {
                   </div>
 
                   {/* Mobile User Account */}
-                  <div className="border-t pt-3">
-                    <Link
-                      href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      <button className="flex items-center w-full text-left p-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-lg transition-colors">
-                        <div className="h-5 w-5 mr-3">🏪</div>
-                        <div>
-                          <div className="text-xs text-[var(--color-secondary)]">
-                            Grow with us
+                  <div className="border-t pt-3 space-y-3">
+                    {/* Become Shopkeeper Button - only show if not admin */}
+                    {dbUser?.role !== "admin" && (
+                      <Link
+                        href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <button className="flex items-center w-full text-left p-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-lg transition-colors">
+                          <div className="h-5 w-5 mr-3">🏪</div>
+                          <div>
+                            <div className="text-xs text-[var(--color-secondary)]">
+                              {dbUser?.role === "shop_owner" && !dbUser?.is_active 
+                                ? "Pending Application" 
+                                : "Grow with us"}
+                            </div>
+                            <div className="text-sm font-medium text-white">
+                              {dbUser?.role === "shop_owner" && !dbUser?.is_active
+                                ? "⏳ Application Pending"
+                                : "Become a shopkeeper"}
+                            </div>
                           </div>
-                          <div className="text-sm font-medium text-white">
-                            Become a shopkeeper
-                          </div>
-                        </div>
-                      </button>
-                    </Link>
+                        </button>
+                      </Link>
+                    )}
+                    
                     {user ? (
                       <div className="space-y-2">
-                        <div className="flex items-center w-full text-left p-3 bg-gray-50 rounded-lg">
+                        {/* User Info */}
+                        <div className="flex items-center w-full text-left p-3 bg-gray-50 rounded-lg border border-gray-200">
                           <User className="h-5 w-5 mr-3 text-gray-600" />
-                          <div>
+                          <div className="flex-1">
                             <div className="text-xs text-gray-500">Account</div>
                             <div className="text-sm font-medium text-gray-800">
                               {user.name}
                             </div>
                           </div>
+                          <div className="text-xs font-semibold px-2 py-1 rounded bg-primary-100 text-primary-700">
+                            {dbUser?.role === "admin" ? "Admin" : 
+                             dbUser?.role === "shop_owner" && dbUser?.is_active ? "Shopkeeper" :
+                             "Customer"}
+                          </div>
                         </div>
+                        
+                        {/* Profile Links */}
                         {dbUser?.role === "admin" ? (
                           <Link
                             href="/admin"
                             onClick={() => setIsMenuOpen(false)}
                           >
-                            <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 bg-white rounded-lg transition-colors text-gray-700">
+                            <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 bg-white rounded-lg transition-colors text-gray-700 border border-gray-200">
                               <User className="h-5 w-5 mr-3" />
                               <div>
                                 <div className="text-sm font-medium">
@@ -408,21 +448,16 @@ export default function Navbar() {
                               </div>
                             </button>
                           </Link>
-                        ) : dbUser?.role === "shop_owner" &&
-                          dbUser?.is_active === true ? (
+                        ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
                           <Link
                             href="/shopkeeper/profile"
                             onClick={() => setIsMenuOpen(false)}
                           >
-                            <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 bg-white rounded-lg transition-colors text-gray-700">
+                            <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 bg-white rounded-lg transition-colors text-gray-700 border border-gray-200">
                               <User className="h-5 w-5 mr-3" />
                               <div>
-                                <div className="text-xs text-gray-500">
-                                  Shopkeeper
-                                </div>
-                                <div className="text-sm font-medium">
-                                  Profile
-                                </div>
+                                <div className="text-xs text-gray-500">Shopkeeper</div>
+                                <div className="text-sm font-medium">Profile</div>
                               </div>
                             </button>
                           </Link>
@@ -431,38 +466,34 @@ export default function Navbar() {
                             href="/profile"
                             onClick={() => setIsMenuOpen(false)}
                           >
-                            <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 bg-white rounded-lg transition-colors text-gray-700">
+                            <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 bg-white rounded-lg transition-colors text-gray-700 border border-gray-200">
                               <User className="h-5 w-5 mr-3" />
                               <div>
-                                <div className="text-xs text-gray-500">
-                                  Your
-                                </div>
-                                <div className="text-sm font-medium">
-                                  Profile
-                                </div>
+                                <div className="text-xs text-gray-500">Your</div>
+                                <div className="text-sm font-medium">Profile</div>
                               </div>
                             </button>
                           </Link>
                         )}
+                        
+                        {/* Logout Button */}
                         <button
                           onClick={() => {
                             logout();
                             setIsMenuOpen(false);
                           }}
-                          className="flex items-center w-full text-left p-3 hover:bg-[var(--color-secondary)] bg-white rounded-lg transition-colors text-[var(--color-secondary)]"
+                          className="flex items-center w-full text-left p-3 hover:bg-red-50 bg-white rounded-lg transition-colors text-red-600 border border-red-200"
                         >
                           <LogOut className="h-5 w-5 mr-3" />
                           <div>
-                            <div className="text-xs text-[var(--color-secondary)]">
-                              Sign Out
-                            </div>
+                            <div className="text-xs text-red-600">Sign Out</div>
                             <div className="text-sm font-medium">Logout</div>
                           </div>
                         </button>
                       </div>
                     ) : (
                       <Link href="/auth" onClick={() => setIsMenuOpen(false)}>
-                        <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                        <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors border border-gray-200">
                           <User className="h-5 w-5 mr-3 text-gray-600" />
                           <div>
                             <div className="text-xs text-gray-500">Account</div>
