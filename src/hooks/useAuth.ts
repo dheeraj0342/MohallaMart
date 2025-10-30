@@ -35,19 +35,19 @@ export const useAuth = () => {
             phone: user_metadata?.phone,
             avatar_url: user_metadata?.avatar_url,
           });
-          // Ensure user exists in Convex for role workflows
-          try {
-            await syncUser({
-              supabaseUserId: session.user.id,
-              name:
-                user_metadata?.full_name ||
-                user_metadata?.name ||
-                email.split("@")[0],
-              email,
-              phone: user_metadata?.phone,
-              avatar_url: user_metadata?.avatar_url,
-            });
-          } catch {}
+          // Sync user to Convex in background (don't await)
+          syncUser({
+            supabaseUserId: session.user.id,
+            name:
+              user_metadata?.full_name ||
+              user_metadata?.name ||
+              email.split("@")[0],
+            email,
+            phone: user_metadata?.phone,
+            avatar_url: user_metadata?.avatar_url,
+          }).catch(() => {
+            // Silently fail - sync can happen in background
+          });
         }
       }
     };
@@ -73,18 +73,19 @@ export const useAuth = () => {
             phone: user_metadata?.phone,
             avatar_url: user_metadata?.avatar_url,
           });
-          try {
-            await syncUser({
-              supabaseUserId: session.user.id,
-              name:
-                user_metadata?.full_name ||
-                user_metadata?.name ||
-                email.split("@")[0],
-              email,
-              phone: user_metadata?.phone,
-              avatar_url: user_metadata?.avatar_url,
-            });
-          } catch {}
+          // Sync user to Convex in background (don't await)
+          syncUser({
+            supabaseUserId: session.user.id,
+            name:
+              user_metadata?.full_name ||
+              user_metadata?.name ||
+              email.split("@")[0],
+            email,
+            phone: user_metadata?.phone,
+            avatar_url: user_metadata?.avatar_url,
+          }).catch(() => {
+            // Silently fail - sync can happen in background
+          });
         }
       } else {
         setSupabaseUser(null);

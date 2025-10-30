@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Eye, EyeOff, Mail, Lock, Loader2, Store } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useToast } from "@/hooks/useToast";
 
 interface ShopkeeperLoginFormProps {
   onSuccess?: () => void;
@@ -18,6 +19,7 @@ export default function ShopkeeperLoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const {} = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,11 +31,16 @@ export default function ShopkeeperLoginForm({
         email,
         password,
       });
-      if (error) setError(error.message);
-      else onSuccess?.();
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+      } else {
+        // Immediately redirect without waiting
+        onSuccess?.();
+        // Don't set loading to false here - let redirect happen
+      }
     } catch {
       setError("An unexpected error occurred");
-    } finally {
       setLoading(false);
     }
   };
@@ -64,7 +71,7 @@ export default function ShopkeeperLoginForm({
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
+          transition={{ duration: 0.2 }}
           className="w-full max-w-md"
         >
           <div className="text-center mb-8 md:hidden">

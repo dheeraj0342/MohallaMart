@@ -14,12 +14,12 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (isLoggedIn()) {
-      router.push("/");
+      router.replace("/");
     }
   }, [isLoggedIn, router]);
 
   const handleAuthSuccess = () => {
-    router.push("/");
+    router.replace("/");
   };
 
   return (

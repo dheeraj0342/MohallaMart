@@ -5,5 +5,5 @@ import ShopkeeperLoginForm from "@/components/auth/shopkeeper/ShopkeeperLoginFor
 
 export default function ShopkeeperLoginPage() {
   const router = useRouter();
-  return <ShopkeeperLoginForm onSuccess={() => router.push("/shopkeeper")} />;
+  return <ShopkeeperLoginForm onSuccess={() => router.replace("/shopkeeper")} />;
 }

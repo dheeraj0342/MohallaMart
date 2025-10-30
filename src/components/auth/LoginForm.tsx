@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useToast } from "@/hooks/useToast";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -30,6 +31,7 @@ export default function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { error: errorToast, info } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,12 +46,14 @@ export default function LoginForm({
 
       if (error) {
         setError(error.message);
+        setLoading(false);
       } else {
+        // Immediately redirect without waiting
         onSuccess?.();
+        // Don't set loading to false here - let redirect happen
       }
     } catch {
       setError("An unexpected error occurred");
-    } finally {
       setLoading(false);
     }
   };
@@ -67,12 +71,14 @@ export default function LoginForm({
 
       if (error) {
         setError(error.message);
+        errorToast(error.message);
       } else {
         setError("");
-        alert("Password reset link sent! Please check your email.");
+        info("Password reset link sent! Please check your email.");
       }
     } catch {
       setError("Failed to send reset email");
+      errorToast("Failed to send reset email");
     }
   };
 
@@ -136,7 +142,7 @@ export default function LoginForm({
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 + index * 0.1 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
                   className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20"
                 >
                   <feature.icon className="w-8 h-8 mb-2" />
@@ -164,7 +170,7 @@ export default function LoginForm({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.3 }}
           className="w-full max-w-md"
         >
           {/* Mobile Logo */}

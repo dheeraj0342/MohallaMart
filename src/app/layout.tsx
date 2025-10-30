@@ -6,6 +6,7 @@ import SearchBar from "@/components/SearchBar";
 import ConvexProviderWrapper from "@/components/ConvexProvider";
 import InngestProvider from "@/components/InngestProvider";
 import TRPCProvider from "@/components/TRPCProvider";
+import ToastProvider from "@/components/ToastProvider";
 import Footer from "@/components/Footer";
 
 const inter = Inter({
@@ -65,12 +66,14 @@ export default function RootLayout({
         <TRPCProvider>
           <ConvexProviderWrapper>
             <InngestProvider>
-              <Navbar />
-              <main>{children}</main>
-              <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-2xl px-4">
-                <SearchBar />
-              </div>
-              <Footer />
+              <ToastProvider>
+                <Navbar />
+                <main>{children}</main>
+                <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-2xl px-4">
+                  <SearchBar />
+                </div>
+                <Footer />
+              </ToastProvider>
             </InngestProvider>
           </ConvexProviderWrapper>
         </TRPCProvider>

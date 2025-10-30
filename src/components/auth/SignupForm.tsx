@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useToast } from "@/hooks/useToast";
 
 interface SignupFormProps {
   onSuccess?: () => void;
@@ -38,6 +39,7 @@ export default function SignupForm({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { success, error: errorToast } = useToast();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -77,17 +79,16 @@ export default function SignupForm({
 
       if (error) {
         setError(error.message);
+        errorToast(error.message);
+        setLoading(false);
       } else {
         setError("");
-        // Show success message
-        alert(
-          "Success! Please check your email to confirm your account. Check your spam folder if you don't see it.",
-        );
+        success("Account created! Please check your email to confirm your account.");
         onSuccess?.();
       }
     } catch {
       setError("An unexpected error occurred");
-    } finally {
+      errorToast("An unexpected error occurred");
       setLoading(false);
     }
   };
