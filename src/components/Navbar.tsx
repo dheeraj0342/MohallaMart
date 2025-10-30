@@ -30,17 +30,11 @@ export default function Navbar() {
   const { location, getTotalItems, user, setSearchOpen } = useStore();
   const { logout } = useAuth();
   
-  // Wrap useQuery in a try-catch to handle build-time errors
-  let dbUser: { role?: string; is_active?: boolean } | null | undefined = null;
-  try {
-    dbUser = useQuery(
-      api.users.getUser,
-      user ? { id: user.id } : "skip",
-    ) as { role?: string; is_active?: boolean } | null | undefined;
-  } catch (error) {
-    // During static generation, ConvexProvider may not be available
-    console.warn("Convex query unavailable during build:", error);
-  }
+  // Safely call useQuery - it will return undefined during build if ConvexProvider is not available
+  const dbUser = useQuery(
+    api.users.getUser,
+    user ? { id: user.id } : "skip",
+  ) as { role?: string; is_active?: boolean } | null | undefined;
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);

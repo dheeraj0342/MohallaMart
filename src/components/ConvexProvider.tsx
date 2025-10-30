@@ -10,15 +10,17 @@ interface ConvexProviderWrapperProps {
 }
 
 // Create Convex client with proper error handling for build time
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-let convex: ConvexReactClient | null = null;
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || "https://placeholder.convex.cloud";
 
-if (convexUrl) {
-  try {
-    convex = new ConvexReactClient(convexUrl);
-  } catch (error) {
-    console.warn("Failed to initialize Convex client:", error);
-  }
+// Always create a Convex client instance, even if URL is a placeholder
+let convex: ConvexReactClient;
+
+try {
+  convex = new ConvexReactClient(convexUrl);
+} catch (error) {
+  console.warn("Failed to initialize Convex client:", error);
+  // Fallback to placeholder
+  convex = new ConvexReactClient("https://placeholder.convex.cloud");
 }
 
 export default function ConvexProviderWrapper({
@@ -26,11 +28,7 @@ export default function ConvexProviderWrapper({
 }: ConvexProviderWrapperProps) {
   const { setConvexConnected } = useStore();
 
-  // If Convex client is not available (e.g., during build), render children without provider
-  if (!convex) {
-    return <>{children}</>;
-  }
-
+  // Always provide ConvexProvider to avoid build errors
   return (
     <ConvexProviderBase client={convex}>
       <ConvexConnectionHandler onConnectionChange={setConvexConnected} />
