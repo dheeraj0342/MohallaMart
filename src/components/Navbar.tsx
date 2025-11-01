@@ -27,6 +27,7 @@ export default function Navbar() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpenState] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const { location, getTotalItems, user, setSearchOpen } = useStore();
   const { logout } = useAuth();
@@ -39,6 +40,8 @@ export default function Navbar() {
         setIsSearchOpenState(state.isSearchOpen);
       }
     );
+    // mark mounted after first paint so client and server HTML match
+    setMounted(true);
     return unsubscribe;
   }, []);
   
@@ -293,10 +296,10 @@ export default function Navbar() {
                 <div className="text-left">
                   <div className="text-xs opacity-90">My Cart</div>
                   <div className="text-sm font-medium">
-                    {getTotalItems() > 0 ? `${getTotalItems()} items` : "Empty"}
+                    {mounted && getTotalItems() > 0 ? `${getTotalItems()} items` : "Empty"}
                   </div>
                 </div>
-                {getTotalItems() > 0 && (
+                {mounted && getTotalItems() > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
@@ -325,7 +328,7 @@ export default function Navbar() {
                 aria-label="Open cart"
               >
                 <ShoppingCart className="h-6 w-6" />
-                {getTotalItems() > 0 && (
+                {mounted && getTotalItems() > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
