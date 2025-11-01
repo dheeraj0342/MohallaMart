@@ -11,6 +11,8 @@ import {
   Clock,
   Percent,
   LogOut,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { useAuth } from "@/hooks/useAuth";
@@ -28,6 +30,7 @@ export default function Navbar() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpenState] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isDark, setIsDark] = useState<boolean | null>(null);
 
   const { location, getTotalItems, user, setSearchOpen } = useStore();
   const { logout } = useAuth();
@@ -42,8 +45,42 @@ export default function Navbar() {
     );
     // mark mounted after first paint so client and server HTML match
     setMounted(true);
+    // initialize theme from localStorage or system preference
+    try {
+      const saved = localStorage.getItem("theme");
+      if (saved === "dark") {
+        setIsDark(true);
+        document.documentElement.classList.add("dark");
+      } else if (saved === "light") {
+        setIsDark(false);
+        document.documentElement.classList.remove("dark");
+      } else {
+        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        setIsDark(prefersDark);
+        if (prefersDark) document.documentElement.classList.add("dark");
+        else document.documentElement.classList.remove("dark");
+      }
+    } catch {
+      // ignore (SSR safety)
+    }
     return unsubscribe;
   }, []);
+
+  const toggleTheme = () => {
+    try {
+      const next = !isDark;
+      setIsDark(next);
+      if (next) {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("theme", "light");
+      }
+    } catch {
+      // noop
+    }
+  };
   
   const dbUser = useQuery(
     api.users.getUser,
@@ -182,6 +219,19 @@ export default function Navbar() {
                 );
               })()}
               {/* User Account */}
+              {/* Theme toggle */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                aria-label="Toggle color theme"
+                title="Toggle dark / light"
+              >
+                {isDark ? (
+                  <Sun className="h-5 w-5 text-yellow-400" />
+                ) : (
+                  <Moon className="h-5 w-5 text-gray-700" />
+                )}
+              </button>
               {user ? (
                 <div className="relative">
                   <button
@@ -313,6 +363,19 @@ export default function Navbar() {
 
             {/* Mobile menu button */}
             <div className="md:hidden flex items-center space-x-3">
+              {/* Mobile Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="text-gray-600 hover:text-primary-brand p-2"
+                aria-label="Toggle color theme"
+                title="Toggle dark / light"
+              >
+                {isDark ? (
+                  <Sun className="h-6 w-6 text-yellow-400" />
+                ) : (
+                  <Moon className="h-6 w-6" />
+                )}
+              </button>
               {/* Mobile Search */}
               <button
                 onClick={() => setSearchOpen(true)}
