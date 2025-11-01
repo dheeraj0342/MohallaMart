@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { X, MapPin, Loader2, Navigation } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { X, Loader2, Navigation } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -10,105 +10,125 @@ interface LocationModalProps {
   onClose: () => void;
 }
 
-const popularCities = [
-  { name: "Mumbai", areas: ["Andheri", "Bandra", "Powai", "Worli", "Juhu"] },
-  {
-    name: "Delhi",
-    areas: ["Connaught Place", "Karol Bagh", "Dwarka", "Rohini", "Saket"],
-  },
-  {
-    name: "Bangalore",
-    areas: [
-      "Koramangala",
-      "Indiranagar",
-      "Whitefield",
-      "HSR Layout",
-      "Marathahalli",
-    ],
-  },
-  {
-    name: "Hyderabad",
-    areas: [
-      "Hitech City",
-      "Gachibowli",
-      "Banjara Hills",
-      "Jubilee Hills",
-      "Madhapur",
-    ],
-  },
-  {
-    name: "Pune",
-    areas: ["Koregaon Park", "Hinjewadi", "Viman Nagar", "Kothrud", "Wakad"],
-  },
-  {
-    name: "Chennai",
-    areas: ["T Nagar", "Velachery", "Adyar", "Anna Nagar", "Tambaram"],
-  },
-];
-
 export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
-  const [selectedCity, setSelectedCity] = useState("");
-  const [selectedArea, setSelectedArea] = useState("");
   const [isDetecting, setIsDetecting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [autoAttempted, setAutoAttempted] = useState(false);
   const setLocation = useStore((state) => state.setLocation);
 
-  const detectLocation = () => {
+  useEffect(() => {
+    if (isOpen) {
+      setErrorMessage(null);
+    }
+    setAutoAttempted(false);
+    setIsDetecting(false);
+  }, [isOpen]);
+
+  const reverseGeocode = useCallback(async (latitude: number, longitude: number) => {
+    const url = new URL("https://nominatim.openstreetmap.org/reverse");
+    url.searchParams.set("lat", latitude.toString());
+    url.searchParams.set("lon", longitude.toString());
+    url.searchParams.set("format", "jsonv2");
+    url.searchParams.set("zoom", "15");
+    url.searchParams.set("addressdetails", "1");
+    url.searchParams.set("accept-language", "en");
+
+    const response = await fetch(url.toString(), {
+      headers: { Accept: "application/json" },
+    });
+
+    if (!response.ok) throw new Error(`Reverse geocoding failed: ${response.status}`);
+
+    const data = (await response.json()) as { address?: Record<string, string> };
+    const address = data.address ?? {};
+
+    const city =
+      address.city ||
+      address.town ||
+      address.village ||
+      address.municipality ||
+      address.state_district ||
+      address.state ||
+      address.county ||
+      "Your City";
+
+    const area =
+      address.suburb ||
+      address.neighbourhood ||
+      address.residential ||
+      address.quarter ||
+      address.city_district ||
+      address.district ||
+      address.state_district ||
+      address.county ||
+      address.village ||
+      city;
+
+    return { city, area, pincode: address.postcode };
+  }, []);
+
+  const detectLocation = useCallback(() => {
+    if (isDetecting) return;
+
+    setAutoAttempted(true);
+    setErrorMessage(null);
     setIsDetecting(true);
 
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-
-          // Mock reverse geocoding (in real app, use Google Maps API)
-          const mockCity =
-            popularCities[Math.floor(Math.random() * popularCities.length)];
-          const mockArea = mockCity.areas[0];
-
-          setLocation({
-            city: mockCity.name,
-            area: mockArea,
-            coordinates: { lat: latitude, lng: longitude },
-          });
-
-          setIsDetecting(false);
-          onClose();
-        },
-        (error) => {
-          console.error("Error detecting location:", error);
-          alert("Unable to detect location. Please select manually.");
-          setIsDetecting(false);
-        },
-      );
-    } else {
-      alert("Geolocation is not supported by your browser");
+    if (!("geolocation" in navigator)) {
+      setErrorMessage("Geolocation is not supported on this device. Enable location services and try again.");
       setIsDetecting(false);
+      return;
     }
-  };
 
-  const handleConfirm = () => {
-    if (selectedCity && selectedArea) {
-      setLocation({
-        city: selectedCity,
-        area: selectedArea,
-      });
-      onClose();
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        reverseGeocode(latitude, longitude)
+          .then((resolvedLocation) => {
+            setErrorMessage(null);
+            setLocation({
+              ...resolvedLocation,
+              coordinates: { lat: latitude, lng: longitude },
+            });
+            onClose();
+          })
+          .catch(() => {
+            setErrorMessage(
+              "We detected your location but couldn’t fetch the address. Please check your connection and try again."
+            );
+          })
+          .finally(() => setIsDetecting(false));
+      },
+      () => {
+        setErrorMessage("Unable to detect your location. Allow location access and try again.");
+        setIsDetecting(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }, [isDetecting, onClose, reverseGeocode, setLocation]);
+
+  useEffect(() => {
+    if (isOpen && !autoAttempted && !isDetecting) {
+      detectLocation();
     }
-  };
-
-  const cityData = popularCities.find((city) => city.name === selectedCity);
+  }, [autoAttempted, detectLocation, isDetecting, isOpen]);
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div
+          className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto p-4 pt-20 sm:pt-28"
+          role="dialog"
+          aria-modal="true"
+        >
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black bg-opacity-50"
+            className="absolute inset-0 bg-black/60 backdrop-blur-[2px] dark:bg-black/70"
+            style={{ zIndex: 0 }}
           />
 
           {/* Modal */}
@@ -116,28 +136,43 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+            transition={{ duration: 0.2 }}
+            className="relative w-full max-w-md rounded-2xl border border-[#e0e0e0] bg-[#ffffff] text-[#212121] shadow-2xl dark:border-[#2d333b] dark:bg-[#24292e] dark:text-[#f9f6f2]"
+            style={{ zIndex: 10 }}
           >
             {/* Header */}
-            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Select Location
-              </h2>
+            <div className="sticky top-0 bg-[#ffffff] dark:bg-[#24292e] border-b border-[#e0e0e0] dark:border-[#2d333b] px-6 py-4 flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Select Location</h2>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-[#a79f94] hover:text-[#594a3a] dark:text-[#a2a6b2] dark:hover:text-[#f9f6f2] transition-colors"
+                aria-label="Close"
               >
                 <X className="h-6 w-6" />
               </button>
             </div>
 
             {/* Content */}
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-6 max-h-[65vh] overflow-y-auto">
+              <AnimatePresence>
+                {errorMessage && (
+                  <motion.div
+                    key={errorMessage}
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    className="rounded-lg border border-[#ffb199] bg-[#fff1eb] text-[#b83d0f] px-4 py-3 text-sm leading-relaxed"
+                  >
+                    {errorMessage}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Auto-detect Location */}
               <button
                 onClick={detectLocation}
                 disabled={isDetecting}
-                className="w-full bg-primary-50 border-2 border-primary-200 text-primary-brand px-4 py-3 rounded-lg font-semibold hover:bg-primary-100 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full bg-[#e6f4ec] border-2 border-[#a8d5bb] text-[#1f8f4e] px-4 py-3 rounded-lg font-semibold hover:bg-[#d0ecd9] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isDetecting ? (
                   <>
@@ -150,83 +185,6 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                     Use Current Location
                   </>
                 )}
-              </button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">
-                    Or select manually
-                  </span>
-                </div>
-              </div>
-
-              {/* City Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select City
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {popularCities.map((city) => (
-                    <button
-                      key={city.name}
-                      onClick={() => {
-                        setSelectedCity(city.name);
-                        setSelectedArea("");
-                      }}
-                      className={`px-4 py-2 rounded-lg border-2 transition-colors ${
-                        selectedCity === city.name
-                          ? "border-primary-brand bg-primary-50 text-primary-brand font-semibold"
-                          : "border-neutral-200 text-neutral-700 hover:border-neutral-300"
-                      }`}
-                    >
-                      {city.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Area Selection */}
-              {selectedCity && cityData && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Area in {selectedCity}
-                  </label>
-                  <div className="space-y-2">
-                    {cityData.areas.map((area) => (
-                      <button
-                        key={area}
-                        onClick={() => setSelectedArea(area)}
-                        className={`w-full px-4 py-3 rounded-lg border-2 transition-colors text-left ${
-                          selectedArea === area
-                            ? "border-primary-brand bg-primary-50 text-primary-brand font-semibold"
-                            : "border-neutral-200 text-neutral-700 hover:border-neutral-300"
-                        }`}
-                      >
-                        <div className="flex items-center">
-                          <MapPin className="h-4 w-4 mr-2" />
-                          {area}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="sticky bottom-0 bg-white border-t px-6 py-4">
-              <button
-                onClick={handleConfirm}
-                disabled={!selectedCity || !selectedArea}
-                className="w-full bg-primary-brand text-white px-4 py-3 rounded-lg font-semibold hover:bg-primary-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Confirm Location
               </button>
             </div>
           </motion.div>

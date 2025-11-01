@@ -1,6 +1,30 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+const EARTH_RADIUS_KM = 6371;
+
+function toRadians(degrees: number): number {
+  return (degrees * Math.PI) / 180;
+}
+
+function calculateDistanceKm(
+  pointA: { lat: number; lng: number },
+  pointB: { lat: number; lng: number },
+): number {
+  const dLat = toRadians(pointB.lat - pointA.lat);
+  const dLng = toRadians(pointB.lng - pointA.lng);
+  const lat1 = toRadians(pointA.lat);
+  const lat2 = toRadians(pointB.lat);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1) * Math.cos(lat2) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return EARTH_RADIUS_KM * c;
+}
+
 // Create a new shop
 export const createShop = mutation({
   args: {
@@ -32,7 +56,9 @@ export const createShop = mutation({
         ),
         thursday: v.optional(v.object({ open: v.string(), close: v.string() })),
         friday: v.optional(v.object({ open: v.string(), close: v.string() })),
-        saturday: v.optional(v.object({ open: v.string(), close: v.string() })),
+        saturday: v.optional(
+          v.object({ open: v.string(), close: v.string() }),
+        ),
         sunday: v.optional(v.object({ open: v.string(), close: v.string() })),
       }),
     ),
@@ -53,6 +79,89 @@ export const createShop = mutation({
     });
 
     return shopId;
+  },
+});
+
+// Search shops
+export const searchShops = query({
+  args: {
+    query: v.string(),
+    city: v.optional(v.string()),
+    pincode: v.optional(v.string()),
+    customer_location: v.optional(
+      v.object({
+        lat: v.number(),
+        lng: v.number(),
+      }),
+    ),
+    max_radius_km: v.optional(v.number()),
+    is_active: v.optional(v.boolean()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const allShops = await ctx.db.query("shops").collect();
+    let filtered = allShops;
+
+    if (args.query) {
+      const searchTerm = args.query.toLowerCase();
+      filtered = filtered.filter(
+        (shop) =>
+          shop.name.toLowerCase().includes(searchTerm) ||
+          shop.description?.toLowerCase().includes(searchTerm),
+      );
+    }
+
+    if (args.city) {
+      filtered = filtered.filter((shop) => shop.address.city === args.city);
+    }
+
+    if (args.is_active !== undefined) {
+      filtered = filtered.filter((shop) => shop.is_active === args.is_active);
+    }
+
+    const pincodeMatches = args.pincode
+      ? filtered.filter((shop) => shop.address.pincode === args.pincode)
+      : null;
+
+    let finalShops = filtered;
+
+    if (args.customer_location && args.max_radius_km !== undefined) {
+      const radiusMatches = filtered.filter((shop) => {
+        const coordinates = shop.address.coordinates;
+        if (!coordinates) return false;
+        const distance = calculateDistanceKm(
+          { lat: coordinates.lat, lng: coordinates.lng },
+          args.customer_location!,
+        );
+        return distance <= args.max_radius_km!;
+      });
+
+      if (radiusMatches.length > 0) {
+        finalShops = radiusMatches;
+        if (pincodeMatches && pincodeMatches.length > 0) {
+          const seen = new Set(finalShops.map((shop) => shop._id));
+          for (const shop of pincodeMatches) {
+            if (!seen.has(shop._id)) {
+              finalShops.push(shop);
+            }
+          }
+        }
+      } else if (pincodeMatches) {
+        finalShops = pincodeMatches;
+      } else {
+        finalShops = [];
+      }
+    } else if (pincodeMatches) {
+      finalShops = pincodeMatches;
+    }
+
+    finalShops.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+
+    if (args.limit) {
+      return finalShops.slice(0, args.limit);
+    }
+
+    return finalShops;
   },
 });
 
@@ -126,54 +235,6 @@ export const getShopsByPincode = query({
     }
 
     const shops = await query.collect();
-
-    if (args.limit) {
-      return shops.slice(0, args.limit);
-    }
-
-    return shops;
-  },
-});
-
-// Search shops
-export const searchShops = query({
-  args: {
-    query: v.string(),
-    city: v.optional(v.string()),
-    pincode: v.optional(v.string()),
-    is_active: v.optional(v.boolean()),
-    limit: v.optional(v.number()),
-  },
-  handler: async (ctx, args) => {
-    let shops = await ctx.db.query("shops").collect();
-
-    // Filter by search query
-    if (args.query) {
-      const searchTerm = args.query.toLowerCase();
-      shops = shops.filter(
-        (shop) =>
-          shop.name.toLowerCase().includes(searchTerm) ||
-          shop.description?.toLowerCase().includes(searchTerm),
-      );
-    }
-
-    // Filter by city
-    if (args.city) {
-      shops = shops.filter((shop) => shop.address.city === args.city);
-    }
-
-    // Filter by pincode
-    if (args.pincode) {
-      shops = shops.filter((shop) => shop.address.pincode === args.pincode);
-    }
-
-    // Filter by active status
-    if (args.is_active !== undefined) {
-      shops = shops.filter((shop) => shop.is_active === args.is_active);
-    }
-
-    // Sort by rating
-    shops.sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
     if (args.limit) {
       return shops.slice(0, args.limit);

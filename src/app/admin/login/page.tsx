@@ -3,7 +3,7 @@ import {
   isAdminAuthenticated,
   setAdminSession,
   clearAdminSession,
-} from "@/lib/utils";
+} from "@/lib/adminAuth";
 
 export default async function AdminLoginPage() {
   async function login(formData: FormData) {
