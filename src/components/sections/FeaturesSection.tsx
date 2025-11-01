@@ -56,7 +56,10 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section id="features" className="py-20 bg-white">
+    <section
+      id="features"
+      className="py-20 bg-white dark:bg-neutral-950 transition-colors"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="text-center mb-16"
@@ -65,10 +68,10 @@ export default function FeaturesSection() {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 dark:text-neutral-100 mb-4 transition-colors">
             Our Key Features
           </h2>
-          <p className="text-xl text-neutral-600 max-w-3xl mx-auto">
+          <p className="text-xl text-neutral-600 dark:text-neutral-300 max-w-3xl mx-auto transition-colors">
             Discover what makes MohallaMart your trusted neighborhood
             marketplace
           </p>
@@ -80,7 +83,7 @@ export default function FeaturesSection() {
             return (
               <motion.div
                 key={feature.title}
-                className="bg-neutral-50 p-8 rounded-xl hover:shadow-lg transition-shadow"
+                className="bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-800 p-8 rounded-xl hover:shadow-lg transition-all duration-300 shadow-sm"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -88,14 +91,18 @@ export default function FeaturesSection() {
                 whileHover={{ y: -5 }}
               >
                 <div
-                  className={`${feature.iconBg} w-16 h-16 rounded-full flex items-center justify-center mb-6`}
+                  className={`${feature.iconBg} w-16 h-16 rounded-full flex items-center justify-center mb-6 border border-neutral-200 dark:border-neutral-700 dark:bg-neutral-800/70 transition-colors`}
                 >
-                  <IconComponent className={`h-8 w-8 ${feature.iconColor}`} />
+                  <IconComponent
+                    className={`h-8 w-8 ${feature.iconColor} dark:text-primary-brand transition-colors`}
+                  />
                 </div>
-                <h3 className="text-xl font-semibold text-neutral-900 mb-4">
+                <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-4 transition-colors">
                   {feature.title}
                 </h3>
-                <p className="text-neutral-600">{feature.description}</p>
+                <p className="text-neutral-600 dark:text-neutral-300 transition-colors">
+                  {feature.description}
+                </p>
               </motion.div>
             );
           })}

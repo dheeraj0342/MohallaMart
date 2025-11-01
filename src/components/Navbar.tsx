@@ -101,7 +101,7 @@ export default function Navbar() {
   return (
     <>
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-primary-brand to-secondary-brand text-white py-2 text-center text-sm">
+  <div className="bg-linear-to-r from-primary-brand to-secondary-brand dark:from-neutral-800 dark:to-neutral-900 text-white dark:text-neutral-100 py-2 text-center text-sm transition-colors">
         <div className="flex items-center justify-center space-x-6">
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1" />
@@ -117,7 +117,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      <nav className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-100">
+  <nav className="bg-white dark:bg-neutral-950/90 shadow-md dark:shadow-lg sticky top-0 z-50 border-b border-gray-100 dark:border-neutral-800 backdrop-blur transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-3">
             {/* Logo & Location */}
@@ -222,7 +222,7 @@ export default function Navbar() {
               {/* Theme toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
                 aria-label="Toggle color theme"
                 title="Toggle dark / light"
               >
@@ -366,7 +366,7 @@ export default function Navbar() {
               {/* Mobile Theme Toggle */}
               <button
                 onClick={toggleTheme}
-                className="text-gray-600 hover:text-primary-brand p-2"
+                className="text-gray-600 dark:text-neutral-200 hover:text-primary-brand dark:hover:text-primary-brand/80 p-2"
                 aria-label="Toggle color theme"
                 title="Toggle dark / light"
               >
