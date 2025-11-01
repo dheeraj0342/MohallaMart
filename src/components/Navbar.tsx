@@ -129,12 +129,9 @@ export default function Navbar() {
                     onClick={() => setSearchOpen(true)}
                     aria-label="Search"
                   />
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1 pointer-events-none">
-                    <kbd className="hidden lg:inline-block px-2 py-1 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded">
-                      Ctrl
-                    </kbd>
-                    <kbd className="hidden lg:inline-block px-2 py-1 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded">
-                      K
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center pointer-events-none">
+                    <kbd className="px-2 py-1 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded">
+                      M
                     </kbd>
                   </div>
                 </div>

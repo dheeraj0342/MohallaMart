@@ -150,25 +150,38 @@ export default function SearchBar() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Ctrl+K to open search (Cmd+K on Mac)
-      if ((event.ctrlKey || event.metaKey) && event.key === "V") {
-        event.preventDefault();
-        setSearchOpen(true);
-        setTimeout(() => {
-          if (inputRef.current) {
-            inputRef.current.focus();
-          }
-        }, 100);
-      }
+      // Single-key 'm' to open search when not focused in an input
+      try {
+        const active = document.activeElement as HTMLElement | null;
+        const tag = active?.tagName;
+        const isEditable = active?.isContentEditable;
 
-      // Esc to close search
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setSearchOpen(false);
-        setQuery("");
-        if (inputRef.current) {
-          inputRef.current.blur();
+        if (
+          event.key.toLowerCase() === "m" &&
+          !event.ctrlKey &&
+          !event.metaKey &&
+          !event.altKey &&
+          tag !== "INPUT" &&
+          tag !== "TEXTAREA" &&
+          tag !== "SELECT" &&
+          !isEditable
+        ) {
+          event.preventDefault();
+          setSearchOpen(true);
+          setTimeout(() => {
+            if (inputRef.current) inputRef.current.focus();
+          }, 100);
         }
+
+        // Esc to close search
+        if (event.key === "Escape") {
+          event.preventDefault();
+          setSearchOpen(false);
+          setQuery("");
+          if (inputRef.current) inputRef.current.blur();
+        }
+      } catch {
+        // ignore errors in exotic environments
       }
     };
 
@@ -206,7 +219,7 @@ export default function SearchBar() {
       {isSearchOpen && (
         <motion.div
           ref={searchRef}
-          className="relative w-full max-w-2xl"
+          className="relative w-full max-w-2xl mx-auto"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
