@@ -2,6 +2,9 @@ import { api } from "@/../convex/_generated/api";
 import { fetchQuery } from "convex/nextjs";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function AdminDashboardPage() {
   const pendingApplications = (await fetchQuery(
     api.users.listPendingShopkeeperApplications,
