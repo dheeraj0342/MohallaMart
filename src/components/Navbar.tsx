@@ -480,18 +480,32 @@ export default function Navbar() {
                             </button>
                           </Link>
                         ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
-                          <Link
-                            href="/shopkeeper"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 bg-white rounded-lg transition-colors text-gray-700 border border-gray-200">
-                              <User className="h-5 w-5 mr-3" />
-                              <div>
-                                <div className="text-xs text-gray-500">Shopkeeper</div>
-                                <div className="text-sm font-medium">Dashboard</div>
-                              </div>
-                            </button>
-                          </Link>
+                          <>
+                            <Link
+                              href="/shopkeeper"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 bg-white rounded-lg transition-colors text-gray-700 border border-gray-200">
+                                <User className="h-5 w-5 mr-3" />
+                                <div>
+                                  <div className="text-xs text-gray-500">Shopkeeper</div>
+                                  <div className="text-sm font-medium">Dashboard</div>
+                                </div>
+                              </button>
+                            </Link>
+                            <Link
+                              href="/shopkeeper/profile"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              <button className="flex items-center w-full text-left p-3 hover:bg-gray-50 bg-white rounded-lg transition-colors text-gray-700 border border-gray-200">
+                                <User className="h-5 w-5 mr-3" />
+                                <div>
+                                  <div className="text-xs text-gray-500">Shopkeeper</div>
+                                  <div className="text-sm font-medium">Profile</div>
+                                </div>
+                              </button>
+                            </Link>
+                          </>
                         ) : (
                           <Link
                             href="/profile"
