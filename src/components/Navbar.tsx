@@ -17,7 +17,6 @@ import {
 import { useStore } from "@/store/useStore";
 import { useAuth } from "@/hooks/useAuth";
 import LocationModal from "./LocationModal";
-import CartSidebar from "./CartSidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useQuery } from "convex/react";
@@ -26,7 +25,6 @@ import { api } from "@/../convex/_generated/api";
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpenState] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -101,7 +99,7 @@ export default function Navbar() {
   return (
     <>
   {/* Top Banner */}
-  <div className="bg-gradient-to-r from-[var(--primary-brand)] via-[#37c978] to-[var(--color-secondary)] dark:from-[#1f2f25] dark:via-[#24292e] dark:to-[#3b2f22] text-white dark:text-[#f9f6f2] py-2 text-center text-sm transition-colors">
+  <div className="bg-linear-to-r from-primary-brand via-[#37c978] to-color-secondary dark:from-[#1f2f25] dark:via-[#24292e] dark:to-[#3b2f22] text-white dark:text-[#f9f6f2] py-2 text-center text-sm transition-colors">
         <div className="flex items-center justify-center space-x-6">
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1" />
@@ -180,6 +178,7 @@ export default function Navbar() {
             )}
 
             {/* Action Buttons - Desktop */}
+            {mounted && (
             <div className="hidden md:flex items-center space-x-4">
               {(() => {
                 const userRole = dbUser?.role;
@@ -339,29 +338,32 @@ export default function Navbar() {
               )}
 
               {/* Cart Button */}
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="bg-primary-brand text-white px-6 py-3 rounded-xl hover:bg-primary-hover transition-colors flex items-center relative shadow-sm hover:shadow-md"
-              >
-                <ShoppingCart className="h-5 w-5 mr-2" />
-                <div className="text-left">
-                  <div className="text-xs opacity-90">My Cart</div>
-                  <div className="text-sm font-medium">
-                    {mounted && getTotalItems() > 0 ? `${getTotalItems()} items` : "Empty"}
+              <Link href="/cart">
+                <button
+                  className="bg-primary-brand text-white px-6 py-3 rounded-xl hover:bg-primary-hover transition-colors flex items-center relative shadow-sm hover:shadow-md"
+                >
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  <div className="text-left">
+                    <div className="text-xs opacity-90">My Cart</div>
+                    <div className="text-sm font-medium">
+                      {mounted && getTotalItems() > 0 ? `${getTotalItems()} items` : "Empty"}
+                    </div>
                   </div>
-                </div>
-                {mounted && getTotalItems() > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-2 -right-2 bg-secondary-brand text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg"
-                  >
-                    {getTotalItems()}
-                  </motion.span>
-                )}
-              </button>
+                  {mounted && getTotalItems() > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-2 -right-2 bg-secondary-brand text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg"
+                    >
+                      {getTotalItems()}
+                    </motion.span>
+                  )}
+                </button>
+              </Link>
             </div>
+            )}
 
+            {/* Mobile menu button */}
             {/* Mobile menu button */}
             <div className="md:hidden flex items-center space-x-3">
               {/* Mobile Theme Toggle */}
@@ -386,22 +388,23 @@ export default function Navbar() {
                 <SearchIcon className="h-6 w-6" />
               </button>
               {/* Mobile Cart */}
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="relative text-[#212121] hover:text-primary-brand p-2"
-                aria-label="Open cart"
-              >
-                <ShoppingCart className="h-6 w-6" />
-                {mounted && getTotalItems() > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
+              <Link href="/cart">
+                <button
+                  className="relative text-[#212121] hover:text-primary-brand p-2"
+                  aria-label="Open cart"
+                >
+                  <ShoppingCart className="h-6 w-6" />
+                  {mounted && getTotalItems() > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     className="absolute -top-1 -right-1 bg-secondary-brand text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
                   >
                     {getTotalItems()}
                   </motion.span>
                 )}
-              </button>
+                </button>
+              </Link>
               {/* Mobile Menu */}
               <button
                 onClick={toggleMenu}
@@ -628,7 +631,6 @@ export default function Navbar() {
           isOpen={isLocationModalOpen}
           onClose={() => setIsLocationModalOpen(false)}
         />
-        <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       </nav>
     </>
   );
