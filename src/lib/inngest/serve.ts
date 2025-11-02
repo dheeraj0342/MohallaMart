@@ -55,4 +55,5 @@ export const serveHandler = serve({
   ],
   streaming: "allow",
   signingKey: process.env.INNGEST_SIGNING_KEY,
+  logLevel: process.env.NODE_ENV === "development" ? "debug" : "info",
 });
