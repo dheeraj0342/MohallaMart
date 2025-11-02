@@ -145,7 +145,7 @@ export default function Navbar() {
                     onClick={() => setIsLocationModalOpen(true)}
                     className="flex items-center bg-[#faffd2] hover:bg-[#f0e88c] dark:bg-[#3b2f22] dark:hover:bg-[#4a3c2b] px-3 py-2 rounded-lg border border-[#e0e0e0] dark:border-[#2d333b] transition-colors group"
                   >
-                    <MapPin className="h-4 w-4 mr-2 text-[#ff8152]" />
+                    <MapPin className="h-4 w-4 mr-2 text-primary-brand transition-colors group-hover:text-[#1f8f4e] dark:text-secondary-brand dark:group-hover:text-secondary-brand/80" />
                     <div className="text-left">
                       <div className="text-xs text-[#85786a] dark:text-[#a2a6b2]">Deliver to</div>
                       <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2] max-w-[120px] truncate">
@@ -458,9 +458,9 @@ export default function Navbar() {
                       setIsLocationModalOpen(true);
                       setIsMenuOpen(false);
                     }}
-                    className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-lg transition-colors"
+                    className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-lg transition-colors group"
                   >
-                    <MapPin className="h-5 w-5 mr-3 text-[#ff8152]" />
+                    <MapPin className="h-5 w-5 mr-3 text-primary-brand transition-colors group-hover:text-[#1f8f4e] dark:text-secondary-brand dark:group-hover:text-secondary-brand/80" />
                     <div>
                       <div className="text-xs text-[#85786a] dark:text-[#a2a6b2]">Deliver to</div>
                       <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">
