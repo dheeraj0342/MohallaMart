@@ -133,15 +133,15 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl dark:bg-gray-900"
+            className="relative w-full max-w-md rounded-2xl border border-[#e0e0e0] bg-[#ffffff] shadow-2xl dark:border-[#2d333b] dark:bg-[#24292e]"
             style={{ zIndex: 2 }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Select Location</h2>
+            <div className="flex items-center justify-between border-b border-[#e0e0e0] px-6 py-4 dark:border-[#2d333b]">
+              <h2 className="text-2xl font-bold text-[#212121] dark:text-[#f9f6f2]">Select Location</h2>
               <button
                 onClick={onClose}
-                className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                className="rounded-lg p-1.5 text-[#85786a] transition-colors hover:bg-[#e6f4ec] hover:text-[#212121] dark:text-[#a2a6b2] dark:hover:bg-[#1f2f25] dark:hover:text-[#f9f6f2]"
                 aria-label="Close"
               >
                 <X className="h-5 w-5" />
@@ -159,7 +159,7 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-200"
+                    className="rounded-lg border border-[#ffb199] bg-[#fff1eb] px-4 py-3 text-sm text-[#b83d0f] dark:border-[#ffb199]/30 dark:bg-[#ffb199]/10 dark:text-[#ffb199]"
                   >
                     {errorMessage}
                   </motion.div>
@@ -170,7 +170,7 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
               <button
                 onClick={detectLocation}
                 disabled={isDetecting}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white shadow-sm transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-blue-600 dark:hover:bg-blue-700"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-brand px-4 py-3 font-semibold text-white shadow-sm transition-all hover:bg-[#1f8f4e] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-primary-brand dark:hover:bg-[#1f8f4e]"
               >
                 {isDetecting ? (
                   <>
@@ -186,7 +186,7 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
               </button>
 
               {/* Info Text */}
-              <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-center text-sm text-[#85786a] dark:text-[#a2a6b2]">
                 We&apos;ll automatically detect your location to provide better service
               </p>
             </div>
