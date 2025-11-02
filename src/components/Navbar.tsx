@@ -425,7 +425,7 @@ export default function Navbar() {
                   <Link
                     key={index}
                     href={category.href}
-                    className="text-sm text-[#212121] hover:text-primary-brand font-medium transition-colors relative group"
+                    className="text-sm text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand dark:hover:text-primary-brand font-medium transition-colors relative group"
                   >
                     {category.name}
                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-brand transition-all group-hover:w-full"></span>
@@ -478,7 +478,7 @@ export default function Navbar() {
                       <Link
                         key={index}
                         href={category.href}
-                        className="block px-3 py-2 text-[#212121] hover:text-primary-brand hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-lg transition-colors"
+                        className="block px-3 py-2 text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand hover:bg-[#e6f4ec] dark:hover:bg-[#1f2f25] rounded-lg transition-colors"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         {category.name}

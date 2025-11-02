@@ -349,25 +349,25 @@ export default function SearchBar() {
                     {popularCategories.map((category, index) => (
                       <button
                         key={index}
-                        className="w-full px-4 py-3 hover:bg-orange-50 text-left transition-colors border-b border-gray-50"
+                        className="w-full px-4 py-3 hover:bg-[#e6f4ec] dark:hover:bg-[#1f2f25] text-left transition-colors border-b border-gray-50 dark:border-[#2d333b]"
                         onClick={() => {
                           setQuery(category.name);
                           setSearchQuery(category.name);
                         }}
                       >
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center text-gray-700">
+                          <div className="flex items-center text-[#212121] dark:text-[#f9f6f2]">
                             <span className="text-2xl mr-3">
                               {category.icon}
                             </span>
                             <div>
                               <div className="font-medium">{category.name}</div>
-                              <div className="text-xs text-gray-500">
+                              <div className="text-xs text-[#85786a] dark:text-[#a2a6b2]">
                                 {category.searches}
                               </div>
                             </div>
                           </div>
-                          <div className="text-orange-500 text-sm">→</div>
+                          <div className="text-primary-brand text-sm">→</div>
                         </div>
                       </button>
                     ))}
