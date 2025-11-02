@@ -117,7 +117,8 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
     <AnimatePresence>
       {isOpen && (
         <div
-          className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto p-4 pt-20 sm:pt-28"
+          className="fixed inset-0 flex items-start justify-center overflow-y-auto p-4 pt-20 sm:pt-28"
+          style={{ zIndex: 9999 }}
           role="dialog"
           aria-modal="true"
         >
@@ -128,7 +129,7 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
             exit={{ opacity: 0 }}
             onClick={onClose}
             className="absolute inset-0 bg-black/60 backdrop-blur-[2px] dark:bg-black/70"
-            style={{ zIndex: 0 }}
+            style={{ zIndex: 1 }}
           />
 
           {/* Modal */}
@@ -138,7 +139,7 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
             className="relative w-full max-w-md rounded-2xl border border-[#e0e0e0] bg-[#ffffff] text-[#212121] shadow-2xl dark:border-[#2d333b] dark:bg-[#24292e] dark:text-[#f9f6f2]"
-            style={{ zIndex: 10 }}
+            style={{ zIndex: 2 }}
           >
             {/* Header */}
             <div className="sticky top-0 bg-[#ffffff] dark:bg-[#24292e] border-b border-[#e0e0e0] dark:border-[#2d333b] px-6 py-4 flex justify-between items-center">

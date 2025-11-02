@@ -8,11 +8,11 @@ MohallaMart bridges the gap between digital convenience and local commerce throu
 ### Frontend
 - **Framework**: Next.js 15.5.3 with App Router
 - **Language**: TypeScript (strict mode)
-- **Styling**: Tailwind CSS (integrated with CSS custom properties) + Shadcn UI components
+- **Styling**: Tailwind CSS 4 (integrated with CSS custom properties) + Shadcn UI components (Radix UI primitives)
 - **State Management**: Zustand with persistence
 - **Animations**: Framer Motion (limited usage)
 - **Icons**: Lucide React
-- **Font**: Inter (Google Fonts)
+- **Fonts**: Open Sans (body text) + Montserrat (headings) via Google Fonts CDN with display: swap
 
 ### Backend & Database
 - **Backend**: Convex (realtime backend) + tRPC (type-safe APIs)
@@ -25,7 +25,7 @@ MohallaMart bridges the gap between digital convenience and local commerce throu
 - **Payments**: Razorpay (payment gateway)
 - **Maps**: Google Maps API (location services)
 - **Notifications**: OneSignal (push notifications) + Twilio/MSG91 (SMS)
-- **Storage**: Cloudinary / UploadThing (file uploads)
+- **Storage**: Convex File Storage (image and file uploads)
 
 ## Project Structure
 ```
@@ -38,12 +38,13 @@ src/
 │   └── page.tsx           # Homepage (component-based)
 ├── components/            # Reusable React components
 │   ├── auth/              # Authentication forms (LoginForm, SignupForm)
-│   ├── sections/          # Homepage sections (Hero, Features, etc.)
-│   ├── ui/                # Shadcn UI components
-│   ├── Navbar.tsx         # Main navigation
+│   ├── sections/          # Homepage sections (Hero, Features, NearbyStores, etc.)
+│   ├── ui/                # Shadcn UI components (dropdown-menu, etc.)
+│   ├── Navbar.tsx         # Main navigation with brand-consistent MapPin icons
 │   ├── SearchBar.tsx      # Search functionality
 │   ├── CartSidebar.tsx    # Shopping cart
-│   └── LocationModal.tsx  # Location selection
+│   ├── LocationModal.tsx  # Location auto-detect with z-9999 layering
+│   └── InngestProvider.tsx # Inngest wrapper component
 ├── hooks/                 # Custom React hooks
 │   ├── useAuth.ts         # Supabase authentication hook
 │   ├── useConvex.ts       # Convex realtime hooks
@@ -54,10 +55,16 @@ src/
 │   ├── trpc.ts           # tRPC client configuration
 │   ├── typesense.ts      # Search client setup
 │   ├── redis.ts          # Redis cache client
-│   └── utils.ts          # Shared utilities
+│   ├── adminAuth.ts      # Server-only admin authentication utilities (next/headers)
+│   ├── utils.ts          # Client-safe shared utilities (cn helper)
+│   └── inngest/          # Inngest configuration
+│       ├── index.ts      # Inngest client setup
+│       ├── serve.ts      # Serve handler with logLevel: debug
+│       └── functions/    # Event-driven background functions
 ├── convex/               # Convex backend functions
 │   ├── auth.ts           # Authentication mutations
 │   ├── products.ts       # Product management
+│   ├── shops.ts          # Shop queries with Haversine distance, radius/PIN filtering
 │   ├── orders.ts         # Order processing
 │   └── notifications.ts  # Notification handling
 ├── server/               # tRPC router definitions
@@ -90,17 +97,21 @@ src/
 - **Accent Colors**: Sunny Yellow (#FBBF24) for highlights
 - **Neutral Colors**: Proper gray scale for text and backgrounds
 - **CSS Variables**: Use `--color-primary`, `--color-secondary`, etc. in globals.css
+- **Font Variables**: `--font-open-sans` (body), `--font-montserrat` (headings)
 - **Tailwind Integration**: Reference CSS variables in Tailwind config for consistent usage
 - **No Inline Colors**: Never use hardcoded color values in components
+- **Z-Index Hierarchy**: Modals (z-9999), Navbar (z-50), Dropdown (z-10000)
 - Implement responsive design (mobile-first approach)
 - Use consistent spacing, typography, and component patterns
 
 ### CSS Organization
 - **Global Styles**: All color definitions, typography, and base styles in `globals.css`
 - **CSS Custom Properties**: Define all brand colors as CSS variables
+- **Font Stack**: Open Sans for body text, Montserrat (400-800) for headings
 - **Tailwind Config**: Extend Tailwind with custom colors from CSS variables
 - **Component Styles**: Use Tailwind classes, avoid custom CSS in components
 - **Consistency**: Single source of truth for all color values
+- **Typography**: h1-h6 use font-heading (Montserrat), body uses font-sans (Open Sans)
 
 ### Component Architecture
 - Create modular, reusable components in appropriate directories
@@ -108,6 +119,8 @@ src/
 - Implement proper component composition
 - Use compound components pattern where applicable
 - Export components cleanly with proper TypeScript types
+- **UI Components**: Use Shadcn UI patterns with Radix primitives (e.g., dropdown-menu)
+- **Server/Client Separation**: Keep server-only code (next/headers) in separate files from client components
 
 ## Authentication Flow
 - **Primary Auth**: Supabase Auth with OTP support for phone/email verification
@@ -137,12 +150,13 @@ src/
 - **Prefer**: Built-in Next.js features and well-maintained packages
 - **Required**: Keep dependencies up to date and security-focused
 - **State**: Use Zustand over Redux for simplicity
-- **UI Components**: Shadcn UI for consistent, accessible components
+- **UI Components**: Shadcn UI for consistent, accessible components (Radix UI primitives)
 - **Backend**: Convex for realtime features, tRPC for type-safe APIs
 - **Database**: Supabase for PostgreSQL, Redis for caching
 - **Search**: Typesense for fast, typo-tolerant search
 - **Animations**: Framer Motion for limited, strategic uses only
-- **Background Jobs**: Inngest for reliable job processing
+- **Background Jobs**: Inngest for reliable job processing (16 registered functions)
+- **Fonts**: Google Fonts CDN (Open Sans + Montserrat) with display: swap for optimal loading
 
 ## Animation Guidelines (Framer Motion)
 - **Limited Usage**: Only use Framer Motion for essential interactions, not every component
@@ -191,15 +205,17 @@ src/
 - **Maps**: Google Maps API for location services and delivery tracking
 - **Search**: Typesense for fast, typo-tolerant product search
 - **Notifications**: OneSignal for push notifications, Twilio/MSG91 for SMS
-- **Storage**: Cloudinary/UploadThing for image and file uploads
+- **Storage**: Convex File Storage for image and file uploads with built-in CDN
 - **Background Jobs**: Inngest for reliable job processing (emails, notifications, data sync)
 
 ## Background Job Processing
-- **Inngest**: Reliable background job processing
+- **Inngest**: Reliable background job processing with 16 registered functions
 - **Job Types**: Email notifications, SMS sending, data synchronization, cleanup tasks
 - **Retry Logic**: Automatic retry with exponential backoff for failed jobs
-- **Monitoring**: Job status tracking and error reporting
+- **Monitoring**: Job status tracking and error reporting with logLevel: debug in development
 - **Scalability**: Handle high-volume job processing efficiently
+- **Authentication**: Uses signing keys for cloud mode; local dev can run without strict auth (isDev: true)
+- **Configuration**: Inngest serve handler in `/api/inngest` with debug logging enabled
 
 ## Mobile Responsiveness
 - Design mobile-first with Tailwind responsive classes
@@ -233,6 +249,10 @@ src/
 - Render props or children patterns where appropriate
 - Proper error boundaries
 - Loading skeleton components
+- **Dropdown Menus**: Use Shadcn dropdown-menu components (Radix primitives) for compact UI
+- **Location Features**: Auto-detect with navigator.geolocation, reverse geocode with Nominatim
+- **Distance Calculation**: Haversine formula for radius filtering (e.g., 2km nearby shops)
+- **Server/Client Utilities**: Separate server-only helpers (adminAuth.ts) from client-safe utils (utils.ts)
 
 ## Architecture Overview
 - **Frontend**: Next.js 15 with TypeScript, Tailwind CSS, and Shadcn UI
@@ -243,7 +263,7 @@ src/
 - **Payments**: Razorpay integration for secure transactions
 - **Maps**: Google Maps API for location services
 - **Notifications**: OneSignal (push) + Twilio/MSG91 (SMS)
-- **Storage**: Cloudinary/UploadThing for file uploads
+- **Storage**: Convex File Storage with built-in CDN for images and files
 - **Background Jobs**: Inngest for reliable job processing
 - **State Management**: Zustand with persistence and realtime sync via Convex
 
