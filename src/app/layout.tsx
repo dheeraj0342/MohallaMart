@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Open_Sans, Montserrat } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import SearchBar from "@/components/SearchBar";
@@ -9,9 +9,17 @@ import TRPCProvider from "@/components/TRPCProvider";
 import ToastProvider from "@/components/ToastProvider";
 import Footer from "@/components/Footer";
 
-const inter = Inter({
+const openSans = Open_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-open-sans",
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -60,7 +68,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} font-sans antialiased`}
+        className={`${openSans.variable} ${montserrat.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
         <TRPCProvider>
