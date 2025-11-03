@@ -32,7 +32,7 @@ export default function Navbar() {
 
   const { location, getTotalItems, user, setSearchOpen } = useStore();
   const { logout } = useAuth();
-  
+
   // Sync search state with store
   useEffect(() => {
     setIsSearchOpenState(useStore.getState().isSearchOpen);
@@ -79,7 +79,7 @@ export default function Navbar() {
       // noop
     }
   };
-  
+
   const dbUser = useQuery(
     api.users.getUser,
     user ? { id: user.id } : "skip",
@@ -98,37 +98,38 @@ export default function Navbar() {
 
   return (
     <>
-  {/* Top Banner */}
-  <div className="bg-linear-to-r from-primary-brand via-[#37c978] to-color-secondary dark:from-[#1f2f25] dark:via-[#24292e] dark:to-[#3b2f22] text-white dark:text-[#f9f6f2] py-2 text-center text-sm transition-colors">
-        <div className="flex items-center justify-center space-x-6">
-          <div className="flex items-center">
-            <Clock className="w-4 h-4 mr-1" />
-            <span>10-min delivery</span>
+      {/* Top Banner */}
+      <div className="bg-linear-to-r from-primary-brand via-[#37c978] to-secondary-brand dark:from-[#1f2f25] dark:via-[#24292e] dark:to-[#3b2f22] text-white dark:text-[#f9f6f2] py-2.5 text-center text-sm transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center gap-4 sm:gap-6">
+            <div className="flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm font-medium">10-min delivery</span>
+            </div>
+            <div className="hidden xs:flex items-center gap-1.5">
+              <Percent className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm font-medium">Free delivery above ₹199</span>
+            </div>
+            <span className="hidden sm:inline text-xs sm:text-sm font-medium">
+              🎉 Get 10% off on first order
+            </span>
           </div>
-          <div className="flex items-center">
-            <Percent className="w-4 h-4 mr-1" />
-            <span>Free delivery above ₹199</span>
-          </div>
-          <span className="hidden sm:inline">
-            🎉 Get 10% off on first order
-          </span>
         </div>
       </div>
-    <nav className="bg-[#f9f6f2]/95 text-[#212121] dark:text-[#f9f6f2] dark:bg-[#181c1f]/95 shadow-sm dark:shadow-md sticky top-0 z-50 border-b border-[#e0e0e0] dark:border-[#2d333b] backdrop-blur transition-colors">
+      <nav className="bg-[#f9f6f2]/95 text-[#212121] dark:text-[#f9f6f2] dark:bg-[#181c1f]/95 shadow-sm dark:shadow-md sticky top-0 z-50 border-b border-[#e0e0e0] dark:border-[#2d333b] backdrop-blur-md transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-3">
+          <div className="flex justify-between items-center h-16 sm:h-18">
             {/* Logo & Location */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div className="shrink-0">
                 <Link href="/">
                   <div className="flex items-center cursor-pointer group">
-                    <div className="text-3xl mr-2">🛒</div>
-                    <div>
-                      <h1 className="text-xl font-bold text-primary-brand group-hover:text-primary-hover transition-colors">
-                        Mohalla
-                        <span className="text-secondary-brand">Mart</span>
+                    <div className="text-2xl sm:text-3xl mr-1.5 sm:mr-2">🛒</div>
+                    <div className="min-w-0">
+                      <h1 className="text-lg sm:text-xl font-bold text-primary-brand group-hover:text-primary-hover transition-colors leading-tight">
+                        Mohalla<span className="text-secondary-brand">Mart</span>
                       </h1>
-                      <p className="text-xs text-[#85786a] -mt-1">
+                      <p className="text-[10px] sm:text-xs text-[#85786a] dark:text-[#a2a6b2] -mt-0.5 leading-none">
                         Groceries in minutes
                       </p>
                     </div>
@@ -138,15 +139,15 @@ export default function Navbar() {
 
               {/* Location Button - Desktop */}
               {mounted && (
-                <div className="hidden md:block">
+                <div className="hidden lg:block">
                   <button
                     onClick={() => setIsLocationModalOpen(true)}
-                    className="flex items-center bg-[#faffd2] hover:bg-[#f0e88c] dark:bg-[#3b2f22] dark:hover:bg-[#4a3c2b] px-3 py-2 rounded-lg border border-[#e0e0e0] dark:border-[#2d333b] transition-colors group"
+                    className="flex items-center bg-[#faffd2] hover:bg-[#f0e88c] dark:bg-[#3b2f22] dark:hover:bg-[#4a3c2b] px-3 py-2 rounded-lg border border-[#e0e0e0] dark:border-[#2d333b] transition-all hover:shadow-sm group"
                   >
-                    <MapPin className="h-4 w-4 mr-2 text-primary-brand transition-colors group-hover:text-[#1f8f4e] dark:text-secondary-brand dark:group-hover:text-secondary-brand/80" />
-                    <div className="text-left">
-                      <div className="text-xs text-[#85786a] dark:text-[#a2a6b2]">Deliver to</div>
-                      <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2] max-w-[120px] truncate">
+                    <MapPin className="h-4 w-4 mr-2 text-primary-brand transition-colors group-hover:scale-110 dark:text-secondary-brand" />
+                    <div className="text-left min-w-0">
+                      <div className="text-xs text-[#85786a] dark:text-[#a2a6b2] leading-tight">Deliver to</div>
+                      <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2] max-w-[140px] truncate leading-tight">
                         {location ? location.area : "Select Location"}
                       </div>
                     </div>
@@ -157,20 +158,20 @@ export default function Navbar() {
 
             {/* Search Bar - Desktop (only show when search modal is closed) */}
             {!isSearchOpen && (
-              <div className="hidden md:flex flex-1 max-w-xl mx-8">
+              <div className="hidden lg:flex flex-1 max-w-2xl mx-6">
                 <div className="relative w-full">
-                  <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#85786a] dark:text-[#a2a6b2] h-5 w-5 pointer-events-none" />
+                  <SearchIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[#85786a] dark:text-[#a2a6b2] h-5 w-5 pointer-events-none" />
                   <input
                     type="text"
                     readOnly
                     placeholder="Search for groceries, fruits, vegetables..."
-                    className="w-full pl-10 pr-24 py-3 bg-[#ffffff] dark:bg-[#24292e] border-2 border-[#e0e0e0] dark:border-[#2d333b] rounded-xl text-[#212121] dark:text-[#f9f6f2] placeholder:text-[#85786a] dark:placeholder:text-[#a2a6b2] focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand transition-all duration-200 hover:border-[#c8c8c8] dark:hover:border-[#3d444f] cursor-pointer"
+                    className="w-full pl-11 pr-16 py-3 bg-[#ffffff] dark:bg-[#24292e] border-2 border-[#e0e0e0] dark:border-[#2d333b] rounded-xl text-[#212121] dark:text-[#f9f6f2] placeholder:text-[#85786a] dark:placeholder:text-[#a2a6b2] focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand transition-all duration-200 hover:border-[#c8c8c8] dark:hover:border-[#3d444f] hover:shadow-sm cursor-pointer text-sm"
                     onClick={() => setSearchOpen(true)}
                     aria-label="Search"
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center pointer-events-none">
-                    <kbd className="px-2 py-1 text-xs font-semibold text-[#594a3a] dark:text-[#f9f6f2] bg-[#ffffff] dark:bg-[#24292e] border border-[#e0e0e0] dark:border-[#2d333b] rounded">
-                      M
+                    <kbd className="hidden xl:inline-block px-2 py-1 text-xs font-semibold text-[#594a3a] dark:text-[#f9f6f2] bg-[#ffffff] dark:bg-[#181c1f] border border-[#e0e0e0] dark:border-[#2d333b] rounded shadow-sm">
+                      ⌘M
                     </kbd>
                   </div>
                 </div>
@@ -179,264 +180,263 @@ export default function Navbar() {
 
             {/* Action Buttons - Desktop */}
             {mounted && (
-            <div className="hidden md:flex items-center space-x-4">
-              {(() => {
-                const userRole = dbUser?.role;
-                const isActive = dbUser?.is_active === true;
-                
-                // Don't show shopkeeper options for admin users
-                if (userRole === "admin") {
-                  return null;
-                }
-                
-                // Active shopkeeper
-                if (userRole === "shop_owner" && isActive) {
+              <div className="hidden lg:flex items-center gap-3">
+                {(() => {
+                  const userRole = dbUser?.role;
+                  const isActive = dbUser?.is_active === true;
+
+                  // Don't show shopkeeper options for admin users
+                  if (userRole === "admin") {
+                    return null;
+                  }
+
+                  // Active shopkeeper
+                  if (userRole === "shop_owner" && isActive) {
+                    return (
+                      <Link href="/shopkeeper">
+                        <button className="px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all text-primary-brand border-primary-brand hover:bg-primary-brand hover:text-white hover:shadow-md active:scale-95">
+                          Shopkeeper Dashboard
+                        </button>
+                      </Link>
+                    );
+                  }
+
+                  // Pending shopkeeper
+                  if (userRole === "shop_owner" && !isActive) {
+                    return (
+                      <span className="px-4 py-2 rounded-lg border-2 text-sm font-semibold text-amber-600 border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 dark:text-amber-400 cursor-not-allowed">
+                        ⏳ Application Pending
+                      </span>
+                    );
+                  }
+
+                  // Regular customer or not logged in
                   return (
-                    <Link href="/shopkeeper">
-                      <button className="px-4 py-2 rounded-lg border text-sm font-medium transition-colors text-primary-brand border-primary-brand hover:bg-primary-brand hover:text-white">
-                        Shopkeeper Dashboard
+                    <Link href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}>
+                      <button className="px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all text-primary-brand border-primary-brand hover:bg-primary-brand hover:text-white hover:shadow-md active:scale-95 whitespace-nowrap">
+                        🏪 Register Your Shop
                       </button>
                     </Link>
                   );
-                }
-                
-                // Pending shopkeeper
-                if (userRole === "shop_owner" && !isActive) {
-                  return (
-                    <span className="px-4 py-2 rounded-lg border text-sm font-medium text-amber-600 border-amber-300 bg-amber-50">
-                      ⏳ Application Pending
-                    </span>
-                  );
-                }
-                
-                // Regular customer or not logged in
-                return (
-                  <Link href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}>
-                    <button className="px-4 py-2 rounded-lg border text-sm font-medium transition-colors text-[#27ae60] border-[#27ae60] hover:bg-[#27ae60] hover:text-white">
-                      Register Your Shop (for store owners)
+                })()}
+                {/* Theme toggle */}
+                <button
+                  onClick={toggleTheme}
+                  className="p-2.5 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all hover:scale-110 active:scale-95"
+                  aria-label="Toggle color theme"
+                  title="Toggle dark / light"
+                >
+                  {isDark ? (
+                    <Sun className="h-5 w-5 text-yellow-400" />
+                  ) : (
+                    <Moon className="h-5 w-5 text-[#212121]" />
+                  )}
+                </button>
+                {/* User Account */}
+                {user ? (
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsAccountOpen((v) => !v)}
+                      className="flex items-center text-[#212121] dark:text-[#f9f6f2] px-3 py-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all hover:shadow-sm active:scale-95 border border-transparent hover:border-[#e0e0e0] dark:hover:border-[#2d333b]"
+                      aria-haspopup="menu"
+                      aria-expanded={isAccountOpen}
+                    >
+                      <User className="h-5 w-5 mr-2" />
+                      <div className="text-left min-w-0">
+                        <div className="text-xs text-[#85786a] dark:text-[#a2a6b2] leading-tight">Account</div>
+                        <div className="text-sm font-medium leading-tight truncate max-w-[100px]">{user.name}</div>
+                      </div>
                     </button>
-                  </Link>
-                );
-              })()}
-              {/* User Account */}
-              {/* Theme toggle */}
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-colors"
-                aria-label="Toggle color theme"
-                title="Toggle dark / light"
-              >
-                {isDark ? (
-                  <Sun className="h-5 w-5 text-yellow-400" />
-                ) : (
-                  <Moon className="h-5 w-5 text-[#212121]" />
-                )}
-              </button>
-              {user ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setIsAccountOpen((v) => !v)}
-                    className="flex items-center text-[#212121] dark:text-[#f9f6f2] px-3 py-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-colors"
-                    aria-haspopup="menu"
-                    aria-expanded={isAccountOpen}
-                  >
-                    <User className="h-5 w-5 mr-2" />
-                    <div className="text-left">
-                      <div className="text-xs text-[#85786a] dark:text-[#a2a6b2]">Account</div>
-                      <div className="text-sm font-medium">{user.name}</div>
-                    </div>
-                  </button>
-                  {isAccountOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-[#ffffff] dark:bg-[#24292e] border border-[#e0e0e0] dark:border-[#2d333b] rounded-lg shadow-lg z-50">
-                      {/* Role-based profile links */}
-                      {dbUser?.role === "admin" ? (
-                        <>
-                          <Link
-                            href="/admin"
-                            onClick={() => setIsAccountOpen(false)}
-                            className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-t-lg border-b border-[#e0e0e0] dark:border-[#2d333b]"
-                          >
-                            <User className="h-4 w-4 mr-2" />
-                            Admin Dashboard
-                          </Link>
+                    {isAccountOpen && (
+                      <div className="absolute right-0 mt-2 w-48 bg-[#ffffff] dark:bg-[#24292e] border-2 border-[#e0e0e0] dark:border-[#2d333b] rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                        {/* Role-based profile links */}
+                        {dbUser?.role === "admin" ? (
+                          <>
+                            <Link
+                              href="/admin"
+                              onClick={() => setIsAccountOpen(false)}
+                              className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-t-lg border-b border-[#e0e0e0] dark:border-[#2d333b]"
+                            >
+                              <User className="h-4 w-4 mr-2" />
+                              Admin Dashboard
+                            </Link>
+                            <Link
+                              href="/profile"
+                              onClick={() => setIsAccountOpen(false)}
+                              className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] border-b border-[#e0e0e0] dark:border-[#2d333b]"
+                            >
+                              <User className="h-4 w-4 mr-2" />
+                              My Profile
+                            </Link>
+                          </>
+                        ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
+                          <>
+                            <Link
+                              href="/shopkeeper"
+                              onClick={() => setIsAccountOpen(false)}
+                              className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-t-lg border-b border-[#e0e0e0] dark:border-[#2d333b]"
+                            >
+                              <User className="h-4 w-4 mr-2" />
+                              Shopkeeper Dashboard
+                            </Link>
+                            <Link
+                              href="/shopkeeper/profile"
+                              onClick={() => setIsAccountOpen(false)}
+                              className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] border-b border-[#e0e0e0] dark:border-[#2d333b]"
+                            >
+                              <User className="h-4 w-4 mr-2" />
+                              Shopkeeper Profile
+                            </Link>
+                          </>
+                        ) : (
                           <Link
                             href="/profile"
                             onClick={() => setIsAccountOpen(false)}
-                            className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] border-b border-[#e0e0e0] dark:border-[#2d333b]"
+                            className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-t-lg border-b border-[#e0e0e0] dark:border-[#2d333b]"
                           >
                             <User className="h-4 w-4 mr-2" />
                             My Profile
                           </Link>
-                        </>
-                      ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
-                        <>
-                          <Link
-                            href="/shopkeeper"
-                            onClick={() => setIsAccountOpen(false)}
-                            className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-t-lg border-b border-[#e0e0e0] dark:border-[#2d333b]"
-                          >
-                            <User className="h-4 w-4 mr-2" />
-                            Shopkeeper Dashboard
-                          </Link>
-                          <Link
-                            href="/shopkeeper/profile"
-                            onClick={() => setIsAccountOpen(false)}
-                            className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] border-b border-[#e0e0e0] dark:border-[#2d333b]"
-                          >
-                            <User className="h-4 w-4 mr-2" />
-                            Shopkeeper Profile
-                          </Link>
-                        </>
-                      ) : (
-                        <Link
-                          href="/profile"
-                          onClick={() => setIsAccountOpen(false)}
-                          className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-t-lg border-b border-[#e0e0e0] dark:border-[#2d333b]"
+                        )}
+
+                        {/* Role indicator */}
+                        <div className="px-4 py-2 border-b bg-[#faffd2] dark:bg-[#3b2f22] border-[#e0e0e0] dark:border-[#2d333b]">
+                          <div className="text-xs font-semibold text-[#85786a] dark:text-[#a2a6b2] uppercase">
+                            Role
+                          </div>
+                          <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2] mt-1">
+                            {dbUser?.role === "admin" ? "👑 Admin" :
+                              dbUser?.role === "shop_owner" && dbUser?.is_active === true ? "🏪 Active Shopkeeper" :
+                                dbUser?.role === "shop_owner" && dbUser?.is_active === false ? "⏳ Pending Shopkeeper" :
+                                  "🛒 Customer"}
+                          </div>
+                        </div>
+
+                        {/* Logout button */}
+                        <button
+                          onClick={() => {
+                            setIsAccountOpen(false);
+                            logout();
+                          }}
+                          className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-[#3c1f18] rounded-b-lg transition-colors"
                         >
-                          <User className="h-4 w-4 mr-2" />
-                          My Profile
-                        </Link>
-                      )}
-                      
-                      {/* Role indicator */}
-                      <div className="px-4 py-2 border-b bg-[#faffd2] dark:bg-[#3b2f22] border-[#e0e0e0] dark:border-[#2d333b]">
-                        <div className="text-xs font-semibold text-[#85786a] dark:text-[#a2a6b2] uppercase">
-                          Role
-                        </div>
-                        <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2] mt-1">
-                          {dbUser?.role === "admin" ? "👑 Admin" : 
-                           dbUser?.role === "shop_owner" && dbUser?.is_active === true ? "🏪 Active Shopkeeper" :
-                           dbUser?.role === "shop_owner" && dbUser?.is_active === false ? "⏳ Pending Shopkeeper" :
-                           "🛒 Customer"}
-                        </div>
+                          <LogOut className="h-4 w-4 mr-2" />
+                          Logout
+                        </button>
                       </div>
-                      
-                      {/* Logout button */}
-                      <button
-                        onClick={() => {
-                          setIsAccountOpen(false);
-                          logout();
-                        }}
-                        className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-[#3c1f18] rounded-b-lg transition-colors"
+                    )}
+                  </div>
+                ) : (
+                  <Link href="/auth">
+                    <button className="flex items-center text-[#212121] dark:text-[#f9f6f2] px-4 py-2 rounded-lg border-2 border-[#e0e0e0] dark:border-[#2d333b] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all hover:shadow-sm active:scale-95">
+                      <User className="h-5 w-5 mr-2" />
+                      <div className="text-left min-w-0">
+                        <div className="text-xs text-[#85786a] dark:text-[#a2a6b2] leading-tight">Account</div>
+                        <div className="text-sm font-medium leading-tight">Sign In</div>
+                      </div>
+                    </button>
+                  </Link>
+                )}
+
+                {/* Cart Button */}
+                <Link href="/cart">
+                  <button
+                    className="bg-primary-brand text-white px-5 py-2.5 rounded-lg hover:bg-primary-hover transition-all flex items-center relative shadow-sm hover:shadow-md active:scale-95 border-2 border-transparent hover:border-[#1f8f4e]"
+                  >
+                    <ShoppingCart className="h-5 w-5 mr-2" />
+                    <div className="text-left min-w-0">
+                      <div className="text-xs opacity-90 leading-tight">My Cart</div>
+                      <div className="text-sm font-semibold leading-tight">
+                        {mounted && getTotalItems() > 0 ? `${getTotalItems()} items` : "Empty"}
+                      </div>
+                    </div>
+                    {mounted && getTotalItems() > 0 && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-2 -right-2 bg-secondary-brand text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg ring-2 ring-white dark:ring-[#181c1f]"
                       >
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <Link href="/auth">
-                  <button className="flex items-center text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand px-3 py-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-colors">
-                    <User className="h-5 w-5 mr-2" />
-                    <div className="text-left">
-                      <div className="text-xs text-[#85786a] dark:text-[#a2a6b2]">Account</div>
-                      <div className="text-sm font-medium">Sign In</div>
-                    </div>
+                        {getTotalItems()}
+                      </motion.span>
+                    )}
                   </button>
                 </Link>
-              )}
+              </div>
+            )}
 
-              {/* Cart Button */}
+            {/* Mobile menu buttons */}
+            <div className="lg:hidden flex items-center gap-2">
+              {/* Mobile Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand dark:hover:text-primary-brand/80 p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
+                aria-label="Toggle color theme"
+                title="Toggle dark / light"
+              >
+                {isDark ? (
+                  <Sun className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-400" />
+                ) : (
+                  <Moon className="h-5 w-5 sm:h-6 sm:w-6" />
+                )}
+              </button>
+              {/* Mobile Search */}
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
+                aria-label="Open search"
+              >
+                <SearchIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+              {/* Mobile Cart */}
               <Link href="/cart">
                 <button
-                  className="bg-primary-brand text-white px-6 py-3 rounded-xl hover:bg-primary-hover transition-colors flex items-center relative shadow-sm hover:shadow-md"
+                  className="relative text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
+                  aria-label="Open cart"
                 >
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                  <div className="text-left">
-                    <div className="text-xs opacity-90">My Cart</div>
-                    <div className="text-sm font-medium">
-                      {mounted && getTotalItems() > 0 ? `${getTotalItems()} items` : "Empty"}
-                    </div>
-                  </div>
+                  <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
                   {mounted && getTotalItems() > 0 && (
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute -top-2 -right-2 bg-secondary-brand text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg"
+                      className="absolute -top-1 -right-1 bg-secondary-brand text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-[#181c1f]"
                     >
                       {getTotalItems()}
                     </motion.span>
                   )}
                 </button>
               </Link>
-            </div>
-            )}
-
-            {/* Mobile menu button */}
-            {/* Mobile menu button */}
-            <div className="md:hidden flex items-center space-x-3">
-              {/* Mobile Theme Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand dark:hover:text-primary-brand/80 p-2"
-                aria-label="Toggle color theme"
-                title="Toggle dark / light"
-              >
-                {isDark ? (
-                  <Sun className="h-6 w-6 text-yellow-400" />
-                ) : (
-                  <Moon className="h-6 w-6" />
-                )}
-              </button>
-              {/* Mobile Search */}
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="text-[#212121] hover:text-primary-brand p-2"
-                aria-label="Open search"
-              >
-                <SearchIcon className="h-6 w-6" />
-              </button>
-              {/* Mobile Cart */}
-              <Link href="/cart">
-                <button
-                  className="relative text-[#212121] hover:text-primary-brand p-2"
-                  aria-label="Open cart"
-                >
-                  <ShoppingCart className="h-6 w-6" />
-                  {mounted && getTotalItems() > 0 && (
-                    <motion.span
-                      initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 bg-secondary-brand text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
-                  >
-                    {getTotalItems()}
-                  </motion.span>
-                )}
-                </button>
-              </Link>
               {/* Mobile Menu */}
               <button
                 onClick={toggleMenu}
-                className="text-[#212121] hover:text-primary-brand p-2"
+                className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
               >
                 {isMenuOpen ? (
-                  <X className="h-6 w-6" />
+                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 ) : (
-                  <Menu className="h-6 w-6" />
+                  <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
                 )}
               </button>
             </div>
           </div>
 
           {/* Category Navigation - Desktop */}
-          <div className="hidden md:block border-t border-[#e0e0e0] dark:border-[#2d333b]">
-            <div className="flex items-center justify-between py-3">
-              <div className="flex space-x-8">
+          <div className="hidden lg:block border-t border-[#e0e0e0] dark:border-[#2d333b] mt-0.5">
+            <div className="flex items-center justify-between py-2.5">
+              <div className="flex gap-6">
                 {groceryCategories.map((category, index) => (
                   <Link
                     key={index}
                     href={category.href}
-                    className="text-sm text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand dark:hover:text-primary-brand font-medium transition-colors relative group"
+                    className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand dark:hover:text-primary-brand transition-colors relative group py-1"
                   >
                     {category.name}
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-brand transition-all group-hover:w-full"></span>
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-brand transition-all duration-300 group-hover:w-full"></span>
                   </Link>
                 ))}
               </div>
-              <div className="text-sm text-[#85786a]">
-                <span className="bg-[#ffe066]/80 text-[#3b2f22] px-2 py-1 rounded-full text-xs font-medium">
+              <div className="flex items-center gap-2">
+                <span className="bg-[#ffe066]/90 dark:bg-[#3b2f22] text-[#3b2f22] dark:text-[#ffe066] px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 border border-[#ffd700]/30">
                   🎯 Same Day Delivery Available
                 </span>
               </div>
@@ -454,7 +454,7 @@ export default function Navbar() {
                 className="md:hidden border-t border-[#e0e0e0] dark:border-[#2d333b] overflow-hidden"
               >
                 <div className="px-4 py-4 space-y-3 bg-[#fffdf5] dark:bg-[#24292e]"
-                     aria-label="Mobile navigation menu">
+                  aria-label="Mobile navigation menu">
                   {/* Mobile Location */}
                   <button
                     onClick={() => {
@@ -501,8 +501,8 @@ export default function Navbar() {
                           <div className="h-5 w-5 mr-3">🏪</div>
                           <div>
                             <div className="text-xs text-[#ffe066]">
-                              {dbUser?.role === "shop_owner" && !dbUser?.is_active 
-                                ? "Pending Application" 
+                              {dbUser?.role === "shop_owner" && !dbUser?.is_active
+                                ? "Pending Application"
                                 : "Grow with us"}
                             </div>
                             <div className="text-sm font-medium text-white">
@@ -514,7 +514,7 @@ export default function Navbar() {
                         </button>
                       </Link>
                     )}
-                    
+
                     {user ? (
                       <div className="space-y-2">
                         {/* User Info */}
@@ -527,13 +527,13 @@ export default function Navbar() {
                             </div>
                           </div>
                           <div className="text-xs font-semibold px-2 py-1 rounded bg-primary-brand/10 text-primary-brand">
-                            {dbUser?.role === "admin" ? "Admin" : 
-                             dbUser?.role === "shop_owner" && dbUser?.is_active === true ? "Shopkeeper" :
-                             dbUser?.role === "shop_owner" && dbUser?.is_active === false ? "Pending" :
-                             "Customer"}
+                            {dbUser?.role === "admin" ? "Admin" :
+                              dbUser?.role === "shop_owner" && dbUser?.is_active === true ? "Shopkeeper" :
+                                dbUser?.role === "shop_owner" && dbUser?.is_active === false ? "Pending" :
+                                  "Customer"}
                           </div>
                         </div>
-                        
+
                         {/* Profile Links */}
                         {dbUser?.role === "admin" ? (
                           <Link
@@ -590,7 +590,7 @@ export default function Navbar() {
                             </button>
                           </Link>
                         )}
-                        
+
                         {/* Logout Button */}
                         <button
                           onClick={() => {
