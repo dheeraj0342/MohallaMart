@@ -5,6 +5,13 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const panelStyles =
+  "rounded-3xl border border-[#dce8e1] bg-white/95 p-6 shadow-xl shadow-primary-brand/5 backdrop-blur-sm";
+const listItemStyles =
+  "flex items-center justify-between rounded-2xl border border-transparent bg-white/85 px-3 py-4 transition-all hover:-translate-y-[1px] hover:border-primary-brand/40 hover:bg-[#eef7f1]";
+const emptyStateStyles =
+  "rounded-2xl bg-[#f5faf7] px-4 py-6 text-center text-sm text-neutral-500";
+
 export default async function AdminDashboardPage() {
   const pendingApplications = (await fetchQuery(
     api.users.listPendingShopkeeperApplications,
@@ -21,54 +28,114 @@ export default async function AdminDashboardPage() {
   }).catch(() => []);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-primary-brand">
-          Admin Dashboard
-        </h1>
-        <div className="bg-primary-brand/10 p-2 rounded-full">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-brand w-6 h-6"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+    <div className="space-y-10">
+      <section
+        className={`${panelStyles} flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}
+      >
+        <div>
+          <p className="text-sm font-medium uppercase tracking-wide text-primary-brand/80">
+            MohallaMart Admin
+          </p>
+          <h1 className="text-3xl font-bold text-[#1f2a33]">
+            Marketplace Overview
+          </h1>
+          <p className="mt-1 text-sm text-neutral-500">
+            Review new applications, activate trusted partners, and keep the marketplace curated.
+          </p>
         </div>
-      </div>
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-brand/10 text-primary-brand">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="30"
+            height="30"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="shrink-0"
+          >
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+        </div>
+      </section>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm">
-          <h2 className="text-xl font-semibold mb-4 text-secondary-brand">
+      <section className="grid gap-6 md:grid-cols-2">
+        <div className={panelStyles}>
+          <h2 className="text-lg font-semibold text-[#1f2a33]">
             Pending Shopkeepers
           </h2>
-          {pendingApplications.length > 0 ? (
-            <PendingApplicationsList apps={pendingApplications} />
-          ) : (
-            <ShopkeeperList
-              shopkeepers={pendingShopkeepers}
-              actionLabel="Approve"
-              makeActive={true}
-            />
-          )}
+          <p className="mt-1 text-sm text-neutral-500">
+            Approve trusted sellers or continue reviewing their submissions.
+          </p>
+          <div className="mt-4">
+            {pendingApplications.length > 0 ? (
+              <PendingApplicationsList apps={pendingApplications} />
+            ) : (
+              <ShopkeeperList
+                shopkeepers={pendingShopkeepers}
+                actionLabel="Approve"
+                makeActive={true}
+              />
+            )}
+          </div>
         </div>
-        <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm">
-          <h2 className="text-xl font-semibold mb-4 text-secondary-brand">
+        <div className={panelStyles}>
+          <h2 className="text-lg font-semibold text-[#1f2a33]">
             Active Shopkeepers
           </h2>
-          <ShopkeeperList
-            shopkeepers={activeShopkeepers}
-            actionLabel="Disable"
-            makeActive={false}
-          />
+          <p className="mt-1 text-sm text-neutral-500">
+            Monitor performance and disable storefronts that need attention.
+          </p>
+          <div className="mt-4">
+            <ShopkeeperList
+              shopkeepers={activeShopkeepers}
+              actionLabel="Disable"
+              makeActive={false}
+            />
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Quick Actions / Navigation */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-        <h2 className="text-xl font-semibold mb-4 text-secondary-brand">
-          Quick Actions
-        </h2>
-        <div className="grid md:grid-cols-3 gap-4">
+      <section className={panelStyles}>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold text-[#1f2a33]">Quick Actions</h2>
+            <p className="text-sm text-neutral-500">
+              Jump straight to the workflows you use most.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-secondary-brand/10 p-3 text-secondary-brand">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M3 5h12" />
+              <path d="M9 3v2" />
+              <path d="M7 9h8" />
+              <path d="M5 13h10" />
+              <path d="M11 17h6" />
+              <path d="M15 21h6" />
+            </svg>
+          </div>
+        </div>
+        <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Link
             href="/admin/registrations"
-            className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+            className="group flex items-center gap-4 rounded-2xl border border-[#dce8e1] bg-[#f7faf9] p-4 transition-all hover:-translate-y-1 hover:border-primary-brand/40 hover:shadow-lg"
           >
-            <div className="bg-primary-brand/10 p-3 rounded-lg group-hover:bg-primary-brand/20 transition-colors">
+            <div className="rounded-2xl bg-primary-brand/10 p-3 text-primary-brand transition-colors group-hover:bg-primary-brand/15">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -79,7 +146,6 @@ export default async function AdminDashboardPage() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="text-primary-brand"
               >
                 <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
                 <path d="M13 5v2" />
@@ -88,24 +154,38 @@ export default async function AdminDashboardPage() {
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900">View Registrations</h3>
-              <p className="text-sm text-gray-500">Review shopkeeper applications</p>
+              <h3 className="font-semibold text-[#1f2a33]">View Registrations</h3>
+              <p className="text-sm text-neutral-500">
+                Review and triage shopkeeper applications.
+              </p>
             </div>
           </Link>
-
-          {/* Add more quick action cards here as needed */}
         </div>
-      </div>
-
-      <div className="pt-4 border-t border-gray-200">
-        <Link
-          className="text-secondary-brand hover:text-secondary-brand/80 font-medium flex items-center gap-2"
-          href="/admin/login"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-          Manage session
-        </Link>
-      </div>
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#f7faf9] px-4 py-3 text-sm text-neutral-600">
+          <span>Need to switch users or revoke access?</span>
+          <Link
+            className="inline-flex items-center gap-2 font-semibold text-secondary-brand transition-colors hover:text-secondary-brand/80"
+            href="/admin/login"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            Manage session
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }
@@ -120,19 +200,19 @@ function ShopkeeperList({
   makeActive: boolean;
 }) {
   return (
-    <ul className="divide-y divide-gray-100">
+    <ul className="space-y-3">
       {shopkeepers.length === 0 && (
-        <li className="py-4 text-sm text-gray-500 text-center italic">No records found</li>
+        <li className={emptyStateStyles}>No records found</li>
       )}
       {shopkeepers.map((u) => (
-        <li key={u.id} className="py-4 flex items-center justify-between hover:bg-gray-50 px-2 rounded-lg transition-colors">
+        <li key={u.id} className={listItemStyles}>
           <div className="flex items-center gap-3">
-            <div className="bg-primary-brand/10 w-10 h-10 rounded-full flex items-center justify-center text-primary-brand font-medium">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-brand/10 text-base font-semibold text-primary-brand">
               {u.name.charAt(0).toUpperCase()}
             </div>
             <div>
-              <div className="font-medium text-gray-900">{u.name}</div>
-              <div className="text-sm text-gray-500">{u.email}</div>
+              <div className="font-medium text-[#1f2a33]">{u.name}</div>
+              <div className="text-sm text-neutral-500">{u.email}</div>
             </div>
           </div>
           <ShopkeeperToggle
@@ -155,23 +235,21 @@ function PendingApplicationsList({
   }>;
 }) {
   return (
-    <ul className="divide-y divide-gray-100">
-      {apps.length === 0 && (
-        <li className="py-4 text-sm text-gray-500 text-center italic">No records found</li>
-      )}
+    <ul className="space-y-3">
+      {apps.length === 0 && <li className={emptyStateStyles}>No records found</li>}
       {apps.map((a) => (
-        <li
-          key={a.applicationId}
-          className="py-4 flex items-center justify-between hover:bg-gray-50 px-2 rounded-lg transition-colors"
-        >
+        <li key={a.applicationId} className={listItemStyles}>
           <div className="flex items-center gap-3">
-            <div className="bg-secondary-brand/10 w-10 h-10 rounded-full flex items-center justify-center text-secondary-brand font-medium">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary-brand/10 text-base font-semibold text-secondary-brand">
               {a.applicant.name.charAt(0).toUpperCase()}
             </div>
             <div>
-              <div className="font-medium text-gray-900">{a.applicant.name}</div>
-              <div className="text-sm text-gray-500">{a.applicant.email}</div>
-              <div className="text-xs mt-1 bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full inline-block">Pending Approval</div>
+              <div className="font-medium text-[#1f2a33]">{a.applicant.name}</div>
+              <div className="text-sm text-neutral-500">{a.applicant.email}</div>
+              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                Pending approval
+              </span>
             </div>
           </div>
           <ShopkeeperToggle
@@ -217,10 +295,10 @@ function ShopkeeperToggle({
     <form action={action}>
       <button
         type="submit"
-        className={`px-4 py-2 rounded-lg shadow-sm text-white text-sm font-medium transition-all ${
-          makeActive 
-            ? "bg-primary-brand hover:bg-primary-brand/90" 
-            : "bg-secondary-brand hover:bg-secondary-brand/90"
+        className={`rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all ${
+          makeActive
+            ? "bg-primary-brand shadow-lg shadow-primary-brand/20 hover:bg-primary-hover"
+            : "bg-secondary-brand shadow-lg shadow-secondary-brand/25 hover:bg-secondary-brand/90"
         }`}
       >
         {label}

@@ -7,6 +7,13 @@ import { Id } from "@/../convex/_generated/dataModel";
 
 type RegistrationStatus = "draft" | "submitted" | "reviewing" | "approved" | "rejected";
 
+const cardStyles =
+  "rounded-3xl border border-[#dce8e1] bg-white/95 p-6 shadow-xl shadow-primary-brand/5 backdrop-blur-sm";
+const detailSectionStyles =
+  "rounded-2xl border border-[#e5efe8] bg-[#f7faf9] p-5 text-sm text-neutral-600";
+const filterButtonBase =
+  "rounded-xl px-4 py-2 text-sm font-medium transition-all";
+
 export default function AdminRegistrationsPage() {
   const [selectedStatus, setSelectedStatus] = useState<RegistrationStatus | "all">("submitted");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -68,23 +75,32 @@ export default function AdminRegistrationsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-primary-brand">
-          Shopkeeper Registrations
-        </h1>
-        <div className="bg-primary-brand/10 p-3 rounded-full">
+    <div className="space-y-8">
+      <section
+        className={`${cardStyles} flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}
+      >
+        <div>
+          <p className="text-sm font-medium uppercase tracking-wide text-primary-brand/80">
+            Registration Pipeline
+          </p>
+          <h1 className="text-3xl font-bold text-[#1f2a33]">
+            Shopkeeper Submissions
+          </h1>
+          <p className="mt-1 text-sm text-neutral-500">
+            Filter and review every application to keep the marketplace trustworthy.
+          </p>
+        </div>
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-brand/10 text-primary-brand">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            width="28"
+            height="28"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-primary-brand"
           >
             <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
             <path d="M13 5v2" />
@@ -92,185 +108,184 @@ export default function AdminRegistrationsPage() {
             <path d="M13 11v2" />
           </svg>
         </div>
-      </div>
+      </section>
 
-      {/* Status Filter */}
-      <div className="bg-white border border-neutral-200 rounded-xl p-4 shadow-sm">
-        <label className="block text-sm font-medium text-neutral-700 mb-2">
-          Filter by Status:
+      <section className={cardStyles}>
+        <label className="block text-sm font-semibold text-[#1f2a33]">
+          Filter by status
         </label>
-        <div className="flex gap-2 flex-wrap">
+        <p className="mt-1 text-sm text-neutral-500">
+          Focus on a single stage or view the entire pipeline at once.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
           {["all", "draft", "submitted", "reviewing", "approved", "rejected"].map((status) => (
             <button
               key={status}
+              type="button"
               onClick={() => setSelectedStatus(status as typeof selectedStatus)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`${filterButtonBase} ${
                 selectedStatus === status
-                  ? "bg-primary-brand text-white"
-                  : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                  ? "bg-primary-brand text-white shadow-lg shadow-primary-brand/25"
+                  : "bg-[#f5faf7] text-neutral-600 hover:bg-[#e9f4ec]"
               }`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </button>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Registrations List */}
-      <div className="space-y-4">
+      <div className="space-y-5">
         {!registrations && (
-          <div className="bg-white border border-neutral-200 rounded-xl p-8 text-center">
-            <p className="text-neutral-500">Loading registrations...</p>
+          <div className={`${cardStyles} text-center`}>
+            <p className="text-sm text-neutral-500">Loading registrations...</p>
           </div>
         )}
 
         {registrations && registrations.length === 0 && (
-          <div className="bg-white border border-neutral-200 rounded-xl p-8 text-center">
-            <p className="text-neutral-500">No registrations found for this status.</p>
+          <div className={`${cardStyles} text-center`}>
+            <p className="text-sm text-neutral-500">No registrations found for this status.</p>
           </div>
         )}
 
         {registrations &&
           registrations.map((reg) => (
-            <div
-              key={reg._id}
-              className="bg-white border border-neutral-200 rounded-xl shadow-sm overflow-hidden"
-            >
-              {/* Header */}
-              <div className="p-6 flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-neutral-900">
+            <div key={reg._id} className={`${cardStyles} space-y-6`}>
+              <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl bg-[#f5faf7] p-5">
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h3 className="text-lg font-semibold text-[#1f2a33]">
                       {reg.user?.name || "Unknown User"}
                     </h3>
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        reg.status
+                      className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(
+                        reg.status,
                       )}`}
                     >
+                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
                       {reg.status.toUpperCase()}
                     </span>
                   </div>
-                  <p className="text-sm text-neutral-600">{reg.user?.email}</p>
-                  <p className="text-xs text-neutral-500 mt-1">
-                    Submitted: {new Date(reg.created_at).toLocaleString()}
+                  <p className="text-sm text-neutral-500">
+                    {reg.user?.email || "No email on file"}
                   </p>
                 </div>
-                <button
-                  onClick={() => setExpandedId(expandedId === reg._id ? null : reg._id)}
-                  className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 rounded-lg text-sm font-medium transition-colors"
-                >
-                  {expandedId === reg._id ? "Hide Details" : "View Details"}
-                </button>
+                <div className="flex flex-col items-end gap-2 text-right">
+                  <p className="text-xs text-neutral-400">
+                    Submitted {new Date(reg.created_at).toLocaleString()}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setExpandedId(expandedId === reg._id ? null : reg._id)}
+                    className="rounded-xl border border-transparent bg-white/80 px-4 py-2 text-sm font-semibold text-neutral-700 shadow-sm transition-all hover:border-primary-brand/40 hover:text-primary-brand"
+                    aria-expanded={expandedId === reg._id}
+                  >
+                    {expandedId === reg._id ? "Hide details" : "View details"}
+                  </button>
+                </div>
               </div>
 
-              {/* Expanded Details */}
               {expandedId === reg._id && (
-                <div className="border-t border-neutral-200 p-6 bg-neutral-50 space-y-6">
-                  {/* Business Info */}
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="text-sm font-semibold text-neutral-700 mb-3">
-                        Business Information
+                <div className="space-y-5">
+                  <div className={`${detailSectionStyles} grid gap-4 md:grid-cols-2`}>
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-[#1f2a33]">
+                        Business information
                       </h4>
-                      <div className="space-y-2 text-sm">
+                      <p>
+                        <span className="font-semibold text-[#1f2a33]">Type:</span> {reg.business.type}
+                      </p>
+                      {reg.business.name && (
                         <p>
-                          <span className="font-medium">Type:</span> {reg.business.type}
+                          <span className="font-semibold text-[#1f2a33]">Name:</span> {reg.business.name}
                         </p>
-                        {reg.business.name && (
-                          <p>
-                            <span className="font-medium">Name:</span> {reg.business.name}
-                          </p>
-                        )}
+                      )}
+                      <p>
+                        <span className="font-semibold text-[#1f2a33]">PAN:</span> {reg.pan}
+                      </p>
+                      {reg.gstin && (
                         <p>
-                          <span className="font-medium">PAN:</span> {reg.pan}
+                          <span className="font-semibold text-[#1f2a33]">GSTIN:</span> {reg.gstin}
                         </p>
-                        {reg.gstin && (
-                          <p>
-                            <span className="font-medium">GSTIN:</span> {reg.gstin}
-                          </p>
-                        )}
-                      </div>
+                      )}
                     </div>
-
-                    <div>
-                      <h4 className="text-sm font-semibold text-neutral-700 mb-3">
-                        Identity Proof
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-[#1f2a33]">
+                        Identity proof
                       </h4>
-                      <div className="space-y-2 text-sm">
-                        <p>
-                          <span className="font-medium">Type:</span> {reg.identity.type}
-                        </p>
-                        <p>
-                          <span className="font-medium">Number:</span> {reg.identity.number}
-                        </p>
-                      </div>
+                      <p>
+                        <span className="font-semibold text-[#1f2a33]">Type:</span> {reg.identity.type}
+                      </p>
+                      <p>
+                        <span className="font-semibold text-[#1f2a33]">Number:</span> {reg.identity.number}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Bank Details */}
-                  <div>
-                    <h4 className="text-sm font-semibold text-neutral-700 mb-3">
-                      Bank Details
-                    </h4>
-                    <div className="grid md:grid-cols-3 gap-4 text-sm">
-                      <p>
-                        <span className="font-medium">Account Holder:</span>{" "}
+                  <div className={`${detailSectionStyles} grid gap-4 md:grid-cols-3`}>
+                    <div>
+                      <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                        Account holder
+                      </span>
+                      <p className="mt-1 font-medium text-[#1f2a33]">
                         {reg.bank.account_holder}
                       </p>
-                      <p>
-                        <span className="font-medium">Account Number:</span>{" "}
+                    </div>
+                    <div>
+                      <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                        Account number
+                      </span>
+                      <p className="mt-1 font-medium text-[#1f2a33]">
                         {reg.bank.account_number}
                       </p>
-                      <p>
-                        <span className="font-medium">IFSC:</span> {reg.bank.ifsc}
+                    </div>
+                    <div>
+                      <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                        IFSC
+                      </span>
+                      <p className="mt-1 font-medium text-[#1f2a33]">{reg.bank.ifsc}</p>
+                    </div>
+                  </div>
+
+                  <div className={`${detailSectionStyles} grid gap-4 md:grid-cols-2`}>
+                    <div>
+                      <h4 className="text-sm font-semibold text-[#1f2a33]">
+                        Business address
+                      </h4>
+                      <p className="mt-1">
+                        {reg.address.street}, {reg.address.city}, {reg.address.state} - {reg.address.pincode}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-[#1f2a33]">
+                        Pickup address
+                      </h4>
+                      <p className="mt-1">
+                        {reg.pickup_address.street}, {reg.pickup_address.city}, {reg.pickup_address.state} - {reg.pickup_address.pincode}
                       </p>
                     </div>
                   </div>
 
-                  {/* Addresses */}
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="text-sm font-semibold text-neutral-700 mb-3">
-                        Business Address
-                      </h4>
-                      <p className="text-sm text-neutral-600">
-                        {reg.address.street}, {reg.address.city}, {reg.address.state} -{" "}
-                        {reg.address.pincode}
-                      </p>
-                    </div>
-
-                    <div>
-                      <h4 className="text-sm font-semibold text-neutral-700 mb-3">
-                        Pickup Address
-                      </h4>
-                      <p className="text-sm text-neutral-600">
-                        {reg.pickup_address.street}, {reg.pickup_address.city},{" "}
-                        {reg.pickup_address.state} - {reg.pickup_address.pincode}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* First Product */}
                   {reg.first_product && (reg.first_product.name || reg.first_product.url) && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-neutral-700 mb-3">
-                        First Product
+                    <div className={detailSectionStyles}>
+                      <h4 className="text-sm font-semibold text-[#1f2a33]">
+                        First product
                       </h4>
-                      <div className="space-y-2 text-sm">
+                      <div className="mt-2 space-y-2">
                         {reg.first_product.name && (
                           <p>
-                            <span className="font-medium">Name:</span> {reg.first_product.name}
+                            <span className="font-semibold text-[#1f2a33]">Name:</span> {reg.first_product.name}
                           </p>
                         )}
                         {reg.first_product.url && (
                           <p>
-                            <span className="font-medium">URL:</span>{" "}
+                            <span className="font-semibold text-[#1f2a33]">URL:</span>{" "}
                             <a
                               href={reg.first_product.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-primary-brand hover:underline"
+                              className="text-primary-brand underline-offset-2 hover:underline"
                             >
                               {reg.first_product.url}
                             </a>
@@ -280,41 +295,28 @@ export default function AdminRegistrationsPage() {
                     </div>
                   )}
 
-                  {/* Action Buttons */}
-                  {reg.status === "submitted" && (
-                    <div className="flex gap-3 pt-4 border-t border-neutral-200">
+                  {(reg.status === "submitted" || reg.status === "reviewing") && (
+                    <div className="flex flex-wrap gap-3 rounded-2xl border border-[#e5efe8] bg-white/85 px-4 py-4">
+                      {reg.status === "submitted" && (
+                        <button
+                          type="button"
+                          onClick={() => handleStatusUpdate(reg._id, "reviewing")}
+                          className="rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-amber-500/25 transition-transform hover:-translate-y-px hover:bg-amber-600"
+                        >
+                          Mark as reviewing
+                        </button>
+                      )}
                       <button
-                        onClick={() => handleStatusUpdate(reg._id, "reviewing")}
-                        className="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors"
-                      >
-                        Mark as Reviewing
-                      </button>
-                      <button
+                        type="button"
                         onClick={() => handleStatusUpdate(reg._id, "approved")}
-                        className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
+                        className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-transform hover:-translate-y-px hover:bg-emerald-600"
                       >
                         Approve
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleStatusUpdate(reg._id, "rejected")}
-                        className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  )}
-
-                  {reg.status === "reviewing" && (
-                    <div className="flex gap-3 pt-4 border-t border-neutral-200">
-                      <button
-                        onClick={() => handleStatusUpdate(reg._id, "approved")}
-                        className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleStatusUpdate(reg._id, "rejected")}
-                        className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
+                        className="rounded-xl bg-rose-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-rose-500/25 transition-transform hover:-translate-y-px hover:bg-rose-600"
                       >
                         Reject
                       </button>
