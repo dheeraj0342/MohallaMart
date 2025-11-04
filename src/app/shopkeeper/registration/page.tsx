@@ -234,13 +234,16 @@ export default function ShopkeeperRegistrationPage() {
     }
   };
 
+  const inputStyles =
+    "w-full border-2 border-[#dce8e1] rounded-xl px-3 py-2 bg-[#f7faf9] text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand focus:bg-white transition-all duration-200";
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="max-w-3xl mx-auto bg-white border border-neutral-100 rounded-2xl p-6 shadow-sm">
-        <h1 className="text-2xl font-bold mb-1 text-primary-brand">
+    <div className="mx-auto max-w-6xl px-4 py-12">
+      <div className="mx-auto max-w-3xl bg-white/95 dark:bg-[#11181d] border border-[#e5efe8] dark:border-[#1f2a33] rounded-3xl p-6 sm:p-8 shadow-xl backdrop-blur-sm">
+        <h1 className="text-2xl font-bold mb-1 text-[#1f2a33] dark:text-[#f3f6fb]">
           Shopkeeper Registration
         </h1>
-        <p className="text-sm text-neutral-600 mb-6">
+        <p className="text-sm text-[#667085] dark:text-[#9aa6b2] mb-6">
           Provide required details to complete onboarding. GSTIN optional for
           books-only sellers.
         </p>
@@ -258,7 +261,7 @@ export default function ShopkeeperRegistrationPage() {
                 <input
                   value={pan}
                   onChange={(e) => setPan(e.target.value)}
-                  className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                  className={inputStyles}
                 />
               </div>
               <div>
@@ -268,7 +271,7 @@ export default function ShopkeeperRegistrationPage() {
                 <input
                   value={gstin}
                   onChange={(e) => setGstin(e.target.value)}
-                  className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                  className={inputStyles}
                 />
               </div>
             </div>
@@ -286,7 +289,7 @@ export default function ShopkeeperRegistrationPage() {
                 <input
                   value={bankAccountHolder}
                   onChange={(e) => setBankAccountHolder(e.target.value)}
-                  className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                  className={inputStyles}
                 />
               </div>
               <div>
@@ -296,7 +299,7 @@ export default function ShopkeeperRegistrationPage() {
                 <input
                   value={bankAccountNumber}
                   onChange={(e) => setBankAccountNumber(e.target.value)}
-                  className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                  className={inputStyles}
                 />
               </div>
               <div>
@@ -306,7 +309,7 @@ export default function ShopkeeperRegistrationPage() {
                 <input
                   value={bankIfsc}
                   onChange={(e) => setBankIfsc(e.target.value)}
-                  className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                  className={inputStyles}
                 />
               </div>
             </div>
@@ -321,26 +324,26 @@ export default function ShopkeeperRegistrationPage() {
                 placeholder="Street"
                 value={street}
                 onChange={(e) => setStreet(e.target.value)}
-                className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                className={inputStyles}
               />
               <div className="grid grid-cols-3 gap-3">
                 <input
                   placeholder="City"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                  className={inputStyles}
                 />
                 <input
                   placeholder="State"
                   value={stateValue}
                   onChange={(e) => setStateValue(e.target.value)}
-                  className="border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                  className={inputStyles}
                 />
                 <input
                   placeholder="Pincode"
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value)}
-                  className="border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                  className={inputStyles}
                 />
               </div>
             </div>
@@ -354,7 +357,7 @@ export default function ShopkeeperRegistrationPage() {
               <select
                 value={idType}
                 onChange={(e) => setIdType(e.target.value as typeof idType)}
-                className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                className={inputStyles}
               >
                 <option value="aadhaar">Aadhaar</option>
                 <option value="passport">Passport</option>
@@ -365,7 +368,7 @@ export default function ShopkeeperRegistrationPage() {
                 placeholder="Document Number"
                 value={idNumber}
                 onChange={(e) => setIdNumber(e.target.value)}
-                className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                className={inputStyles}
               />
             </div>
           </div>
@@ -378,7 +381,7 @@ export default function ShopkeeperRegistrationPage() {
               <select
                 value={bizType}
                 onChange={(e) => setBizType(e.target.value as typeof bizType)}
-                className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                className={inputStyles}
               >
                 <option value="individual">Individual</option>
                 <option value="proprietorship">Proprietorship</option>
@@ -389,7 +392,7 @@ export default function ShopkeeperRegistrationPage() {
                 placeholder="Business/Shop Name (optional)"
                 value={bizName}
                 onChange={(e) => setBizName(e.target.value)}
-                className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                className={inputStyles}
               />
             </div>
           </div>
@@ -403,26 +406,26 @@ export default function ShopkeeperRegistrationPage() {
                 placeholder="Street"
                 value={pickupStreet}
                 onChange={(e) => setPickupStreet(e.target.value)}
-                className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                className={inputStyles}
               />
               <div className="grid grid-cols-3 gap-3">
                 <input
                   placeholder="City"
                   value={pickupCity}
                   onChange={(e) => setPickupCity(e.target.value)}
-                  className="border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                  className={inputStyles}
                 />
                 <input
                   placeholder="State"
                   value={pickupState}
                   onChange={(e) => setPickupState(e.target.value)}
-                  className="border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                  className={inputStyles}
                 />
                 <input
                   placeholder="Pincode"
                   value={pickupPincode}
                   onChange={(e) => setPickupPincode(e.target.value)}
-                  className="border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                  className={inputStyles}
                 />
               </div>
             </div>
@@ -437,13 +440,13 @@ export default function ShopkeeperRegistrationPage() {
                 placeholder="Product Name"
                 value={firstProductName}
                 onChange={(e) => setFirstProductName(e.target.value)}
-                className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                className={inputStyles}
               />
               <input
                 placeholder="Product URL"
                 value={firstProductUrl}
                 onChange={(e) => setFirstProductUrl(e.target.value)}
-                className="w-full border-2 border-neutral-200 rounded-xl px-3 py-2 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand"
+                className={inputStyles}
               />
             </div>
           </div>

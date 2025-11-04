@@ -39,14 +39,14 @@ export default function DashboardContent() {
   const shop = Array.isArray(shops) && shops.length > 0 ? shops[0] : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100">
-      <div className="container mx-auto max-w-7xl px-4 py-8">
+    <div className="min-h-screen bg-linear-to-br from-[#f5fbf7] via-[#ffffff] to-[#f0f9f3] dark:from-[#0d1215] dark:via-[#11181d] dark:to-[#1b242b]">
+      <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Welcome Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+          <h1 className="text-3xl font-bold text-[#1f2a33] dark:text-[#f3f6fb] mb-2">
             Welcome back, {dbUser.name || "Shopkeeper"}! 👋
           </h1>
-          <p className="text-neutral-600">
+          <p className="text-[#667085] dark:text-[#9aa6b2]">
             Here&apos;s what&apos;s happening with your shop today.
           </p>
         </div>
@@ -85,13 +85,13 @@ export default function DashboardContent() {
 
         {/* Shop Info Card */}
         {shop ? (
-          <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-6 mb-8">
+          <div className="bg-white/95 dark:bg-[#11181d] rounded-3xl shadow-xl border border-[#e5efe8] dark:border-[#1f2a33] p-6 mb-8 backdrop-blur-sm">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-neutral-900 mb-2">
+                <h2 className="text-xl font-bold text-[#1f2a33] dark:text-[#f3f6fb] mb-2">
                   {shop.name}
                 </h2>
-                <p className="text-neutral-600">
+                <p className="text-[#667085] dark:text-[#9aa6b2]">
                   📍 {shop.address?.city || "Unknown"}, {shop.address?.state || "Unknown"}
                 </p>
                 {shop.rating && (
@@ -103,7 +103,7 @@ export default function DashboardContent() {
                 )}
               </div>
               <Link href="/shopkeeper/profile">
-                <button className="px-6 py-3 rounded-xl bg-primary-brand hover:bg-primary-hover text-white font-semibold transition-colors flex items-center gap-2">
+                <button className="px-6 py-3 rounded-xl bg-primary-brand hover:bg-primary-hover text-white font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-primary-brand/20">
                   <User className="h-5 w-5" />
                   Manage Profile
                 </button>
@@ -153,7 +153,7 @@ export default function DashboardContent() {
         </div>
 
         {/* Tips Section */}
-        <div className="mt-8 bg-gradient-to-r from-primary-brand to-secondary-brand rounded-2xl p-6 text-white">
+        <div className="mt-8 bg-linear-to-r from-primary-brand via-[#1f8f4e] to-secondary-brand rounded-3xl p-6 text-white shadow-xl">
           <h3 className="text-xl font-bold mb-2">💡 Pro Tips</h3>
           <ul className="space-y-2 text-sm">
             <li>✓ Keep your product information updated for better visibility</li>
@@ -181,26 +181,26 @@ function StatCard({
   color: "blue" | "green" | "purple" | "amber";
 }) {
   const colorClasses = {
-    blue: "bg-blue-50 text-blue-700 border-blue-200",
-    green: "bg-green-50 text-green-700 border-green-200",
-    purple: "bg-purple-50 text-purple-700 border-purple-200",
-    amber: "bg-amber-50 text-amber-700 border-amber-200",
+    blue: "bg-[#e6f4ec] text-primary-brand border-primary-brand/20",
+    green: "bg-[#fff5e6] text-[#c2410c] border-[#fed7aa]",
+    purple: "bg-[#e8f2ff] text-[#1d4ed8] border-[#bfdbfe]",
+    amber: "bg-[#fff7e6] text-[#b45309] border-[#fbbf24]/40",
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border-2 border-neutral-200 p-6 hover:shadow-md transition-shadow">
+    <div className="bg-white/95 dark:bg-[#11181d] rounded-3xl shadow-xl border border-[#e5efe8] dark:border-[#1f2a33] p-6 hover:shadow-2xl transition-shadow backdrop-blur-sm">
       <div className="flex items-center justify-between mb-4">
-        <div className={`p-3 rounded-xl ${colorClasses[color]}`}>
+        <div className={`p-3 rounded-xl ${colorClasses[color]} shadow-inner`}> 
           {icon}
         </div>
       </div>
-      <div className="text-sm font-medium text-neutral-600 mb-1">
+      <div className="text-sm font-medium text-[#667085] dark:text-[#9aa6b2] mb-1">
         {label}
       </div>
-      <div className="text-3xl font-bold text-neutral-900 mb-1">
+      <div className="text-3xl font-bold text-[#1f2a33] dark:text-[#f3f6fb] mb-1">
         {value}
       </div>
-      <div className="text-xs text-neutral-500">
+      <div className="text-xs text-[#98a2b3] dark:text-[#7f8ea3]">
         {trend}
       </div>
     </div>
@@ -221,22 +221,22 @@ function ActionCard({
   color: "blue" | "green" | "purple" | "amber";
 }) {
   const colorClasses = {
-    blue: "bg-blue-50 text-blue-700",
-    green: "bg-green-50 text-green-700",
-    purple: "bg-purple-50 text-purple-700",
-    amber: "bg-amber-50 text-amber-700",
+    blue: "bg-[#e6f4ec] text-primary-brand",
+    green: "bg-[#fff5e6] text-[#c2410c]",
+    purple: "bg-[#e8f2ff] text-[#1d4ed8]",
+    amber: "bg-[#fff7e6] text-[#b45309]",
   };
 
   return (
     <Link href={href}>
-      <div className="bg-white rounded-2xl shadow-sm border-2 border-neutral-200 p-6 hover:shadow-md hover:border-primary-brand transition-all cursor-pointer group">
-        <div className={`p-4 rounded-xl ${colorClasses[color]} w-fit mb-4 group-hover:scale-110 transition-transform`}>
+      <div className="bg-white/95 dark:bg-[#11181d] rounded-3xl shadow-xl border border-[#e5efe8] dark:border-[#1f2a33] p-6 hover:shadow-2xl hover:border-primary-brand/60 transition-all cursor-pointer group backdrop-blur-sm">
+        <div className={`p-4 rounded-xl ${colorClasses[color]} w-fit mb-4 group-hover:scale-110 transition-transform shadow-inner`}>
           {icon}
         </div>
-        <h3 className="text-lg font-bold text-neutral-900 mb-2 group-hover:text-primary-brand transition-colors">
+        <h3 className="text-lg font-bold text-[#1f2a33] dark:text-[#f3f6fb] mb-2 group-hover:text-primary-brand transition-colors">
           {title}
         </h3>
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-[#667085] dark:text-[#9aa6b2]">
           {description}
         </p>
       </div>

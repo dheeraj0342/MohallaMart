@@ -49,9 +49,9 @@ export default function ShopkeeperApplyPage() {
   };
 
   return (
-    <div className="min-h-screen grid md:grid-cols-2">
+    <div className="min-h-screen grid md:grid-cols-2 bg-linear-to-br from-[#f5fbf7] via-[#ffffff] to-[#f0f9f3] dark:from-[#0d1215] dark:via-[#11181d] dark:to-[#1b242b]">
       {/* Left - Branding */}
-      <div className="hidden md:flex flex-col justify-between p-12 text-white bg-linear-to-br from-primary-brand to-secondary-brand">
+      <div className="hidden md:flex flex-col justify-between p-12 text-white bg-linear-to-br from-primary-brand via-[#1f8f4e] to-secondary-brand">
         <div>
           <Link href="/" className="inline-flex items-center space-x-2">
             <div className="h-10 w-10 rounded-full bg-white/15 flex items-center justify-center">
@@ -62,7 +62,7 @@ export default function ShopkeeperApplyPage() {
         </div>
         <div>
           <h2 className="text-4xl font-bold mb-3">Become a partner</h2>
-          <p className="text-white/90 max-w-md">
+          <p className="text-white/90 max-w-md leading-relaxed">
             Apply to open your shop on MohallaMart. Once approved, you can start
             receiving orders from nearby customers.
           </p>
@@ -71,18 +71,20 @@ export default function ShopkeeperApplyPage() {
       </div>
 
       {/* Right - Apply Card */}
-      <div className="flex items-center justify-center p-8 bg-neutral-50">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-sm p-6 border border-neutral-100">
+      <div className="flex items-center justify-center p-6 sm:p-10 lg:p-12">
+        <div className="w-full max-w-md bg-white/95 dark:bg-[#11181d] backdrop-blur-sm rounded-3xl shadow-xl p-7 border border-[#e5efe8] dark:border-[#1f2a33]">
           {user ? (
             <>
               <div className="mb-6">
-                <h1 className="text-2xl font-bold mb-1">Apply as Shopkeeper</h1>
-                <p className="text-sm text-neutral-600">
+                <h1 className="text-2xl font-bold text-[#1f2a33] dark:text-[#f3f6fb] mb-1">
+                  Apply as Shopkeeper
+                </h1>
+                <p className="text-sm text-[#667085] dark:text-[#9aa6b2]">
                   Submit your application. Access is enabled after admin
                   approval.
                 </p>
               </div>
-              <div className="space-y-4 text-sm text-neutral-700 mb-6">
+              <div className="space-y-4 text-sm text-[#44525f] dark:text-[#cbd5f5] mb-6">
                 <div className="flex items-start space-x-2">
                   <span className="mt-0.5">✅</span>
                   <span>
@@ -100,7 +102,7 @@ export default function ShopkeeperApplyPage() {
               <button
                 onClick={apply}
                 disabled={submitting}
-                className="w-full px-4 py-3 rounded-xl font-semibold bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 rounded-xl font-semibold bg-primary-brand text-white shadow-lg shadow-primary-brand/20 hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-brand disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "Submitting…" : "Submit Application"}
               </button>
@@ -108,19 +110,21 @@ export default function ShopkeeperApplyPage() {
           ) : (
             <>
               <div className="mb-6">
-                <h1 className="text-2xl font-bold mb-1">Apply as Shopkeeper</h1>
-                <p className="text-sm text-neutral-600">
+                <h1 className="text-2xl font-bold text-[#1f2a33] dark:text-[#f3f6fb] mb-1">
+                  Apply as Shopkeeper
+                </h1>
+                <p className="text-sm text-[#667085] dark:text-[#9aa6b2]">
                   Please sign in or create a shopkeeper account to apply.
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <Link href="/shopkeeper/login">
-                  <button className="w-full px-4 py-3 rounded-xl font-semibold border border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-colors">
+                  <button className="w-full px-4 py-3 rounded-xl font-semibold border-2 border-primary-brand text-primary-brand hover:bg-primary-brand hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-brand">
                     Sign In
                   </button>
                 </Link>
                 <Link href="/shopkeeper/signup">
-                  <button className="w-full px-4 py-3 rounded-xl font-semibold bg-[var(--color-secondary)] text-white hover:bg-[var(--color-secondary-hover)] transition-colors">
+                  <button className="w-full px-4 py-3 rounded-xl font-semibold bg-secondary-brand text-white shadow-lg shadow-secondary-brand/25 hover:bg-[#f97316] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-brand">
                     Create Account
                   </button>
                 </Link>
@@ -131,7 +135,7 @@ export default function ShopkeeperApplyPage() {
           <div className="mt-6 text-center text-sm">
             <Link
               href="/"
-              className="text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] font-semibold"
+              className="text-secondary-brand hover:text-[#f97316] font-semibold"
             >
               Back to home
             </Link>

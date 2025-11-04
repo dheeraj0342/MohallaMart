@@ -57,9 +57,9 @@ export default function ShopkeeperSignupForm({
   };
 
   return (
-    <div className="min-h-screen grid md:grid-cols-2">
+    <div className="min-h-screen grid md:grid-cols-2 bg-linear-to-br from-[#f5fbf7] via-[#ffffff] to-[#f0f9f3] dark:from-[#0d1215] dark:via-[#11181d] dark:to-[#1b242b]">
       {/* Left - Branding */}
-      <div className="hidden md:flex flex-col justify-between p-12 text-white bg-linear-to-br from-primary-brand to-secondary-brand">
+      <div className="hidden md:flex flex-col justify-between p-12 text-white bg-linear-to-br from-primary-brand via-[#1f8f4e] to-secondary-brand">
         <div>
           <Link href="/" className="inline-flex items-center space-x-2">
             <div className="h-10 w-10 rounded-full bg-white/15 flex items-center justify-center">
@@ -79,7 +79,7 @@ export default function ShopkeeperSignupForm({
       </div>
 
       {/* Right - Form */}
-      <div className="flex items-center justify-center p-8 bg-neutral-50">
+      <div className="flex items-center justify-center p-6 sm:p-10 lg:p-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -87,7 +87,7 @@ export default function ShopkeeperSignupForm({
           className="w-full max-w-md"
         >
           <div className="text-center mb-8 md:hidden">
-            <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-[var(--color-primary)] text-white mb-3">
+            <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-primary-brand text-white shadow-lg shadow-primary-brand/30 mb-3">
               <Store className="h-6 w-6" />
             </div>
             <h2 className="text-2xl font-bold">Create Shopkeeper Account</h2>
@@ -98,10 +98,10 @@ export default function ShopkeeperSignupForm({
 
           <form
             onSubmit={handleSignup}
-            className="space-y-4 bg-white rounded-2xl p-6 border border-neutral-100 shadow-sm"
+            className="space-y-4 bg-white/95 dark:bg-[#11181d] rounded-3xl p-6 sm:p-7 border border-[#e5efe8] dark:border-[#1f2a33] shadow-xl backdrop-blur-sm"
           >
             {error && (
-              <div className="bg-[var(--error-bg)] border border-[var(--error-border)] text-[var(--error-text)] px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
@@ -123,7 +123,7 @@ export default function ShopkeeperSignupForm({
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
-                  className="w-full pl-12 pr-4 py-3 bg-neutral-50 border-2 border-neutral-200 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] focus:bg-white transition-all duration-200"
+                  className="w-full pl-12 pr-4 py-3 bg-[#f7faf9] border-2 border-[#dce8e1] rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand focus:bg-white transition-all duration-200"
                   placeholder="Shop owner name"
                 />
               </div>
@@ -146,7 +146,7 @@ export default function ShopkeeperSignupForm({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-12 pr-4 py-3 bg-neutral-50 border-2 border-neutral-200 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] focus:bg-white transition-all duration-200"
+                  className="w-full pl-12 pr-4 py-3 bg-[#f7faf9] border-2 border-[#dce8e1] rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand focus:bg-white transition-all duration-200"
                   placeholder="you@shop.com"
                 />
               </div>
@@ -169,13 +169,13 @@ export default function ShopkeeperSignupForm({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-12 pr-12 py-3 bg-neutral-50 border-2 border-neutral-200 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] focus:bg-white transition-all duration-200"
+                  className="w-full pl-12 pr-12 py-3 bg-[#f7faf9] border-2 border-[#dce8e1] rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand focus:bg-white transition-all duration-200"
                   placeholder="Minimum 6 characters"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-neutral-400 hover:text-[var(--color-primary)] transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-neutral-400 hover:text-primary-brand transition-colors"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -203,13 +203,13 @@ export default function ShopkeeperSignupForm({
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="w-full pl-12 pr-12 py-3 bg-neutral-50 border-2 border-neutral-200 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] focus:bg-white transition-all duration-200"
+                  className="w-full pl-12 pr-12 py-3 bg-[#f7faf9] border-2 border-[#dce8e1] rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand focus:bg-white transition-all duration-200"
                   placeholder="Re-enter your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-neutral-400 hover:text-[var(--color-primary)] transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-neutral-400 hover:text-primary-brand transition-colors"
                 >
                   {showConfirmPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -225,7 +225,7 @@ export default function ShopkeeperSignupForm({
               disabled={loading}
               whileHover={{ scale: loading ? 1 : 1.02 }}
               whileTap={{ scale: loading ? 1 : 0.98 }}
-              className="w-full bg-[var(--color-primary)] text-white py-3 rounded-xl font-semibold hover:bg-[var(--color-primary-hover)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary-brand text-white py-3 rounded-xl font-semibold shadow-lg shadow-primary-brand/30 hover:bg-primary-hover transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-brand disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="inline-flex items-center">
@@ -241,7 +241,7 @@ export default function ShopkeeperSignupForm({
               Already a shopkeeper?{" "}
               <Link
                 href="/shopkeeper/login"
-                className="text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] font-semibold"
+                className="text-secondary-brand hover:text-[#f97316] font-semibold"
               >
                 Sign In
               </Link>
