@@ -1,3 +1,4 @@
+/* stylelint-disable at-rule-no-unknown */
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
@@ -37,6 +38,17 @@
   --neutral-900: #242015;
   --neutral-950: #18140c;
 
+  /* Printing blacks (subtractive model) */
+  --standard-black: #111111; /* cmyk(0, 0, 0, 100) */
+  --rich-black: #050304; /* approx cmyk(60, 40, 40, 100) */
+
+
+  @supports (color: color(cmyk 0 0 0 1)) {
+    :root {
+      --standard-black: color(cmyk 0 0 0 1);
+      --rich-black: color(cmyk 0.6 0.4 0.4 1);
+    }
+  }
   --neutral-light: #f9f6f2;
   --neutral-dark: #181c1f;
 
@@ -141,11 +153,11 @@
   :root {
     --neutral-light: #24292e;
     --neutral-dark: #f9f6f2;
-    --background: #181c1f;
+    --background: var(--rich-black);
     --foreground: #f9f6f2;
-    --card: #24292e;
+    --card: var(--standard-black);
     --card-foreground: #f9f6f2;
-    --popover: #24292e;
+    --popover: var(--standard-black);
     --popover-foreground: #f9f6f2;
     --primary: #27ae60;
     --primary-foreground: #181c1f;
@@ -164,7 +176,7 @@
     --chart-3: #fa638c;
     --chart-4: #6ca414;
     --chart-5: #a2a6b2;
-    --sidebar: #24292e;
+  --sidebar: var(--standard-black);
     --sidebar-foreground: #f9f6f2;
     --sidebar-primary: #27ae60;
     --sidebar-primary-foreground: #181c1f;
@@ -300,11 +312,11 @@ input[type="checkbox"] {
 }
 
 .dark {
-  --background: #181c1f;
+  --background: var(--rich-black);
   --foreground: #f9f6f2;
-  --card: #24292e;
+  --card: var(--standard-black);
   --card-foreground: #f9f6f2;
-  --popover: #24292e;
+  --popover: var(--standard-black);
   --popover-foreground: #f9f6f2;
   --primary: #27ae60;
   --primary-foreground: #181c1f;
@@ -323,7 +335,7 @@ input[type="checkbox"] {
   --chart-3: #fa638c;
   --chart-4: #6ca414;
   --chart-5: #a2a6b2;
-  --sidebar: #24292e;
+  --sidebar: var(--standard-black);
   --sidebar-foreground: #f9f6f2;
   --sidebar-primary: #27ae60;
   --sidebar-primary-foreground: #181c1f;
@@ -373,3 +385,5 @@ input[type="checkbox"] {
     @apply bg-background text-foreground;
   }
 }
+
+/* stylelint-enable at-rule-no-unknown */
