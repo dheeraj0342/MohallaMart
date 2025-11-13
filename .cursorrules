@@ -19,7 +19,7 @@ Built with **Next.js 15**, **TypeScript**, **Convex realtime backend**, and a re
 * **Next.js 15.5.3** (App Router + React Server Components)
 * **TypeScript** (strict mode)
 * **Tailwind CSS 4** with global CSS variables
-* **Shadcn UI + Radix Primitives**
+* **Shadcn UI + Radix Primitives** (MANDATORY - use maximally, install if not available)
 * **Zustand** for global state (with persistence)
 * **Framer Motion** (strategic use only)
 * **Lucide Icons**
@@ -90,6 +90,125 @@ src/
 
 ---
 
+## 🎯 **Shadcn UI Component Workflow (MANDATORY)**
+
+### 📋 **Before Creating Any UI Component**
+
+1. **Check if Shadcn UI component exists** in `src/components/ui/` directory
+2. **If component exists**, use it immediately
+3. **If component doesn't exist**, install it using: `npx shadcn@latest add [component-name] --yes`
+4. **Never create custom UI components** that duplicate Shadcn UI functionality
+5. **Always prefer Shadcn UI components** over custom implementations
+6. **Always implement dark/light theme support** (except for admin pages) using CSS variables from `globals.css`
+7. **Never hardcode colors** - Use theme-aware classes or CSS variables
+
+### 📦 **Common Shadcn UI Components Available**
+
+* Form Components: `Button`, `Input`, `Label`, `Select`, `Checkbox`, `RadioGroup`, `Switch`, `Textarea`
+* Layout Components: `Card`, `Separator`, `Sheet`, `Sidebar`, `Tabs`, `Accordion`
+* Overlay Components: `Dialog`, `AlertDialog`, `DropdownMenu`, `Popover`, `Tooltip`, `HoverCard`
+* Feedback Components: `Toast` (via `sonner`), `Alert`, `Skeleton`, `Progress`, `Badge`
+* Data Display: `Table`, `Avatar`, `Calendar`, `Command`
+
+### 🔄 **Installation Command**
+
+```bash
+npx shadcn@latest add [component-name] --yes
+```
+
+### ✏️ **Customization**
+
+* Customize Shadcn components by modifying `src/components/ui/[component].tsx` files
+* Maintain consistent styling across all Shadcn components
+* Use Tailwind CSS classes and CSS variables from `globals.css`
+* Follow the design system colors and spacing
+
+---
+
+## 🔔 **Toast Notifications (MANDATORY)**
+
+### 📋 **Using Toast for User Feedback**
+
+**ALWAYS use toast notifications** for user feedback instead of browser alerts or console logs. Toast notifications provide a better user experience and are accessible.
+
+### 🎯 **Import and Usage**
+
+```typescript
+import { useToast } from "@/hooks/useToast";
+
+// In your component
+const { success, error, warning, info } = useToast();
+
+// Usage examples
+success("Operation completed successfully");
+error("Something went wrong");
+warning("Please check your input");
+info("Processing your request...");
+```
+
+### 📦 **Toast Types**
+
+* **`success()`**: Use for successful operations (e.g., "Logged in successfully", "Order placed")
+* **`error()`**: Use for errors and failures (e.g., "Login failed", "Network error")
+* **`warning()`**: Use for warnings and cautions (e.g., "Please check your input", "Low stock")
+* **`info()`**: Use for informational messages (e.g., "Loading...", "Theme changed")
+
+### ✅ **Best Practices**
+
+1. **Always use toast for user feedback** - Never use `alert()`, `confirm()`, or `console.log()` for user notifications
+2. **Use appropriate toast types** - Match the toast type to the message severity
+3. **Keep messages concise** - Toast messages should be short and clear
+4. **Use toast for actions** - Show toast notifications after user actions (login, logout, form submission, etc.)
+5. **Provide context** - Include relevant information in the toast message (e.g., "Order #1234 placed successfully")
+
+### 🚫 **When NOT to Use Toast**
+
+* **Critical errors that require immediate attention** - Use error boundaries or dedicated error pages
+* **Form validation errors** - Use inline error messages next to form fields
+* **Debugging** - Use console.log for development debugging only
+* **Confirmation dialogs** - Use Shadcn `AlertDialog` component instead
+
+### 📝 **Examples**
+
+```typescript
+// ✅ Good: Success toast after login
+const handleLogin = async () => {
+  await login();
+  success("Logged in successfully");
+};
+
+// ✅ Good: Error toast for failed operations
+const handleSubmit = async () => {
+  try {
+    await submitForm();
+    success("Form submitted successfully");
+  } catch (error) {
+    error("Failed to submit form. Please try again.");
+  }
+};
+
+// ✅ Good: Info toast for theme changes
+const handleThemeToggle = () => {
+  toggleTheme();
+  info(isDark ? "Dark mode enabled" : "Light mode enabled");
+};
+
+// ❌ Bad: Using alert
+alert("Operation completed"); // Don't use this
+
+// ❌ Bad: Using console.log for user feedback
+console.log("User logged in"); // Don't use this
+```
+
+### 🔧 **Toast Configuration**
+
+* Toast notifications are provided by Shadcn's `sonner` component
+* Toast duration can be customized: `success("Message", 5000)` // 5 seconds
+* Default duration is 4000ms (4 seconds)
+* Toast provider is configured in `src/components/ToastProvider.tsx`
+
+---
+
 ## 💻 **Coding Standards**
 
 ### 🔷 TypeScript
@@ -107,6 +226,10 @@ src/
 * Clean separation of server/client logic
 * Memoization for heavy components
 * Proper loading, error, and empty states
+* **ALWAYS use Shadcn UI components** for UI elements
+* **ALWAYS implement dark/light theme support** for all non-admin components using CSS variables from `globals.css`
+* **Never hardcode colors** - Always use theme-aware Tailwind classes or CSS variables
+* Test components in both light and dark themes before submitting
 
 ---
 
@@ -116,13 +239,75 @@ src/
 
 * All colors defined in `globals.css`
 * Tailwind reads values from CSS properties
+* **ALWAYS use CSS variables** from `globals.css` - never hardcode colors
+
+### 🌗 **Dark & Light Theme Support (MANDATORY)**
+
+**CRITICAL**: All pages and components (except admin pages) **MUST support both dark and light themes**.
+
+* **Always implement both themes** - Use Tailwind's `dark:` variant for dark mode styles
+* **Use CSS variables from `globals.css`** - Never use hardcoded colors
+* **Test in both themes** - Ensure components look good in both light and dark mode
+* **Admin pages are exempt** - Admin pages (`/admin/*`) do not need dark theme support
+* **All other pages/components require dual theme support**
+
+### 📋 **Theme Implementation Rules**
+
+1. **Always use theme-aware classes**:
+   ```tsx
+   // ✅ Good: Theme-aware background
+   className="bg-white dark:bg-neutral-800"
+   
+   // ✅ Good: Theme-aware text
+   className="text-neutral-900 dark:text-neutral-100"
+   
+   // ✅ Good: Using CSS variables
+   className="bg-background text-foreground border-border"
+   
+   // ❌ Bad: Hardcoded colors
+   className="bg-white text-black"
+   ```
+
+2. **Use CSS variables when possible**:
+   ```tsx
+   // ✅ Good: Using semantic CSS variables
+   className="bg-background text-foreground"
+   className="bg-card text-card-foreground"
+   className="border-border"
+   
+   // ✅ Good: Using theme-aware utilities
+   className="bg-white dark:bg-[var(--card)]"
+   ```
+
+3. **Common theme patterns**:
+   ```tsx
+   // Backgrounds
+   bg-white dark:bg-neutral-800
+   bg-neutral-50 dark:bg-neutral-900
+   bg-card dark:bg-card
+   
+   // Text
+   text-neutral-900 dark:text-neutral-100
+   text-foreground
+   text-neutral-600 dark:text-neutral-400
+   
+   // Borders
+   border-neutral-200 dark:border-neutral-700
+   border-border
+   
+   // Hover states
+   hover:bg-neutral-50 dark:hover:bg-neutral-800
+   ```
+
+4. **Always test both themes** before submitting code
 
 ### 🎨 Color Scheme
 
-* **Primary**: Forest Green `--color-primary`
-* **Secondary**: Vibrant Orange `--color-secondary`
-* **Accent**: Sunny Yellow `--color-accent`
-* **Neutral**: Consistent grayscale scale
+* **Primary**: Forest Green `--color-primary` / `var(--primary)`
+* **Secondary**: Vibrant Orange `--color-secondary` / `var(--secondary)`
+* **Accent**: Sunny Yellow `--color-accent` / `var(--accent)`
+* **Neutral**: Consistent grayscale scale (theme-aware)
+* **Semantic colors**: Use `--background`, `--foreground`, `--card`, `--border`, etc. from `globals.css`
 
 ### Typography
 
@@ -133,7 +318,8 @@ src/
 
 * Mobile‑first layout
 * Generous spacing, readable typography
-* No inline colors
+* **No inline colors** - Always use CSS variables or Tailwind theme-aware classes
+* **Dark theme support required** for all non-admin pages/components
 * Modals (z‑9999), Dropdowns (z‑10000), Navbar (z‑50)
 
 ---
@@ -141,12 +327,28 @@ src/
 ## 🧩 **Component Principles**
 
 * Reusable + composable components
-* Shadcn UI patterns for consistency
+* **Shadcn UI components MUST be used maximally** - always prefer Shadcn UI components over custom implementations
+* If a Shadcn UI component is needed but not available, **install it first** using: `npx shadcn@latest add [component-name] --yes`
+* **Dark & Light theme support MANDATORY** - All components (except admin) must support both themes using CSS variables from `globals.css`
 * Use Radix primitives for accessibility
 * Client/server split for performance
 * Clear TypeScript types for props
 * Guard components for route protection (e.g., `ShopkeeperGuard`)
-* Custom Toast system via `useToast` hook and `ToastProvider`
+* **Toast notifications via `useToast` hook** - Always use `useToast()` for user feedback, never use `alert()` or `confirm()`
+* Toast provider configured in `ToastProvider.tsx` using Shadcn's `sonner` component
+* **Never hardcode colors** - Always use CSS variables or Tailwind's `dark:` variant
+
+### 🎨 **Shadcn UI Component Guidelines**
+
+* **ALWAYS use Shadcn UI components when available** - Check `src/components/ui/` directory first
+* **If component doesn't exist**, install it immediately using: `npx shadcn@latest add [component-name] --yes`
+* **Never create custom UI components** that duplicate Shadcn UI functionality
+* **Common Shadcn UI components to use**:
+  - `Button`, `Card`, `Input`, `Label`, `Select`, `Dialog`, `AlertDialog`
+  - `DropdownMenu`, `Sheet`, `Tooltip`, `Badge`, `Separator`, `Skeleton`
+  - `Toast` (via `sonner`), `Sidebar`, and others as needed
+* **Customize Shadcn components** by modifying `src/components/ui/[component].tsx` files
+* **Maintain consistency** by using the same Shadcn components across the entire application
 
 ---
 
@@ -166,7 +368,7 @@ src/
 * LocalStorage persistence (cart + user)
 * Convex sync for realtime backend updates
 * Redis for caching frequent queries
-* Toast notifications via Zustand (`useToast` hook)
+* **Toast notifications via `useToast` hook** - Always use `useToast()` for user feedback, never use `alert()` or `confirm()`
 
 ---
 
@@ -191,9 +393,11 @@ src/
 ### Error Handling
 
 * Retry logic
-* Graceful UI feedback via custom Toast system (`useToast().error()`)
+* Graceful UI feedback via toast notifications (`useToast().error()`)
 * Network failure fallbacks
-* Never use browser `alert()` - always use `useToast()` for user notifications
+* **Never use browser `alert()`** - always use `useToast()` for user notifications
+* Show error toasts for failed operations
+* Show success toasts for completed operations
 
 ---
 
@@ -240,13 +444,19 @@ src/
 
 * Custom hooks for logic reuse
 * Compound components for complex UIs
-* Loading skeletons
-* Accessible dropdowns (Shadcn)
+* Loading skeletons (use Shadcn `Skeleton` component)
+* Accessible dropdowns (use Shadcn `DropdownMenu` component)
 * Geolocation via `navigator.geolocation`
 * Haversine formula for shop distance filtering
 * Route guards for protected pages (`ShopkeeperGuard`, etc.)
-* Toast notifications: `const { success, error, warning, info } = useToast();`
+* **Toast notifications**: Always use `useToast()` hook for user feedback - `const { success, error, warning, info } = useToast();`
+* **Never use `alert()` or `confirm()`** - Use toast notifications or Shadcn `AlertDialog` instead
 * Always wrap protected routes with guard components, never return `null` from guards during loading
+* **UI Components**: Always check `src/components/ui/` for Shadcn components before creating custom ones
+* **Installation**: If a needed Shadcn component doesn't exist, run `npx shadcn@latest add [component-name] --yes` immediately
+* **Dark/Light Theme**: Always implement both themes using `dark:` variant and CSS variables from `globals.css`
+* **Color Usage**: Never hardcode colors - use `bg-background`, `text-foreground`, `border-border`, or theme-aware utilities like `bg-white dark:bg-neutral-800`
+* **Admin Exception**: Admin pages (`/admin/*`) are exempt from dark theme requirements
 
 ---
 
