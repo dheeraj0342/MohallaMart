@@ -1,269 +1,266 @@
-# MohallaMart: A Local Shop E-Commerce Platform
+# 🚀 **MohallaMart: A Modern, Local Shop E‑Commerce Ecosystem**
 
-## Project Overview
-MohallaMart bridges the gap between digital convenience and local commerce through innovative multi-tenant architecture. Built with Next.js 15, TypeScript, and Tailwind CSS, it features authentication, search, cart management, and responsive design for neighborhood delivery services.
+A fully modernized, more interactive, more readable version of your project specification.
 
-## Tech Stack
+---
 
-### Frontend
-- **Framework**: Next.js 15.5.3 with App Router
-- **Language**: TypeScript (strict mode)
-- **Styling**: Tailwind CSS 4 (integrated with CSS custom properties) + Shadcn UI components (Radix UI primitives)
-- **State Management**: Zustand with persistence
-- **Animations**: Framer Motion (limited usage)
-- **Icons**: Lucide React
-- **Fonts**: Open Sans (body text) + Montserrat (headings) via Google Fonts CDN with display: swap
+## 🌍 **Project Overview**
 
-### Backend & Database
-- **Backend**: Convex (realtime backend) + tRPC (type-safe APIs)
-- **Database**: Supabase (PostgreSQL) + Redis (caching layer)
-- **Authentication**: Supabase Auth with OTP support
-- **Search**: Typesense (fast, typo-tolerant search)
-- **Background Jobs**: Inngest (reliable job processing)
+MohallaMart bridges the gap between local commerce and digital convenience through a **multi‑tenant**, **realtime**, **mobile‑first** shopping experience.
 
-### External Services
-- **Payments**: Razorpay (payment gateway)
-- **Maps**: Google Maps API (location services)
-- **Notifications**: OneSignal (push notifications) + Twilio/MSG91 (SMS)
-- **Storage**: Convex File Storage (image and file uploads)
+Built with **Next.js 15**, **TypeScript**, **Convex realtime backend**, and a refined **design system**, MohallaMart empowers neighborhood shops to operate digitally with seamless delivery, payment, and user engagement capabilities.
 
-## Project Structure
+---
+
+## 🧰 **Tech Stack at a Glance**
+
+### 🎨 **Frontend**
+
+* **Next.js 15.5.3** (App Router + React Server Components)
+* **TypeScript** (strict mode)
+* **Tailwind CSS 4** with global CSS variables
+* **Shadcn UI + Radix Primitives**
+* **Zustand** for global state (with persistence)
+* **Framer Motion** (strategic use only)
+* **Lucide Icons**
+* **Fonts**: Open Sans (body) + Montserrat (headings)
+
+### ⚙️ **Backend & Database**
+
+* **Convex** (realtime backend + mutations/queries)
+* **tRPC** (end‑to‑end type‑safe APIs)
+* **Supabase PostgreSQL** (primary database)
+* **Redis** (caching layer)
+* **Supabase Auth** (OTP login)
+
+### 🔌 **External Integrations**
+
+* **Razorpay** (payments)
+* **Google Maps API** (location + geocoding)
+* **Typesense** (super‑fast search)
+* **OneSignal** (push notifications)
+* **Twilio/MSG91** (SMS)
+* **Convex File Storage** (images/files)
+* **Inngest** (jobs & automation)
+
+---
+
+## 🗂️ **Project Structure**
+
 ```
 src/
-├── app/                    # Next.js App Router
-│   ├── auth/              # Authentication pages
-│   ├── api/               # API routes (tRPC endpoints)
-│   ├── globals.css        # Global styles with MohallaMart colors
-│   ├── layout.tsx         # Root layout with hydration fixes
-│   └── page.tsx           # Homepage (component-based)
-├── components/            # Reusable React components
-│   ├── auth/              # Authentication forms (LoginForm, SignupForm)
-│   ├── sections/          # Homepage sections (Hero, Features, NearbyStores, etc.)
-│   ├── ui/                # Shadcn UI components (dropdown-menu, etc.)
-│   ├── Navbar.tsx         # Main navigation with brand-consistent MapPin icons
-│   ├── SearchBar.tsx      # Search functionality
-│   ├── CartSidebar.tsx    # Shopping cart
-│   ├── LocationModal.tsx  # Location auto-detect with z-9999 layering
-│   └── InngestProvider.tsx # Inngest wrapper component
-├── hooks/                 # Custom React hooks
-│   ├── useAuth.ts         # Supabase authentication hook
-│   ├── useConvex.ts       # Convex realtime hooks
-│   └── useTRPC.ts         # tRPC query/mutation hooks
-├── lib/                   # Utility libraries
-│   ├── supabase.ts        # Supabase client configuration
-│   ├── convex.ts         # Convex client setup
-│   ├── trpc.ts           # tRPC client configuration
-│   ├── typesense.ts      # Search client setup
-│   ├── redis.ts          # Redis cache client
-│   ├── adminAuth.ts      # Server-only admin authentication utilities (next/headers)
-│   ├── utils.ts          # Client-safe shared utilities (cn helper)
-│   └── inngest/          # Inngest configuration
-│       ├── index.ts      # Inngest client setup
-│       ├── serve.ts      # Serve handler with logLevel: debug
-│       └── functions/    # Event-driven background functions
-├── convex/               # Convex backend functions
-│   ├── auth.ts           # Authentication mutations
-│   ├── products.ts       # Product management
-│   ├── shops.ts          # Shop queries with Haversine distance, radius/PIN filtering
-│   ├── orders.ts         # Order processing
-│   └── notifications.ts  # Notification handling
-├── server/               # tRPC router definitions
-│   ├── routers/          # API route handlers
-│   └── trpc.ts           # tRPC setup
-└── store/                # Zustand state management
-    └── useStore.ts       # Global app state
+├── app/
+│   ├── auth/
+│   ├── api/
+│   ├── shopkeeper/
+│   │   ├── _components/ (ShopkeeperGuard, etc.)
+│   │   ├── dashboard/
+│   │   ├── profile/
+│   │   ├── apply/
+│   │   └── registration/
+│   ├── admin/
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/
+│   ├── auth/
+│   ├── sections/
+│   ├── ui/
+│   ├── Navbar.tsx
+│   ├── SearchBar.tsx
+│   ├── CartSidebar.tsx
+│   ├── LocationModal.tsx
+│   ├── ToastProvider.tsx
+│   └── ConvexProvider.tsx
+├── hooks/
+│   ├── useAuth.ts
+│   └── useToast.ts
+├── lib/
+│   ├── supabase.ts
+│   ├── convex.ts
+│   ├── trpc.ts
+│   ├── typesense.ts
+│   ├── redis.ts
+│   ├── adminAuth.ts
+│   └── inngest/
+├── convex/
+├── server/
+└── store/
 ```
 
-## Coding Standards
+---
 
-### TypeScript
-- Use strict TypeScript with proper type definitions
-- Define interfaces for all props and state objects
-- Use `interface` for object shapes, `type` for unions/primitives
-- Always type function parameters and return values
-- Use proper generic types for hooks and components
+## 💻 **Coding Standards**
 
-### React Best Practices
-- Use functional components with hooks
-- Implement proper error boundaries and loading states
-- Use `'use client'` directive only when necessary for client-side features
-- Optimize re-renders with proper dependency arrays
-- Use proper key props for list items
+### 🔷 TypeScript
 
-### Styling Guidelines
-- **Color Definition**: All colors MUST be defined in `globals.css` as CSS custom properties
-- **Primary Colors**: Forest Green (#2E7D32) for main actions
-- **Secondary Colors**: Vibrant Orange (#F97316) for CTAs
-- **Accent Colors**: Sunny Yellow (#FBBF24) for highlights
-- **Neutral Colors**: Proper gray scale for text and backgrounds
-- **CSS Variables**: Use `--color-primary`, `--color-secondary`, etc. in globals.css
-- **Font Variables**: `--font-open-sans` (body), `--font-montserrat` (headings)
-- **Tailwind Integration**: Reference CSS variables in Tailwind config for consistent usage
-- **No Inline Colors**: Never use hardcoded color values in components
-- **Z-Index Hierarchy**: Modals (z-9999), Navbar (z-50), Dropdown (z-10000)
-- Implement responsive design (mobile-first approach)
-- Use consistent spacing, typography, and component patterns
+* Strict mode always enabled
+* Use `interface` for object shapes
+* Use `type` for unions/primitives
+* Always type component props + return values
+* Type‑safe custom hooks
 
-### CSS Organization
-- **Global Styles**: All color definitions, typography, and base styles in `globals.css`
-- **CSS Custom Properties**: Define all brand colors as CSS variables
-- **Font Stack**: Open Sans for body text, Montserrat (400-800) for headings
-- **Tailwind Config**: Extend Tailwind with custom colors from CSS variables
-- **Component Styles**: Use Tailwind classes, avoid custom CSS in components
-- **Consistency**: Single source of truth for all color values
-- **Typography**: h1-h6 use font-heading (Montserrat), body uses font-sans (Open Sans)
+### 🔷 React Best Practices
 
-### Component Architecture
-- Create modular, reusable components in appropriate directories
-- Use proper prop drilling vs context/state management
-- Implement proper component composition
-- Use compound components pattern where applicable
-- Export components cleanly with proper TypeScript types
-- **UI Components**: Use Shadcn UI patterns with Radix primitives (e.g., dropdown-menu)
-- **Server/Client Separation**: Keep server-only code (next/headers) in separate files from client components
+* Functional components only
+* Client components only when needed (`"use client"`)
+* Clean separation of server/client logic
+* Memoization for heavy components
+* Proper loading, error, and empty states
 
-## Authentication Flow
-- **Primary Auth**: Supabase Auth with OTP support for phone/email verification
-- **Backend Integration**: Convex handles realtime user state synchronization
-- **State Management**: User state stored in Zustand store with persistence
-- **Session Management**: Automatic session refresh and logout handling
-- **Security**: JWT tokens with proper validation and refresh mechanisms
-- **Error Handling**: Comprehensive error states for auth failures and network issues
+---
 
-## State Management
-- **Zustand Store**: Global state for cart, user, location, and search
-- **Persistence**: Cart and user data persisted in localStorage
-- **Realtime Sync**: Convex provides realtime data synchronization
-- **Caching**: Redis layer for frequently accessed data
-- **Type Safety**: tRPC ensures end-to-end type safety
-- **Actions**: Proper actions for state updates with TypeScript types
+## 🎨 **Styling & Design System**
 
-## File Naming Conventions
-- **Components**: PascalCase (e.g., `HeroSection.tsx`)
-- **Hooks**: camelCase starting with `use` (e.g., `useAuth.ts`)
-- **Utilities**: camelCase (e.g., `supabase.ts`)
-- **Types**: PascalCase interfaces, camelCase for generic types
-- **Constants**: UPPER_SNAKE_CASE for constants
+### Tailwind + CSS Variables
 
-## Dependencies Guidelines
-- **Avoid**: Installing unnecessary packages
-- **Prefer**: Built-in Next.js features and well-maintained packages
-- **Required**: Keep dependencies up to date and security-focused
-- **State**: Use Zustand over Redux for simplicity
-- **UI Components**: Shadcn UI for consistent, accessible components (Radix UI primitives)
-- **Backend**: Convex for realtime features, tRPC for type-safe APIs
-- **Database**: Supabase for PostgreSQL, Redis for caching
-- **Search**: Typesense for fast, typo-tolerant search
-- **Animations**: Framer Motion for limited, strategic uses only
-- **Background Jobs**: Inngest for reliable job processing (16 registered functions)
-- **Fonts**: Google Fonts CDN (Open Sans + Montserrat) with display: swap for optimal loading
+* All colors defined in `globals.css`
+* Tailwind reads values from CSS properties
 
-## Animation Guidelines (Framer Motion)
-- **Limited Usage**: Only use Framer Motion for essential interactions, not every component
-- **Strategic Applications**: 
-  - Modal animations (slide in/out)
-  - Page transitions on route changes
-  - Important button hover/focus states
-  - Cart sidebar slide animations
-  - Loading state animations
-- **Avoid Overuse**: Don't animate every card, text, or simple hover effect
-- **Performance First**: Use CSS transitions for simple animations when possible
-- **Accessibility**: Respect `prefers-reduced-motion` user preference
+### 🎨 Color Scheme
 
-## Performance Considerations
-- Use Next.js Image component for optimized images
-- Implement proper loading states and error boundaries
-- Optimize bundle size with proper imports
-- Use React.memo and useMemo where appropriate
-- Implement proper SEO with Next.js metadata
+* **Primary**: Forest Green `--color-primary`
+* **Secondary**: Vibrant Orange `--color-secondary`
+* **Accent**: Sunny Yellow `--color-accent`
+* **Neutral**: Consistent grayscale scale
 
-## Accessibility Requirements
-- Use proper semantic HTML elements
-- Implement ARIA labels and roles where needed
-- Ensure keyboard navigation works properly
-- Maintain proper color contrast ratios
-- Use focus management for modals and dropdowns
+### Typography
 
-## Form Handling
-- Use controlled components with proper state management
-- Implement client-side validation with user feedback
-- Use proper input types and attributes
-- Handle form submissions with loading states and error handling
+* **Headings**: Montserrat (`--font-montserrat`)
+* **Body**: Open Sans (`--font-open-sans`)
 
-## API Integration
-- **tRPC**: Type-safe API calls with automatic client generation
-- **Convex**: Realtime data synchronization and mutations
-- **Supabase**: Authentication and PostgreSQL database operations
-- **Typesense**: Fast, typo-tolerant search with faceted filtering
-- **External APIs**: Razorpay, Google Maps, OneSignal, Twilio integration
-- **Error Handling**: Comprehensive error boundaries and retry mechanisms
-- **Type Safety**: End-to-end TypeScript types for all API interactions
-- **Caching**: Redis-based caching for improved performance
+### UX Rules
 
-## External Services Integration
-- **Payments**: Razorpay integration for secure payment processing
-- **Maps**: Google Maps API for location services and delivery tracking
-- **Search**: Typesense for fast, typo-tolerant product search
-- **Notifications**: OneSignal for push notifications, Twilio/MSG91 for SMS
-- **Storage**: Convex File Storage for image and file uploads with built-in CDN
-- **Background Jobs**: Inngest for reliable job processing (emails, notifications, data sync)
+* Mobile‑first layout
+* Generous spacing, readable typography
+* No inline colors
+* Modals (z‑9999), Dropdowns (z‑10000), Navbar (z‑50)
 
-## Background Job Processing
-- **Inngest**: Reliable background job processing with 16 registered functions
-- **Job Types**: Email notifications, SMS sending, data synchronization, cleanup tasks
-- **Retry Logic**: Automatic retry with exponential backoff for failed jobs
-- **Monitoring**: Job status tracking and error reporting with logLevel: debug in development
-- **Scalability**: Handle high-volume job processing efficiently
-- **Authentication**: Uses signing keys for cloud mode; local dev can run without strict auth (isDev: true)
-- **Configuration**: Inngest serve handler in `/api/inngest` with debug logging enabled
+---
 
-## Mobile Responsiveness
-- Design mobile-first with Tailwind responsive classes
-- Test on various screen sizes (320px to 2560px)
-- Use touch-friendly interface elements
-- Optimize for mobile performance
+## 🧩 **Component Principles**
 
-## Code Quality Standards
-- Write self-documenting code with clear variable names
-- Use proper comments for complex logic
-- Follow consistent formatting with Prettier
-- Implement proper error handling throughout
-- Use proper TypeScript types to prevent runtime errors
+* Reusable + composable components
+* Shadcn UI patterns for consistency
+* Use Radix primitives for accessibility
+* Client/server split for performance
+* Clear TypeScript types for props
+* Guard components for route protection (e.g., `ShopkeeperGuard`)
+* Custom Toast system via `useToast` hook and `ToastProvider`
 
-## Security Considerations
-- Never expose sensitive data in client-side code
-- Use environment variables for API keys and secrets
-- Implement proper authentication checks
-- Sanitize user inputs
-- Use HTTPS in production
+---
 
-## Deployment
-- Optimize for production builds
-- Use proper environment configuration
-- Implement proper SEO and metadata
-- Consider performance monitoring and analytics
+## 🔐 **Authentication Flow**
 
-## Common Patterns to Use
-- Custom hooks for reusable logic
-- Compound components for complex UI
-- Render props or children patterns where appropriate
-- Proper error boundaries
-- Loading skeleton components
-- **Dropdown Menus**: Use Shadcn dropdown-menu components (Radix primitives) for compact UI
-- **Location Features**: Auto-detect with navigator.geolocation, reverse geocode with Nominatim
-- **Distance Calculation**: Haversine formula for radius filtering (e.g., 2km nearby shops)
-- **Server/Client Utilities**: Separate server-only helpers (adminAuth.ts) from client-safe utils (utils.ts)
+* Supabase Auth OTP login (email/phone)
+* Convex keeps realtime session sync
+* Zustand stores user state (persistent)
+* Automatic refresh token handling
+* Secure server‑side admin utilities separate from client
 
-## Architecture Overview
-- **Frontend**: Next.js 15 with TypeScript, Tailwind CSS, and Shadcn UI
-- **Backend**: Convex for realtime features + tRPC for type-safe APIs
-- **Database**: Supabase PostgreSQL with Redis caching layer
-- **Authentication**: Supabase Auth with OTP support
-- **Search**: Typesense for fast, typo-tolerant product search
-- **Payments**: Razorpay integration for secure transactions
-- **Maps**: Google Maps API for location services
-- **Notifications**: OneSignal (push) + Twilio/MSG91 (SMS)
-- **Storage**: Convex File Storage with built-in CDN for images and files
-- **Background Jobs**: Inngest for reliable job processing
-- **State Management**: Zustand with persistence and realtime sync via Convex
+---
+
+## 🛒 **State Management**
+
+* Zustand global store (cart, search, location, user, toasts)
+* LocalStorage persistence (cart + user)
+* Convex sync for realtime backend updates
+* Redis for caching frequent queries
+* Toast notifications via Zustand (`useToast` hook)
+
+---
+
+## 📚 **File Naming Conventions**
+
+* Components: `PascalCase`
+* Hooks: `useSomething`
+* Libraries: camelCase
+* Types: PascalCase
+* Constants: UPPER_SNAKE_CASE
+
+---
+
+## 🔌 **API & Services Integration**
+
+* **tRPC** for type‑safe API calls
+* **Convex** for realtime reads/mutations
+* **Typesense** for search suggestions, typo tolerance
+* **Razorpay** checkout integration
+* **Google Maps** for geolocation & distance computation
+
+### Error Handling
+
+* Retry logic
+* Graceful UI feedback via custom Toast system (`useToast().error()`)
+* Network failure fallbacks
+* Never use browser `alert()` - always use `useToast()` for user notifications
+
+---
+
+## ⚙️ **Background Jobs (Inngest)**
+
+* 16+ automated job functions
+* Email/SMS notifications
+* Order lifecycle events
+* Automatic retries with exponential backoff
+* Debug logging in development
+
+---
+
+## 📱 **Mobile Responsiveness**
+
+* Tailwind responsive utilities
+* Touch‑friendly UI
+* Optimized image loading
+* Tested on 320px → 2560px
+
+---
+
+## 🛡️ **Security Best Practices**
+
+* Environment variables for secrets
+* Server‑only utilities for admin operations
+* Input sanitization
+* Token validation on all requests
+* HTTPS in production
+
+---
+
+## 🚀 **Deployment & Performance**
+
+* Optimized Next.js builds
+* Proper caching strategies
+* Image optimization with `<Image />`
+* Metadata for SEO
+* Chunk splitting + lazy loading
+
+---
+
+## 🧩 **Common Patterns**
+
+* Custom hooks for logic reuse
+* Compound components for complex UIs
+* Loading skeletons
+* Accessible dropdowns (Shadcn)
+* Geolocation via `navigator.geolocation`
+* Haversine formula for shop distance filtering
+* Route guards for protected pages (`ShopkeeperGuard`, etc.)
+* Toast notifications: `const { success, error, warning, info } = useToast();`
+* Always wrap protected routes with guard components, never return `null` from guards during loading
+
+---
+
+## 🏗️ **High-Level Architecture**
+
+```
+Frontend: Next.js + Shadcn + Tailwind + Zustand
+Backend: Convex + tRPC
+Database: Supabase + Redis
+Search: Typesense
+Payments: Razorpay
+Maps: Google Maps API
+Notifications: OneSignal + Twilio
+Storage: Convex File Storage
+Jobs: Inngest
+```
 
