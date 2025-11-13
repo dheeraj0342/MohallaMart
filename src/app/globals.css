@@ -42,7 +42,6 @@
   --standard-black: #111111; /* cmyk(0, 0, 0, 100) */
   --rich-black: #050304; /* approx cmyk(60, 40, 40, 100) */
 
-
   @supports (color: color(cmyk 0 0 0 1)) {
     :root {
       --standard-black: color(cmyk 0 0 0 1);
@@ -83,8 +82,8 @@
   --sidebar-foreground: #594a3a;
   --sidebar-primary: #27ae60;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #faffd2;
-  --sidebar-accent-foreground: #594a3a;
+  --sidebar-accent: #f0f9f4;
+  --sidebar-accent-foreground: #1f8f4e;
   --sidebar-border: #e0e0e0;
   --sidebar-ring: #27ae60;
 
@@ -180,8 +179,8 @@
     --sidebar-foreground: #f9f6f2;
     --sidebar-primary: #27ae60;
     --sidebar-primary-foreground: #181c1f;
-    --sidebar-accent: #3b2f22;
-    --sidebar-accent-foreground: #f9f6f2;
+    --sidebar-accent: #1f2f25;
+    --sidebar-accent-foreground: #8fd8a5;
     --sidebar-border: #2d333b;
     --sidebar-ring: #27ae60;
 
@@ -339,8 +338,8 @@ input[type="checkbox"] {
   --sidebar-foreground: #f9f6f2;
   --sidebar-primary: #27ae60;
   --sidebar-primary-foreground: #181c1f;
-  --sidebar-accent: #3b2f22;
-  --sidebar-accent-foreground: #f9f6f2;
+  --sidebar-accent: #1f2f25;
+  --sidebar-accent-foreground: #8fd8a5;
   --sidebar-border: #2d333b;
   --sidebar-ring: #27ae60;
 }
@@ -384,6 +383,15 @@ input[type="checkbox"] {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Shopkeeper Sidebar - Full height since navbar is hidden on shopkeeper/admin pages */
+/* Sidebar starts from top when navbar is not present */
+[data-slot="sidebar-container"] {
+  top: 0 !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  z-index: 40 !important;
 }
 
 /* stylelint-enable at-rule-no-unknown */

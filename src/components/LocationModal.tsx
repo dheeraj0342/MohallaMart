@@ -1,198 +1,370 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Loader2, Navigation } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
+import { useStore } from "@/store/useStore";
+import { useToast } from "@/hooks/useToast";
 
-interface LocationModalProps {
+interface MapPickerModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initial?: { lat: number; lon: number } | null;
 }
 
-export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
-  const [isDetecting, setIsDetecting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [autoAttempted, setAutoAttempted] = useState(false);
+const NOMINATIM_USER_AGENT = "MohallaMart/vipinyadav9m@gmail.com";
+
+// Dynamically import the map component with SSR disabled
+const MapView = dynamic(() => import("./MapView"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-gray-800">
+      <Loader2 className="h-8 w-8 animate-spin text-primary-brand" />
+    </div>
+  ),
+});
+
+export default function MapPickerModal({ isOpen, onClose, initial = null }: MapPickerModalProps) {
+  const { setLocation } = useStore();
+  const { success, error: errorToast } = useToast();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      setErrorMessage(null);
-    }
-    setAutoAttempted(false);
-    setIsDetecting(false);
-  }, [isOpen]);
+    setMounted(true);
+  }, []);
 
-  const reverseGeocode = useCallback(async (latitude: number, longitude: number) => {
+  const [isDetecting, setIsDetecting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [position, setPosition] = useState<{ lat: number; lon: number } | null>(
+    initial ?? null
+  );
+  const [address, setAddress] = useState<{ city?: string; area?: string; pincode?: string } | null>(null);
+
+  // Search box
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<Array<{ place_id: number; lat: string; lon: string; display_name: string }>>([]);
+  const searchDebounceRef = useRef<number | null>(null);
+  const latestSearchId = useRef(0);
+
+  // Map center fallback
+  const defaultCenter = useMemo(() => [20.5937, 78.9629] as [number, number], []); // India center fallback
+
+  // Reverse geocode using Nominatim (jsonv2)
+  const reverseGeocode = useCallback(
+    async (lat: number, lon: number) => {
     const url = new URL("https://nominatim.openstreetmap.org/reverse");
-    url.searchParams.set("lat", latitude.toString());
-    url.searchParams.set("lon", longitude.toString());
+      url.searchParams.set("lat", String(lat));
+      url.searchParams.set("lon", String(lon));
     url.searchParams.set("format", "jsonv2");
-    url.searchParams.set("zoom", "15");
     url.searchParams.set("addressdetails", "1");
     url.searchParams.set("accept-language", "en");
 
-    const response = await fetch(url.toString(), {
-      headers: { Accept: "application/json" },
+      const res = await fetch(url.toString(), {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": NOMINATIM_USER_AGENT,
+        },
     });
-
-    if (!response.ok) throw new Error(`Reverse geocoding failed: ${response.status}`);
-
-    const data = (await response.json()) as { address?: Record<string, string> };
-    const address = data.address ?? {};
+      if (!res.ok) throw new Error(`Nominatim reverse failed (${res.status})`);
+      const data = await res.json();
+      const a = data.address || {};
 
     const city =
-      address.city ||
-      address.town ||
-      address.village ||
-      address.municipality ||
-      address.state_district ||
-      address.state ||
-      address.county ||
-      "Your City";
-
+        a.city || a.town || a.village || a.municipality || a.state || a.county || "Unknown City";
     const area =
-      address.suburb ||
-      address.neighbourhood ||
-      address.residential ||
-      address.quarter ||
-      address.city_district ||
-      address.district ||
-      address.state_district ||
-      address.county ||
-      address.village ||
+        a.suburb ||
+        a.neighbourhood ||
+        a.residential ||
+        a.quarter ||
+        a.district ||
+        a.city_district ||
+        a.village ||
       city;
 
-    return { city, area, pincode: address.postcode };
-  }, []);
+      const pincode = a.postcode ?? undefined;
 
+      return { city, area, pincode, raw: a };
+    },
+    []
+  );
+
+  // Nominatim search for suggestions (free)
+  const searchPlace = useCallback(
+    async (q: string) => {
+      if (!q || q.trim().length === 0) {
+        setSuggestions([]);
+        return;
+      }
+
+      const id = ++latestSearchId.current;
+      const url = new URL("https://nominatim.openstreetmap.org/search");
+      url.searchParams.set("q", q);
+      url.searchParams.set("format", "jsonv2");
+      url.searchParams.set("addressdetails", "1");
+      url.searchParams.set("limit", "6");
+      url.searchParams.set("accept-language", "en");
+
+      try {
+        const res = await fetch(url.toString(), {
+          headers: {
+            Accept: "application/json",
+            "User-Agent": NOMINATIM_USER_AGENT,
+          },
+        });
+        if (!res.ok) throw new Error("Search failed");
+        const items = await res.json();
+        // ensure we only set suggestions for latest query
+        if (id === latestSearchId.current) setSuggestions(items);
+      } catch {
+        // silently ignore; don't spam UI
+      }
+    },
+    []
+  );
+
+  // debounce search input
+  useEffect(() => {
+    if (searchDebounceRef.current) window.clearTimeout(searchDebounceRef.current);
+    if (!query) {
+      setSuggestions([]);
+      return;
+    }
+    searchDebounceRef.current = window.setTimeout(() => searchPlace(query), 300);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+
+  // detect using browser geolocation
   const detectLocation = useCallback(() => {
     if (isDetecting) return;
-
-    setAutoAttempted(true);
-    setErrorMessage(null);
     setIsDetecting(true);
+    setErrorMessage(null);
 
     if (!("geolocation" in navigator)) {
-      setErrorMessage("Geolocation is not supported on this device. Enable location services and try again.");
+      const msg = "Geolocation not supported by your browser.";
+      setErrorMessage(msg);
+      errorToast(msg);
       setIsDetecting(false);
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        reverseGeocode(latitude, longitude)
-          .then((resolvedLocation) => {
-            setErrorMessage(null);
-            console.log("Location detected:", resolvedLocation);
-            onClose();
-          })
-          .catch(() => {
-            setErrorMessage(
-              "We detected your location but couldn't fetch the address. Please check your connection and try again."
-            );
-          })
-          .finally(() => setIsDetecting(false));
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          setPosition({ lat: latitude, lon: longitude });
+          const resolved = await reverseGeocode(latitude, longitude);
+          setAddress({ city: resolved.city, area: resolved.area, pincode: resolved.pincode });
+          success(`Location updated to ${resolved.area}, ${resolved.city}`);
+        } catch {
+          const msg = "Detected coordinates but failed to resolve address.";
+          setErrorMessage(msg);
+          errorToast(msg);
+        } finally {
+          setIsDetecting(false);
+        }
       },
       () => {
-        setErrorMessage("Unable to detect your location. Allow location access and try again.");
+        const msg = "Unable to detect your location. Allow location access and try again.";
+        setErrorMessage(msg);
+        errorToast(msg);
         setIsDetecting(false);
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 12000 }
     );
-  }, [isDetecting, onClose, reverseGeocode]);
+  }, [isDetecting, reverseGeocode, success, errorToast]);
 
-  useEffect(() => {
-    if (isOpen && !autoAttempted && !isDetecting) {
-      detectLocation();
+  // when user selects a suggestion
+  const onSelectSuggestion = async (item: { place_id: number; lat: string; lon: string; display_name: string }) => {
+    try {
+      const lat = parseFloat(item.lat);
+      const lon = parseFloat(item.lon);
+      setPosition({ lat, lon });
+      const resolved = await reverseGeocode(lat, lon);
+      setAddress({ city: resolved.city, area: resolved.area, pincode: resolved.pincode });
+      setSuggestions([]);
+      setQuery("");
+    } catch {
+      errorToast("Failed to select location.");
     }
-  }, [autoAttempted, detectLocation, isDetecting, isOpen]);
+  };
 
-  return (
+  // when user confirms selection to store in global
+  const confirmLocation = () => {
+    if (!position) {
+      const msg = "Please pick a location on the map or use detect/search.";
+      setErrorMessage(msg);
+      errorToast(msg);
+      return;
+    }
+    const payload = { city: address?.city ?? "Unknown City", area: address?.area ?? "Unknown Area", pincode: address?.pincode, lat: position.lat, lon: position.lon };
+    setLocation(payload);
+    success(`Location set to ${payload.area}, ${payload.city}`);
+    onClose();
+  };
+
+  // Handle map position updates
+  const handleMapPositionChange = useCallback(
+    async (lat: number, lon: number) => {
+      setPosition({ lat, lon });
+      try {
+        const r = await reverseGeocode(lat, lon);
+        setAddress({ city: r.city, area: r.area, pincode: r.pincode });
+      } catch {
+        // ignore
+      }
+    },
+    [reverseGeocode]
+  );
+
+  // If the modal opens and there's no position but `initial` is not provided, try auto-detect once automatically:
+  useEffect(() => {
+    if (isOpen && !position && !initial) {
+      // do not block user; try geolocation once
+      detectLocation();
+    } else if (isOpen && initial && !position) {
+      setPosition({ lat: initial.lat, lon: initial.lon });
+      reverseGeocode(initial.lat, initial.lon)
+        .then((r) => setAddress({ city: r.city, area: r.area, pincode: r.pincode }))
+        .catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
-        <div
-          className="fixed inset-0 flex items-center justify-center p-4 sm:p-6"
-          style={{ zIndex: 9999 }}
-          role="dialog"
-          aria-modal="true"
-        >
-          {/* Backdrop */}
+        <div className="fixed inset-0 flex items-center justify-center p-2 sm:p-4 md:p-6" style={{ zIndex: 99999 }} role="dialog" aria-modal="true">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             style={{ zIndex: 1 }}
           />
 
-          {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.96, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="relative w-full max-w-md rounded-2xl border border-[#e0e0e0] bg-[#ffffff] shadow-2xl dark:border-[#2d333b] dark:bg-[#24292e]"
+            exit={{ opacity: 0, scale: 0.96, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="relative w-full max-w-4xl max-h-[95vh] rounded-xl border-2 border-neutral-200 bg-white shadow-xl overflow-hidden flex flex-col mx-auto"
             style={{ zIndex: 2 }}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[#e0e0e0] px-6 py-4 dark:border-[#2d333b]">
-              <h2 className="text-2xl font-bold text-[#212121] dark:text-[#f9f6f2]">Select Location</h2>
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-gray-100 flex-shrink-0 bg-gray-50">
+              <h3 className="text-xl font-semibold text-neutral-900">Pick Location</h3>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={detectLocation}
+                  className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm bg-primary-brand text-white hover:bg-primary-brand/90 transition-colors"
+                >
+                  {isDetecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />}
+                  <span className="hidden sm:inline">Detect</span>
+                </button>
+
               <button
                 onClick={onClose}
-                className="rounded-lg p-1.5 text-[#85786a] transition-colors hover:bg-[#e6f4ec] hover:text-[#212121] dark:text-[#a2a6b2] dark:hover:bg-[#1f2f25] dark:hover:text-[#f9f6f2]"
+                  className="rounded-lg p-1.5 text-neutral-500 hover:text-primary-brand hover:bg-gray-100 transition-colors"
                 aria-label="Close"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
+            </div>
 
-            {/* Content */}
-            <div className="space-y-4 p-6">
-              {/* Error Message */}
-              <AnimatePresence>
+            {/* Body */}
+            <div className="flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
+              {/* Left: Map */}
+              <div className="flex-1 min-h-0 h-[300px] md:h-auto">
+                <MapView
+                  position={position}
+                  defaultCenter={defaultCenter}
+                  onPositionChange={handleMapPositionChange}
+                />
+              </div>
+
+              {/* Right: Controls */}
+              <div className="w-full md:w-96 border-t md:border-t-0 md:border-l border-gray-100 p-4 flex flex-col gap-3 overflow-y-auto max-h-[400px] md:max-h-none bg-white">
                 {errorMessage && (
-                  <motion.div
-                    key={errorMessage}
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="rounded-lg border border-[#ffb199] bg-[#fff1eb] px-4 py-3 text-sm text-[#b83d0f] dark:border-[#ffb199]/30 dark:bg-[#ffb199]/10 dark:text-[#ffb199]"
-                  >
+                  <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
                     {errorMessage}
-                  </motion.div>
+                  </div>
                 )}
-              </AnimatePresence>
 
-              {/* Auto-detect Location Button */}
+                {/* Search */}
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">Search Location</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Navigation className="h-4 w-4 text-neutral-500" />
+                    </div>
+                    <input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Type city, area, or pincode"
+                      className="w-full pl-10 pr-3 py-2.5 bg-white border-2 border-neutral-200 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand transition-all duration-200 hover:border-neutral-300 text-sm"
+                    />
+                  </div>
+                  {suggestions.length > 0 && (
+                    <ul className="mt-2 max-h-44 overflow-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+                      {suggestions.map((s) => (
+                        <li
+                          key={s.place_id}
+                          onClick={() => onSelectSuggestion(s)}
+                          className="px-4 py-3 cursor-pointer hover:bg-primary-50 transition-colors border-b border-gray-50 last:border-b-0"
+                        >
+                          <div className="font-medium text-neutral-900">{s.display_name.split(",")[0]}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">{s.display_name}</div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase mb-2">Selected Location</div>
+                  <div className="rounded-xl border border-gray-200 p-3 text-sm bg-gray-50">
+                    <div className="space-y-1.5">
+                      <div><span className="font-medium text-neutral-700">Area:</span> <span className="text-neutral-900">{address?.area ?? "—"}</span></div>
+                      <div><span className="font-medium text-neutral-700">City:</span> <span className="text-neutral-900">{address?.city ?? "—"}</span></div>
+                      <div><span className="font-medium text-neutral-700">Pincode:</span> <span className="text-neutral-900">{address?.pincode ?? "—"}</span></div>
+                      <div className="text-xs text-gray-400 mt-2 pt-2 border-t border-gray-200">Lat: {position?.lat?.toFixed(6) ?? "—"} • Lon: {position?.lon?.toFixed(6) ?? "—"}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-auto flex gap-2 pt-2">
+                  <button 
+                    onClick={confirmLocation} 
+                    className="flex-1 rounded-xl bg-primary-brand text-white px-4 py-2.5 font-semibold hover:bg-primary-brand/90 transition-colors text-sm"
+                  >
+                    Save Location
+                  </button>
               <button
-                onClick={detectLocation}
-                disabled={isDetecting}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-brand px-4 py-3 font-semibold text-white shadow-sm transition-all hover:bg-[#1f8f4e] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-primary-brand dark:hover:bg-[#1f8f4e]"
-              >
-                {isDetecting ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    <span>Detecting Location...</span>
-                  </>
-                ) : (
-                  <>
-                    <Navigation className="h-5 w-5" />
-                    <span>Use Current Location</span>
-                  </>
-                )}
+                    onClick={() => { setPosition(null); setAddress(null); setQuery(""); setSuggestions([]); }} 
+                    className="rounded-xl border-2 border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-gray-50 hover:border-neutral-300 transition-colors"
+                  >
+                    Clear
               </button>
+                </div>
 
-              {/* Info Text */}
-              <p className="text-center text-sm text-[#85786a] dark:text-[#a2a6b2]">
-                We&apos;ll automatically detect your location to provide better service
-              </p>
+                <div className="text-xs text-gray-400 mt-1 px-1">
+                  💡 Tip: Click or drag the marker on the map to refine the location. Use Detect for automatic location.
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
       )}
     </AnimatePresence>
   );
+
+  if (!mounted) return null;
+
+  return createPortal(modalContent, document.body);
 }

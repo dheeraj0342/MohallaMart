@@ -18,6 +18,27 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
+// Helper function to validate Supabase configuration
+export const validateSupabaseConfig = (): 
+  | { valid: true }
+  | { valid: false; error: string } => {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return {
+      valid: false,
+      error: "Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    };
+  }
+
+  if (!supabaseUrl.startsWith("http://") && !supabaseUrl.startsWith("https://")) {
+    return {
+      valid: false,
+      error: "Invalid Supabase URL format. URL must start with http:// or https://",
+    };
+  }
+
+  return { valid: true };
+};
+
 // Get the site URL based on environment
 export const getSiteUrl = () => {
   // Check if we're on Vercel

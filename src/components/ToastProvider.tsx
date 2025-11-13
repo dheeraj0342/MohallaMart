@@ -1,22 +1,16 @@
 "use client";
 
 import { ReactNode } from "react";
-import { useToast } from "@/hooks/useToast";
-import { ToastContainer } from "@/components/ui/Toast";
 
 interface ToastProviderProps {
   children: ReactNode;
 }
 
+/**
+ * ToastProvider is now deprecated - Sonner Toaster is used directly in layout.tsx
+ * This component is kept for backward compatibility but does nothing
+ */
 export default function ToastProvider({ children }: ToastProviderProps) {
-  const toasts = useToast((state) => state.toasts);
-  const removeToast = useToast((state) => state.removeToast);
-
-  return (
-    <>
-      {children}
-      <ToastContainer toasts={toasts} onClose={removeToast} />
-    </>
-  );
+  return <>{children}</>;
 }
 

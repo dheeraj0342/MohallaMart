@@ -1,241 +1,201 @@
 "use client";
 
+import { useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 import { Id } from "@/../convex/_generated/dataModel";
-import Link from "next/link";
-import { 
-  Package, 
-  ShoppingCart, 
-  TrendingUp, 
-  BarChart3,
-  User,
-  FileText
-} from "lucide-react";
+import { Loader2, Package, ShoppingCart, TrendingUp, BarChart3, FileText, Mail, ArrowRight } from "lucide-react";
 
-export default function DashboardContent() {
+import StatCard from "./components/StatCard";
+import ActionCard from "./components/ActionCard";
+import ShopCard from "./components/ShopCard";
+import TipsCard from "./components/TipsCard";
+
+export default function DashboardPage() {
+  const router = useRouter();
   const { user } = useAuth();
-  const dbUser = useQuery(
-    api.users.getUser,
-    user ? { id: user.id } : "skip",
-  ) as { _id?: Id<"users">; role?: string; is_active?: boolean; name?: string; email?: string } | null | undefined;
+
+  const dbUser = useQuery(api.users.getUser, user ? { id: user.id } : "skip") as
+    | { _id?: Id<"users">; role?: string; is_active?: boolean; name?: string; email?: string }
+    | null
+    | undefined;
 
   const shops = useQuery(
     api.shops.getShopsByOwner,
-    dbUser?._id ? { owner_id: dbUser._id, is_active: true } : "skip",
-  ) as Array<{
-    _id: string;
-    name: string;
-    address: { city?: string; state?: string };
-    rating?: number;
-  }> | null | undefined;
+    dbUser?._id ? { owner_id: dbUser._id, is_active: true } : "skip"
+  ) as
+    | Array<{
+        _id: string;
+        name: string;
+        address: { city?: string; state?: string };
+        rating?: number;
+      }>
+      
+    | null
+    | undefined;
 
-  // Guard handles loading and auth checks, so we can safely assume user and dbUser exist here
+  useEffect(() => {
+    if (user === null) return;
+    if (!user) {
+      router.replace("/shopkeeper/login");
+      return;
+    }
+    if (dbUser === undefined) return;
+    if (dbUser && dbUser.role === "shop_owner" && dbUser.is_active) {
+      // stay
+    } else if (dbUser && dbUser.role === "shop_owner") {
+      router.replace("/shopkeeper/registration");
+    } else {
+      router.replace("/shopkeeper/apply");
+    }
+  }, [user, dbUser, router]);
+
   if (!user || !dbUser) {
-    return null;
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="animate-spin h-6 w-6 text-green-600" />
+      </div>
+    );
   }
 
   const shop = Array.isArray(shops) && shops.length > 0 ? shops[0] : null;
 
   return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="text-3xl font-bold text-[#1f2a33] dark:text-[#f3f6fb] mb-2">
-          Welcome back, {dbUser.name || "Shopkeeper"}! 👋
-        </h1>
-        <p className="text-[#667085] dark:text-[#9aa6b2]">
-          Here&apos;s what&apos;s happening with your shop today.
-        </p>
-      </header>
-
-      <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          icon={<Package className="h-6 w-6" />}
-          label="Active Products"
-          value="0"
-          trend="+12% this month"
-          color="blue"
-        />
-        <StatCard
-          icon={<ShoppingCart className="h-6 w-6" />}
-          label="Orders Today"
-          value="0"
-          trend="0 pending"
-          color="green"
-        />
-        <StatCard
-          icon={<TrendingUp className="h-6 w-6" />}
-          label="Revenue"
-          value="₹0"
-          trend="No sales yet"
-          color="purple"
-        />
-        <StatCard
-          icon={<BarChart3 className="h-6 w-6" />}
-          label="Rating"
-          value={shop?.rating ? `${shop.rating.toFixed(1)}/5` : "N/A"}
-          trend="No reviews yet"
-          color="amber"
-        />
-      </section>
-
-      <section>
-        {shop ? (
-          <div className="bg-white/95 dark:bg-[#11181d] rounded-3xl shadow-xl border border-[#e5efe8] dark:border-[#1f2a33] p-6 backdrop-blur-sm">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-[#1f2a33] dark:text-[#f3f6fb] mb-2">
-                  {shop.name}
-                </h2>
-                <p className="text-[#667085] dark:text-[#9aa6b2]">
-                  📍 {shop.address?.city || "Unknown"}, {shop.address?.state || "Unknown"}
-                </p>
-                {shop.rating && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <span className="text-2xl">⭐</span>
-                    <span className="font-semibold">{shop.rating.toFixed(1)}</span>
-                    <span className="text-sm text-neutral-500">/ 5.0</span>
-                  </div>
-                )}
-              </div>
-              <Link href="/shopkeeper/profile">
-                <button className="inline-flex items-center gap-2 rounded-xl bg-primary-brand px-6 py-3 font-semibold text-white shadow-lg shadow-primary-brand/20 transition-colors hover:bg-primary-hover">
-                  <User className="h-5 w-5" />
-                  Manage Profile
-                </button>
-              </Link>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Bento Grid Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 auto-rows-fr">
+        {/* Hero Card - Spans 2 columns on md+, full width on mobile */}
+        <div className="md:col-span-2 lg:col-span-3 rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-green-600 via-green-500 to-green-400 text-white shadow-xl dark:shadow-green-900/20">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 h-full">
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+                Welcome back, {dbUser.name || "Shopkeeper"} 👋
+              </h1>
+              <p className="text-sm sm:text-base opacity-90">
+                Here&apos;s a quick snapshot of your store performance
+              </p>
             </div>
-          </div>
-        ) : (
-          <div className="rounded-2xl border-2 border-amber-200 bg-amber-50 p-8 text-center">
-            <div className="mb-4 text-5xl">🏪</div>
-            <h2 className="mb-2 text-xl font-bold text-amber-900">
-              No Shop Found
-            </h2>
-            <p className="mb-4 text-amber-700">
-              You need to complete your shop registration to start receiving orders.
-            </p>
-            <Link href="/shopkeeper/registration">
-              <button className="rounded-xl bg-amber-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-amber-700">
-                Complete Registration
-              </button>
+            <Link
+              href="/shopkeeper/profile"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl font-medium transition-colors whitespace-nowrap"
+            >
+              Manage account
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-        )}
-      </section>
+        </div>
 
-      <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <ActionCard
-          icon={<Package className="h-8 w-8" />}
-          title="Manage Products"
-          description="Add, edit, or remove products from your shop"
-          href="/shopkeeper/profile"
-          color="blue"
-        />
-        <ActionCard
-          icon={<ShoppingCart className="h-8 w-8" />}
-          title="View Orders"
-          description="Track and manage customer orders"
-          href="/shopkeeper/profile"
-          color="green"
-        />
-        <ActionCard
-          icon={<FileText className="h-8 w-8" />}
-          title="Registration"
-          description="Complete your business registration"
-          href="/shopkeeper/registration"
-          color="purple"
-        />
-      </section>
+        {/* Quick Stats Card - Compact */}
+        <div className="rounded-3xl p-6 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border border-blue-200/50 dark:border-blue-800/50 shadow-sm">
+          <div className="flex flex-col h-full justify-between">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-blue-500/10 dark:bg-blue-400/10">
+                <BarChart3 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-xs text-blue-600/70 dark:text-blue-400/70 font-medium">Quick Stats</p>
+                <p className="text-lg font-bold text-blue-900 dark:text-blue-100">4 Metrics</p>
+              </div>
+            </div>
+            <p className="text-xs text-blue-600/60 dark:text-blue-400/60">View all below</p>
+          </div>
+        </div>
 
-      <section className="rounded-3xl bg-linear-to-r from-primary-brand via-[#1f8f4e] to-secondary-brand p-6 text-white shadow-xl">
-        <h3 className="text-xl font-bold mb-2">💡 Pro Tips</h3>
-        <ul className="space-y-2 text-sm">
-          <li>✓ Keep your product information updated for better visibility</li>
-          <li>✓ Respond to customer inquiries within 24 hours</li>
-          <li>✓ Maintain high ratings to get featured in search results</li>
-          <li>✓ Offer competitive pricing to attract more customers</li>
-        </ul>
-      </section>
+        {/* Stat Cards - 4 cards in grid */}
+        <StatCard
+          icon={<Package className="h-5 w-5 sm:h-6 sm:w-6" />}
+          label="Active Products"
+          value="0"
+          meta="+12% this month"
+          accent="green"
+        />
+        <StatCard
+          icon={<ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />}
+          label="Orders Today"
+          value="0"
+          meta="0 pending"
+          accent="blue"
+        />
+        <StatCard
+          icon={<TrendingUp className="h-5 w-5 sm:h-6 sm:w-6" />}
+          label="Revenue"
+          value="₹0"
+          meta="No sales yet"
+          accent="purple"
+        />
+        <StatCard
+          icon={<BarChart3 className="h-5 w-5 sm:h-6 sm:w-6" />}
+          label="Rating"
+          value={shop?.rating ? `${shop.rating.toFixed(1)}/5` : "N/A"}
+          meta="No reviews yet"
+          accent="amber"
+        />
+
+        {/* Shop Card - Spans 2 columns on lg+ */}
+        <div className="md:col-span-2 lg:col-span-2">
+          <ShopCard shop={shop} />
+        </div>
+
+        {/* Tips Card - Spans 1 column, taller */}
+        <div className="md:col-span-1 lg:col-span-1 md:row-span-2">
+          <TipsCard />
+        </div>
+
+        {/* Support Card - Compact */}
+        <div className="rounded-3xl p-5 sm:p-6 border bg-gradient-to-br from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-800 dark:border-neutral-800 shadow-sm">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="p-2 rounded-xl bg-green-100 dark:bg-green-900/30">
+              <Mail className="h-4 w-4 text-green-600 dark:text-green-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className="font-semibold text-sm sm:text-base mb-1 text-neutral-900 dark:text-neutral-100">
+                Support
+              </h4>
+              <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                Need help? Reach out to{" "}
+                <a
+                  href="mailto:support@mohallamart.com"
+                  className="text-green-600 dark:text-green-400 hover:underline font-medium"
+                >
+                  support@mohallamart.com
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Cards - 3 cards in a row */}
+        <div className="md:col-span-1">
+          <ActionCard
+            icon={<FileText className="h-6 w-6 sm:h-7 sm:w-7" />}
+            title="Registration"
+            description="Business compliance"
+            href="/shopkeeper/registration"
+            color="green"
+          />
+        </div>
+        <div className="md:col-span-1">
+          <ActionCard
+            icon={<ShoppingCart className="h-6 w-6 sm:h-7 sm:w-7" />}
+            title="View Orders"
+            description="Track purchases"
+            href="/shopkeeper/profile"
+            color="blue"
+          />
+        </div>
+        <div className="md:col-span-1">
+          <ActionCard
+            icon={<Package className="h-6 w-6 sm:h-7 sm:w-7" />}
+            title="Manage Products"
+            description="Add/Edit items"
+            href="/shopkeeper/profile"
+            color="purple"
+          />
+        </div>
+      </div>
     </div>
   );
 }
-
-function StatCard({
-  icon,
-  label,
-  value,
-  trend,
-  color,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  trend: string;
-  color: "blue" | "green" | "purple" | "amber";
-}) {
-  const colorClasses = {
-    blue: "bg-[#e6f4ec] text-primary-brand border-primary-brand/20",
-    green: "bg-[#fff5e6] text-[#c2410c] border-[#fed7aa]",
-    purple: "bg-[#e8f2ff] text-[#1d4ed8] border-[#bfdbfe]",
-    amber: "bg-[#fff7e6] text-[#b45309] border-[#fbbf24]/40",
-  };
-
-  return (
-    <div className="bg-white/95 dark:bg-[#11181d] rounded-3xl shadow-xl border border-[#e5efe8] dark:border-[#1f2a33] p-6 hover:shadow-2xl transition-shadow backdrop-blur-sm">
-      <div className="flex items-center justify-between mb-4">
-        <div className={`p-3 rounded-xl ${colorClasses[color]} shadow-inner`}> 
-          {icon}
-        </div>
-      </div>
-      <div className="text-sm font-medium text-[#667085] dark:text-[#9aa6b2] mb-1">
-        {label}
-      </div>
-      <div className="text-3xl font-bold text-[#1f2a33] dark:text-[#f3f6fb] mb-1">
-        {value}
-      </div>
-      <div className="text-xs text-[#98a2b3] dark:text-[#7f8ea3]">
-        {trend}
-      </div>
-    </div>
-  );
-}
-
-function ActionCard({
-  icon,
-  title,
-  description,
-  href,
-  color,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  href: string;
-  color: "blue" | "green" | "purple" | "amber";
-}) {
-  const colorClasses = {
-    blue: "bg-[#e6f4ec] text-primary-brand",
-    green: "bg-[#fff5e6] text-[#c2410c]",
-    purple: "bg-[#e8f2ff] text-[#1d4ed8]",
-    amber: "bg-[#fff7e6] text-[#b45309]",
-  };
-
-  return (
-    <Link href={href}>
-      <div className="bg-white/95 dark:bg-[#11181d] rounded-3xl shadow-xl border border-[#e5efe8] dark:border-[#1f2a33] p-6 hover:shadow-2xl hover:border-primary-brand/60 transition-all cursor-pointer group backdrop-blur-sm">
-        <div className={`p-4 rounded-xl ${colorClasses[color]} w-fit mb-4 group-hover:scale-110 transition-transform shadow-inner`}>
-          {icon}
-        </div>
-        <h3 className="text-lg font-bold text-[#1f2a33] dark:text-[#f3f6fb] mb-2 group-hover:text-primary-brand transition-colors">
-          {title}
-        </h3>
-        <p className="text-sm text-[#667085] dark:text-[#9aa6b2]">
-          {description}
-        </p>
-      </div>
-    </Link>
-  );
-}
-

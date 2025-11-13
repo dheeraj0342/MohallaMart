@@ -1,16 +1,22 @@
 import { api } from "@/../convex/_generated/api";
 import { fetchQuery } from "convex/nextjs";
 import Link from "next/link";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { 
+  ShieldCheck, 
+  Users, 
+  UserCheck, 
+  UserX, 
+  ClipboardList, 
+  LogOut,
+  AlertCircle
+} from "lucide-react";
+import ShopkeeperToggleDialog from "./_components/ShopkeeperToggleDialog";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-const panelStyles =
-  "rounded-3xl border border-[#dce8e1] bg-white/95 p-6 shadow-xl shadow-primary-brand/5 backdrop-blur-sm";
-const listItemStyles =
-  "flex items-center justify-between rounded-2xl border border-transparent bg-white/85 px-3 py-4 transition-all hover:-translate-y-[1px] hover:border-primary-brand/40 hover:bg-[#eef7f1]";
-const emptyStateStyles =
-  "rounded-2xl bg-[#f5faf7] px-4 py-6 text-center text-sm text-neutral-500";
 
 export default async function AdminDashboardPage() {
   const pendingApplications = (await fetchQuery(
@@ -27,52 +33,81 @@ export default async function AdminDashboardPage() {
     is_active: true,
   }).catch(() => []);
 
-  return (
-    <div className="space-y-10">
-      <section
-        className={`${panelStyles} flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}
-      >
-        <div>
-          <p className="text-sm font-medium uppercase tracking-wide text-primary-brand/80">
-            MohallaMart Admin
-          </p>
-          <h1 className="text-3xl font-bold text-[#1f2a33]">
-            Marketplace Overview
-          </h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            Review new applications, activate trusted partners, and keep the marketplace curated.
-          </p>
-        </div>
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-brand/10 text-primary-brand">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="30"
-            height="30"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="shrink-0"
-          >
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-          </svg>
-        </div>
-      </section>
+  const totalPending = pendingApplications.length > 0 ? pendingApplications.length : pendingShopkeepers.length;
+  const totalActive = activeShopkeepers.length;
 
-      <section className="grid gap-6 md:grid-cols-2">
-        <div className={panelStyles}>
-          <h2 className="text-lg font-semibold text-[#1f2a33]">
-            Pending Shopkeepers
-          </h2>
-          <p className="mt-1 text-sm text-neutral-500">
-            Approve trusted sellers or continue reviewing their submissions.
-          </p>
-          <div className="mt-4">
+  return (
+    <div className="space-y-6">
+      {/* Header Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-3xl font-bold">Admin Dashboard</CardTitle>
+              <CardDescription className="mt-2 text-base">
+                Review applications, manage shopkeepers, and oversee the marketplace.
+              </CardDescription>
+            </div>
+            <div className="hidden sm:flex h-16 w-16 items-center justify-center rounded-xl bg-primary-brand/10 dark:bg-primary-brand/20 text-primary-brand">
+              <ShieldCheck className="h-8 w-8" />
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
+      {/* Statistics Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Applications</CardTitle>
+            <AlertCircle className="h-4 w-4 text-amber-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalPending}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Awaiting review and approval
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Shopkeepers</CardTitle>
+            <UserCheck className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalActive}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Currently active on platform
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Shopkeepers</CardTitle>
+            <Users className="h-4 w-4 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalPending + totalActive}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              All shopkeepers combined
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Shopkeeper Lists */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <UserX className="h-5 w-5 text-amber-500" />
+              <CardTitle>Pending Shopkeepers</CardTitle>
+            </div>
+            <CardDescription>
+              Approve trusted sellers or continue reviewing their submissions.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             {pendingApplications.length > 0 ? (
               <PendingApplicationsList apps={pendingApplications} />
             ) : (
@@ -82,110 +117,76 @@ export default async function AdminDashboardPage() {
                 makeActive={true}
               />
             )}
-          </div>
-        </div>
-        <div className={panelStyles}>
-          <h2 className="text-lg font-semibold text-[#1f2a33]">
-            Active Shopkeepers
-          </h2>
-          <p className="mt-1 text-sm text-neutral-500">
-            Monitor performance and disable storefronts that need attention.
-          </p>
-          <div className="mt-4">
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <UserCheck className="h-5 w-5 text-green-500" />
+              <CardTitle>Active Shopkeepers</CardTitle>
+            </div>
+            <CardDescription>
+              Monitor performance and disable storefronts that need attention.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <ShopkeeperList
               shopkeepers={activeShopkeepers}
               actionLabel="Disable"
               makeActive={false}
             />
-          </div>
-        </div>
-      </section>
+          </CardContent>
+        </Card>
+      </div>
 
-      <section className={panelStyles}>
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold text-[#1f2a33]">Quick Actions</h2>
-            <p className="text-sm text-neutral-500">
-              Jump straight to the workflows you use most.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-secondary-brand/10 p-3 text-secondary-brand">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="26"
-              height="26"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M3 5h12" />
-              <path d="M9 3v2" />
-              <path d="M7 9h8" />
-              <path d="M5 13h10" />
-              <path d="M11 17h6" />
-              <path d="M15 21h6" />
-            </svg>
-          </div>
-        </div>
-        <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Link
-            href="/admin/registrations"
-            className="group flex items-center gap-4 rounded-2xl border border-[#dce8e1] bg-[#f7faf9] p-4 transition-all hover:-translate-y-1 hover:border-primary-brand/40 hover:shadow-lg"
-          >
-            <div className="rounded-2xl bg-primary-brand/10 p-3 text-primary-brand transition-colors group-hover:bg-primary-brand/15">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
-                <path d="M13 5v2" />
-                <path d="M13 17v2" />
-                <path d="M13 11v2" />
-              </svg>
-            </div>
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-[#1f2a33]">View Registrations</h3>
-              <p className="text-sm text-neutral-500">
-                Review and triage shopkeeper applications.
-              </p>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>
+                Jump straight to the workflows you use most.
+              </CardDescription>
             </div>
-          </Link>
-        </div>
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#f7faf9] px-4 py-3 text-sm text-neutral-600">
-          <span>Need to switch users or revoke access?</span>
-          <Link
-            className="inline-flex items-center gap-2 font-semibold text-secondary-brand transition-colors hover:text-secondary-brand/80"
-            href="/admin/login"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-            Manage session
-          </Link>
-        </div>
-      </section>
+            <div className="hidden sm:flex rounded-xl bg-secondary-brand/10 dark:bg-secondary-brand/20 p-3 text-secondary-brand">
+              <ClipboardList className="h-6 w-6" />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Link href="/admin/registrations">
+              <Card className="hover:shadow-md transition-shadow cursor-pointer h-full border-2 hover:border-primary-brand/50">
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-xl bg-primary-brand/10 dark:bg-primary-brand/20 p-3 text-primary-brand">
+                      <ClipboardList className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">View Registrations</CardTitle>
+                      <CardDescription className="text-sm">
+                        Review and triage applications
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+            </Link>
+          </div>
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-muted/50 px-4 py-3">
+            <span className="text-sm text-muted-foreground">
+              Need to switch users or revoke access?
+            </span>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/admin/login" className="gap-2">
+                <LogOut className="h-4 w-4" />
+                Manage session
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -199,20 +200,34 @@ function ShopkeeperList({
   actionLabel: string;
   makeActive: boolean;
 }) {
+  if (shopkeepers.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <div className="rounded-full bg-muted p-3 mb-3">
+          <Users className="h-6 w-6 text-muted-foreground" />
+        </div>
+        <p className="text-sm font-medium text-muted-foreground">No records found</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {makeActive ? "No pending shopkeepers" : "No active shopkeepers"}
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <ul className="space-y-3">
-      {shopkeepers.length === 0 && (
-        <li className={emptyStateStyles}>No records found</li>
-      )}
+    <div className="space-y-3">
       {shopkeepers.map((u) => (
-        <li key={u.id} className={listItemStyles}>
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-brand/10 text-base font-semibold text-primary-brand">
+        <div
+          key={u.id}
+          className="flex items-center justify-between gap-4 rounded-xl border bg-card p-4 transition-all hover:shadow-md hover:border-primary-brand/50"
+        >
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-brand/10 dark:bg-primary-brand/20 text-sm font-semibold text-primary-brand">
               {u.name.charAt(0).toUpperCase()}
             </div>
-            <div>
-              <div className="font-medium text-[#1f2a33]">{u.name}</div>
-              <div className="text-sm text-neutral-500">{u.email}</div>
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-foreground truncate">{u.name}</div>
+              <div className="text-sm text-muted-foreground truncate">{u.email}</div>
             </div>
           </div>
           <ShopkeeperToggle
@@ -220,9 +235,9 @@ function ShopkeeperList({
             makeActive={makeActive}
             label={actionLabel}
           />
-        </li>
+        </div>
       ))}
-    </ul>
+    </div>
   );
 }
 
@@ -234,22 +249,38 @@ function PendingApplicationsList({
     applicant: { id: string; name: string; email: string };
   }>;
 }) {
+  if (apps.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <div className="rounded-full bg-muted p-3 mb-3">
+          <AlertCircle className="h-6 w-6 text-muted-foreground" />
+        </div>
+        <p className="text-sm font-medium text-muted-foreground">No applications found</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          No pending applications to review
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <ul className="space-y-3">
-      {apps.length === 0 && <li className={emptyStateStyles}>No records found</li>}
+    <div className="space-y-3">
       {apps.map((a) => (
-        <li key={a.applicationId} className={listItemStyles}>
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary-brand/10 text-base font-semibold text-secondary-brand">
+        <div
+          key={a.applicationId}
+          className="flex items-center justify-between gap-4 rounded-xl border bg-card p-4 transition-all hover:shadow-md hover:border-primary-brand/50"
+        >
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30 text-sm font-semibold text-amber-700 dark:text-amber-400">
               {a.applicant.name.charAt(0).toUpperCase()}
             </div>
-            <div>
-              <div className="font-medium text-[#1f2a33]">{a.applicant.name}</div>
-              <div className="text-sm text-neutral-500">{a.applicant.email}</div>
-              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-foreground truncate">{a.applicant.name}</div>
+              <div className="text-sm text-muted-foreground truncate">{a.applicant.email}</div>
+              <Badge variant="warning" className="mt-1.5">
+                <AlertCircle className="h-3 w-3 mr-1" />
                 Pending approval
-              </span>
+              </Badge>
             </div>
           </div>
           <ShopkeeperToggle
@@ -257,28 +288,10 @@ function PendingApplicationsList({
             makeActive={true}
             label="Approve"
           />
-        </li>
+        </div>
       ))}
-    </ul>
+    </div>
   );
-}
-
-async function toggleShopkeeper(id: string, makeActive: boolean) {
-  "use server";
-  const { fetchMutation } = await import("convex/nextjs");
-  const { api } = await import("@/../convex/_generated/api");
-  await fetchMutation(api.users.setUserActiveStatus, {
-    id,
-    is_active: makeActive,
-  });
-  if (makeActive) {
-    const { sendEvent } = await import("@/lib/inngest");
-    await sendEvent("shopkeeper/approved", {
-      userId: id,
-      approvedBy: "admin",
-      approvedAt: new Date().toISOString(),
-    });
-  }
 }
 
 function ShopkeeperToggle({
@@ -290,19 +303,5 @@ function ShopkeeperToggle({
   label: string;
   makeActive: boolean;
 }) {
-  const action = toggleShopkeeper.bind(null, id, makeActive);
-  return (
-    <form action={action}>
-      <button
-        type="submit"
-        className={`rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all ${
-          makeActive
-            ? "bg-primary-brand shadow-lg shadow-primary-brand/20 hover:bg-primary-hover"
-            : "bg-secondary-brand shadow-lg shadow-secondary-brand/25 hover:bg-secondary-brand/90"
-        }`}
-      >
-        {label}
-      </button>
-    </form>
-  );
+  return <ShopkeeperToggleDialog id={id} label={label} makeActive={makeActive} />;
 }

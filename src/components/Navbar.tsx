@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/useToast";
 import LocationModal from "./LocationModal";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -32,6 +33,8 @@ export default function Navbar() {
 
   const { location, getTotalItems, user, setSearchOpen } = useStore();
   const { logout } = useAuth();
+  const { success, info } = useToast();
+  const [prevLocation, setPrevLocation] = useState(location);
 
   // Sync search state with store
   useEffect(() => {
@@ -64,6 +67,21 @@ export default function Navbar() {
     return unsubscribe;
   }, []);
 
+  // Watch for location changes and show toast
+  useEffect(() => {
+    if (mounted && location) {
+      const locationChanged = 
+        !prevLocation || 
+        prevLocation.area !== location.area || 
+        prevLocation.city !== location.city;
+      
+      if (locationChanged && prevLocation) {
+        success(`Delivery location updated to ${location.area}, ${location.city}`);
+      }
+      setPrevLocation(location);
+    }
+  }, [location, prevLocation, mounted, success]);
+
   const toggleTheme = () => {
     try {
       const next = !isDark;
@@ -71,9 +89,11 @@ export default function Navbar() {
       if (next) {
         document.documentElement.classList.add("dark");
         localStorage.setItem("theme", "dark");
+        info("Dark mode enabled");
       } else {
         document.documentElement.classList.remove("dark");
         localStorage.setItem("theme", "light");
+        info("Light mode enabled");
       }
     } catch {
       // noop
@@ -142,13 +162,24 @@ export default function Navbar() {
                 <div className="hidden lg:block">
                   <button
                     onClick={() => setIsLocationModalOpen(true)}
-                    className="flex items-center bg-[#faffd2] hover:bg-[#f0e88c] dark:bg-[#3b2f22] dark:hover:bg-[#4a3c2b] px-3 py-2 rounded-lg border border-[#e0e0e0] dark:border-[#2d333b] transition-all hover:shadow-sm group"
+                    className="flex items-center bg-white dark:bg-[#24292e] hover:bg-gray-50 dark:hover:bg-[#2d333b] px-3 py-2 rounded-xl border-2 border-[#e0e0e0] dark:border-[#2d333b] hover:border-primary-brand dark:hover:border-primary-brand transition-all duration-200 hover:shadow-sm group"
                   >
-                    <MapPin className="h-4 w-4 mr-2 text-primary-brand transition-colors group-hover:scale-110 dark:text-secondary-brand" />
+                    <MapPin className="h-4 w-4 mr-2 text-primary-brand dark:text-primary-brand transition-colors group-hover:scale-110" />
                     <div className="text-left min-w-0">
                       <div className="text-xs text-[#85786a] dark:text-[#a2a6b2] leading-tight">Deliver to</div>
                       <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2] max-w-[140px] truncate leading-tight">
-                        {location ? location.area : "Select Location"}
+                        {location
+                          ? (
+                              <>
+                                <span>{location.area}</span>
+                                {location.pincode && (
+                                  <span className="ml-1 text-xs text-[#85786a] dark:text-[#a2a6b2] font-normal">
+                                    ({location.pincode})
+                                  </span>
+                                )}
+                              </>
+                            )
+                          : "Select Location"}
                       </div>
                     </div>
                   </button>
@@ -317,6 +348,7 @@ export default function Navbar() {
                           onClick={() => {
                             setIsAccountOpen(false);
                             logout();
+                            success("Logged out successfully");
                           }}
                           className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-[#3c1f18] rounded-b-lg transition-colors"
                         >
@@ -461,15 +493,25 @@ export default function Navbar() {
                       setIsLocationModalOpen(true);
                       setIsMenuOpen(false);
                     }}
-                    className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-lg transition-colors group"
+                    className="flex items-center w-full text-left p-3 bg-white dark:bg-[#24292e] hover:bg-gray-50 dark:hover:bg-[#2d333b] rounded-xl border-2 border-[#e0e0e0] dark:border-[#2d333b] hover:border-primary-brand dark:hover:border-primary-brand transition-all duration-200 group"
                   >
-                    <MapPin className="h-5 w-5 mr-3 text-primary-brand transition-colors group-hover:text-[#1f8f4e] dark:text-secondary-brand dark:group-hover:text-secondary-brand/80" />
-                    <div>
-                      <div className="text-xs text-[#85786a] dark:text-[#a2a6b2]">Deliver to</div>
-                      <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">
-                        {location ? location.area : "Select Location"}
+                    <MapPin className="h-5 w-5 mr-3 text-primary-brand dark:text-primary-brand transition-colors" />
+                      <div className="text-xs text-neutral-500 dark:text-neutral-400">Deliver to</div>
+                      <div className="text-sm font-medium text-primary-brand dark:text-primary-brand min-w-[80px] truncate">
+                        {location ? (
+                          <>
+                            <span>{location.area}</span>
+                            {location.pincode && (
+                              <span className="ml-1 text-xs text-neutral-500 dark:text-neutral-400 font-normal">
+                                ({location.pincode})
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          "Select Location"
+                        )}
                       </div>
-                    </div>
+
                   </button>
 
                   {/* Mobile Categories */}
@@ -596,6 +638,7 @@ export default function Navbar() {
                           onClick={() => {
                             logout();
                             setIsMenuOpen(false);
+                            success("Logged out successfully");
                           }}
                           className="flex items-center w-full text-left p-3 hover:bg-[#fff1eb] dark:hover:bg-[#3c1f18] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-red-600 border border-[#ffb199]"
                         >

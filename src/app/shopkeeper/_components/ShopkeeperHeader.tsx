@@ -5,11 +5,12 @@ import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
+import { Id } from "@/../convex/_generated/dataModel";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Bell,
   Search,
-  ShieldCheck,
+  Store,
   User,
   Settings,
   LogOut,
@@ -30,7 +31,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
 
-export default function AdminHeader() {
+export default function ShopkeeperHeader() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const { success } = useToast();
@@ -89,6 +90,20 @@ export default function AdminHeader() {
     | null
     | undefined;
 
+  const shops = useQuery(
+    api.shops.getShopsByOwner,
+    dbUser?._id ? { owner_id: dbUser._id as Id<"users">, is_active: true } : "skip"
+  ) as
+    | Array<{
+        _id: string;
+        name: string;
+        address?: { city?: string; state?: string };
+      }>
+    | null
+    | undefined;
+
+  const shop = Array.isArray(shops) && shops.length > 0 ? shops[0] : null;
+
   const handleLogout = async () => {
     await logout();
     success("Logged out successfully");
@@ -97,7 +112,7 @@ export default function AdminHeader() {
 
   // Type guard to check if user is from store (has name property)
   const storeUser = user && "name" in user ? user : null;
-  const displayName = dbUser?.name || storeUser?.name || "Admin";
+  const displayName = dbUser?.name || storeUser?.name || "Shopkeeper";
   const displayEmail = dbUser?.email || storeUser?.email || user?.email || "";
   const avatarUrl = dbUser?.avatar_url || storeUser?.avatar_url;
 
@@ -110,18 +125,23 @@ export default function AdminHeader() {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Admin Badge */}
-        <div className="hidden lg:flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-primary-brand/10 border border-primary-brand/20 min-w-0">
-          <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-brand flex-shrink-0" />
-          <div className="text-xs sm:text-sm min-w-0">
-            <p className="font-semibold text-primary-brand truncate">
-              Admin Panel
-            </p>
-            <p className="text-xs text-muted-foreground truncate">
-              Full Access
-            </p>
+        {/* Shop Info (if available) */}
+        {shop && (
+          <div className="hidden lg:flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-green-600/10 border border-green-600/20 min-w-0">
+            <Store className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+            <div className="text-xs sm:text-sm min-w-0">
+              <p className="font-semibold text-green-700 dark:text-green-300 truncate">
+                {shop.name}
+              </p>
+              {shop.address?.city && (
+                <p className="text-xs text-muted-foreground truncate">
+                  {shop.address.city}
+                  {shop.address.state && `, ${shop.address.state}`}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Search Button */}
         <Button
@@ -141,7 +161,7 @@ export default function AdminHeader() {
           aria-label="Notifications"
         >
           <Bell className="h-4 w-4" />
-          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary-brand" />
+          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-green-600" />
         </Button>
 
         {/* Theme Toggle */}
@@ -168,7 +188,7 @@ export default function AdminHeader() {
               variant="ghost"
               className="flex items-center gap-1.5 sm:gap-2 px-1.5 sm:px-2 h-8 sm:h-9"
             >
-              <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary-brand/10 flex items-center justify-center text-primary-brand overflow-hidden flex-shrink-0">
+              <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-green-600/10 flex items-center justify-center text-green-600 overflow-hidden flex-shrink-0">
                 {avatarUrl ? (
                   <Image
                     src={avatarUrl}
@@ -200,13 +220,13 @@ export default function AdminHeader() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/admin" className="cursor-pointer">
-                <ShieldCheck className="mr-2 h-4 w-4" />
-                <span>Dashboard</span>
+              <Link href="/shopkeeper/profile" className="cursor-pointer">
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/admin" className="cursor-pointer">
+              <Link href="/shopkeeper/profile" className="cursor-pointer">
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </Link>
@@ -221,7 +241,8 @@ export default function AdminHeader() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-    </div>
+      </div>
     </header>
   );
 }
+

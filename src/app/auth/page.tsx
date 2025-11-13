@@ -23,7 +23,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-gradient-to-b from-[var(--color-primary)] via-white to-[var(--color-secondary)] dark:from-[var(--color-primary)] dark:via-gray-950 dark:to-[var(--color-secondary)]">
       <AnimatePresence mode="wait">
         {isLogin ? (
           <LoginForm

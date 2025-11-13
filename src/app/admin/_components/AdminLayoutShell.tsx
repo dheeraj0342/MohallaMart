@@ -3,16 +3,17 @@
 import { usePathname } from "next/navigation";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import type { ReactNode } from "react";
-import ShopkeeperSidebar from "./ShopkeeperSidebar";
-import ShopkeeperHeader from "./ShopkeeperHeader";
+import AdminSidebar from "./AdminSidebar";
+import AdminHeader from "./AdminHeader";
 
 const SIDEBAR_PATHS = [
-  "/shopkeeper/dashboard",
-  "/shopkeeper/profile",
-  "/shopkeeper/registration",
+  "/admin",
+  "/admin/registrations",
+  "/admin/users",
+  "/admin/login",
 ];
 
-export default function ShopkeeperLayoutShell({ children }: { children: ReactNode }) {
+export default function AdminLayoutShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const showSidebar = SIDEBAR_PATHS.some((p) => pathname.startsWith(p));
 
@@ -20,10 +21,10 @@ export default function ShopkeeperLayoutShell({ children }: { children: ReactNod
 
   return (
     <SidebarProvider>
-      <ShopkeeperSidebar />
+      <AdminSidebar />
 
       <SidebarInset>
-        <ShopkeeperHeader />
+        <AdminHeader />
 
         <main className="p-3 sm:p-4 pt-4 sm:pt-6 flex flex-col gap-4 sm:gap-6 min-w-0">
           {children}
@@ -32,3 +33,4 @@ export default function ShopkeeperLayoutShell({ children }: { children: ReactNod
     </SidebarProvider>
   );
 }
+

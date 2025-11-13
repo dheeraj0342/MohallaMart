@@ -4,11 +4,18 @@ import {
   setAdminSession,
   clearAdminSession,
 } from "@/lib/adminAuth";
-
-const cardStyles =
-  "w-full max-w-md rounded-3xl border border-[#e5efe8] bg-white/90 px-8 py-10 shadow-xl backdrop-blur-sm";
-const inputStyles =
-  "w-full border-2 border-[#dce8e1] rounded-xl px-4 py-3 bg-[#f7faf9] text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand focus:bg-white transition-all duration-200";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ShieldCheck, CheckCircle2 } from "lucide-react";
 
 export default async function AdminLoginPage() {
   async function login(formData: FormData) {
@@ -32,109 +39,76 @@ export default async function AdminLoginPage() {
 
   if (await isAdminAuthenticated()) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center">
-        <form action={logout} className={`${cardStyles} space-y-6 text-center`}>
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-green-600"
-            >
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
+      <div className="flex min-h-[70vh] items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 mb-4">
+              <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
           </div>
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold text-neutral-900">
-              You&apos;re already signed in
-            </h2>
-            <p className="text-sm text-neutral-600">
+            <CardTitle className="text-xl">You&apos;re already signed in</CardTitle>
+            <CardDescription>
               Continue to the admin console or end your session below.
-            </p>
-          </div>
-          <button
-            className="w-full rounded-xl bg-secondary-brand px-4 py-3 text-white shadow-lg shadow-secondary-brand/30 transition-all hover:bg-secondary-brand/90"
-            type="submit"
-          >
+            </CardDescription>
+          </CardHeader>
+          <CardFooter className="flex-col gap-2">
+            <form action={logout} className="w-full">
+              <Button type="submit" variant="secondary" className="w-full">
             Logout
-          </button>
+              </Button>
         </form>
+            <Button variant="outline" className="w-full" asChild>
+              <a href="/admin">Go to Admin Dashboard</a>
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-[70vh] items-center justify-center">
-      <div className={`${cardStyles} space-y-8`}>
-        <div className="flex flex-col items-center gap-3 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-brand/10">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-primary-brand"
-            >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
+    <div className="flex min-h-[70vh] items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-primary-brand/10 dark:bg-primary-brand/20 mb-4">
+            <ShieldCheck className="h-8 w-8 text-primary-brand" />
           </div>
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold text-[#1f2a33]">Admin Console</h1>
-            <p className="text-sm text-neutral-600">
+          <CardTitle className="text-2xl">Admin Console</CardTitle>
+          <CardDescription>
               Sign in to review registrations and manage shopkeepers.
-            </p>
-          </div>
-        </div>
-        <form action={login} className="space-y-5">
-          <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-neutral-700">
-              Email
-            </label>
-            <input
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form id="admin-login-form" action={login}>
+            <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
               id="email"
               name="email"
               type="email"
-              className={inputStyles}
+                  placeholder="admin@example.com"
               required
-              suppressHydrationWarning
             />
           </div>
-          <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-neutral-700">
-              Password
-            </label>
-            <input
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
               id="password"
               name="password"
               type="password"
-              className={inputStyles}
+                  placeholder="Enter your password"
               required
-              suppressHydrationWarning
             />
           </div>
-          <button
-            className="w-full rounded-xl bg-primary-brand px-4 py-3 text-white shadow-lg shadow-primary-brand/30 transition-all hover:bg-primary-hover"
-            type="submit"
-          >
+            </div>
+          </form>
+        </CardContent>
+        <CardFooter className="flex-col gap-2">
+          <Button type="submit" form="admin-login-form" className="w-full">
             Login
-          </button>
-        </form>
-      </div>
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
