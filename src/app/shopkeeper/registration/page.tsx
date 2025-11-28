@@ -17,10 +17,8 @@ import {
   Loader2,
   CheckCircle2,
   Clock,
-  AlertCircle,
   XCircle,
   User,
-  Store,
   Truck,
 } from "lucide-react";
 
@@ -35,8 +33,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
 
 export default function ShopkeeperRegistrationPage() {
   const router = useRouter();

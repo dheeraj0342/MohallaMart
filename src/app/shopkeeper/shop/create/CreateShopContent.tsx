@@ -49,7 +49,7 @@ export default function CreateShopContent() {
   const [email, setEmail] = useState("");
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
-  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [isGeocoding] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<Id<"categories">[]>([]);
   const [shopImage, setShopImage] = useState<string>("");

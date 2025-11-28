@@ -590,7 +590,7 @@ export default function ProductsContent() {
                   <div>
                     <p className="text-sm font-medium text-foreground mb-1">Smart Tagging</p>
                     <p className="text-xs text-muted-foreground">
-                      Use relevant tags like "keto", "school tiffin", "winter care" to improve discoverability.
+                      Use relevant tags like &quot;keto&quot;, &quot;school tiffin&quot;, &quot;winter care&quot; to improve discoverability.
                     </p>
                   </div>
                 </div>

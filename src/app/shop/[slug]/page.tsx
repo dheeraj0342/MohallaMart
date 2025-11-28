@@ -15,8 +15,6 @@ import {
   Package,
   Clock,
   ShoppingCart,
-  Plus,
-  Minus,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +27,7 @@ export default function ShopPage() {
   const params = useParams();
   const slug = params.slug as string;
   const { addToCart } = useStore();
-  const { success, error } = useToast();
+  const { success } = useToast();
   const [selectedImage, setSelectedImage] = useState<{
     url: string;
     alt: string;

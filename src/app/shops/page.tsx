@@ -8,7 +8,7 @@ import { useStore } from "@/store/useStore";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Store, MapPin, Star, Package, Loader2, Navigation, Filter, ShoppingBag, Clock, Sparkles } from "lucide-react";
+import { Store, MapPin, Star, Package, Loader2, Navigation, ShoppingBag, Clock, Sparkles } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { generateSlug } from "@/lib/utils";
@@ -156,7 +156,7 @@ export default function ShopsPage() {
   const shops = useMemo(() => {
     if (!allShops) return [];
 
-    let filtered = [...allShops];
+    const filtered = [...allShops];
 
     // Sort by distance (if available) or rating
     if (userCoordinates) {
