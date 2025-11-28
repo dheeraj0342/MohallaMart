@@ -2,18 +2,28 @@
 
 import { useState, useEffect } from "react";
 import {
-  Menu,
-  X,
-  ShoppingCart,
-  User,
-  MapPin,
-  Search as SearchIcon,
+  Coffee,
   Clock,
-  Percent,
+  Grid2x2,
+  Home as HomeIcon,
+  Laptop,
+  Leaf,
   LogOut,
-  Sun,
+  MapPin,
+  Menu,
   Moon,
+  Percent,
+  Search as SearchIcon,
+  Shirt,
+  ShoppingCart,
+  Smartphone,
+  Sparkles,
+  Sun,
+  ToyBrick,
+  User,
+  X,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
@@ -109,11 +119,22 @@ export default function Navbar() {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const groceryCategories = [
-    { name: "Fruits & Vegetables", href: "#fruits" },
-    { name: "Dairy & Bakery", href: "#dairy" },
-    { name: "Snacks & Beverages", href: "#snacks" },
-    { name: "Personal Care", href: "#personal-care" },
+  type Category = {
+    name: string;
+    href: string;
+    icon: LucideIcon;
+  };
+
+  const groceryCategories: Category[] = [
+    { name: "All", href: "#all", icon: Grid2x2 },
+    { name: "Cafe", href: "#cafe", icon: Coffee },
+    { name: "Home", href: "#home", icon: HomeIcon },
+    { name: "Toys", href: "#toys", icon: ToyBrick },
+    { name: "Fresh", href: "#fresh", icon: Leaf },
+    { name: "Electronics", href: "#electronics", icon: Laptop },
+    { name: "Mobiles", href: "#mobiles", icon: Smartphone },
+    { name: "Beauty", href: "#beauty", icon: Sparkles },
+    { name: "Fashion", href: "#fashion", icon: Shirt },
   ];
 
   return (
@@ -456,16 +477,20 @@ export default function Navbar() {
           <div className="hidden lg:block border-t border-[#e0e0e0] dark:border-[#2d333b] mt-0.5">
             <div className="flex items-center justify-between py-2.5">
               <div className="flex gap-6">
-                {groceryCategories.map((category, index) => (
-                  <Link
-                    key={index}
-                    href={category.href}
-                    className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand dark:hover:text-primary-brand transition-colors relative group py-1"
-                  >
-                    {category.name}
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-brand transition-all duration-300 group-hover:w-full"></span>
-                  </Link>
-                ))}
+                {groceryCategories.map((category, index) => {
+                  const Icon = category.icon;
+                  return (
+                    <Link
+                      key={index}
+                      href={category.href}
+                      className="group relative flex items-center gap-2 py-1 text-sm font-medium text-[#212121] transition-colors hover:text-primary-brand dark:text-[#f9f6f2] dark:hover:text-primary-brand"
+                    >
+                      <Icon className="size-4 text-[#85786a] transition-colors group-hover:text-primary-brand dark:text-[#a2a6b2]" />
+                      <span>{category.name}</span>
+                      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 w-0 bg-primary-brand transition-all duration-300 group-hover:w-full" />
+                    </Link>
+                  );
+                })}
               </div>
               <div className="flex items-center gap-2">
                 <span className="bg-[#ffe066]/90 dark:bg-[#3b2f22] text-[#3b2f22] dark:text-[#ffe066] px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 border border-[#ffd700]/30">
@@ -519,16 +544,20 @@ export default function Navbar() {
                     <div className="text-xs font-semibold text-[#85786a] uppercase tracking-wide mb-2">
                       Categories
                     </div>
-                    {groceryCategories.map((category, index) => (
-                      <Link
-                        key={index}
-                        href={category.href}
-                        className="block px-3 py-2 text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand hover:bg-[#e6f4ec] dark:hover:bg-[#1f2f25] rounded-lg transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {category.name}
-                      </Link>
-                    ))}
+                    {groceryCategories.map((category, index) => {
+                      const Icon = category.icon;
+                      return (
+                        <Link
+                          key={index}
+                          href={category.href}
+                          className="flex items-center gap-2 rounded-lg px-3 py-2 text-[#212121] transition-colors hover:bg-[#e6f4ec] hover:text-primary-brand dark:text-[#f9f6f2] dark:hover:bg-[#1f2f25]"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Icon className="size-4 text-[#85786a] dark:text-[#a2a6b2]" />
+                          <span>{category.name}</span>
+                        </Link>
+                      );
+                    })}
                   </div>
 
                   {/* Mobile User Account */}

@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   ClipboardList,
   LogOut,
+  Package,
 } from "lucide-react";
 
 import {
@@ -28,6 +29,7 @@ const NAV = [
     items: [
       { href: "/shopkeeper/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { href: "/shopkeeper/profile", label: "Profile", icon: Store },
+      { href: "/shopkeeper/products", label: "Products", icon: Package },
     ],
   },
   {

@@ -191,7 +191,7 @@ export default function DashboardPage() {
             icon={<Package className="h-6 w-6 sm:h-7 sm:w-7" />}
             title="Manage Products"
             description="Add/Edit items"
-            href="/shopkeeper/profile"
+            href="/shopkeeper/products"
             color="purple"
           />
         </div>
