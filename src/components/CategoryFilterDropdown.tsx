@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 import type { Id } from "@/../convex/_generated/dataModel";
@@ -61,7 +61,7 @@ export default function CategoryFilterDropdown({
   }, [value, allCategories]);
 
   // Build category path for display
-  const getCategoryPath = (categoryId: Id<"categories">): string => {
+  const getCategoryPath = useCallback((categoryId: Id<"categories">): string => {
     if (!allCategories) return "";
     const category = allCategories.find((cat) => cat._id === categoryId);
     if (!category) return "";
@@ -84,7 +84,7 @@ export default function CategoryFilterDropdown({
       return category.name;
     }
     return category.name;
-  };
+  }, [allCategories]);
 
   // Build flat list of all categories with their paths
   const categoryOptions = useMemo(() => {
@@ -95,7 +95,7 @@ export default function CategoryFilterDropdown({
       path: getCategoryPath(cat._id),
       level: cat.level || 0,
     }));
-  }, [allCategories]);
+  }, [allCategories, getCategoryPath]);
 
   return (
     <div className="space-y-2">

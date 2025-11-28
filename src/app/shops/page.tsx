@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
@@ -35,7 +35,7 @@ function calculateDistanceKm(pointA: LatLng, pointB: LatLng): number {
   return R * c;
 }
 
-export default function ShopsPage() {
+function ShopsPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const categoryParam = searchParams.get("category");
@@ -393,6 +393,20 @@ export default function ShopsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ShopsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <ShopsPageContent />
+    </Suspense>
   );
 }
 

@@ -70,26 +70,27 @@ export default function NearbyStoresSection() {
 
   const isLoading = queryArgs !== "skip" && nearbyShops === undefined;
   const hasLocation = Boolean(location);
-  const shops = (nearbyShops ?? []) as Array<{
-    _id: string;
-    name: string;
-    description?: string;
-    logo_url?: string;
-    address?: {
-      street?: string;
-      city?: string;
-      state?: string;
-      pincode?: string;
-      coordinates?: { lat: number; lng: number };
-    };
-    rating?: number;
-    total_orders?: number;
-    is_active?: boolean;
-  }>;
   const userCoordinates = location?.coordinates ?? null;
 
   // Sort shops by distance (if available) or rating
   const sortedShops = useMemo(() => {
+    const shops = (nearbyShops ?? []) as Array<{
+      _id: string;
+      name: string;
+      description?: string;
+      logo_url?: string;
+      address?: {
+        street?: string;
+        city?: string;
+        state?: string;
+        pincode?: string;
+        coordinates?: { lat: number; lng: number };
+      };
+      rating?: number;
+      total_orders?: number;
+      is_active?: boolean;
+    }>;
+
     if (!userCoordinates) return shops;
     return [...shops].sort((a, b) => {
       const aCoords = a.address?.coordinates;
@@ -104,7 +105,7 @@ export default function NearbyStoresSection() {
       if (bCoords) return 1;
       return (b.rating || 0) - (a.rating || 0);
     });
-  }, [shops, userCoordinates]);
+  }, [nearbyShops, userCoordinates]);
 
   return (
     <section className="border-t border-border bg-muted/30 py-16">

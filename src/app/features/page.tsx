@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, XCircle, Clock, ShoppingCart, Store, ShieldCheck, Package, Users, FileText, Settings, CreditCard, Truck, Bell, Search, Image as ImageIcon, BarChart } from "lucide-react";
+import { CheckCircle2, Clock, ShoppingCart, Store, ShieldCheck } from "lucide-react";
 
 interface Feature {
   name: string;
