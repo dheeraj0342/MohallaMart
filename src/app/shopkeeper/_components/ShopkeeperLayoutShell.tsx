@@ -9,7 +9,9 @@ import ShopkeeperHeader from "./ShopkeeperHeader";
 const SIDEBAR_PATHS = [
   "/shopkeeper/dashboard",
   "/shopkeeper/profile",
+  "/shopkeeper/products",
   "/shopkeeper/registration",
+  "/shopkeeper/shop",
 ];
 
 export default function ShopkeeperLayoutShell({ children }: { children: ReactNode }) {

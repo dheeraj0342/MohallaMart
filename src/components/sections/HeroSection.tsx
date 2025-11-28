@@ -7,22 +7,27 @@ const bannerSlides = [
   {
     src: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?auto=format&fit=crop&w=1600&q=80",
     label: "Farm Fresh",
+    priority: true,
   },
   {
     src: "https://images.unsplash.com/photo-1505253216365-40c9d88c3c49?auto=format&fit=crop&w=1600&q=80",
     label: "10-min Express",
+    priority: true,
   },
   {
     src: "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=1600&q=80",
     label: "Everyday Essentials",
+    priority: true,
   },
   {
     src: "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=1600&q=80",
     label: "Dairy & Bakery",
+    priority: true,
   },
   {
-    src: "https://images.unsplash.com/photo-1488900128323-21503983a07e?auto=format&fit=crop&w=1600&q=80",
+    src: "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=1600&q=80",
     label: "Home & Essentials",
+    priority: true,
   },
 ];
 
@@ -55,7 +60,7 @@ export default function HeroSection() {
       </div>
 
       <div className="mt-0">
-        <div className="relative w-full h-56 overflow-hidden rounded-lg shadow-lg border border-white/40 dark:border-neutral-800">
+        <div className="relative w-full h-56 overflow-hidden">
           <motion.div
             animate={{ x: ["0%", "-100%"] }}
             transition={{ repeat: Infinity, duration: 15, ease: "linear" }}

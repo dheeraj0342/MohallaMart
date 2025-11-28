@@ -98,13 +98,14 @@ src/
 
 ### 📋 **Before Creating Any UI Component**
 
-1. **Check if Shadcn UI component exists** in `src/components/ui/` directory
-2. **If component exists**, use it immediately
-3. **If component doesn't exist**, install it using: `npx shadcn@latest add [component-name] --yes`
-4. **Never create custom UI components** that duplicate Shadcn UI functionality
-5. **Always prefer Shadcn UI components** over custom implementations
-6. **Always implement dark/light theme support** (except for admin pages) using CSS variables from `globals.css`
-7. **Never hardcode colors** - Use theme-aware classes or CSS variables
+1. **⚠️ CRITICAL: Read `src/app/globals.css` FIRST** - Understand available CSS variables, theme system, and color definitions before making any changes
+2. **Check if Shadcn UI component exists** in `src/components/ui/` directory
+3. **If component exists**, use it immediately
+4. **If component doesn't exist**, install it using: `npx shadcn@latest add [component-name] --yes`
+5. **Never create custom UI components** that duplicate Shadcn UI functionality
+6. **Always prefer Shadcn UI components** over custom implementations
+7. **Always implement dark/light theme support** (except for admin pages) using CSS variables from `globals.css`
+8. **Never hardcode colors** - Use theme-aware classes or CSS variables from `globals.css`
 
 ### 📦 **Common Shadcn UI Components Available**
 
@@ -238,6 +239,41 @@ console.log("User logged in"); // Don't use this
 ---
 
 ## 🎨 **Styling & Design System**
+
+### ⚠️ **CRITICAL: UI Change Workflow (MANDATORY)**
+
+**BEFORE making ANY UI changes, you MUST:**
+
+1. **ALWAYS read `src/app/globals.css` FIRST** - This file contains all theme variables, color definitions, and design system tokens
+2. **Understand the available CSS variables** - Check what variables are defined for:
+   - Colors (`--primary`, `--secondary`, `--background`, `--foreground`, `--card`, `--border`, etc.)
+   - Semantic colors (`--success-bg-light`, `--success-fg`, `--warning-bg-light`, `--warning-fg`, etc.)
+   - Theme-specific values (light mode vs dark mode)
+3. **Apply changes according to dark/light theme** - Ensure all UI changes work in both themes
+4. **Use CSS variables from `globals.css`** - Never hardcode colors or use arbitrary values
+5. **Test in both themes** - Verify the changes look correct in light and dark mode
+
+**Workflow Example:**
+```typescript
+// Step 1: Read globals.css to understand available variables
+// Step 2: Identify which CSS variables to use
+// Step 3: Apply theme-aware classes
+className="bg-background text-foreground border-border" // Uses CSS variables
+className="bg-[var(--success-bg-light)] text-[var(--success-fg)]" // Direct variable usage
+className="bg-white dark:bg-neutral-800" // Theme-aware with fallback
+```
+
+**❌ NEVER:**
+- Make UI changes without reading `globals.css` first
+- Hardcode colors like `bg-blue-500` or `text-black`
+- Use arbitrary values without checking theme compatibility
+- Skip dark mode implementation (except for admin pages)
+
+**✅ ALWAYS:**
+- Read `globals.css` before any UI modification
+- Use CSS variables from the design system
+- Implement both light and dark theme support
+- Reference the theme variables when making styling decisions
 
 ### Tailwind + CSS Variables
 
@@ -458,6 +494,7 @@ console.log("User logged in"); // Don't use this
 * Always wrap protected routes with guard components, never return `null` from guards during loading
 * **UI Components**: Always check `src/components/ui/` for Shadcn components before creating custom ones
 * **Installation**: If a needed Shadcn component doesn't exist, run `npx shadcn@latest add [component-name] --yes` immediately
+* **CRITICAL: Read globals.css FIRST** - Before making any UI changes, always read `src/app/globals.css` to understand available CSS variables and theme system
 * **Dark/Light Theme**: Always implement both themes using `dark:` variant and CSS variables from `globals.css`
 * **Color Usage**: Never hardcode colors - use `bg-background`, `text-foreground`, `border-border`, or theme-aware utilities like `bg-white dark:bg-neutral-800`
 * **Admin Exception**: Admin pages (`/admin/*`) are exempt from dark theme requirements

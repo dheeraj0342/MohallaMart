@@ -8,6 +8,8 @@ import {
   ClipboardList,
   LogOut,
   Package,
+  PlusCircle,
+  ShoppingBag,
 } from "lucide-react";
 
 import {
@@ -29,13 +31,15 @@ const NAV = [
     items: [
       { href: "/shopkeeper/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { href: "/shopkeeper/profile", label: "Profile", icon: Store },
-      { href: "/shopkeeper/products", label: "Products", icon: Package },
+      { href: "/shopkeeper/products", label: "Add Products", icon: Package },
+      { href: "/shopkeeper/shop/products", label: "Shop Products", icon: ShoppingBag },
     ],
   },
   {
     title: "Onboarding",
     items: [
       { href: "/shopkeeper/registration", label: "Registration", icon: ClipboardList },
+      { href: "/shopkeeper/shop/create", label: "Create Shop", icon: PlusCircle },
     ],
   },
 ];

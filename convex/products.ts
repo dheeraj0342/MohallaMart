@@ -317,3 +317,40 @@ export const getProductsByTags = query({
     return filteredProducts;
   },
 });
+
+// Delete product
+export const deleteProduct = mutation({
+  args: {
+    id: v.id("products"),
+  },
+  handler: async (ctx, args) => {
+    const product = await ctx.db.get(args.id);
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
+    await ctx.db.delete(args.id);
+    return args.id;
+  },
+});
+
+// Toggle product availability
+export const toggleProductAvailability = mutation({
+  args: {
+    id: v.id("products"),
+    is_available: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const product = await ctx.db.get(args.id);
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
+    await ctx.db.patch(args.id, {
+      is_available: args.is_available,
+      updated_at: Date.now(),
+    });
+
+    return args.id;
+  },
+});

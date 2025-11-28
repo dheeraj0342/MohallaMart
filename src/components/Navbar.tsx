@@ -115,6 +115,12 @@ export default function Navbar() {
     user ? { id: user.id } : "skip",
   ) as { role?: string; is_active?: boolean } | null | undefined;
 
+  // Fetch categories from database
+  const categories = useQuery(
+    api.categories.getAllCategories,
+    { is_active: true },
+  ) as { _id: string; name: string }[] | null | undefined;
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -123,18 +129,34 @@ export default function Navbar() {
     name: string;
     href: string;
     icon: LucideIcon;
+    id?: string;
   };
 
+  // Map category names to icons
+  const categoryIconMap: Record<string, LucideIcon> = {
+    All: Grid2x2,
+    Cafe: Coffee,
+    Home: HomeIcon,
+    Toys: ToyBrick,
+    "Fresh Grocery": Leaf,
+    Electronics: Laptop,
+    Mobiles: Smartphone,
+    Beauty: Sparkles,
+    Fashion: Shirt,
+  };
+
+  // Build categories list from database, with "All" first
+  // Filter out "All" from database categories since we add it manually
+  const dbCategories = (categories || []).filter((cat) => cat.name.toLowerCase() !== "all");
+
   const groceryCategories: Category[] = [
-    { name: "All", href: "#all", icon: Grid2x2 },
-    { name: "Cafe", href: "#cafe", icon: Coffee },
-    { name: "Home", href: "#home", icon: HomeIcon },
-    { name: "Toys", href: "#toys", icon: ToyBrick },
-    { name: "Fresh", href: "#fresh", icon: Leaf },
-    { name: "Electronics", href: "#electronics", icon: Laptop },
-    { name: "Mobiles", href: "#mobiles", icon: Smartphone },
-    { name: "Beauty", href: "#beauty", icon: Sparkles },
-    { name: "Fashion", href: "#fashion", icon: Shirt },
+    { name: "All", href: "/shops", icon: Grid2x2 },
+    ...dbCategories.map((cat) => ({
+      name: cat.name,
+      href: `/shops?category=${encodeURIComponent(cat.name)}`,
+      icon: categoryIconMap[cat.name] || Grid2x2,
+      id: cat._id,
+    })),
   ];
 
   return (
@@ -480,15 +502,15 @@ export default function Navbar() {
                 {groceryCategories.map((category, index) => {
                   const Icon = category.icon;
                   return (
-                    <Link
-                      key={index}
-                      href={category.href}
+                  <Link
+                    key={index}
+                    href={category.href}
                       className="group relative flex items-center gap-2 py-1 text-sm font-medium text-[#212121] transition-colors hover:text-primary-brand dark:text-[#f9f6f2] dark:hover:text-primary-brand"
-                    >
+                  >
                       <Icon className="size-4 text-[#85786a] transition-colors group-hover:text-primary-brand dark:text-[#a2a6b2]" />
                       <span>{category.name}</span>
                       <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 w-0 bg-primary-brand transition-all duration-300 group-hover:w-full" />
-                    </Link>
+                  </Link>
                   );
                 })}
               </div>
@@ -547,15 +569,15 @@ export default function Navbar() {
                     {groceryCategories.map((category, index) => {
                       const Icon = category.icon;
                       return (
-                        <Link
-                          key={index}
-                          href={category.href}
+                      <Link
+                        key={index}
+                        href={category.href}
                           className="flex items-center gap-2 rounded-lg px-3 py-2 text-[#212121] transition-colors hover:bg-[#e6f4ec] hover:text-primary-brand dark:text-[#f9f6f2] dark:hover:bg-[#1f2f25]"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
+                        onClick={() => setIsMenuOpen(false)}
+                      >
                           <Icon className="size-4 text-[#85786a] dark:text-[#a2a6b2]" />
                           <span>{category.name}</span>
-                        </Link>
+                      </Link>
                       );
                     })}
                   </div>

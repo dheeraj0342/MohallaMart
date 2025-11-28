@@ -5,10 +5,43 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/useToast";
+import {
+  Building2,
+  CreditCard,
+  FileText,
+  MapPin,
+  Package,
+  Save,
+  Send,
+  Loader2,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  XCircle,
+  User,
+  Store,
+  Truck,
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 
 export default function ShopkeeperRegistrationPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { success, error, info } = useToast();
   const registration = useQuery(
     api.registrations.getMyRegistration,
     user ? { userId: user.id } : "skip",
@@ -74,18 +107,27 @@ export default function ShopkeeperRegistrationPage() {
     }
   }, [registration]);
 
-  if (user === null || registration === undefined) return null;
+  if (user === null || registration === undefined) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="animate-spin h-6 w-6 text-primary" />
+      </div>
+    );
+  }
+
   if (!user) {
     return (
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-md mx-auto bg-white border border-neutral-100 rounded-2xl p-6 text-center">
-          <h1 className="text-xl font-semibold mb-2">
-            Shopkeeper Registration
-          </h1>
-          <p className="text-sm text-neutral-600">
-            Please sign in to continue your registration.
-          </p>
-        </div>
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle>Shopkeeper Registration</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground text-center">
+              Please sign in to continue your registration.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -98,25 +140,33 @@ export default function ShopkeeperRegistrationPage() {
           return {
             title: "Registration Submitted!",
             message: "Your application is under review. We will notify you via email once reviewed.",
-            color: "blue",
+            icon: Clock,
+            color: "text-blue-600",
+            bgColor: "bg-blue-100 dark:bg-blue-900/20",
           };
         case "reviewing":
           return {
             title: "Under Review",
             message: "Our team is currently reviewing your application. This typically takes 1-2 business days.",
-            color: "amber",
+            icon: Clock,
+            color: "text-amber-600",
+            bgColor: "bg-amber-100 dark:bg-amber-900/20",
           };
         case "approved":
           return {
             title: "Registration Approved! 🎉",
-            message: "Congratulations! Your shopkeeper account has been approved. You can now start adding products.",
-            color: "green",
+            message: "Congratulations! Your shopkeeper account has been approved. You can now create your shop and start adding products.",
+            icon: CheckCircle2,
+            color: "text-green-600",
+            bgColor: "bg-green-100 dark:bg-green-900/20",
           };
         case "rejected":
           return {
             title: "Registration Needs Attention",
             message: "Your application requires some corrections. Please contact support for more details.",
-            color: "red",
+            icon: XCircle,
+            color: "text-red-600",
+            bgColor: "bg-red-100 dark:bg-red-900/20",
           };
         default:
           return null;
@@ -125,66 +175,35 @@ export default function ShopkeeperRegistrationPage() {
 
     const statusInfo = getStatusMessage();
     if (statusInfo) {
+      const StatusIcon = statusInfo.icon;
       return (
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-2xl mx-auto bg-white border-2 border-neutral-100 rounded-2xl p-8 shadow-lg">
-            <div className="text-center space-y-4">
-              <div
-                className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${
-                  statusInfo.color === "blue"
-                    ? "bg-blue-100"
-                    : statusInfo.color === "amber"
-                      ? "bg-amber-100"
-                      : statusInfo.color === "green"
-                        ? "bg-green-100"
-                        : "bg-red-100"
-                }`}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className={
-                    statusInfo.color === "blue"
-                      ? "text-blue-600"
-                      : statusInfo.color === "amber"
-                        ? "text-amber-600"
-                        : statusInfo.color === "green"
-                          ? "text-green-600"
-                          : "text-red-600"
-                  }
-                >
-                  {statusInfo.color === "approved" ? (
-                    <>
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                      <polyline points="22 4 12 14.01 9 11.01" />
-                    </>
-                  ) : (
-                    <>
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="12" y1="16" x2="12" y2="12" />
-                      <line x1="12" y1="8" x2="12.01" y2="8" />
-                    </>
-                  )}
-                </svg>
-              </div>
-              <h1 className="text-2xl font-bold text-neutral-900">{statusInfo.title}</h1>
-              <p className="text-neutral-600">{statusInfo.message}</p>
-              <div className="pt-4">
-                <button
-                  onClick={() => router.push("/")}
-                  className="px-6 py-3 bg-primary-brand hover:bg-primary-hover text-white rounded-xl font-medium transition-colors"
-                >
-                  Back to Home
-                </button>
-              </div>
-            </div>
+        <div className="min-h-screen bg-linear-to-b from-muted/60 via-background to-background py-8 text-foreground transition-colors dark:from-muted/30 dark:via-background dark:to-background">
+          <div className="container mx-auto px-4 max-w-2xl">
+            <Card className="border border-border/80 shadow-lg">
+              <CardContent className="pt-6">
+                <div className="text-center space-y-6">
+                  <div
+                    className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${statusInfo.bgColor}`}
+                  >
+                    <StatusIcon className={`h-10 w-10 ${statusInfo.color}`} />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl font-bold text-foreground mb-2">{statusInfo.title}</h1>
+                    <p className="text-muted-foreground">{statusInfo.message}</p>
+                  </div>
+                  <div className="pt-4 flex gap-3 justify-center">
+                    {registration.status === "approved" && (
+                      <Button asChild>
+                        <a href="/shopkeeper/shop/create">Create Your Shop</a>
+                      </Button>
+                    )}
+                    <Button variant="outline" onClick={() => router.push("/")}>
+                      Back to Home
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       );
@@ -193,6 +212,25 @@ export default function ShopkeeperRegistrationPage() {
 
   const onSubmit = async (submit: boolean) => {
     if (!user) return;
+
+    // Basic validation
+    if (!pan.trim()) {
+      error("PAN is required");
+      return;
+    }
+    if (!bankAccountHolder.trim() || !bankAccountNumber.trim() || !bankIfsc.trim()) {
+      error("All bank details are required");
+      return;
+    }
+    if (!street.trim() || !city.trim() || !stateValue.trim() || !pincode.trim()) {
+      error("Complete business address is required");
+      return;
+    }
+    if (!idNumber.trim()) {
+      error("Identity document number is required");
+      return;
+    }
+
     setSubmitting(true);
     try {
       await save({
@@ -224,250 +262,403 @@ export default function ShopkeeperRegistrationPage() {
         submit,
       });
       if (submit) {
-        alert("Registration submitted. We will review and notify you.");
-        router.replace("/");
+        success("Registration submitted successfully! We will review and notify you.");
+        setTimeout(() => {
+          router.replace("/");
+        }, 2000);
       } else {
-        alert("Draft saved.");
+        info("Draft saved successfully");
       }
+    } catch (err) {
+      console.error(err);
+      error("Failed to save registration. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const inputStyles =
-    "w-full border-2 border-[#dce8e1] rounded-xl px-3 py-2 bg-[#f7faf9] text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand focus:bg-white transition-all duration-200";
-
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
-      <div className="mx-auto max-w-3xl bg-white/95 dark:bg-[#11181d] border border-[#e5efe8] dark:border-[#1f2a33] rounded-3xl p-6 sm:p-8 shadow-xl backdrop-blur-sm">
-        <h1 className="text-2xl font-bold mb-1 text-[#1f2a33] dark:text-[#f3f6fb]">
-          Shopkeeper Registration
-        </h1>
-        <p className="text-sm text-[#667085] dark:text-[#9aa6b2] mb-6">
-          Provide required details to complete onboarding. GSTIN optional for
-          books-only sellers.
-        </p>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="md:col-span-2">
-            <h2 className="text-sm font-semibold text-neutral-700 mb-3">
-              Tax & Identification
-            </h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm mb-2 text-neutral-700">
-                  PAN
-                </label>
-                <input
-                  value={pan}
-                  onChange={(e) => setPan(e.target.value)}
-                  className={inputStyles}
-                />
-              </div>
-              <div>
-                <label className="block text-sm mb-2 text-neutral-700">
-                  GSTIN (optional)
-                </label>
-                <input
-                  value={gstin}
-                  onChange={(e) => setGstin(e.target.value)}
-                  className={inputStyles}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="md:col-span-2">
-            <h2 className="text-sm font-semibold text-neutral-700 mb-3">
-              Bank Details
-            </h2>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm mb-2 text-neutral-700">
-                  Account Holder
-                </label>
-                <input
-                  value={bankAccountHolder}
-                  onChange={(e) => setBankAccountHolder(e.target.value)}
-                  className={inputStyles}
-                />
-              </div>
-              <div>
-                <label className="block text-sm mb-2 text-neutral-700">
-                  Account Number
-                </label>
-                <input
-                  value={bankAccountNumber}
-                  onChange={(e) => setBankAccountNumber(e.target.value)}
-                  className={inputStyles}
-                />
-              </div>
-              <div>
-                <label className="block text-sm mb-2 text-neutral-700">
-                  IFSC
-                </label>
-                <input
-                  value={bankIfsc}
-                  onChange={(e) => setBankIfsc(e.target.value)}
-                  className={inputStyles}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-sm font-semibold text-neutral-700 mb-3">
-              Business Address
-            </h2>
-            <div className="space-y-3">
-              <input
-                placeholder="Street"
-                value={street}
-                onChange={(e) => setStreet(e.target.value)}
-                className={inputStyles}
-              />
-              <div className="grid grid-cols-3 gap-3">
-                <input
-                  placeholder="City"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className={inputStyles}
-                />
-                <input
-                  placeholder="State"
-                  value={stateValue}
-                  onChange={(e) => setStateValue(e.target.value)}
-                  className={inputStyles}
-                />
-                <input
-                  placeholder="Pincode"
-                  value={pincode}
-                  onChange={(e) => setPincode(e.target.value)}
-                  className={inputStyles}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-sm font-semibold text-neutral-700 mb-3">
-              Identity Proof
-            </h2>
-            <div className="space-y-3">
-              <select
-                value={idType}
-                onChange={(e) => setIdType(e.target.value as typeof idType)}
-                className={inputStyles}
-              >
-                <option value="aadhaar">Aadhaar</option>
-                <option value="passport">Passport</option>
-                <option value="voter_id">Voter ID</option>
-                <option value="driver_license">Driver&apos;s License</option>
-              </select>
-              <input
-                placeholder="Document Number"
-                value={idNumber}
-                onChange={(e) => setIdNumber(e.target.value)}
-                className={inputStyles}
-              />
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-sm font-semibold text-neutral-700 mb-3">
-              Business Info
-            </h2>
-            <div className="space-y-3">
-              <select
-                value={bizType}
-                onChange={(e) => setBizType(e.target.value as typeof bizType)}
-                className={inputStyles}
-              >
-                <option value="individual">Individual</option>
-                <option value="proprietorship">Proprietorship</option>
-                <option value="partnership">Partnership</option>
-                <option value="company">Company</option>
-              </select>
-              <input
-                placeholder="Business/Shop Name (optional)"
-                value={bizName}
-                onChange={(e) => setBizName(e.target.value)}
-                className={inputStyles}
-              />
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-sm font-semibold text-neutral-700 mb-3">
-              Pickup Address
-            </h2>
-            <div className="space-y-3">
-              <input
-                placeholder="Street"
-                value={pickupStreet}
-                onChange={(e) => setPickupStreet(e.target.value)}
-                className={inputStyles}
-              />
-              <div className="grid grid-cols-3 gap-3">
-                <input
-                  placeholder="City"
-                  value={pickupCity}
-                  onChange={(e) => setPickupCity(e.target.value)}
-                  className={inputStyles}
-                />
-                <input
-                  placeholder="State"
-                  value={pickupState}
-                  onChange={(e) => setPickupState(e.target.value)}
-                  className={inputStyles}
-                />
-                <input
-                  placeholder="Pincode"
-                  value={pickupPincode}
-                  onChange={(e) => setPickupPincode(e.target.value)}
-                  className={inputStyles}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-sm font-semibold text-neutral-700 mb-3">
-              First Product (optional)
-            </h2>
-            <div className="space-y-3">
-              <input
-                placeholder="Product Name"
-                value={firstProductName}
-                onChange={(e) => setFirstProductName(e.target.value)}
-                className={inputStyles}
-              />
-              <input
-                placeholder="Product URL"
-                value={firstProductUrl}
-                onChange={(e) => setFirstProductUrl(e.target.value)}
-                className={inputStyles}
-              />
-            </div>
-          </div>
+    <div className="min-h-screen bg-linear-to-b from-muted/60 via-background to-background py-8 text-foreground transition-colors dark:from-muted/30 dark:via-background dark:to-background">
+      <div className="container mx-auto px-4 max-w-5xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground sm:text-4xl mb-2">
+            Shopkeeper Registration
+          </h1>
+          <p className="text-muted-foreground">
+            Provide required details to complete onboarding. GSTIN optional for books-only sellers.
+          </p>
         </div>
 
-        <div className="flex items-center justify-end gap-3 mt-8">
-          <button
-            disabled={submitting}
-            onClick={() => onSubmit(false)}
-            className="px-4 py-2 rounded-xl border border-neutral-300 text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
-          >
-            Save draft
-          </button>
-          <button
-            disabled={submitting}
-            onClick={() => onSubmit(true)}
-            className="px-4 py-2 rounded-xl bg-primary-brand hover:bg-primary-hover text-white disabled:opacity-50"
-          >
-            Submit for review
-          </button>
-        </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmit(false);
+          }}
+          className="space-y-6"
+        >
+          {/* Tax & Identification */}
+          <Card className="border border-border/80 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                Tax & Identification
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="pan">
+                    PAN <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="pan"
+                    value={pan}
+                    onChange={(e) => setPan(e.target.value.toUpperCase())}
+                    placeholder="ABCDE1234F"
+                    required
+                    maxLength={10}
+                    className="bg-background"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="gstin">GSTIN (Optional)</Label>
+                  <Input
+                    id="gstin"
+                    value={gstin}
+                    onChange={(e) => setGstin(e.target.value.toUpperCase())}
+                    placeholder="15-digit GSTIN"
+                    className="bg-background"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Bank Details */}
+          <Card className="border border-border/80 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5 text-primary" />
+                Bank Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="accountHolder">
+                    Account Holder <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="accountHolder"
+                    value={bankAccountHolder}
+                    onChange={(e) => setBankAccountHolder(e.target.value)}
+                    placeholder="Account holder name"
+                    required
+                    className="bg-background"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="accountNumber">
+                    Account Number <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="accountNumber"
+                    value={bankAccountNumber}
+                    onChange={(e) => setBankAccountNumber(e.target.value)}
+                    placeholder="Account number"
+                    required
+                    className="bg-background"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ifsc">
+                    IFSC Code <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="ifsc"
+                    value={bankIfsc}
+                    onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
+                    placeholder="IFSC0001234"
+                    required
+                    maxLength={11}
+                    className="bg-background"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Business Address & Identity */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="border border-border/80 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  Business Address
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="street">
+                    Street Address <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="street"
+                    value={street}
+                    onChange={(e) => setStreet(e.target.value)}
+                    placeholder="Street address"
+                    required
+                    className="bg-background"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="city">
+                      City <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="city"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder="City"
+                      required
+                      className="bg-background"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="state">
+                      State <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="state"
+                      value={stateValue}
+                      onChange={(e) => setStateValue(e.target.value)}
+                      placeholder="State"
+                      required
+                      className="bg-background"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pincode">
+                      Pincode <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="pincode"
+                      value={pincode}
+                      onChange={(e) => setPincode(e.target.value)}
+                      placeholder="Pincode"
+                      required
+                      pattern="[0-9]{6}"
+                      maxLength={6}
+                      className="bg-background"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-border/80 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5 text-primary" />
+                  Identity Proof
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="idType">
+                    Document Type <span className="text-destructive">*</span>
+                  </Label>
+                  <Select value={idType} onValueChange={(value) => setIdType(value as typeof idType)}>
+                    <SelectTrigger className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="aadhaar">Aadhaar</SelectItem>
+                      <SelectItem value="passport">Passport</SelectItem>
+                      <SelectItem value="voter_id">Voter ID</SelectItem>
+                      <SelectItem value="driver_license">Driver&apos;s License</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="idNumber">
+                    Document Number <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="idNumber"
+                    value={idNumber}
+                    onChange={(e) => setIdNumber(e.target.value)}
+                    placeholder="Document number"
+                    required
+                    className="bg-background"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Business Info & Pickup Address */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="border border-border/80 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-primary" />
+                  Business Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="bizType">
+                    Business Type <span className="text-destructive">*</span>
+                  </Label>
+                  <Select value={bizType} onValueChange={(value) => setBizType(value as typeof bizType)}>
+                    <SelectTrigger className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="individual">Individual</SelectItem>
+                      <SelectItem value="proprietorship">Proprietorship</SelectItem>
+                      <SelectItem value="partnership">Partnership</SelectItem>
+                      <SelectItem value="company">Company</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bizName">Business/Shop Name (Optional)</Label>
+                  <Input
+                    id="bizName"
+                    value={bizName}
+                    onChange={(e) => setBizName(e.target.value)}
+                    placeholder="Business or shop name"
+                    className="bg-background"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-border/80 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Truck className="h-5 w-5 text-primary" />
+                  Pickup Address
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="pickupStreet">Street Address</Label>
+                  <Input
+                    id="pickupStreet"
+                    value={pickupStreet}
+                    onChange={(e) => setPickupStreet(e.target.value)}
+                    placeholder="Pickup street address"
+                    className="bg-background"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="pickupCity">City</Label>
+                    <Input
+                      id="pickupCity"
+                      value={pickupCity}
+                      onChange={(e) => setPickupCity(e.target.value)}
+                      placeholder="City"
+                      className="bg-background"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pickupState">State</Label>
+                    <Input
+                      id="pickupState"
+                      value={pickupState}
+                      onChange={(e) => setPickupState(e.target.value)}
+                      placeholder="State"
+                      className="bg-background"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pickupPincode">Pincode</Label>
+                    <Input
+                      id="pickupPincode"
+                      value={pickupPincode}
+                      onChange={(e) => setPickupPincode(e.target.value)}
+                      placeholder="Pincode"
+                      pattern="[0-9]{6}"
+                      maxLength={6}
+                      className="bg-background"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* First Product (Optional) */}
+          <Card className="border border-border/80 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" />
+                First Product (Optional)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="productName">Product Name</Label>
+                  <Input
+                    id="productName"
+                    value={firstProductName}
+                    onChange={(e) => setFirstProductName(e.target.value)}
+                    placeholder="Product name"
+                    className="bg-background"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="productUrl">Product URL</Label>
+                  <Input
+                    id="productUrl"
+                    value={firstProductUrl}
+                    onChange={(e) => setFirstProductUrl(e.target.value)}
+                    placeholder="https://example.com/product"
+                    type="url"
+                    className="bg-background"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={submitting}
+              onClick={() => onSubmit(false)}
+              className="min-w-[120px]"
+            >
+              {submitting ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Save className="h-4 w-4 mr-2" />
+              )}
+              Save Draft
+            </Button>
+            <Button
+              type="button"
+              disabled={submitting}
+              onClick={() => onSubmit(true)}
+              className="min-w-[160px] bg-primary hover:bg-primary/90"
+            >
+              {submitting ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Send className="h-4 w-4 mr-2" />
+              )}
+              Submit for Review
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );

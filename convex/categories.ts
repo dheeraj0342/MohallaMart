@@ -26,6 +26,45 @@ export const createCategory = mutation({
   },
 });
 
+// Seed default categories (for initial setup)
+export const seedDefaultCategories = mutation({
+  handler: async (ctx) => {
+    // Check if categories already exist
+    const existingCategories = await ctx.db.query("categories").collect();
+    if (existingCategories.length > 0) {
+      return { message: "Categories already exist", count: existingCategories.length };
+    }
+
+    // Default categories matching the Navbar
+    const defaultCategories = [
+      { name: "All", description: "All products", sort_order: 0 },
+      { name: "Cafe", description: "Coffee, tea, and beverages", sort_order: 1 },
+      { name: "Home", description: "Home and kitchen essentials", sort_order: 2 },
+      { name: "Toys", description: "Toys and games", sort_order: 3 },
+      { name: "Fresh Grocery", description: "Fresh fruits, vegetables, and groceries", sort_order: 4 },
+      { name: "Electronics", description: "Electronic devices and accessories", sort_order: 5 },
+      { name: "Mobiles", description: "Mobile phones and accessories", sort_order: 6 },
+      { name: "Beauty", description: "Beauty and personal care products", sort_order: 7 },
+      { name: "Fashion", description: "Clothing and fashion accessories", sort_order: 8 },
+    ];
+
+    const createdIds = [];
+    for (const cat of defaultCategories) {
+      const id = await ctx.db.insert("categories", {
+        name: cat.name,
+        description: cat.description,
+        is_active: true,
+        sort_order: cat.sort_order,
+        created_at: Date.now(),
+        updated_at: Date.now(),
+      });
+      createdIds.push(id);
+    }
+
+    return { message: "Default categories created", count: createdIds.length, ids: createdIds };
+  },
+});
+
 // Get category by ID
 export const getCategory = query({
   args: { id: v.id("categories") },
@@ -72,15 +111,18 @@ export const getRootCategories = query({
     is_active: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db
-      .query("categories")
-      .withIndex("by_parent", (q) => q.eq("parent_id", undefined));
+    // Get all categories and filter for those without parent_id
+    let categories = await ctx.db.query("categories").collect();
+    
+    // Filter for root categories (no parent_id)
+    categories = categories.filter((cat) => !cat.parent_id);
 
+    // Filter by active status
     if (args.is_active !== undefined) {
-      query = query.filter((q) => q.eq(q.field("is_active"), args.is_active));
+      categories = categories.filter(
+        (cat) => cat.is_active === args.is_active,
+      );
     }
-
-    const categories = await query.collect();
 
     // Sort by sort_order
     categories.sort((a, b) => a.sort_order - b.sort_order);
@@ -198,7 +240,7 @@ export const getCategoryTree = query({
       );
     }
 
-    // Build tree structure
+    // Build tree structure (supports 3 levels: category → sub → sub-sub)
     const categoryMap = new Map();
     const rootCategories: any[] = [];
 
@@ -207,6 +249,7 @@ export const getCategoryTree = query({
       categoryMap.set(category._id, {
         ...category,
         children: [],
+        subChildren: [], // For sub-sub-categories
       });
     });
 
@@ -215,7 +258,26 @@ export const getCategoryTree = query({
       if (category.parent_id) {
         const parent = categoryMap.get(category.parent_id);
         if (parent) {
-          parent.children.push(categoryMap.get(category._id));
+          // Check if parent has a parent (making this a sub-sub-category)
+          if (parent.parent_id) {
+            // This is a sub-sub-category, find the root parent
+            const rootParent = categoryMap.get(parent.parent_id);
+            if (rootParent) {
+              // Find the sub-category in root parent's children
+              const subCategory = rootParent.children.find(
+                (child: any) => child._id === parent._id,
+              );
+              if (subCategory) {
+                if (!subCategory.subChildren) {
+                  subCategory.subChildren = [];
+                }
+                subCategory.subChildren.push(categoryMap.get(category._id));
+              }
+            }
+          } else {
+            // This is a sub-category
+            parent.children.push(categoryMap.get(category._id));
+          }
         }
       } else {
         rootCategories.push(categoryMap.get(category._id));
@@ -226,8 +288,11 @@ export const getCategoryTree = query({
     const sortCategories = (categories: any[]) => {
       categories.sort((a, b) => a.sort_order - b.sort_order);
       categories.forEach((category) => {
-        if (category.children.length > 0) {
+        if (category.children && category.children.length > 0) {
           sortCategories(category.children);
+        }
+        if (category.subChildren && category.subChildren.length > 0) {
+          sortCategories(category.subChildren);
         }
       });
     };
@@ -235,6 +300,43 @@ export const getCategoryTree = query({
     sortCategories(rootCategories);
 
     return rootCategories;
+  },
+});
+
+// Get all categories in flat list with hierarchy level
+export const getCategoriesWithLevel = query({
+  args: {
+    is_active: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const categories = await ctx.db.query("categories").collect();
+
+    // Filter by active status
+    let filteredCategories = categories;
+    if (args.is_active !== undefined) {
+      filteredCategories = categories.filter(
+        (category) => category.is_active === args.is_active,
+      );
+    }
+
+    // Build hierarchy map
+    const categoryMap = new Map();
+    filteredCategories.forEach((category) => {
+      categoryMap.set(category._id, category);
+    });
+
+    // Add level to each category
+    const getLevel = (category: any, level = 0): number => {
+      if (!category.parent_id) return level;
+      const parent = categoryMap.get(category.parent_id);
+      if (!parent) return level;
+      return getLevel(parent, level + 1);
+    };
+
+    return filteredCategories.map((category) => ({
+      ...category,
+      level: getLevel(category),
+    }));
   },
 });
 

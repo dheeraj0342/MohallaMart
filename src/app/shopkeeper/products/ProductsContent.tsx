@@ -12,12 +12,16 @@ import {
   Package,
   PlusCircle,
   ShoppingBag,
+  Store,
   Tag,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -25,6 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import ImageUpload from "@/components/ImageUpload";
+import HierarchicalCategorySelector from "@/components/HierarchicalCategorySelector";
 
 type Shop = {
   _id: Id<"shops">;
@@ -34,16 +40,6 @@ type Shop = {
 type Category = {
   _id: Id<"categories">;
   name: string;
-};
-
-type Product = {
-  _id: Id<"products">;
-  name: string;
-  price: number;
-  stock_quantity: number;
-  unit: string;
-  is_available: boolean;
-  category_id: Id<"categories">;
 };
 
 const initialForm = {
@@ -57,7 +53,7 @@ const initialForm = {
   unit: "kg",
   categoryId: "",
   tags: "",
-  images: "",
+  images: [] as string[],
 };
 
 export default function ProductsContent() {
@@ -82,6 +78,11 @@ export default function ProductsContent() {
     { is_active: true },
   ) as Category[] | null | undefined;
 
+  const registration = useQuery(
+    api.registrations.getMyRegistration,
+    user ? { userId: user.id } : "skip",
+  ) as { status?: "approved" | "pending" | "rejected" } | null | undefined;
+
   const activeShop = useMemo(() => {
     if (!shops || shops.length === 0) return null;
     if (selectedShop) {
@@ -90,10 +91,7 @@ export default function ProductsContent() {
     return shops[0];
   }, [shops, selectedShop]);
 
-  const products = useQuery(
-    api.products.getProductsByShop,
-    activeShop ? { shop_id: activeShop._id } : "skip",
-  ) as Product[] | null | undefined;
+  // Removed products query - not needed on add product page
 
   useEffect(() => {
     if (!selectedShop && shops && shops.length > 0) {
@@ -138,10 +136,7 @@ export default function ProductsContent() {
       .split(",")
       .map((tag) => tag.trim())
       .filter(Boolean);
-    const parsedImages = form.images
-      .split(",")
-      .map((url) => url.trim())
-      .filter(Boolean);
+    const parsedImages = form.images.filter(Boolean);
 
     try {
       setSubmitting(true);
@@ -156,7 +151,7 @@ export default function ProductsContent() {
         min_order_quantity: Number(form.minOrder),
         max_order_quantity: Number(form.maxOrder),
         unit: form.unit,
-        images: parsedImages.length > 0 ? parsedImages : ["https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?auto=format&fit=crop&w=800&q=80"],
+        images: parsedImages.length > 0 ? parsedImages : [],
         tags: parsedTags,
         is_featured: false,
       });
@@ -179,7 +174,7 @@ export default function ProductsContent() {
     );
   }
 
-  if (shops === undefined || categories === undefined) {
+  if (shops === undefined || categories === undefined || registration === undefined) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center text-muted-foreground">
         <Loader text="Fetching shop data…" />
@@ -188,6 +183,26 @@ export default function ProductsContent() {
   }
 
   if (!shops || shops.length === 0) {
+    if (registration?.status === "approved") {
+      return (
+        <Card className="border-dashed">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-primary">
+              <Store className="h-5 w-5" />
+              Create Your Shop First
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Your registration is approved! Create your shop profile to start adding products.
+            </p>
+            <Button asChild>
+              <a href="/shopkeeper/shop/create">Create Shop</a>
+            </Button>
+          </CardContent>
+        </Card>
+      );
+    }
     return (
       <Card className="border-dashed">
         <CardHeader>
@@ -198,7 +213,9 @@ export default function ProductsContent() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Finish your shop registration before adding products.
+            {registration?.status === "pending"
+              ? "Your registration is pending approval. Once approved, you can create your shop."
+              : "Complete your shop registration before adding products."}
           </p>
           <Button asChild>
             <a href="/shopkeeper/registration">Complete registration</a>
@@ -209,28 +226,37 @@ export default function ProductsContent() {
   }
 
   return (
-    <div className="space-y-6">
-      <header className="rounded-3xl border bg-linear-to-br from-green-600 via-green-500 to-green-400 text-white p-6 shadow-xl">
-        <div className="flex flex-wrap items-center gap-4 justify-between">
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-white/80">
-              Catalogue Builder
-            </p>
-            <h1 className="text-3xl font-bold mt-1">Manage shop inventory</h1>
-            <p className="text-white/80 mt-2 max-w-2xl text-sm sm:text-base">
-              Add branded SKUs, set pricing, and control availability. Each product
-              stays linked to the selected shop, so customers only see what you stock.
+    <div className="space-y-6 pb-6">
+      {/* Header Section */}
+      <div className="rounded-2xl border border-border bg-linear-to-br from-primary/10 via-primary/5 to-background p-6 sm:p-8 shadow-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Package className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                  Product Management
+                </p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-1">
+                  Add New Product
+                </h1>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground max-w-2xl">
+              Create and manage your product catalog. Add detailed information, pricing, and images to help customers discover your products.
             </p>
           </div>
-          <div className="flex flex-col gap-2 text-sm">
-            <span className="text-white/80">Active shop</span>
+          <div className="flex flex-col gap-2 min-w-[200px]">
+            <Label className="text-sm font-medium text-foreground">Active Shop</Label>
             <Select
               value={activeShop?._id || undefined}
               onValueChange={(value) =>
                 setSelectedShop(value as Id<"shops">)
               }
             >
-              <SelectTrigger className="bg-white/10 text-white border-white/40 min-w-[200px]">
+              <SelectTrigger className="bg-background border-border">
                 <SelectValue placeholder="Select shop" />
               </SelectTrigger>
               <SelectContent>
@@ -243,97 +269,101 @@ export default function ProductsContent() {
             </Select>
           </div>
         </div>
-      </header>
+      </div>
 
+      {/* Main Content */}
       <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Package className="h-5 w-5 text-green-600" />
-                Products in this shop
+        {/* Form Section */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="border-border bg-card shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <BookPlus className="h-5 w-5 text-primary" />
+                Product Information
               </CardTitle>
-              <span className="text-sm text-muted-foreground">
-                {products?.length ?? 0} total
-              </span>
             </CardHeader>
             <CardContent>
-              {products === undefined ? (
-                <Loader text="Loading products…" />
-              ) : products && products.length > 0 ? (
-                <div className="space-y-3">
-                  {products.map((product) => (
-                    <div
-                      key={product._id}
-                      className="rounded-xl border px-4 py-3 flex items-center justify-between text-sm"
-                    >
-                      <div className="min-w-0">
-                        <p className="font-semibold text-foreground truncate">
-                          {product.name}
-                        </p>
-                        <p className="text-muted-foreground flex items-center gap-2">
-                          <span>₹{product.price.toFixed(2)}</span>
-                          <span className="text-xs">•</span>
-                          <span>
-                            Stock: {product.stock_quantity} {product.unit}
-                          </span>
-                        </p>
-                      </div>
-                      <span
-                        className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                          product.is_available
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-amber-100 text-amber-700"
-                        }`}
-                      >
-                        {product.is_available ? "Available" : "Hidden"}
-                      </span>
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                {/* Basic Information */}
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="name" className="text-sm font-semibold text-foreground mb-2 block">
+                      Product Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="name"
+                      required
+                      placeholder="e.g. Organic Alphonso Mango"
+                      value={form.name}
+                      onChange={handleChange("name")}
+                      className="bg-background border-border"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="description" className="text-sm font-semibold text-foreground mb-2 block">
+                      Description
+                    </Label>
+                    <Textarea
+                      id="description"
+                      value={form.description}
+                      onChange={handleChange("description")}
+                      placeholder="Provide a detailed description of your product..."
+                      className="min-h-[100px] bg-background border-border resize-none"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Help customers understand what makes your product special
+                    </p>
+                  </div>
+                </div>
+
+                <Separator className="bg-border" />
+
+                {/* Pricing Section */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Package className="h-4 w-4 text-primary" />
+                    Pricing & Inventory
+                  </h3>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="price" className="text-sm font-medium text-foreground mb-2 block">
+                        Selling Price (₹) <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        required
+                        value={form.price}
+                        onChange={handleChange("price")}
+                        placeholder="0.00"
+                        className="bg-background border-border"
+                      />
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center text-sm text-muted-foreground py-10">
-                  <p className="mb-2 text-base">No products yet</p>
-                  <p>Add your first SKU using the form on the right.</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookPlus className="h-5 w-5 text-green-600" />
-                Add new product
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form className="space-y-4" onSubmit={handleSubmit}>
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Product name
-                  </label>
-                  <Input
-                    required
-                    placeholder="e.g. Organic Alphonso Mango"
-                    value={form.name}
-                    onChange={handleChange("name")}
-                  />
+                    <div>
+                      <Label htmlFor="originalPrice" className="text-sm font-medium text-foreground mb-2 block">
+                        Original Price (₹)
+                      </Label>
+                      <Input
+                        id="originalPrice"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={form.originalPrice}
+                        onChange={handleChange("originalPrice")}
+                        placeholder="0.00"
+                        className="bg-background border-border"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Leave empty if no discount
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Description
-                  </label>
-                  <textarea
-                    value={form.description}
-                    onChange={handleChange("description")}
-                    placeholder="Short description visible to customers"
-                    className="min-h-[90px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
-                  />
-                </div>
+                <Separator className="bg-border" />
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
@@ -363,136 +393,240 @@ export default function ProductsContent() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Stock qty
-                    </label>
-                    <Input
-                      type="number"
-                      min="0"
-                      required
-                      value={form.stock}
-                      onChange={handleChange("stock")}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Min order
-                    </label>
-                    <Input
-                      type="number"
-                      min="1"
-                      required
-                      value={form.minOrder}
-                      onChange={handleChange("minOrder")}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Max order
-                    </label>
-                    <Input
-                      type="number"
-                      min="1"
-                      required
-                      value={form.maxOrder}
-                      onChange={handleChange("maxOrder")}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Unit
-                    </label>
-                    <Input
-                      value={form.unit}
-                      onChange={handleChange("unit")}
-                      placeholder="kg, L, pcs…"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Category
-                    </label>
-                    <Select
-                      value={form.categoryId || undefined}
-                      onValueChange={(value) =>
-                        setForm((prev) => ({ ...prev, categoryId: value }))
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories?.map((category) => (
-                          <SelectItem key={category._id} value={category._id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                {/* Inventory & Ordering */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Package className="h-4 w-4 text-primary" />
+                    Inventory & Ordering
+                  </h3>
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="stock" className="text-sm font-medium text-foreground mb-2 block">
+                        Stock Quantity <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="stock"
+                        type="number"
+                        min="0"
+                        required
+                        value={form.stock}
+                        onChange={handleChange("stock")}
+                        placeholder="0"
+                        className="bg-background border-border"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="minOrder" className="text-sm font-medium text-foreground mb-2 block">
+                        Min Order <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="minOrder"
+                        type="number"
+                        min="1"
+                        required
+                        value={form.minOrder}
+                        onChange={handleChange("minOrder")}
+                        placeholder="1"
+                        className="bg-background border-border"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="maxOrder" className="text-sm font-medium text-foreground mb-2 block">
+                        Max Order <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="maxOrder"
+                        type="number"
+                        min="1"
+                        required
+                        value={form.maxOrder}
+                        onChange={handleChange("maxOrder")}
+                        placeholder="10"
+                        className="bg-background border-border"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <Tag className="h-4 w-4" />
-                    Tags (comma separated)
-                  </label>
-                  <Input
-                    value={form.tags}
-                    onChange={handleChange("tags")}
-                    placeholder="organic, bestseller, breakfast"
+                <Separator className="bg-border" />
+
+                {/* Category & Classification */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Tag className="h-4 w-4 text-primary" />
+                    Category & Classification
+                  </h3>
+                  <HierarchicalCategorySelector
+                    value={form.categoryId as Id<"categories"> | undefined}
+                    onChange={(categoryId) =>
+                      setForm((prev) => ({ ...prev, categoryId }))
+                    }
+                    label="Product Category"
+                    required
                   />
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="unit" className="text-sm font-medium text-foreground mb-2 block">
+                        Unit <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="unit"
+                        value={form.unit}
+                        onChange={handleChange("unit")}
+                        placeholder="kg, L, pcs, etc."
+                        required
+                        className="bg-background border-border"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="tags" className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                      <Tag className="h-4 w-4" />
+                      Tags
+                    </Label>
+                    <Input
+                      id="tags"
+                      value={form.tags}
+                      onChange={handleChange("tags")}
+                      placeholder="organic, bestseller, breakfast (comma separated)"
+                      className="bg-background border-border"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Add tags to help customers discover your product
+                    </p>
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Image URLs (comma separated)
-                  </label>
-                  <Input
-                    value={form.images}
-                    onChange={handleChange("images")}
-                    placeholder="https://..., https://..."
-                  />
+                <Separator className="bg-border" />
+
+                {/* Images Section */}
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-semibold text-foreground mb-2 block">
+                      Product Images
+                    </Label>
+                    <ImageUpload
+                      images={form.images}
+                      onChange={(images) => setForm((prev) => ({ ...prev, images }))}
+                      maxImages={5}
+                    />
+                  </div>
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader />
-                      Creating…
-                    </>
-                  ) : (
-                    <>
-                      <PlusCircle className="h-4 w-4 mr-2" />
-                      Add product
-                    </>
-                  )}
-                </Button>
+                <Separator className="bg-border" />
+
+                {/* Submit Button */}
+                <div className="flex items-center gap-3 pt-2">
+                  <Button
+                    type="submit"
+                    className="flex-1 sm:flex-none sm:min-w-[200px] bg-primary hover:bg-primary/90 text-primary-foreground"
+                    disabled={isSubmitting}
+                    size="lg"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader />
+                        <span className="ml-2">Creating Product...</span>
+                      </>
+                    ) : (
+                      <>
+                        <PlusCircle className="h-4 w-4 mr-2" />
+                        Add Product
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setForm(initialForm)}
+                    disabled={isSubmitting}
+                    className="border-border"
+                  >
+                    Reset Form
+                  </Button>
+                </div>
               </form>
             </CardContent>
           </Card>
+        </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm text-muted-foreground">
-                <ShoppingBag className="h-4 w-4" />
-                Tips
+        {/* Sidebar - Tips & Help */}
+        <div className="space-y-6">
+          <Card className="border-border bg-card shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ShoppingBag className="h-4 w-4 text-primary" />
+                Tips & Best Practices
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p>Use descriptive names so customers can find products via search.</p>
-              <p>Keep stock updated—the storefront auto-hides products when stock reaches zero.</p>
-              <p>Tags power AI recommendations. Think in customer intent: “keto”, “school tiffin”, “winter care”.</p>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">1</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground mb-1">Descriptive Names</p>
+                    <p className="text-xs text-muted-foreground">
+                      Use clear, search-friendly product names that customers can easily find.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">2</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground mb-1">Stock Management</p>
+                    <p className="text-xs text-muted-foreground">
+                      Keep stock updated regularly. Products are automatically hidden when stock reaches zero.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">3</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground mb-1">Smart Tagging</p>
+                    <p className="text-xs text-muted-foreground">
+                      Use relevant tags like "keto", "school tiffin", "winter care" to improve discoverability.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">4</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground mb-1">Quality Images</p>
+                    <p className="text-xs text-muted-foreground">
+                      Upload clear, high-quality images. First image will be used as the main product image.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border bg-muted/30 shadow-sm">
+            <CardContent className="pt-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Package className="h-4 w-4 text-primary" />
+                  <p className="text-sm font-semibold text-foreground">Need Help?</p>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  View all your products in the{" "}
+                  <a
+                    href="/shopkeeper/shop/products"
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Shop Products
+                  </a>{" "}
+                  page to manage inventory and availability.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>

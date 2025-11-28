@@ -6,6 +6,15 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 import { Id } from "@/../convex/_generated/dataModel";
 import { useToast } from "@/hooks/useToast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Store, User, FileText, Package, TrendingUp, CheckCircle2, Clock, XCircle, Star, Phone, Mail } from "lucide-react";
 
 type ShopAddress = {
   city?: string;
@@ -83,9 +92,6 @@ export default function ProfileContent() {
   const [phone, setPhone] = useState("");
   const [avatar, setAvatar] = useState("");
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<
-    "overview" | "seller" | "registration"
-  >("overview");
 
   useEffect(() => {
     if (dbUser) {
@@ -110,7 +116,6 @@ export default function ProfileContent() {
     }
   };
 
-  // Guard handles loading and auth checks, so we can safely assume user and dbUser exist here
   if (!user || !dbUser) {
     return null;
   }
@@ -118,511 +123,398 @@ export default function ProfileContent() {
   const totalOrders = shopStats?.total_orders || 0;
   const cancelledOrders = shopStats?.cancelled_orders || 0;
   const deliveredOrders = shopStats?.delivered_orders || 0;
-  const fulfilmentRate =
-    totalOrders > 0
-      ? Math.round(((totalOrders - cancelledOrders) / totalOrders) * 100)
-      : 0;
-  const cancellationRate =
-    totalOrders > 0 ? Math.round((cancelledOrders / totalOrders) * 100) : 0;
-  const avgOrderValue = shopStats?.average_order_value
-    ? Math.round(shopStats.average_order_value)
-    : 0;
+  const fulfilmentRate = totalOrders > 0 ? Math.round(((totalOrders - cancelledOrders) / totalOrders) * 100) : 0;
+  const cancellationRate = totalOrders > 0 ? Math.round((cancelledOrders / totalOrders) * 100) : 0;
+  const avgOrderValue = shopStats?.average_order_value ? Math.round(shopStats.average_order_value) : 0;
   const totalProducts = Array.isArray(products) ? products.length : 0;
-  const activeProducts = Array.isArray(products)
-    ? products.filter((p) => p.is_available).length
-    : 0;
-  const inactiveProducts = totalProducts - activeProducts;
+  const activeProducts = Array.isArray(products) ? products.filter((p) => p.is_available).length : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--neutral-50)] to-[var(--neutral-100)]">
-      {/* Hero Header */}
-      <div className="bg-gradient-to-r from-[var(--primary-brand)] to-[var(--primary-brand)]/80 text-white pt-12 pb-20 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <div className="flex items-start justify-between gap-6 mb-8">
-            {/* Shop info */}
-            <div className="flex items-start gap-4">
-              <div className="h-20 w-20 rounded-2xl bg-white/20 border-2 border-white/40 overflow-hidden flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
-                {avatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={avatar}
-                    alt="Shop Logo"
-                    className="h-full w-full object-cover"
-                  />
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 py-8">
+      <div className="container mx-auto max-w-6xl px-4">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Avatar className="h-20 w-20 border-2 border-primary">
+              <AvatarImage src={avatar || dbUser.avatar_url} alt={name || dbUser.name} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
+                {name?.[0]?.toUpperCase() || dbUser.name?.[0]?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-foreground">{shop?.name || name || "Your Shop"}</h1>
+              <p className="text-muted-foreground mt-1">
+                {shop?.address?.city || "City"}, {shop?.address?.state || "State"}
+              </p>
+              <div className="flex items-center gap-2 mt-2">
+                {dbUser?.is_active ? (
+                  <Badge className="bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    Verified
+                  </Badge>
                 ) : (
-                  <span className="text-4xl">🏪</span>
+                  <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                    <Clock className="h-3 w-3 mr-1" />
+                    Pending
+                  </Badge>
+                )}
+                {shop?.rating && (
+                  <Badge variant="outline" className="border-yellow-300 text-yellow-700 dark:text-yellow-300">
+                    <Star className="h-3 w-3 mr-1 fill-yellow-400" />
+                    {shop.rating.toFixed(1)}
+                  </Badge>
                 )}
               </div>
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold">
-                  {shop?.name || name || "Your Shop"}
-                </h1>
-                <p className="text-white/80 mt-1">
-                  {shop?.address?.city || "City"},{" "}
-                  {shop?.address?.state || "State"}
-                </p>
-                <div className="flex items-center gap-3 mt-3">
-                  {dbUser?.is_active ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-400/30 text-emerald-100 border border-emerald-400/50">
-                      <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse"></span>
-                      Verified Seller
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-400/30 text-amber-100 border border-amber-400/50">
-                      ⏳ Pending Approval
-                    </span>
-                  )}
-                  {shop?.rating ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-400/30 text-blue-100 border border-blue-400/50">
-                      ⭐ {shop.rating.toFixed(1)} / 5.0
-                    </span>
-                  ) : null}
-                </div>
-              </div>
             </div>
-
-            {/* Quick actions */}
-            <div className="flex flex-col gap-2">
-              <button className="px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 text-white font-medium text-sm backdrop-blur-sm border border-white/30 transition">
-                📊 Analytics
-              </button>
-              <button className="px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 text-white font-medium text-sm backdrop-blur-sm border border-white/30 transition">
-                ⚙️ Settings
-              </button>
-            </div>
-          </div>
-
-          {/* Tab navigation */}
-          <div className="flex gap-1 border-b border-white/20">
-            {(["overview", "seller", "registration"] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-3 text-sm font-medium capitalize border-b-2 transition ${
-                  activeTab === tab
-                    ? "border-white text-white"
-                    : "border-transparent text-white/70 hover:text-white"
-                }`}
-              >
-                {tab === "overview" && "📊 Overview"}
-                {tab === "seller" && "👤 Seller Info"}
-                {tab === "registration" && "📋 Registration"}
-              </button>
-            ))}
           </div>
         </div>
-      </div>
 
-      {/* Main content */}
-      <div className="container mx-auto max-w-7xl px-4 py-8">
-        {/* Overview Tab */}
-        {activeTab === "overview" && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            {/* KPI Cards */}
-            <div>
-              <h2 className="text-lg font-semibold text-[var(--neutral-900)] mb-4 flex items-center gap-2">
-                <span className="text-2xl">📈</span>
-                Performance Metrics
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <MetricCard
-                  label="Total Orders"
-                  value={totalOrders}
-                  icon="📦"
-                />
-                <MetricCard
-                  label="Delivered"
-                  value={deliveredOrders}
-                  icon="✅"
-                />
-                <MetricCard
-                  label="Fulfilment Rate"
-                  value={`${fulfilmentRate}%`}
-                  icon="🎯"
-                  color={fulfilmentRate < 90 ? "warning" : "success"}
-                />
-                <MetricCard
-                  label="Cancellation Rate"
-                  value={`${cancellationRate}%`}
-                  icon="⚠️"
-                  color="error"
-                />
-                <MetricCard
-                  label="Avg Order Value"
-                  value={`₹${avgOrderValue}`}
-                  icon="💰"
-                />
-                <MetricCard
-                  label="Active Products"
-                  value={activeProducts}
-                  icon="📷"
-                  color="success"
-                />
-                <MetricCard
-                  label="Inactive Products"
-                  value={inactiveProducts}
-                  icon="🔒"
-                  color="warning"
-                />
-                <MetricCard
-                  label="Rating"
-                  value={shop?.rating?.toFixed(1) ?? "—"}
-                  icon="⭐"
-                />
-              </div>
+        {/* Tabs */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Profile
+            </TabsTrigger>
+            <TabsTrigger value="registration" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Registration
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-foreground">{totalOrders}</div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Delivered</CardTitle>
+                  <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-foreground">{deliveredOrders}</div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Fulfilment Rate</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-foreground">{fulfilmentRate}%</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {fulfilmentRate >= 90 ? "Excellent" : fulfilmentRate >= 70 ? "Good" : "Needs Improvement"}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Avg Order Value</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-foreground">₹{avgOrderValue}</div>
+                </CardContent>
+              </Card>
             </div>
 
-            {/* Account Health & Store Info */}
+            {/* Shop Info & Health */}
             <div className="grid lg:grid-cols-2 gap-6">
-              <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-[var(--neutral-900)] mb-4 flex items-center gap-2">
-                  <span>🏬</span> Public Store Info
-                </h3>
-                <div className="space-y-3">
-                  <InfoRow
-                    label="Store Name"
-                    value={shop?.name || name || "—"}
-                  />
-                  <InfoRow
-                    label="Location"
-                    value={`${shop?.address?.city || "—"}, ${shop?.address?.state || "—"}`}
-                  />
-                  <InfoRow
-                    label="Rating"
-                    value={`${shop?.rating?.toFixed?.(1) ?? "—"} / 5.0`}
-                  />
-                  <div className="pt-2 border-t border-[var(--color-border)]">
-                    <button className="text-sm text-[var(--primary-brand)] hover:underline font-medium">
-                      → Edit Store Info
-                    </button>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Store className="h-5 w-5 text-primary" />
+                    Shop Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Shop Name</span>
+                    <span className="text-sm font-medium text-foreground">{shop?.name || "—"}</span>
                   </div>
-                </div>
-              </div>
+                  <Separator />
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Location</span>
+                    <span className="text-sm font-medium text-foreground">
+                      {shop?.address?.city || "—"}, {shop?.address?.state || "—"}
+                    </span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Rating</span>
+                    <span className="text-sm font-medium text-foreground">
+                      {shop?.rating?.toFixed(1) || "—"} / 5.0
+                    </span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Active Products</span>
+                    <span className="text-sm font-medium text-foreground">{activeProducts} / {totalProducts}</span>
+                  </div>
+                </CardContent>
+              </Card>
 
-              <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-[var(--neutral-900)] mb-4 flex items-center gap-2">
-                  <span>❤️</span> Account Health
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[var(--neutral-600)]">
-                      Fulfilment Rate
-                    </span>
-                    <HealthBadge
-                      value={fulfilmentRate}
-                      format={(v) => `${v}%`}
-                      threshold={90}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[var(--neutral-600)]">
-                      Cancellation Rate
-                    </span>
-                    <HealthBadge
-                      value={cancellationRate}
-                      format={(v) => `${v}%`}
-                      threshold={5}
-                      inverse
-                    />
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-[var(--color-border)]">
-                    <span className="text-[var(--neutral-600)]">
-                      Verification
-                    </span>
-                    <span
-                      className={`font-semibold text-sm ${
-                        dbUser?.is_active
-                          ? "text-[var(--success-fg)]"
-                          : "text-[var(--warning-fg)]"
-                      }`}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    Account Health
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Fulfilment Rate</span>
+                    <Badge
+                      className={
+                        fulfilmentRate >= 90
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
+                          : fulfilmentRate >= 70
+                            ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
+                            : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300"
+                      }
                     >
-                      {dbUser?.is_active ? "✓ Verified" : "⏳ Pending"}
-                    </span>
+                      {fulfilmentRate}%
+                    </Badge>
                   </div>
-                </div>
-              </div>
+                  <Separator />
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Cancellation Rate</span>
+                    <Badge
+                      className={
+                        cancellationRate <= 5
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
+                          : cancellationRate <= 10
+                            ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
+                            : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300"
+                      }
+                    >
+                      {cancellationRate}%
+                    </Badge>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Verification</span>
+                    {dbUser?.is_active ? (
+                      <Badge className="bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        Verified
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                        <Clock className="h-3 w-3 mr-1" />
+                        Pending
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </div>
-        )}
+          </TabsContent>
 
-        {/* Seller Info Tab */}
-        {activeTab === "seller" && (
-          <div className="animate-in fade-in duration-300">
-            <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 md:p-8 shadow-sm max-w-2xl">
-              <h2 className="text-2xl font-bold text-[var(--neutral-900)] mb-6">
-                Seller Details
-              </h2>
-              <form onSubmit={onSave} className="space-y-5">
-                <div>
-                  <label className="block text-sm font-semibold text-[var(--neutral-700)] mb-2">
-                    Display Name
-                  </label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Your seller name"
-                    className="w-full px-4 py-2.5 border-2 border-[var(--color-border)] rounded-lg focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10 transition text-[var(--neutral-900)] bg-[var(--neutral-50)] placeholder:text-[var(--neutral-400)]"
-                    style={{
-                      color: "var(--neutral-900)",
-                      backgroundColor: "var(--neutral-50)",
-                    }}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-[var(--neutral-700)] mb-2">
-                    Contact Phone
-                  </label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+91 XXXXX XXXXX"
-                    className="w-full px-4 py-2.5 border-2 border-[var(--color-border)] rounded-lg focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10 transition text-[var(--neutral-900)] bg-[var(--neutral-50)] placeholder:text-[var(--neutral-400)]"
-                    style={{
-                      color: "var(--neutral-900)",
-                      backgroundColor: "var(--neutral-50)",
-                    }}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-[var(--neutral-700)] mb-2">
-                    Logo / Avatar URL
-                  </label>
-                  <input
-                    type="url"
-                    value={avatar}
-                    onChange={(e) => setAvatar(e.target.value)}
-                    placeholder="https://example.com/logo.png"
-                    className="w-full px-4 py-2.5 border-2 border-[var(--color-border)] rounded-lg focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10 transition text-[var(--neutral-900)] bg-[var(--neutral-50)] placeholder:text-[var(--neutral-400)]"
-                    style={{
-                      color: "var(--neutral-900)",
-                      backgroundColor: "var(--neutral-50)",
-                    }}
-                  />
-                  {avatar && (
-                    <div className="mt-3 p-3 bg-[var(--neutral-50)] rounded-lg flex items-center gap-3">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={avatar}
-                        alt="Preview"
-                        className="h-12 w-12 rounded object-cover"
+          {/* Profile Tab */}
+          <TabsContent value="profile">
+            <Card>
+              <CardHeader>
+                <CardTitle>Profile Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={onSave} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Display Name</Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Your seller name"
+                      className="bg-background"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Contact Phone</Label>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+91 XXXXX XXXXX"
+                        className="bg-background"
                       />
-                      <span className="text-sm text-[var(--neutral-600)]">
-                        Preview
-                      </span>
                     </div>
-                  )}
-                </div>
-                <div className="pt-4 border-t border-[var(--color-border)]">
-                  <div className="text-sm text-[var(--neutral-600)] mb-4">
-                    <strong>Email:</strong> {dbUser?.email}
                   </div>
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="w-full px-4 py-2.5 rounded-lg bg-[var(--color-primary)] hover:bg-[var(--color-primary)]/90 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
-                  >
-                    {saving ? "⏳ Saving…" : "💾 Save Changes"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
 
-        {/* Registration Tab */}
-        {activeTab === "registration" && (
-          <div className="animate-in fade-in duration-300">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="email"
+                        type="email"
+                        value={dbUser?.email || ""}
+                        disabled
+                        className="bg-muted"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="avatar">Avatar URL</Label>
+                    <Input
+                      id="avatar"
+                      type="url"
+                      value={avatar}
+                      onChange={(e) => setAvatar(e.target.value)}
+                      placeholder="https://example.com/avatar.png"
+                      className="bg-background"
+                    />
+                    {avatar && (
+                      <div className="mt-3 p-3 bg-muted rounded-lg flex items-center gap-3">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={avatar} alt="Preview" />
+                          <AvatarFallback>AV</AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm text-muted-foreground">Preview</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <Separator />
+
+                  <Button type="submit" disabled={saving} className="w-full">
+                    {saving ? "Saving..." : "Save Changes"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Registration Tab */}
+          <TabsContent value="registration">
             {registration ? (
-              <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 md:p-8 shadow-sm">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-[var(--neutral-900)] flex items-center gap-2">
-                    <span>📋</span> Registration Details
-                  </h2>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1.5 ${
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>Registration Details</CardTitle>
+                  <Badge
+                    className={
                       registration.status === "approved"
-                        ? "bg-green-100 text-green-700"
+                        ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
                         : registration.status === "rejected"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-amber-100 text-amber-700"
-                    }`}
+                          ? "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300"
+                          : "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
+                    }
                   >
-                    {registration.status === "approved" && "✓ Approved"}
-                    {registration.status === "rejected" && "✗ Rejected"}
-                    {registration.status === "pending" && "⏳ Pending"}
-                  </span>
-                </div>
+                    {registration.status === "approved" && (
+                      <>
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        Approved
+                      </>
+                    )}
+                    {registration.status === "rejected" && (
+                      <>
+                        <XCircle className="h-3 w-3 mr-1" />
+                        Rejected
+                      </>
+                    )}
+                    {registration.status === "pending" && (
+                      <>
+                        <Clock className="h-3 w-3 mr-1" />
+                        Pending
+                      </>
+                    )}
+                  </Badge>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="p-4 bg-muted rounded-lg">
+                        <Label className="text-xs text-muted-foreground uppercase">PAN</Label>
+                        <p className="text-lg font-semibold text-foreground mt-1">
+                          {registration.pan || "—"}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-muted rounded-lg">
+                        <Label className="text-xs text-muted-foreground uppercase">GSTIN</Label>
+                        <p className="text-lg font-semibold text-foreground mt-1">
+                          {registration.gstin || "—"}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-muted rounded-lg">
+                        <Label className="text-xs text-muted-foreground uppercase">Business Type</Label>
+                        <p className="text-lg font-semibold text-foreground mt-1 capitalize">
+                          {registration.business?.type || "—"}
+                        </p>
+                      </div>
+                    </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Left column */}
-                  <div className="space-y-4">
-                    <div className="bg-[var(--neutral-50)] rounded-lg p-4 border border-[var(--color-border)]">
-                      <div className="text-xs text-[var(--neutral-600)] font-semibold uppercase tracking-wider mb-1">
-                        PAN
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-sm font-semibold text-foreground mb-2 block">Business Address</Label>
+                        <div className="p-4 bg-muted rounded-lg space-y-1">
+                          <p className="font-medium text-foreground">
+                            {registration.address?.street || "—"}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {registration.address?.city || "—"}, {registration.address?.state || "—"}{" "}
+                            {registration.address?.pincode || ""}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-lg font-semibold text-[var(--neutral-900)]">
-                        {registration.pan || (
-                          <span className="text-[var(--neutral-400)]">—</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="bg-[var(--neutral-50)] rounded-lg p-4 border border-[var(--color-border)]">
-                      <div className="text-xs text-[var(--neutral-600)] font-semibold uppercase tracking-wider mb-1">
-                        GSTIN
-                      </div>
-                      <div className="text-lg font-semibold text-[var(--neutral-900)]">
-                        {registration.gstin || (
-                          <span className="text-[var(--neutral-400)]">—</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="bg-[var(--neutral-50)] rounded-lg p-4 border border-[var(--color-border)]">
-                      <div className="text-xs text-[var(--neutral-600)] font-semibold uppercase tracking-wider mb-1">
-                        Business Type
-                      </div>
-                      <div className="text-lg font-semibold capitalize text-[var(--neutral-900)]">
-                        {registration.business?.type || (
-                          <span className="text-[var(--neutral-400)]">—</span>
-                        )}
+                      <div>
+                        <Label className="text-sm font-semibold text-foreground mb-2 block">Pickup Address</Label>
+                        <div className="p-4 bg-muted rounded-lg space-y-1">
+                          <p className="font-medium text-foreground">
+                            {registration.pickup_address?.street || "—"}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {registration.pickup_address?.city || "—"}, {registration.pickup_address?.state || "—"}{" "}
+                            {registration.pickup_address?.pincode || ""}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Right column - Addresses */}
-                  <div className="space-y-4">
-                    <div>
-                      <div className="text-sm font-semibold text-[var(--neutral-900)] mb-2 flex items-center gap-2">
-                        <span className="h-3 w-3 rounded-full bg-[var(--secondary-brand)]"></span>
-                        Business Address
-                      </div>
-                      <div className="bg-[var(--neutral-50)] rounded-lg p-4 border border-[var(--color-border)] space-y-1">
-                        <div className="font-medium text-[var(--neutral-900)]">
-                          {registration.address?.street || (
-                            <span className="text-[var(--neutral-400)]">—</span>
-                          )}
-                        </div>
-                        <div className="text-sm text-[var(--neutral-600)]">
-                          {registration.address?.city || "—"},{" "}
-                          {registration.address?.state || "—"}{" "}
-                          {registration.address?.pincode || ""}
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-[var(--neutral-900)] mb-2 flex items-center gap-2">
-                        <span className="h-3 w-3 rounded-full bg-[var(--accent-brand)]"></span>
-                        Pickup Address
-                      </div>
-                      <div className="bg-[var(--neutral-50)] rounded-lg p-4 border border-[var(--color-border)] space-y-1">
-                        <div className="font-medium text-[var(--neutral-900)]">
-                          {registration.pickup_address?.street || (
-                            <span className="text-[var(--neutral-400)]">—</span>
-                          )}
-                        </div>
-                        <div className="text-sm text-[var(--neutral-600)]">
-                          {registration.pickup_address?.city || "—"},{" "}
-                          {registration.pickup_address?.state || "—"}{" "}
-                          {registration.pickup_address?.pincode || ""}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  <Separator />
 
-                <div className="mt-6 pt-6 border-t border-[var(--color-border)]">
-                  <button className="px-4 py-2 rounded-lg bg-[var(--primary-brand)] hover:bg-[var(--primary-brand)]/90 text-white font-semibold text-sm transition">
-                    ✎ Edit Registration
-                  </button>
-                </div>
-              </div>
+                  <Button variant="outline" className="w-full">
+                    Edit Registration
+                  </Button>
+                </CardContent>
+              </Card>
             ) : (
-              <div className="bg-white border border-[var(--color-border)] rounded-2xl p-8 text-center">
-                <div className="text-4xl mb-3">📋</div>
-                <h3 className="text-lg font-semibold text-[var(--neutral-900)] mb-2">
-                  No Registration Found
-                </h3>
-                <p className="text-[var(--neutral-600)] mb-4">
-                  Complete your business registration to unlock seller features.
-                </p>
-                <button className="px-4 py-2 rounded-lg bg-[var(--primary-brand)] hover:bg-[var(--primary-brand)]/90 text-white font-semibold">
-                  Start Registration
-                </button>
-              </div>
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No Registration Found</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Complete your business registration to unlock seller features.
+                  </p>
+                  <Button>Start Registration</Button>
+                </CardContent>
+              </Card>
             )}
-          </div>
-        )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
-  );
-}
-
-/* Helper Components */
-
-function MetricCard({
-  label,
-  value,
-  icon,
-  color = "default",
-}: {
-  label: string;
-  value: string | number;
-  icon: string;
-  color?: "success" | "warning" | "error" | "default";
-}) {
-  const colorClasses = {
-    success: "bg-emerald-50 border-emerald-200 text-emerald-700",
-    warning: "bg-amber-50 border-amber-200 text-amber-700",
-    error: "bg-red-50 border-red-200 text-red-700",
-    default: "bg-blue-50 border-blue-200 text-blue-700",
-  };
-
-  return (
-    <div
-      className={`rounded-xl border-2 p-4 ${colorClasses[color]} transition hover:shadow-md`}
-    >
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-wider opacity-75">
-            {label}
-          </div>
-          <div className="text-2xl md:text-3xl font-bold mt-2">{value}</div>
-        </div>
-        <span className="text-2xl opacity-75">{icon}</span>
-      </div>
-    </div>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between py-2">
-      <span className="text-[var(--neutral-600)]">{label}</span>
-      <span className="font-semibold text-[var(--neutral-900)]">{value}</span>
-    </div>
-  );
-}
-
-function HealthBadge({
-  value,
-  format,
-  threshold,
-  inverse = false,
-}: {
-  value: number;
-  format: (v: number) => string;
-  threshold: number;
-  inverse?: boolean;
-}) {
-  const isHealthy = inverse ? value <= threshold : value >= threshold;
-  return (
-    <span
-      className={`font-semibold text-sm ${
-        isHealthy ? "text-emerald-600" : "text-red-600"
-      }`}
-    >
-      {format(value)}
-    </span>
   );
 }

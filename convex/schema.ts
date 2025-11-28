@@ -27,6 +27,8 @@ export default defineSchema({
     name: v.string(),
     description: v.optional(v.string()),
     owner_id: v.id("users"),
+    categories: v.optional(v.array(v.id("categories"))),
+    logo_url: v.optional(v.string()),
     address: v.object({
       street: v.string(),
       city: v.string(),

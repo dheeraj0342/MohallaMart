@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 
 const EARTH_RADIUS_KM = 6371;
 
@@ -31,6 +32,8 @@ export const createShop = mutation({
     name: v.string(),
     description: v.optional(v.string()),
     owner_id: v.id("users"),
+    categories: v.optional(v.array(v.id("categories"))),
+    logo_url: v.optional(v.string()),
     address: v.object({
       street: v.string(),
       city: v.string(),
@@ -64,10 +67,36 @@ export const createShop = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    // Check if user already has an active shop to prevent duplicates
+    const existingShops = await ctx.db
+      .query("shops")
+      .withIndex("by_owner", (q) => q.eq("owner_id", args.owner_id))
+      .filter((q) => q.eq(q.field("is_active"), true))
+      .collect();
+
+    if (existingShops.length > 0) {
+      // User already has a shop - update it instead of creating duplicate
+      const existingShop = existingShops[0];
+      await ctx.db.patch(existingShop._id, {
+        name: args.name,
+        description: args.description,
+        categories: args.categories || [],
+        logo_url: args.logo_url,
+        address: args.address,
+        contact: args.contact,
+        business_hours: args.business_hours,
+        updated_at: Date.now(),
+      });
+      return existingShop._id;
+    }
+
+    // No existing shop - create new one
     const shopId = await ctx.db.insert("shops", {
       name: args.name,
       description: args.description,
       owner_id: args.owner_id,
+      categories: args.categories || [],
+      logo_url: args.logo_url,
       address: args.address,
       contact: args.contact,
       business_hours: args.business_hours,
@@ -173,6 +202,32 @@ export const getShop = query({
   },
 });
 
+// Get shop by slug (generated from name)
+export const getShopBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args) => {
+    // Generate slug from shop name and find matching shop
+    const allShops = await ctx.db
+      .query("shops")
+      .filter((q) => q.eq(q.field("is_active"), true))
+      .collect();
+
+    // Helper function to generate slug (must match client-side function)
+    const generateSlug = (text: string): string => {
+      return text
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/[\s_-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    };
+
+    // Find shop with matching slug
+    const shop = allShops.find((s) => generateSlug(s.name) === args.slug);
+    return shop || null;
+  },
+});
+
 // Get shops by owner
 export const getShopsByOwner = query({
   args: {
@@ -250,6 +305,8 @@ export const updateShop = mutation({
     id: v.id("shops"),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
+    categories: v.optional(v.array(v.id("categories"))),
+    logo_url: v.optional(v.string()),
     address: v.optional(
       v.object({
         street: v.string(),
@@ -294,6 +351,8 @@ export const updateShop = mutation({
     await ctx.db.patch(args.id, {
       ...(args.name && { name: args.name }),
       ...(args.description !== undefined && { description: args.description }),
+      ...(args.categories !== undefined && { categories: args.categories }),
+      ...(args.logo_url !== undefined && { logo_url: args.logo_url }),
       ...(args.address && { address: args.address }),
       ...(args.contact && { contact: args.contact }),
       ...(args.business_hours && { business_hours: args.business_hours }),
@@ -342,6 +401,136 @@ export const getAllActiveShops = query({
 
     if (args.limit) {
       return shops.slice(0, args.limit);
+    }
+
+    return shops;
+  },
+});
+
+// Delete a shop (for cleaning up duplicates)
+export const deleteShop = mutation({
+  args: { id: v.id("shops") },
+  handler: async (ctx, args) => {
+    const shop = await ctx.db.get(args.id);
+    if (!shop) {
+      throw new Error("Shop not found");
+    }
+    await ctx.db.delete(args.id);
+    return args.id;
+  },
+});
+
+// Get all duplicate shops for a user (keeps the first one, marks others as duplicates)
+export const getDuplicateShops = query({
+  args: { owner_id: v.id("users") },
+  handler: async (ctx, args) => {
+    const shops = await ctx.db
+      .query("shops")
+      .withIndex("by_owner", (q) => q.eq("owner_id", args.owner_id))
+      .filter((q) => q.eq(q.field("is_active"), true))
+      .collect();
+
+    if (shops.length <= 1) {
+      return [];
+    }
+
+    // Sort by created_at to keep the oldest one
+    shops.sort((a, b) => (a.created_at || 0) - (b.created_at || 0));
+
+    // Return all except the first one (these are duplicates)
+    return shops.slice(1);
+  },
+});
+
+// Get shops by category (supports hierarchical filtering)
+export const getShopsByCategory = query({
+  args: {
+    category_id: v.optional(v.id("categories")),
+    category_name: v.optional(v.string()),
+    city: v.optional(v.string()),
+    pincode: v.optional(v.string()),
+    is_active: v.optional(v.boolean()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    // Get all categories first
+    const allCategories = await ctx.db.query("categories").collect();
+    
+    // Find category by ID or name
+    let categoryId: Id<"categories"> | undefined;
+    if (args.category_id) {
+      categoryId = args.category_id;
+    } else if (args.category_name && args.category_name.toLowerCase() !== "all") {
+      const category = allCategories.find(
+        (cat) => cat.name.toLowerCase() === args.category_name?.toLowerCase()
+      );
+      if (category) {
+        categoryId = category._id;
+      }
+    }
+
+    // Get all shops
+    let shops = await ctx.db.query("shops").collect();
+
+    // Filter by category if specified (hierarchical: includes parent and child categories)
+    if (categoryId) {
+      // Get all category IDs to match (the selected category and its children)
+      const categoryIdsToMatch = new Set<Id<"categories">>();
+      categoryIdsToMatch.add(categoryId);
+
+      // Add all child categories (sub and sub-sub)
+      const addChildren = (parentId: Id<"categories">) => {
+        const children = allCategories.filter(
+          (cat) => cat.parent_id === parentId
+        );
+        for (const child of children) {
+          categoryIdsToMatch.add(child._id);
+          addChildren(child._id); // Recursively add grandchildren
+        }
+      };
+      addChildren(categoryId);
+
+      // Also include parent categories if this is a sub/sub-sub category
+      let currentCategory = allCategories.find((cat) => cat._id === categoryId);
+      while (currentCategory?.parent_id) {
+        categoryIdsToMatch.add(currentCategory.parent_id);
+        currentCategory = allCategories.find(
+          (cat) => cat._id === currentCategory!.parent_id
+        );
+      }
+
+      // Filter shops that have any of these categories
+      shops = shops.filter(
+        (shop) =>
+          shop.categories &&
+          shop.categories.some((catId) => categoryIdsToMatch.has(catId))
+      );
+    }
+
+    // Filter by active status
+    if (args.is_active !== undefined) {
+      shops = shops.filter((shop) => shop.is_active === args.is_active);
+    } else {
+      // Default to active shops only
+      shops = shops.filter((shop) => shop.is_active === true);
+    }
+
+    // Filter by city
+    if (args.city) {
+      shops = shops.filter((shop) => shop.address.city === args.city);
+    }
+
+    // Filter by pincode
+    if (args.pincode) {
+      shops = shops.filter((shop) => shop.address.pincode === args.pincode);
+    }
+
+    // Sort by rating
+    shops.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+
+    // Apply limit
+    if (args.limit) {
+      shops = shops.slice(0, args.limit);
     }
 
     return shops;

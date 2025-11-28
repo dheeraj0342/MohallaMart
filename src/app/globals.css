@@ -2,30 +2,28 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
+
+/* ============================================
+   COLOR SYSTEM - Light Mode
+   ============================================ */
 :root {
-  /* Grocery brand palette tuned for light mode */
+  /* Brand Colors */
   --color-primary: #27ae60;
   --color-primary-hover: #1f8f4e;
   --color-secondary: #ffeb3b;
   --color-secondary-hover: #f5d020;
   --color-accent: #faffd2;
   --color-accent-hover: #f0e88c;
+  --color-tertiary: #ff8152;
+  --color-tertiary-hover: #e76b3f;
 
+  /* Semantic Colors */
   --color-success: #27ae60;
   --color-warning: #ffb74d;
   --color-error: #b83d0f;
   --color-info: #2b6cb0;
 
-  --error-bg: #fff1eb;
-  --error-border: #ffb199;
-  --error-text: #b83d0f;
-
-  --primary-brand: var(--color-primary);
-  --primary-hover: var(--color-primary-hover);
-  --secondary-brand: var(--color-secondary);
-  --secondary-hover: var(--color-secondary-hover);
-  --accent-brand: var(--color-accent);
-
+  /* Neutral Palette */
   --neutral-50: #f9f6f2;
   --neutral-100: #f2f2f2;
   --neutral-200: #e0e0e0;
@@ -38,77 +36,101 @@
   --neutral-900: #242015;
   --neutral-950: #18140c;
 
-  /* Printing blacks (subtractive model) */
-  --standard-black: #111111; /* cmyk(0, 0, 0, 100) */
-  --rich-black: #050304; /* approx cmyk(60, 40, 40, 100) */
+  /* Printing Blacks */
+  --standard-black: #111111;
+  --rich-black: #050304;
+  --pure-black: #000000;
 
   @supports (color: color(cmyk 0 0 0 1)) {
-    :root {
-      --standard-black: color(cmyk 0 0 0 1);
-      --rich-black: color(cmyk 0.6 0.4 0.4 1);
-    }
+    --standard-black: color(cmyk 0 0 0 1);
+    --rich-black: color(cmyk 0.6 0.4 0.4 1);
+    --pure-black: #000000;
   }
-  --neutral-light: #f9f6f2;
-  --neutral-dark: #181c1f;
 
+  /* Brand Aliases */
+  --primary-brand: var(--color-primary);
+  --primary-hover: var(--color-primary-hover);
+  --secondary-brand: var(--color-secondary);
+  --secondary-hover: var(--color-secondary-hover);
+  --accent-brand: var(--color-accent);
+  --tertiary-brand: var(--color-tertiary);
+  --tertiary-hover: var(--color-tertiary-hover);
+
+  /* Role-based Colors */
   --color-merchant: #fa638c;
   --color-customer: #27ae60;
   --color-transaction: #27ae60;
-  --radius: 0.625rem;
-  --background: #f9f6f2;
-  --foreground: #212121;
+
+  /* Shadcn UI Theme Variables - Light Mode */
+  --background: var(--neutral-50);
+  --foreground: var(--neutral-900);
   --card: #ffffff;
-  --card-foreground: #594a3a;
+  --card-foreground: var(--neutral-900);
   --popover: #ffffff;
-  --popover-foreground: #594a3a;
-  --primary: #27ae60;
+  --popover-foreground: var(--neutral-900);
+  --primary: var(--color-primary);
   --primary-foreground: #ffffff;
-  --secondary: #faffd2;
-  --secondary-foreground: #594a3a;
-  --muted: #f0ede7;
-  --muted-foreground: #594a3a;
-  --accent: #faffd2;
-  --accent-foreground: #212121;
-  --destructive: #b83d0f;
-  --border: #e0e0e0;
-  --input: #e0e0e0;
-  --ring: #27ae60;
-  --chart-1: #27ae60;
-  --chart-2: #ffeb3b;
-  --chart-3: #fa638c;
+  --secondary: var(--color-accent);
+  --secondary-foreground: var(--neutral-900);
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-600);
+  --accent: var(--color-accent);
+  --accent-foreground: var(--neutral-900);
+  --destructive: var(--color-error);
+  --destructive-foreground: #ffffff;
+  --border: var(--neutral-300);
+  --input: var(--neutral-200);
+  --ring: var(--color-primary);
+  --radius: 0.625rem;
+
+  /* Chart Colors */
+  --chart-1: var(--color-primary);
+  --chart-2: var(--color-secondary);
+  --chart-3: var(--color-merchant);
   --chart-4: #3b7dd8;
-  --chart-5: #b83d0f;
+  --chart-5: var(--color-error);
+
+  /* Sidebar */
   --sidebar: #ffffff;
-  --sidebar-foreground: #594a3a;
-  --sidebar-primary: #27ae60;
+  --sidebar-foreground: var(--neutral-700);
+  --sidebar-primary: var(--color-primary);
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f0f9f4;
-  --sidebar-accent-foreground: #1f8f4e;
-  --sidebar-border: #e0e0e0;
-  --sidebar-ring: #27ae60;
+  --sidebar-accent-foreground: var(--color-primary-hover);
+  --sidebar-border: var(--neutral-200);
+  --sidebar-ring: var(--color-primary);
 
-  --tertiary-brand: #ff8152;
-  --tertiary-hover: #e76b3f;
+  /* Links */
   --link: #2b6cb0;
   --link-hover: #1e4e8c;
 
-  --success-bg-light: #e6f4ec;
-  --success-fg: #1f8f4e;
-  --warning-bg-light: #fff8e1;
-  --warning-fg: #a15c07;
-  --info-bg-light: #eef3ff;
-  --info-fg: #2b6cb0;
-  --error-bg-light: #fff1eb;
-  --error-fg: #b83d0f;
+    /* Status Colors - Light Mode */
+    --success-bg-light: #e6f4ec;
+    --success-fg: #1f8f4e;
+    --success-border: #27ae60;
+    --warning-bg-light: #fff8e1;
+    --warning-fg: #a15c07;
+    --warning-border: #ffb74d;
+    --info-bg-light: #eef3ff;
+    --info-fg: #2b6cb0;
+    --info-border: #2b6cb0;
+    --error-bg-light: #fff1eb;
+    --error-fg: var(--color-error);
+    --error-border: #ffb199;
+    --error-text: var(--color-error);
 }
 
+/* ============================================
+   TAILWIND THEME INTEGRATION
+   ============================================ */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary-brand: var(--primary-brand);
   --color-secondary-brand: var(--secondary-brand);
   --color-accent-brand: var(--accent-brand);
-  --color-error-bg: var(--error-bg);
+  --color-tertiary-brand: var(--tertiary-brand);
+  --color-error-bg: var(--error-bg-light);
   --color-error-border: var(--error-border);
   --color-error-text: var(--error-text);
   --font-sans: var(--font-open-sans);
@@ -148,34 +170,41 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ============================================
+   DARK MODE - System Preference
+   ============================================ */
 @media (prefers-color-scheme: dark) {
   :root {
-    --neutral-light: #24292e;
-    --neutral-dark: #f9f6f2;
-    --background: var(--rich-black);
-    --foreground: #f9f6f2;
-    --card: var(--standard-black);
-    --card-foreground: #f9f6f2;
-    --popover: var(--standard-black);
-    --popover-foreground: #f9f6f2;
+    /* Shadcn UI Theme Variables - Dark Mode */
+    --background: var(--pure-black);
+    --foreground: var(--neutral-50);
+    --card: var(--pure-black);
+    --card-foreground: var(--neutral-50);
+    --popover: var(--pure-black);
+    --popover-foreground: var(--neutral-50);
     --primary: #27ae60;
-    --primary-foreground: #181c1f;
-    --secondary: #3b2f22;
-    --secondary-foreground: #f9f6f2;
-    --muted: #524f44;
-    --muted-foreground: #a2a6b2;
-    --accent: #ffe066;
-    --accent-foreground: #181c1f;
+    --primary-foreground: #ffffff;
+    --secondary: var(--neutral-800);
+    --secondary-foreground: var(--neutral-50);
+    --muted: var(--neutral-800);
+    --muted-foreground: var(--neutral-400);
+    --accent: var(--color-accent);
+    --accent-foreground: var(--neutral-950);
     --destructive: #ff8152;
-    --border: #24292e;
-    --input: #24292e;
+    --destructive-foreground: #ffffff;
+    --border: var(--neutral-700);
+    --input: var(--neutral-800);
     --ring: #27ae60;
+
+    /* Chart Colors - Dark Mode */
     --chart-1: #27ae60;
     --chart-2: #ffe066;
     --chart-3: #fa638c;
     --chart-4: #6ca414;
     --chart-5: #a2a6b2;
-  --sidebar: var(--standard-black);
+
+    /* Sidebar - Dark Mode */
+    --sidebar: var(--pure-black);
     --sidebar-foreground: #f9f6f2;
     --sidebar-primary: #27ae60;
     --sidebar-primary-foreground: #181c1f;
@@ -184,21 +213,85 @@
     --sidebar-border: #2d333b;
     --sidebar-ring: #27ae60;
 
+    /* Links - Dark Mode */
     --tertiary-brand: #ff8152;
     --tertiary-hover: #fa638c;
     --link: #a2c5ff;
     --link-hover: #cbd7ff;
+
+    /* Status Colors - Dark Mode */
     --success-bg-light: #1f2f25;
     --success-fg: #8fd8a5;
+    --success-border: #27ae60;
     --warning-bg-light: #3b2f22;
     --warning-fg: #ffd38a;
+    --warning-border: #ffb74d;
     --info-bg-light: #1e2a3a;
     --info-fg: #a2c5ff;
+    --info-border: #2b6cb0;
     --error-bg-light: #3c1f18;
     --error-fg: #ffb199;
+    --error-border: #ff8152;
   }
 }
 
+/* ============================================
+   DARK MODE - Class-based Override
+   ============================================ */
+.dark {
+  --background: var(--pure-black);
+  --foreground: var(--neutral-50);
+  --card: var(--pure-black);
+  --card-foreground: var(--neutral-50);
+  --popover: var(--pure-black);
+  --popover-foreground: var(--neutral-50);
+  --primary: #27ae60;
+  --primary-foreground: #ffffff;
+  --secondary: var(--neutral-800);
+  --secondary-foreground: var(--neutral-50);
+  --muted: var(--neutral-800);
+  --muted-foreground: var(--neutral-400);
+  --accent: var(--color-accent);
+  --accent-foreground: var(--neutral-950);
+  --destructive: #ff8152;
+  --destructive-foreground: #ffffff;
+  --border: var(--neutral-700);
+  --input: var(--neutral-800);
+  --ring: #27ae60;
+  --chart-1: #27ae60;
+  --chart-2: #ffe066;
+  --chart-3: #fa638c;
+  --chart-4: #6ca414;
+  --chart-5: #a2a6b2;
+  --sidebar: var(--pure-black);
+  --sidebar-foreground: #f9f6f2;
+  --sidebar-primary: #27ae60;
+  --sidebar-primary-foreground: #181c1f;
+  --sidebar-accent: #1f2f25;
+  --sidebar-accent-foreground: #8fd8a5;
+  --sidebar-border: #2d333b;
+  --sidebar-ring: #27ae60;
+  --tertiary-brand: #ff8152;
+  --tertiary-hover: #fa638c;
+  --link: #a2c5ff;
+  --link-hover: #cbd7ff;
+  --success-bg-light: #1f2f25;
+  --success-fg: #8fd8a5;
+  --success-border: #27ae60;
+  --warning-bg-light: #3b2f22;
+  --warning-fg: #ffd38a;
+  --warning-border: #ffb74d;
+  --info-bg-light: #1e2a3a;
+  --info-fg: #a2c5ff;
+  --info-border: #2b6cb0;
+  --error-bg-light: #3c1f18;
+  --error-fg: #ffb199;
+  --error-border: #ff8152;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
 body {
   font-family:
     var(--font-open-sans),
@@ -208,12 +301,18 @@ body {
     "Segoe UI",
     Roboto,
     sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
   transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-montserrat), var(--font-open-sans), sans-serif;
   font-weight: 600;
+  line-height: 1.2;
+  color: var(--foreground);
 }
 
 html {
@@ -225,58 +324,140 @@ html.dark {
   color-scheme: dark;
 }
 
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--neutral-light);
+  background: var(--muted);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--primary-brand);
+  background: var(--primary);
   border-radius: 4px;
+  border: 2px solid var(--muted);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-hover);
 }
 
-/* Local commerce platform styling */
+.dark ::-webkit-scrollbar-track {
+  background: var(--neutral-800);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-color: var(--neutral-800);
+}
+
+/* Firefox Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) var(--muted);
+}
+
+.dark * {
+  scrollbar-color: var(--primary) var(--neutral-800);
+}
+
+/* ============================================
+   SELECTION STYLING
+   ============================================ */
 ::selection {
   background-color: var(--accent-brand);
-  color: var(--neutral-dark);
+  color: var(--neutral-900);
 }
 
 ::-moz-selection {
   background-color: var(--accent-brand);
-  color: var(--neutral-dark);
+  color: var(--neutral-900);
 }
 
-/* Focus states for accessibility */
-*:focus {
-  outline: 2px solid var(--primary-brand);
+.dark ::selection {
+  background-color: var(--accent);
+  color: var(--neutral-900);
+}
+
+.dark ::-moz-selection {
+  background-color: var(--accent);
+  color: var(--neutral-900);
+}
+
+/* ============================================
+   FOCUS STATES & ACCESSIBILITY
+   ============================================ */
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 
-/* Link hover effects */
-a:hover {
+/* ============================================
+   TRANSITIONS & ANIMATIONS
+   ============================================ */
+a {
   transition: color 0.2s ease-in-out;
 }
 
-/* Button hover effects */
-button:hover {
+button {
   transition: all 0.2s ease-in-out;
 }
 
-/* Form input improvements */
+/* Smooth transitions for theme changes */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
 input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="tel"],
 input[type="number"],
-textarea {
+input[type="url"],
+input[type="search"],
+textarea,
+select {
   transition: all 0.2s ease-in-out;
+  background-color: var(--background);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+/* Ensure text is always visible in inputs */
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+input[type="tel"]::placeholder,
+input[type="number"]::placeholder,
+input[type="url"]::placeholder,
+input[type="search"]::placeholder,
+textarea::placeholder {
+  color: var(--muted-foreground);
+  opacity: 0.7;
 }
 
 input[type="text"]:focus,
@@ -284,18 +465,26 @@ input[type="email"]:focus,
 input[type="password"]:focus,
 input[type="tel"]:focus,
 input[type="number"]:focus,
-textarea:focus {
+input[type="url"]:focus,
+input[type="search"]:focus,
+textarea:focus,
+select:focus {
   outline: none;
-  border-color: var(--primary-brand);
+  border-color: var(--ring);
   box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.15);
 }
 
-/* Custom checkbox styling */
-input[type="checkbox"] {
-  accent-color: var(--primary-brand);
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--primary);
+  cursor: pointer;
 }
 
-/* Merchant vs Customer differentiation */
+/* Placeholder styles moved above for better organization */
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
 .merchant-action {
   color: var(--color-merchant);
   border-color: var(--color-merchant);
@@ -310,88 +499,117 @@ input[type="checkbox"] {
   color: var(--color-transaction);
 }
 
-.dark {
-  --background: var(--rich-black);
-  --foreground: #f9f6f2;
-  --card: var(--standard-black);
-  --card-foreground: #f9f6f2;
-  --popover: var(--standard-black);
-  --popover-foreground: #f9f6f2;
-  --primary: #27ae60;
-  --primary-foreground: #181c1f;
-  --secondary: #3b2f22;
-  --secondary-foreground: #f9f6f2;
-  --muted: #524f44;
-  --muted-foreground: #a2a6b2;
-  --accent: #ffe066;
-  --accent-foreground: #181c1f;
-  --destructive: #ff8152;
-  --border: #2d333b;
-  --input: #2d333b;
-  --ring: #27ae60;
-  --chart-1: #27ae60;
-  --chart-2: #ffe066;
-  --chart-3: #fa638c;
-  --chart-4: #6ca414;
-  --chart-5: #a2a6b2;
-  --sidebar: var(--standard-black);
-  --sidebar-foreground: #f9f6f2;
-  --sidebar-primary: #27ae60;
-  --sidebar-primary-foreground: #181c1f;
-  --sidebar-accent: #1f2f25;
-  --sidebar-accent-foreground: #8fd8a5;
-  --sidebar-border: #2d333b;
-  --sidebar-ring: #27ae60;
-}
-
-/* Utility tweaks to improve dark mode appearance for legacy classes */
+/* Legacy dark mode overrides for compatibility - Fixed for visibility */
 .dark .bg-white {
-  background-color: rgba(24, 28, 31, 0.92) !important;
-  color: var(--neutral-100);
+  background-color: var(--pure-black) !important;
+  color: var(--neutral-50) !important;
 }
 
 .dark .bg-gray-50 {
-  background-color: rgba(36, 41, 46, 0.85) !important;
+  background-color: var(--pure-black) !important;
+  color: var(--neutral-50) !important;
 }
 
-.dark .border-gray-100 {
-  border-color: rgba(45, 51, 59, 0.6) !important;
+.dark .bg-gray-100 {
+  background-color: var(--neutral-900) !important;
+  color: var(--neutral-50) !important;
+}
+
+.dark .border-gray-100,
+.dark .border-gray-200 {
+  border-color: var(--neutral-700) !important;
 }
 
 .dark .text-gray-900,
-.dark .text-gray-800 {
-  color: var(--neutral-100) !important;
+.dark .text-gray-800,
+.dark .text-black {
+  color: var(--neutral-50) !important;
 }
 
 .dark .text-gray-700,
 .dark .text-gray-600 {
-  color: var(--neutral-200) !important;
-}
-
-.dark .text-gray-500 {
   color: var(--neutral-300) !important;
 }
 
-.dark .text-gray-400 {
+.dark .text-gray-500 {
   color: var(--neutral-400) !important;
 }
 
+.dark .text-gray-400 {
+  color: var(--neutral-500) !important;
+}
+
+.dark .text-gray-300 {
+  color: var(--neutral-400) !important;
+}
+
+/* Light mode text color fixes */
+.text-gray-900,
+.text-gray-800,
+.text-black {
+  color: var(--neutral-900) !important;
+}
+
+.text-gray-700,
+.text-gray-600 {
+  color: var(--neutral-700) !important;
+}
+
+.text-gray-500 {
+  color: var(--neutral-600) !important;
+}
+
+.text-gray-400 {
+  color: var(--neutral-500) !important;
+}
+
+/* ============================================
+   TAILWIND BASE LAYER
+   ============================================ */
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
-/* Shopkeeper Sidebar - Full height since navbar is hidden on shopkeeper/admin pages */
-/* Sidebar starts from top when navbar is not present */
+/* ============================================
+   SHOPKEEPER SIDEBAR STYLING
+   ============================================ */
 [data-slot="sidebar-container"] {
   top: 0 !important;
   height: 100vh !important;
   max-height: 100vh !important;
   z-index: 40 !important;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+
+  img {
+    page-break-inside: avoid;
+  }
+
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
 }
 
 /* stylelint-enable at-rule-no-unknown */
