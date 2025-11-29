@@ -80,11 +80,11 @@ export default function Navbar() {
   // Watch for location changes and show toast
   useEffect(() => {
     if (mounted && location) {
-      const locationChanged = 
-        !prevLocation || 
-        prevLocation.area !== location.area || 
+      const locationChanged =
+        !prevLocation ||
+        prevLocation.area !== location.area ||
         prevLocation.city !== location.city;
-      
+
       if (locationChanged && prevLocation) {
         success(`Delivery location updated to ${location.area}, ${location.city}`);
       }
@@ -213,15 +213,15 @@ export default function Navbar() {
                       <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2] max-w-[140px] truncate leading-tight">
                         {location
                           ? (
-                              <>
-                                <span>{location.area}</span>
-                                {location.pincode && (
-                                  <span className="ml-1 text-xs text-[#85786a] dark:text-[#a2a6b2] font-normal">
-                                    ({location.pincode})
-                                  </span>
-                                )}
-                              </>
-                            )
+                            <>
+                              <span>{location.area}</span>
+                              {location.pincode && (
+                                <span className="ml-1 text-xs text-[#85786a] dark:text-[#a2a6b2] font-normal">
+                                  ({location.pincode})
+                                </span>
+                              )}
+                            </>
+                          )
                           : "Select Location"}
                       </div>
                     </div>
@@ -296,14 +296,14 @@ export default function Navbar() {
                 {/* Theme toggle */}
                 <button
                   onClick={toggleTheme}
-                  className="p-2.5 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all hover:scale-110 active:scale-95"
+                  className="p-2.5 rounded-lg hover:bg-muted transition-all hover:scale-110 active:scale-95"
                   aria-label="Toggle color theme"
                   title="Toggle dark / light"
                 >
                   {isDark ? (
                     <Sun className="h-5 w-5 text-yellow-400" />
                   ) : (
-                    <Moon className="h-5 w-5 text-[#212121]" />
+                    <Moon className="h-5 w-5 text-black" />
                   )}
                 </button>
                 {/* User Account */}
@@ -502,15 +502,15 @@ export default function Navbar() {
                 {groceryCategories.map((category, index) => {
                   const Icon = category.icon;
                   return (
-                  <Link
-                    key={index}
-                    href={category.href}
+                    <Link
+                      key={index}
+                      href={category.href}
                       className="group relative flex items-center gap-2 py-1 text-sm font-medium text-[#212121] transition-colors hover:text-primary-brand dark:text-[#f9f6f2] dark:hover:text-primary-brand"
-                  >
+                    >
                       <Icon className="size-4 text-[#85786a] transition-colors group-hover:text-primary-brand dark:text-[#a2a6b2]" />
                       <span>{category.name}</span>
                       <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 w-0 bg-primary-brand transition-all duration-300 group-hover:w-full" />
-                  </Link>
+                    </Link>
                   );
                 })}
               </div>
@@ -543,21 +543,21 @@ export default function Navbar() {
                     className="flex items-center w-full text-left p-3 bg-white dark:bg-[#24292e] hover:bg-gray-50 dark:hover:bg-[#2d333b] rounded-xl border-2 border-[#e0e0e0] dark:border-[#2d333b] hover:border-primary-brand dark:hover:border-primary-brand transition-all duration-200 group"
                   >
                     <MapPin className="h-5 w-5 mr-3 text-primary-brand dark:text-primary-brand transition-colors" />
-                      <div className="text-xs text-neutral-500 dark:text-neutral-400">Deliver to</div>
-                      <div className="text-sm font-medium text-primary-brand dark:text-primary-brand min-w-[80px] truncate">
-                        {location ? (
-                          <>
-                            <span>{location.area}</span>
-                            {location.pincode && (
-                              <span className="ml-1 text-xs text-neutral-500 dark:text-neutral-400 font-normal">
-                                ({location.pincode})
-                              </span>
-                            )}
-                          </>
-                        ) : (
-                          "Select Location"
-                        )}
-                      </div>
+                    <div className="text-xs text-neutral-500 dark:text-neutral-400">Deliver to</div>
+                    <div className="text-sm font-medium text-primary-brand dark:text-primary-brand min-w-[80px] truncate">
+                      {location ? (
+                        <>
+                          <span>{location.area}</span>
+                          {location.pincode && (
+                            <span className="ml-1 text-xs text-neutral-500 dark:text-neutral-400 font-normal">
+                              ({location.pincode})
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        "Select Location"
+                      )}
+                    </div>
 
                   </button>
 
@@ -569,15 +569,15 @@ export default function Navbar() {
                     {groceryCategories.map((category, index) => {
                       const Icon = category.icon;
                       return (
-                      <Link
-                        key={index}
-                        href={category.href}
+                        <Link
+                          key={index}
+                          href={category.href}
                           className="flex items-center gap-2 rounded-lg px-3 py-2 text-[#212121] transition-colors hover:bg-[#e6f4ec] hover:text-primary-brand dark:text-[#f9f6f2] dark:hover:bg-[#1f2f25]"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
+                          onClick={() => setIsMenuOpen(false)}
+                        >
                           <Icon className="size-4 text-[#85786a] dark:text-[#a2a6b2]" />
                           <span>{category.name}</span>
-                      </Link>
+                        </Link>
                       );
                     })}
                   </div>

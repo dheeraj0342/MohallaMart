@@ -62,20 +62,20 @@
   --color-transaction: #27ae60;
 
   /* Shadcn UI Theme Variables - Light Mode */
-  --background: var(--neutral-50);
-  --foreground: var(--neutral-900);
+  --background: #ffffff;
+  --foreground: #000000;
   --card: #ffffff;
-  --card-foreground: var(--neutral-900);
+  --card-foreground: #000000;
   --popover: #ffffff;
-  --popover-foreground: var(--neutral-900);
+  --popover-foreground: #000000;
   --primary: var(--color-primary);
   --primary-foreground: #ffffff;
   --secondary: var(--color-accent);
-  --secondary-foreground: var(--neutral-900);
-  --muted: var(--neutral-100);
-  --muted-foreground: var(--neutral-600);
+  --secondary-foreground: #000000;
+  --muted: #f2f2f2;
+  --muted-foreground: #6b5c4b;
   --accent: var(--color-accent);
-  --accent-foreground: var(--neutral-900);
+  --accent-foreground: #000000;
   --destructive: var(--color-error);
   --destructive-foreground: #ffffff;
   --border: var(--neutral-300);
@@ -176,20 +176,20 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* Shadcn UI Theme Variables - Dark Mode */
-    --background: var(--pure-black);
-    --foreground: var(--neutral-50);
-    --card: var(--pure-black);
-    --card-foreground: var(--neutral-50);
-    --popover: var(--pure-black);
-    --popover-foreground: var(--neutral-50);
+    --background: #000000;
+    --foreground: #ffffff;
+    --card: #000000;
+    --card-foreground: #ffffff;
+    --popover: #000000;
+    --popover-foreground: #ffffff;
     --primary: #27ae60;
     --primary-foreground: #ffffff;
     --secondary: var(--neutral-800);
-    --secondary-foreground: var(--neutral-50);
-    --muted: var(--neutral-800);
-    --muted-foreground: var(--neutral-400);
+    --secondary-foreground: #ffffff;
+    --muted: #3b2f22;
+    --muted-foreground: #a79f94;
     --accent: var(--color-accent);
-    --accent-foreground: var(--neutral-950);
+    --accent-foreground: #ffffff;
     --destructive: #ff8152;
     --destructive-foreground: #ffffff;
     --border: var(--neutral-700);
@@ -239,20 +239,20 @@
    DARK MODE - Class-based Override
    ============================================ */
 .dark {
-  --background: var(--pure-black);
-  --foreground: var(--neutral-50);
-  --card: var(--pure-black);
-  --card-foreground: var(--neutral-50);
-  --popover: var(--pure-black);
-  --popover-foreground: var(--neutral-50);
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #000000;
+  --card-foreground: #ffffff;
+  --popover: #000000;
+  --popover-foreground: #ffffff;
   --primary: #27ae60;
   --primary-foreground: #ffffff;
   --secondary: var(--neutral-800);
-  --secondary-foreground: var(--neutral-50);
-  --muted: var(--neutral-800);
-  --muted-foreground: var(--neutral-400);
+  --secondary-foreground: #ffffff;
+  --muted: #3b2f22;
+  --muted-foreground: #a79f94;
   --accent: var(--color-accent);
-  --accent-foreground: var(--neutral-950);
+  --accent-foreground: #ffffff;
   --destructive: #ff8152;
   --destructive-foreground: #ffffff;
   --border: var(--neutral-700);
@@ -547,7 +547,7 @@ input[type="radio"] {
 .text-gray-900,
 .text-gray-800,
 .text-black {
-  color: var(--neutral-900) !important;
+  color: #000000 !important;
 }
 
 .text-gray-700,

@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function CTASection() {
   return (
-    <section className="py-20 bg-primary-brand dark:bg-neutral-900 transition-colors">
+    <section className="py-20 bg-primary transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -13,10 +13,10 @@ export default function CTASection() {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white dark:text-neutral-100 mb-6 transition-colors">
+          <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-6 transition-colors">
             Ready to Experience MohallaMart?
           </h2>
-          <p className="text-xl text-green-100 dark:text-neutral-300 mb-8 max-w-2xl mx-auto transition-colors">
+          <p className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto transition-colors">
             Join thousands of satisfied customers who trust us for their
             neighborhood shopping needs
           </p>
@@ -24,14 +24,14 @@ export default function CTASection() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-white text-primary-brand px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-neutral-100/90 transition-colors flex items-center justify-center"
+              className="bg-primary-foreground text-primary px-8 py-3 rounded-lg font-semibold hover:bg-primary-foreground/90 transition-colors flex items-center justify-center"
             >
               Start Shopping <ArrowRight className="ml-2 h-4 w-4" />
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="border-2 border-white dark:border-neutral-200 text-white dark:text-neutral-200 px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-brand dark:hover:bg-neutral-200 dark:hover:text-neutral-900 transition-colors"
+              className="border-2 border-primary-foreground text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary-foreground hover:text-primary transition-colors"
             >
               Download App
             </motion.button>

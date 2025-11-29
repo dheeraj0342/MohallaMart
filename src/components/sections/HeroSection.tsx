@@ -35,9 +35,9 @@ export default function HeroSection() {
 
   return (
     <section id="home" className="relative py-20 transition-colors">
-      <div className="absolute inset-0 bg-linear-to-br from-green-100 via-white to-yellow-100 dark:from-neutral-900 dark:via-neutral-950 dark:to-neutral-900 -z-10" />
+      <div className="absolute inset-0 bg-white dark:bg-black -z-10" />
 
-      <div className="absolute top-0 left-0 w-full h-16 overflow-hidden bg-green-600/90 text-white">
+      <div className="absolute top-0 left-0 w-full h-16 overflow-hidden bg-primary/90 text-primary-foreground">
         <motion.div
           initial={{ x: "-100%" }}
           animate={{ x: "100%" }}

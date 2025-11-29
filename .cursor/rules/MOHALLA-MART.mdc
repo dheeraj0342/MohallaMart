@@ -40,7 +40,7 @@ Built with **Next.js 15**, **TypeScript**, **Convex realtime backend**, and a re
 ### 🔌 **External Integrations**
 
 * **Razorpay** (payments)
-* **Google Maps API** (location + geocoding)
+* **Leaflet + OpenStreetMap** (location + geocoding via Nominatim)
 * **Typesense** (super‑fast search)
 * **OneSignal** (push notifications)
 * **Twilio/MSG91** (SMS)
@@ -233,7 +233,6 @@ console.log("User logged in"); // Don't use this
 * Proper loading, error, and empty states
 * **ALWAYS use Shadcn UI components** for UI elements
 * **ALWAYS implement dark/light theme support** for all non-admin components using CSS variables from `globals.css`
-* **Never hardcode colors** - Always use theme-aware Tailwind classes or CSS variables
 * Test components in both light and dark themes before submitting
 
 ---
@@ -258,9 +257,8 @@ console.log("User logged in"); // Don't use this
 // Step 1: Read globals.css to understand available variables
 // Step 2: Identify which CSS variables to use
 // Step 3: Apply theme-aware classes
-className="bg-background text-foreground border-border" // Uses CSS variables
-className="bg-[var(--success-bg-light)] text-[var(--success-fg)]" // Direct variable usage
-className="bg-white dark:bg-neutral-800" // Theme-aware with fallback
+className="bg-white dark:bg-black text-black dark:text-white border-neutral-200 dark:border-neutral-800" // Standard pattern
+className="bg-[var(--success-bg-light)] text-[var(--success-fg)]" // Direct variable usage for semantic colors
 ```
 
 **❌ NEVER:**
@@ -296,50 +294,218 @@ className="bg-white dark:bg-neutral-800" // Theme-aware with fallback
 1. **Always use theme-aware classes**:
    ```tsx
    // ✅ Good: Theme-aware background
-   className="bg-white dark:bg-neutral-800"
+   className="bg-white dark:bg-black"
    
    // ✅ Good: Theme-aware text
-   className="text-neutral-900 dark:text-neutral-100"
+   className="text-black dark:text-white"
    
-   // ✅ Good: Using CSS variables
-   className="bg-background text-foreground border-border"
+   // ✅ Good: Theme-aware borders
+   className="border-neutral-200 dark:border-neutral-800"
    
-   // ❌ Bad: Hardcoded colors
+   // ❌ Bad: Hardcoded colors without dark mode
    className="bg-white text-black"
    ```
 
-2. **Use CSS variables when possible**:
+2. **Always test both themes** before submitting code
+
+### 🎨 **Background Color Scheme (MANDATORY)**
+
+**CRITICAL**: All page and section backgrounds **MUST use white in light mode and black in dark mode** - no gradients, no gray backgrounds.
+
+#### ✅ **Correct Background Usage**
+
+* **Page/Section backgrounds**: Always use pure white for light mode and pure black for dark mode:
+  ```tsx
+  // ✅ Good: Pure white/black backgrounds
+  className="bg-white dark:bg-black"
+  className="min-h-screen bg-white dark:bg-black"
+  
+  // ✅ Good: Section backgrounds
+  className="py-20 bg-white dark:bg-black"
+  ```
+
+* **Card backgrounds**: Use white/black for cards as well:
+  ```tsx
+  // ✅ Good: Card backgrounds
+  className="bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800"
+  className="bg-white dark:bg-black p-8 rounded-xl"
+  ```
+
+* **Special sections** (like CTA with colored backgrounds) can use brand colors:
+  ```tsx
+  // ✅ Good: Colored sections (intentional design)
+  className="bg-primary" // CTA sections, hero banners, etc.
+  className="bg-secondary"
+  ```
+
+#### ❌ **Incorrect Background Usage**
+
+* **NEVER use gradients for backgrounds**:
+  ```tsx
+  // ❌ Bad: Gradients
+  className="bg-gradient-to-br from-green-100 via-white to-yellow-100"
+  className="bg-gradient-to-r from-neutral-50 to-neutral-100"
+  ```
+
+* **NEVER use gray backgrounds**:
+  ```tsx
+  // ❌ Bad: Gray backgrounds
+  className="bg-neutral-50 dark:bg-neutral-950"
+  className="bg-gray-100 dark:bg-gray-900"
+  className="bg-background" // If it resolves to gray, use explicit white/black
+  ```
+
+* **NEVER use muted/transparent backgrounds for main sections**:
+  ```tsx
+  // ❌ Bad: Muted backgrounds
+  className="bg-muted/30"
+  className="bg-neutral-50/50"
+  ```
+
+#### 📋 **Background Color Best Practices**
+
+1. **Page containers**: Always use `bg-white dark:bg-black`
    ```tsx
-   // ✅ Good: Using semantic CSS variables
-   className="bg-background text-foreground"
-   className="bg-card text-card-foreground"
-   className="border-border"
-   
-   // ✅ Good: Using theme-aware utilities
-   className="bg-white dark:bg-[var(--card)]"
+   // ✅ Good: Page wrapper
+   <div className="min-h-screen bg-white dark:bg-black">
    ```
 
-3. **Common theme patterns**:
+2. **Section backgrounds**: Use `bg-white dark:bg-black` for all sections
    ```tsx
-   // Backgrounds
-   bg-white dark:bg-neutral-800
-   bg-neutral-50 dark:bg-neutral-900
-   bg-card dark:bg-card
-   
-   // Text
-   text-neutral-900 dark:text-neutral-100
-   text-foreground
-   text-neutral-600 dark:text-neutral-400
-   
-   // Borders
-   border-neutral-200 dark:border-neutral-700
-   border-border
-   
-   // Hover states
-   hover:bg-neutral-50 dark:hover:bg-neutral-800
+   // ✅ Good: Section
+   <section className="py-20 bg-white dark:bg-black">
    ```
 
-4. **Always test both themes** before submitting code
+3. **Card backgrounds**: Use `bg-white dark:bg-black` with proper borders
+   ```tsx
+   // ✅ Good: Card
+   <div className="bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800">
+   ```
+
+4. **Borders**: Always use theme-aware borders
+   ```tsx
+   // ✅ Good: Theme-aware borders
+   className="border-neutral-200 dark:border-neutral-800"
+   className="border-t border-neutral-200 dark:border-neutral-800"
+   ```
+
+5. **Text on backgrounds**: Ensure proper contrast
+   ```tsx
+   // ✅ Good: High contrast text
+   className="bg-white dark:bg-black text-black dark:text-white"
+   ```
+
+#### 🎯 **Common Background Patterns**
+
+```tsx
+// Page wrapper
+className="min-h-screen bg-white dark:bg-black"
+
+// Section
+className="py-20 bg-white dark:bg-black"
+
+// Card
+className="bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 p-8 rounded-xl"
+
+// Container with border
+className="bg-white dark:bg-black border-t border-neutral-200 dark:border-neutral-800"
+
+// Special colored sections (intentional)
+className="bg-primary" // For CTA, hero banners, etc.
+className="bg-secondary"
+```
+
+### 📝 **Text Color Guidelines (MANDATORY)**
+
+**CRITICAL**: For user-facing text, **ALWAYS use theme-aware text colors** - never hardcode black text that applies to both light and dark modes.
+
+#### ✅ **Correct Text Color Usage**
+
+* **Use black text for light mode, white text for dark mode**:
+  ```tsx
+  // ✅ Good: Theme-aware text colors
+  className="text-black dark:text-white"
+  className="text-neutral-600 dark:text-neutral-300" // For secondary text
+  ```
+
+* **Use colorful text colors when needed** (for emphasis, branding, or semantic meaning):
+  ```tsx
+  // ✅ Good: Colorful text for specific purposes
+  className="text-primary" // Brand color
+  className="text-secondary" // Accent color
+  className="text-green-600 dark:text-green-400" // Success state
+  className="text-red-600 dark:text-red-400" // Error state
+  className="text-blue-600 dark:text-blue-400" // Info state
+  ```
+
+
+#### ❌ **Incorrect Text Color Usage**
+
+* **NEVER hardcode black text that works in both themes**:
+  ```tsx
+  // ❌ Bad: Black text in both light and dark mode
+  className="text-black" // Will be invisible or hard to read in dark mode
+  className="text-neutral-900" // Without dark: variant, invisible in dark mode
+  
+  // ❌ Bad: Using CSS variables that are black in both modes
+  className="text-[var(--some-black-variable)]" // If variable is black for both themes
+  ```
+
+* **NEVER use the same text color for both themes without proper contrast**:
+  ```tsx
+  // ❌ Bad: Same color for both themes
+  className="text-gray-800" // No dark mode variant
+  ```
+
+#### 📋 **Text Color Best Practices**
+
+1. **Always provide dark mode variants** for text colors:
+   ```tsx
+   // ✅ Good: Explicit theme variants
+   className="text-black dark:text-white"
+   className="text-neutral-600 dark:text-neutral-300" // For secondary text
+   ```
+
+
+3. **Use colorful text for semantic meaning**:
+   ```tsx
+   // ✅ Good: Colorful text for specific purposes
+   className="text-primary" // Brand/primary actions
+   className="text-secondary" // Secondary actions
+   className="text-green-600 dark:text-green-400" // Success messages
+   className="text-red-600 dark:text-red-400" // Error messages
+   ```
+
+4. **Ensure proper contrast** - Text must be readable in both themes:
+   ```tsx
+   // ✅ Good: High contrast in both themes
+   className="text-black dark:text-white" // High contrast
+   
+   // ❌ Bad: Low contrast
+   className="text-neutral-400 dark:text-neutral-500" // Hard to read
+   ```
+
+5. **Test text visibility** in both light and dark modes before submitting
+
+#### 🎯 **Common Text Color Patterns**
+
+```tsx
+// Primary text (headings, important content)
+className="text-black dark:text-white"
+
+// Secondary text (descriptions, captions)
+className="text-neutral-600 dark:text-neutral-300"
+
+// Brand/Accent text
+className="text-primary"
+className="text-secondary"
+
+// Semantic text (success, error, warning, info)
+className="text-green-600 dark:text-green-400" // Success
+className="text-red-600 dark:text-red-400" // Error
+className="text-yellow-600 dark:text-yellow-400" // Warning
+className="text-blue-600 dark:text-blue-400" // Info
+```
 
 ### 🎨 Color Scheme
 
@@ -347,7 +513,7 @@ className="bg-white dark:bg-neutral-800" // Theme-aware with fallback
 * **Secondary**: Vibrant Orange `--color-secondary` / `var(--secondary)`
 * **Accent**: Sunny Yellow `--color-accent` / `var(--accent)`
 * **Neutral**: Consistent grayscale scale (theme-aware)
-* **Semantic colors**: Use `--background`, `--foreground`, `--card`, `--border`, etc. from `globals.css`
+* **Semantic colors**: Use CSS variables from `globals.css` for semantic colors (success, warning, error, info)
 
 ### Typography
 
@@ -358,7 +524,6 @@ className="bg-white dark:bg-neutral-800" // Theme-aware with fallback
 
 * Mobile‑first layout
 * Generous spacing, readable typography
-* **No inline colors** - Always use CSS variables or Tailwind theme-aware classes
 * **Dark theme support required** for all non-admin pages/components
 * Modals (z‑9999), Dropdowns (z‑10000), Navbar (z‑50)
 
@@ -376,7 +541,6 @@ className="bg-white dark:bg-neutral-800" // Theme-aware with fallback
 * Guard components for route protection (e.g., `ShopkeeperGuard`)
 * **Toast notifications via `useToast` hook** - Always use `useToast()` for user feedback, never use `alert()` or `confirm()`
 * Toast provider configured in `ToastProvider.tsx` using Shadcn's `sonner` component
-* **Never hardcode colors** - Always use CSS variables or Tailwind's `dark:` variant
 
 ### 🎨 **Shadcn UI Component Guidelines**
 
@@ -408,7 +572,6 @@ className="bg-white dark:bg-neutral-800" // Theme-aware with fallback
 * LocalStorage persistence (cart + user)
 * Convex sync for realtime backend updates
 * Redis for caching frequent queries
-* **Toast notifications via `useToast` hook** - Always use `useToast()` for user feedback, never use `alert()` or `confirm()`
 
 ---
 
@@ -428,14 +591,13 @@ className="bg-white dark:bg-neutral-800" // Theme-aware with fallback
 * **Convex** for realtime reads/mutations
 * **Typesense** for search suggestions, typo tolerance
 * **Razorpay** checkout integration
-* **Google Maps** for geolocation & distance computation
+* **Leaflet + OpenStreetMap** for geolocation & distance computation
 
 ### Error Handling
 
 * Retry logic
 * Graceful UI feedback via toast notifications (`useToast().error()`)
 * Network failure fallbacks
-* **Never use browser `alert()`** - always use `useToast()` for user notifications
 * Show error toasts for failed operations
 * Show success toasts for completed operations
 
@@ -489,14 +651,15 @@ className="bg-white dark:bg-neutral-800" // Theme-aware with fallback
 * Geolocation via `navigator.geolocation`
 * Haversine formula for shop distance filtering
 * Route guards for protected pages (`ShopkeeperGuard`, etc.)
-* **Toast notifications**: Always use `useToast()` hook for user feedback - `const { success, error, warning, info } = useToast();`
-* **Never use `alert()` or `confirm()`** - Use toast notifications or Shadcn `AlertDialog` instead
+* **Toast notifications**: Always use `useToast()` hook for user feedback - `const { success, error, warning, info } = useToast();` (Never use `alert()` or `confirm()`)
 * Always wrap protected routes with guard components, never return `null` from guards during loading
 * **UI Components**: Always check `src/components/ui/` for Shadcn components before creating custom ones
 * **Installation**: If a needed Shadcn component doesn't exist, run `npx shadcn@latest add [component-name] --yes` immediately
 * **CRITICAL: Read globals.css FIRST** - Before making any UI changes, always read `src/app/globals.css` to understand available CSS variables and theme system
 * **Dark/Light Theme**: Always implement both themes using `dark:` variant and CSS variables from `globals.css`
-* **Color Usage**: Never hardcode colors - use `bg-background`, `text-foreground`, `border-border`, or theme-aware utilities like `bg-white dark:bg-neutral-800`
+* **Background Colors**: Always use `bg-white dark:bg-black` for page and section backgrounds - never use gradients, gray backgrounds, or muted backgrounds. Cards should also use `bg-white dark:bg-black` with proper borders (`border-neutral-200 dark:border-neutral-800`)
+* **Text Colors**: Always use theme-aware text colors (`text-black dark:text-white`) - never hardcode black text that works in both themes. Use colorful text colors when needed for emphasis or semantic meaning
+* **Color Usage**: Never hardcode colors - use theme-aware utilities like `bg-white dark:bg-black`, `text-black dark:text-white`, `border-neutral-200 dark:border-neutral-800`
 * **Admin Exception**: Admin pages (`/admin/*`) are exempt from dark theme requirements
 
 ---
@@ -509,7 +672,7 @@ Backend: Convex + tRPC
 Database: Supabase + Redis
 Search: Typesense
 Payments: Razorpay
-Maps: Google Maps API
+Maps: Leaflet + OpenStreetMap (Nominatim)
 Notifications: OneSignal + Twilio
 Storage: Convex File Storage
 Jobs: Inngest
