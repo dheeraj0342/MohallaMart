@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { withRetry } from "@/lib/retry";
 import { Eye, EyeOff, Mail, Lock, Loader2, Store } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -27,10 +28,22 @@ export default function ShopkeeperLoginForm({
     setError("");
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setError("Please enter a valid email address");
+        setLoading(false);
+        return;
+      }
+      if (password.length < 6) {
+        setError("Password must be at least 6 characters");
+        setLoading(false);
+        return;
+      }
+      const { error } = await withRetry(() =>
+        supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+      );
       if (error) {
         setError(error.message);
         setLoading(false);
@@ -46,9 +59,9 @@ export default function ShopkeeperLoginForm({
   };
 
   return (
-    <div className="min-h-screen grid md:grid-cols-2 bg-linear-to-br from-[#f5fbf7] via-[#ffffff] to-[#f0f9f3] dark:from-[#0d1215] dark:via-[#11181d] dark:to-[#1b242b]">
+    <div className="min-h-screen grid md:grid-cols-2 bg-background">
       {/* Left - Branding */}
-      <div className="hidden md:flex flex-col justify-between p-12 text-white bg-linear-to-br from-primary-brand via-[#1f8f4e] to-secondary-brand">
+      <div className="hidden md:flex flex-col justify-between p-12 text-primary-foreground bg-primary">
         <div>
           <Link href="/" className="inline-flex items-center space-x-2">
             <div className="h-10 w-10 rounded-full bg-white/15 flex items-center justify-center">
@@ -86,10 +99,12 @@ export default function ShopkeeperLoginForm({
 
           <form
             onSubmit={handleLogin}
-            className="space-y-5 bg-white/95 dark:bg-[#11181d] rounded-3xl p-6 sm:p-7 border border-[#e5efe8] dark:border-[#1f2a33] shadow-xl backdrop-blur-sm"
+            className="space-y-5 bg-card rounded-3xl p-6 sm:p-7 border border-border shadow-xl"
+            aria-busy={loading}
+            noValidate
           >
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm" aria-live="assertive">
                 {error}
               </div>
             )}
@@ -111,7 +126,8 @@ export default function ShopkeeperLoginForm({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-12 pr-4 py-3 bg-[#f7faf9] border-2 border-[#dce8e1] rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand focus:bg-white transition-all duration-200"
+                  className="w-full pl-12 pr-4 py-3 bg-muted border-2 border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                  autoComplete="email"
                   placeholder="you@shop.com"
                 />
               </div>
@@ -134,7 +150,8 @@ export default function ShopkeeperLoginForm({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-12 pr-12 py-3 bg-[#f7faf9] border-2 border-[#dce8e1] rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand focus:bg-white transition-all duration-200"
+                  className="w-full pl-12 pr-12 py-3 bg-muted border-2 border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                  autoComplete="current-password"
                   placeholder="Enter your password"
                 />
                 <button
@@ -156,11 +173,11 @@ export default function ShopkeeperLoginForm({
               disabled={loading}
               whileHover={{ scale: loading ? 1 : 1.02 }}
               whileTap={{ scale: loading ? 1 : 0.98 }}
-              className="w-full bg-primary-brand text-white py-3 rounded-xl font-semibold shadow-lg shadow-primary-brand/30 hover:bg-primary-hover transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-brand disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold shadow-lg hover:bg-primary/90 transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="inline-flex items-center">
-                  <Loader2 className="h-5 w-5 animate-spin mr-2" /> Signing
+                  <Loader2 className="h-5 w-5 animate-spin mr-2" aria-hidden="true" /> Signing
                   in...
                 </span>
               ) : (

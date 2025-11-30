@@ -10,7 +10,7 @@ import {
   ShoppingCart,
   Trash2,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import {
   Card,
@@ -25,8 +25,11 @@ export default function CartPage() {
   const removeFromCart = useStore((state) => state.removeFromCart);
   const updateQuantity = useStore((state) => state.updateQuantity);
   const clearCart = useStore((state) => state.clearCart);
+  const [promoCode, setPromoCode] = useState("");
+  const [promoStatus, setPromoStatus] = useState<"none" | "applied" | "invalid">("none");
+  const [promoDiscount, setPromoDiscount] = useState(0);
 
-  const { totalItems, subtotal, instantSavings, payableAmount } = useMemo(() => {
+  const { totalItems, subtotal, instantSavings } = useMemo(() => {
     const newSubtotal = cart.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0,
@@ -39,9 +42,29 @@ export default function CartPage() {
       totalItems: newTotalItems,
       subtotal: newSubtotal,
       instantSavings: savings,
-      payableAmount: newSubtotal - savings,
     };
   }, [cart]);
+
+  const payableAmount = Math.max(0, subtotal - instantSavings - promoDiscount);
+  const FREE_THRESHOLD = 199;
+  const remainingForFree = Math.max(0, FREE_THRESHOLD - subtotal);
+  const freeProgress = Math.min(100, Math.round((subtotal / FREE_THRESHOLD) * 100));
+
+  const applyPromo = () => {
+    const code = promoCode.trim().toUpperCase();
+    if (!code) {
+      setPromoDiscount(0);
+      setPromoStatus("none");
+      return;
+    }
+    if (code === "SAVE5") {
+      setPromoDiscount(Number((subtotal * 0.05).toFixed(2)));
+      setPromoStatus("applied");
+    } else {
+      setPromoDiscount(0);
+      setPromoStatus("invalid");
+    }
+  };
 
   const handleQuantityChange = (
     id: string,
@@ -94,6 +117,17 @@ export default function CartPage() {
               </button>
             )}
           </div>
+          {cart.length > 0 && (
+            <div className="mt-2 rounded-xl border border-border/70 bg-card/70 p-4">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{remainingForFree > 0 ? `Add ₹${remainingForFree.toFixed(2)} more for free delivery` : "You unlocked free delivery"}</span>
+                <span>{freeProgress}%</span>
+              </div>
+              <div className="mt-2 h-2 w-full rounded-full bg-muted">
+                <div className="h-2 rounded-full bg-primary" style={{ width: `${freeProgress}%` }} />
+              </div>
+            </div>
+          )}
         </div>
 
         {cart.length === 0 ? (
@@ -132,7 +166,7 @@ export default function CartPage() {
                 </p>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto hidden lg:block">
                   <table className="w-full border-collapse text-sm">
                     <thead>
                       <tr className="border-b border-border bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
@@ -212,6 +246,54 @@ export default function CartPage() {
                     </tbody>
                   </table>
                 </div>
+                <div className="lg:hidden space-y-3 p-4">
+                  {cart.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="rounded-xl border border-border bg-card p-4 shadow-sm"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex size-14 items-center justify-center rounded-xl bg-muted text-2xl">
+                          {item.image ?? "🥬"}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-base font-semibold truncate">{item.name}</p>
+                          <p className="text-xs text-muted-foreground">SKU #{item.id.padStart(4, "0")}</p>
+                          <p className="text-sm font-semibold mt-1">₹{item.price.toFixed(2)}</p>
+                        </div>
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="inline-flex items-center justify-center rounded-lg border border-destructive/40 px-3 py-2 text-xs font-semibold text-destructive"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </div>
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="inline-flex items-center rounded-full border border-border bg-muted/30">
+                          <button
+                            onClick={() => handleQuantityChange(item.id, item.quantity, -1)}
+                            className="rounded-l-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
+                            aria-label="Decrease quantity"
+                          >
+                            <Minus className="size-4" />
+                          </button>
+                          <span className="min-w-[48px] text-center text-base font-semibold">{item.quantity}</span>
+                          <button
+                            onClick={() => handleQuantityChange(item.id, item.quantity, 1)}
+                            className="rounded-r-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
+                            aria-label="Increase quantity"
+                          >
+                            <Plus className="size-4" />
+                          </button>
+                        </div>
+                        <div className="text-lg font-bold text-primary">₹{(item.price * item.quantity).toFixed(2)}</div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
 
@@ -226,6 +308,23 @@ export default function CartPage() {
                 </p>
               </CardHeader>
               <CardContent className="space-y-4 p-6">
+                <div className="flex items-center gap-2">
+                  <input
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    placeholder="Enter promo code (e.g. SAVE5)"
+                    className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <button
+                    onClick={applyPromo}
+                    className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                  >
+                    Apply
+                  </button>
+                </div>
+                {promoStatus !== "none" && (
+                  <div className={`text-xs ${promoStatus === "applied" ? "text-green-600" : "text-destructive"}`}>{promoStatus === "applied" ? `Promo applied: -₹${promoDiscount.toFixed(2)}` : "Invalid code"}</div>
+                )}
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>Subtotal ({totalItems} items)</span>
                   <span className="font-semibold text-foreground">
@@ -247,6 +346,12 @@ export default function CartPage() {
                     -₹{instantSavings.toFixed(2)}
                   </span>
                 </div>
+                {promoDiscount > 0 && (
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>Promo discount</span>
+                    <span className="font-semibold text-primary">-₹{promoDiscount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="border-t border-border/70 pt-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -297,6 +402,19 @@ export default function CartPage() {
           </div>
         )}
       </div>
+      {cart.length > 0 && (
+        <div className="fixed bottom-20 left-0 right-0 z-40 px-4 lg:hidden">
+          <div className="mx-auto max-w-7xl rounded-xl border border-border bg-card p-3 shadow-lg">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">{totalItems} items</div>
+              <div className="text-lg font-bold text-primary">₹{payableAmount.toFixed(2)}</div>
+            </div>
+            <Link href="/checkout" className="mt-3 block">
+              <button className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Checkout</button>
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

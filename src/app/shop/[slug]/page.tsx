@@ -1,52 +1,41 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useQuery } from "convex/react";
-import { useParams } from "next/navigation";
-import Image from "next/image";
-import { api } from "@/../../convex/_generated/api";
-import {
-  Loader2,
-  Store,
-  MapPin,
-  Phone,
-  Mail,
-  Star,
-  Package,
-  Clock,
-  ShoppingCart,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { useStore } from "@/store/useStore";
-import { useToast } from "@/hooks/useToast";
-import ImageModal from "@/components/ImageModal";
+import { useState } from "react"
+import { useQuery } from "convex/react"
+import { useParams } from "next/navigation"
+import Image from "next/image"
+import { api } from "@/../../convex/_generated/api"
+import { Loader2, Store, MapPin, Phone, Mail, Star, Package, Clock, ShoppingCart } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
+import { useStore } from "@/store/useStore"
+import { useToast } from "@/hooks/useToast"
+import ImageModal from "@/components/ImageModal"
 
 export default function ShopPage() {
-  const params = useParams();
-  const slug = params.slug as string;
-  const { addToCart } = useStore();
-  const { success } = useToast();
-  const [selectedImage, setSelectedImage] = useState<{
-    url: string;
-    alt: string;
-    title?: string;
-  } | null>(null);
+  const params = useParams()
+  const slug = params.slug as string
+  const { addToCart } = useStore()
+  const { success } = useToast()
 
-  const shop = useQuery(api.shops.getShopBySlug, { slug });
-  const products = useQuery(
-    api.products.getProductsByShop,
-    shop ? { shop_id: shop._id, is_available: true } : "skip"
-  );
+  const [selectedImage, setSelectedImage] = useState<{
+    url: string
+    alt: string
+    title?: string
+  } | null>(null)
+  const [sortBy, setSortBy] = useState<"popular" | "price_asc" | "price_desc" | "rating">("popular")
+
+  const shop = useQuery(api.shops.getShopBySlug, { slug })
+  const products = useQuery(api.products.getProductsByShop, shop ? { shop_id: shop._id, is_available: true } : "skip")
 
   const handleAddToCart = (product: {
-    _id: string;
-    name: string;
-    price: number;
-    images: string[];
-    min_order_quantity: number;
-    unit: string;
+    _id: string
+    name: string
+    price: number
+    images: string[]
+    min_order_quantity: number
+    unit: string
   }) => {
     addToCart({
       id: product._id,
@@ -54,346 +43,495 @@ export default function ShopPage() {
       price: product.price,
       ...(product.images && product.images.length > 0 && { image: product.images[0] }),
       quantity: product.min_order_quantity,
-    });
-    success(`${product.name} added to cart!`);
-  };
+    })
+    success(`${product.name} added to cart!`)
+  }
 
   if (shop === undefined || products === undefined) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-50 dark:bg-neutral-900">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+        <div className="flex items-center justify-center h-[60vh]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="h-16 w-16 rounded-full border-4 border-neutral-200 dark:border-neutral-800" />
+              <Loader2 className="h-16 w-16 animate-spin text-neutral-900 dark:text-white absolute inset-0" />
+            </div>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 animate-pulse">Loading shop...</p>
+          </div>
+        </div>
       </div>
-    );
+    )
   }
 
   if (shop === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-50 dark:bg-neutral-900">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle className="text-center">Shop Not Found</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center text-muted-foreground">
-            <p>The shop you&apos;re looking for doesn&apos;t exist or has been removed.</p>
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full border-0 shadow-2xl bg-white dark:bg-neutral-900">
+          <CardContent className="pt-12 pb-8 text-center">
+            <div className="mx-auto w-20 h-20 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-6">
+              <Store className="h-10 w-10 text-neutral-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Shop Not Found</h2>
+            <p className="text-neutral-500 dark:text-neutral-400 mb-6">
+              The shop you&apos;re looking for doesn&apos;t exist or has been removed.
+            </p>
+            <Button asChild className="rounded-full px-8">
+              <a href="/shops">Browse All Shops</a>
+            </Button>
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
+  const sortedProducts = Array.isArray(products)
+    ? [...products].sort((a, b) => {
+        switch (sortBy) {
+          case "price_asc":
+            return (a.price ?? 0) - (b.price ?? 0)
+          case "price_desc":
+            return (b.price ?? 0) - (a.price ?? 0)
+          case "rating":
+            return (b.rating ?? 0) - (a.rating ?? 0)
+          case "popular":
+          default:
+            return (b.total_sales ?? 0) - (a.total_sales ?? 0)
+        }
+      })
+    : []
+
+  const hoursOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+  const hoursLabel: Record<string, string> = {
+    monday: "Mon",
+    tuesday: "Tue",
+    wednesday: "Wed",
+    thursday: "Thu",
+    friday: "Fri",
+    saturday: "Sat",
+    sunday: "Sun",
+  }
+
+  const todayKey = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][new Date().getDay()]
+
+  const todaysHours = shop?.business_hours
+    ? (shop.business_hours as Record<string, { open?: string; close?: string } | null | undefined>)[todayKey]
+    : undefined
+
+  const todaysLabel =
+    !todaysHours || !todaysHours.open || !todaysHours.close
+      ? "Closed today"
+      : `${todaysHours.open} - ${todaysHours.close}`
+
+  const parseTime = (t?: string) => {
+    if (!t) return null as number | null
+    const parts = t.split(":")
+    const h = Number(parts[0])
+    const m = Number(parts[1] ?? 0)
+    if (Number.isNaN(h) || Number.isNaN(m)) return null
+    return h * 60 + m
+  }
+
+  const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes()
+  const openNow = (() => {
+    if (!todaysHours || !todaysHours.open || !todaysHours.close) return false
+    const o = parseTime(todaysHours.open)
+    const c = parseTime(todaysHours.close)
+    if (o == null || c == null) return false
+    if (c < o) return nowMinutes >= o || nowMinutes < c
+    return nowMinutes >= o && nowMinutes < c
+  })()
+
+  const mapsHref = (() => {
+    const coords = (
+      shop as unknown as {
+        address?: { coordinates?: { lat?: number; lng?: number } }
+      }
+    ).address?.coordinates
+    if (coords && typeof coords.lat === "number" && typeof coords.lng === "number") {
+      return `https://www.google.com/maps?q=${coords.lat},${coords.lng}`
+    }
+    const q = `${shop.address.street}, ${shop.address.city}`
+    return `https://www.google.com/maps?q=${encodeURIComponent(q)}`
+  })()
+
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      {/* Hero Section */}
-      <div className="bg-white dark:bg-neutral-800 border-b border-border">
-        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                {shop.logo_url ? (
-                  <div
-                    className="relative h-16 w-16 rounded-full overflow-hidden border-2 border-primary/20 bg-primary/10 cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() =>
-                      setSelectedImage({
-                        url: shop.logo_url!,
-                        alt: shop.name,
-                        title: `${shop.name} Logo`,
-                      })
-                    }
-                  >
-                    <Image
-                      src={shop.logo_url}
-                      alt={shop.name}
-                      fill
-                      className="object-cover"
-                      sizes="64px"
-                      unoptimized={shop.logo_url.includes("convex.cloud")}
-                    />
-                  </div>
-                ) : (
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                    <Store className="h-8 w-8 text-primary" />
-                  </div>
-                )}
-                <div>
-                  <h1 className="text-3xl font-bold font-montserrat text-black dark:text-white">{shop.name}</h1>
-                  {shop.description && (
-                    <p className="text-muted-foreground mt-1">{shop.description}</p>
-                  )}
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center gap-3 mt-4">
-                {shop.rating && (
-                  <Badge
-                    variant="secondary"
-                    className="bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
-                  >
-                    <Star className="h-3 w-3 mr-1 fill-current" />
-                    {shop.rating.toFixed(1)} Rating
-                  </Badge>
-                )}
-                {shop.total_orders !== undefined && shop.total_orders > 0 && (
-                  <Badge variant="outline">
-                    <Package className="h-3 w-3 mr-1" />
-                    {shop.total_orders.toLocaleString()}+ Orders
-                  </Badge>
-                )}
-                <Badge
-                  variant={shop.is_active ? "default" : "secondary"}
-                  className={
-                    shop.is_active
-                      ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
-                      : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                  }
-                >
-                  {shop.is_active ? "Active" : "Inactive"}
-                </Badge>
-              </div>
-            </div>
-            <div className="flex flex-col gap-3 min-w-[200px]">
-              <Card className="border-border bg-card">
-                <CardContent className="pt-4">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="h-4 w-4 text-primary" />
-                      <span className="line-clamp-1">
-                        {shop.address.street}, {shop.address.city}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Phone className="h-4 w-4 text-primary" />
-                      <span>{shop.contact.phone}</span>
-                    </div>
-                    {shop.contact.email && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Mail className="h-4 w-4 text-primary" />
-                        <span className="text-xs truncate">{shop.contact.email}</span>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+      <header className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb */}
+          <nav className="py-4 text-sm flex items-center gap-2" aria-label="Breadcrumb">
+            <a
+              href="/shops"
+              className="text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors"
+            >
+              Shops
+            </a>
+            <span className="text-neutral-300 dark:text-neutral-600">/</span>
+            <span className="text-neutral-900 dark:text-white font-medium truncate" aria-current="page">
+              {shop.name}
+            </span>
+          </nav>
 
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Products Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-black dark:text-white">Products</h2>
-            {products && products.length > 0 && (
-              <Badge variant="outline" className="text-sm">
-                {products.length} {products.length === 1 ? "Product" : "Products"}
-              </Badge>
-            )}
-          </div>
-
-          {products && products.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <Card
-                  key={product._id}
-                  className="group hover:shadow-lg transition-shadow border-border bg-card overflow-hidden"
-                >
-                  {/* Product Image */}
-                  <div
-                    className="relative h-72 w-full bg-muted overflow-hidden cursor-pointer"
-                    onClick={() => {
-                      if (product.images && product.images.length > 0) {
+          {/* Shop Header */}
+          <div className="pb-8 pt-2">
+            <div className="flex flex-col lg:flex-row lg:items-start gap-8">
+              {/* Left: Shop Info */}
+              <div className="flex-1">
+                <div className="flex items-start gap-5">
+                  {/* Logo */}
+                  {shop.logo_url ? (
+                    <button
+                      onClick={() =>
                         setSelectedImage({
-                          url: product.images[0],
-                          alt: product.name,
-                          title: product.name,
-                        });
+                          url: shop.logo_url!,
+                          alt: shop.name,
+                          title: `${shop.name} Logo`,
+                        })
                       }
-                    }}
-                  >
-                    {product.images && product.images.length > 0 ? (
+                      className="relative h-24 w-24 sm:h-28 sm:w-28 rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 ring-1 ring-neutral-200 dark:ring-neutral-700 flex-shrink-0 hover:ring-2 hover:ring-neutral-900 dark:hover:ring-white transition-all duration-200"
+                    >
                       <Image
-                        src={product.images[0]}
-                        alt={product.name}
+                        src={shop.logo_url || "/placeholder.svg"}
+                        alt={shop.name}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                        unoptimized={product.images[0].includes("convex.cloud")}
+                        className="object-cover"
+                        sizes="112px"
+                        unoptimized={shop.logo_url.includes("convex.cloud")}
                       />
-                    ) : (
-                      <div className="flex items-center justify-center h-full">
-                        <Package className="h-20 w-20 text-muted-foreground" />
-                      </div>
-                    )}
-                    {product.original_price && product.original_price > product.price && (
-                      <Badge className="absolute top-2 right-2 bg-red-500 text-white dark:bg-red-600 dark:text-white z-10">
-                        {Math.round(
-                          ((product.original_price - product.price) /
-                            product.original_price) *
-                          100
-                        )}
-                        % OFF
-                      </Badge>
-                    )}
-                    {product.is_featured && (
-                      <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground z-10">
-                        Featured
-                      </Badge>
-                    )}
-                  </div>
+                    </button>
+                  ) : (
+                    <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl bg-neutral-900 dark:bg-white flex items-center justify-center flex-shrink-0">
+                      <Store className="h-12 w-12 text-white dark:text-neutral-900" />
+                    </div>
+                  )}
 
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-foreground line-clamp-1 mb-1 group-hover:text-primary transition-colors">
-                      {product.name}
-                    </h3>
-                    {product.description && (
-                      <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
-                        {product.description}
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-neutral-900 dark:text-white">
+                      {shop.name}
+                    </h1>
+
+                    {shop.description && (
+                      <p className="mt-2 text-neutral-600 dark:text-neutral-400 max-w-xl line-clamp-2">
+                        {shop.description}
                       </p>
                     )}
 
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-lg font-bold text-foreground">
-                          ₹{product.price.toFixed(2)}
-                        </span>
-                        {product.original_price && product.original_price > product.price && (
-                          <span className="text-sm text-muted-foreground line-through">
-                            ₹{product.original_price.toFixed(2)}
-                          </span>
-                        )}
-                        <span className="text-xs text-muted-foreground">/{product.unit}</span>
-                      </div>
-                      {product.rating && (
-                        <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 dark:fill-yellow-500 dark:text-yellow-500" />
-                          <span className="text-xs text-muted-foreground">
-                            {product.rating.toFixed(1)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-                      <span>
-                        Min: {product.min_order_quantity} {product.unit}
+                    {/* Badges */}
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                      {/* Open/Closed Status */}
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
+                          openNow
+                            ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
+                            : "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400"
+                        }`}
+                      >
+                        <span className={`h-1.5 w-1.5 rounded-full ${openNow ? "bg-green-500" : "bg-red-500"}`} />
+                        {openNow ? "Open" : "Closed"}
+                        <span className="text-neutral-500 dark:text-neutral-500 ml-1">{todaysLabel}</span>
                       </span>
-                      {product.stock_quantity > 0 ? (
-                        <span className="text-green-600 dark:text-green-400">
-                          In Stock ({product.stock_quantity})
+
+                      {/* Rating */}
+                      {shop.rating && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+                          <Star className="h-3 w-3 fill-current" />
+                          {shop.rating.toFixed(1)}
+                        </span>
+                      )}
+
+                      {/* Active Status */}
+                      {shop.is_active ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                          Verified Seller
                         </span>
                       ) : (
-                        <span className="text-red-600 dark:text-red-400">Out of Stock</span>
+                        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-500">
+                          Inactive
+                        </span>
                       )}
                     </div>
+                  </div>
+                </div>
+              </div>
 
-                    <Button
-                      onClick={() => handleAddToCart(product)}
-                      disabled={product.stock_quantity === 0}
-                      className="w-full"
-                      size="sm"
+              {/* Right: Contact Card */}
+              <div className="w-full lg:w-80 space-y-4">
+                <Card className="border-neutral-200 dark:border-neutral-800 shadow-sm">
+                  <CardContent className="p-4 space-y-3">
+                    <a
+                      href={mapsHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-start gap-3 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors group"
                     >
-                      <ShoppingCart className="h-4 w-4" />
-                      Add to Cart
-                    </Button>
+                      <MapPin className="h-4 w-4 mt-0.5 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white flex-shrink-0" />
+                      <span className="line-clamp-2">
+                        {shop.address.street}, {shop.address.city}
+                      </span>
+                    </a>
+
+                    <a
+                      href={`tel:${shop.contact.phone}`}
+                      className="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors group"
+                    >
+                      <Phone className="h-4 w-4 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white flex-shrink-0" />
+                      <span>{shop.contact.phone}</span>
+                    </a>
+
+                    {shop.contact.email && (
+                      <a
+                        href={`mailto:${shop.contact.email}`}
+                        className="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors group"
+                      >
+                        <Mail className="h-4 w-4 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white flex-shrink-0" />
+                        <span className="truncate">{shop.contact.email}</span>
+                      </a>
+                    )}
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          ) : (
-            <Card className="border-border bg-card">
-              <CardContent className="py-12 text-center">
-                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  No Products Available
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  This shop hasn&apos;t added any products yet.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
 
-        {/* Shop Details Section */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Address */}
-            <Card className="border-border bg-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  Address
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-muted-foreground">
-                <p>{shop.address.street}</p>
-                <p>
-                  {shop.address.city}, {shop.address.state} {shop.address.pincode}
-                </p>
-                {shop.address.coordinates && (
-                  <p className="text-xs text-muted-foreground/70">
-                    Coordinates: {shop.address.coordinates.lat.toFixed(6)},{" "}
-                    {shop.address.coordinates.lng.toFixed(6)}
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-2">
+                  <Button asChild variant="outline" size="sm" className="rounded-lg bg-transparent">
+                    <a href={`tel:${shop.contact.phone}`}>
+                      <Phone className="h-4 w-4 mr-1.5" />
+                      Call
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" size="sm" className="rounded-lg bg-transparent">
+                    <a href={mapsHref} target="_blank" rel="noopener noreferrer">
+                      <MapPin className="h-4 w-4 mr-1.5" />
+                      Directions
+                    </a>
+                  </Button>
+                </div>
+
+                <Button
+                  asChild
+                  className="w-full rounded-lg bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
+                >
+                  <a href="#products">
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Browse Products
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main id="products" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+        <div className="flex flex-col lg:flex-row gap-10">
+          {/* Products Grid */}
+          <div className="flex-1">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+              <div>
+                <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Products</h2>
+                {products && products.length > 0 && (
+                  <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+                    {products.length} {products.length === 1 ? "item" : "items"} available
                   </p>
                 )}
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Business Hours */}
-            {shop.business_hours && (
-              <Card className="border-border bg-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Clock className="h-5 w-5 text-primary" />
-                    Business Hours
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    {Object.entries(shop.business_hours).map(([day, hours]) => {
-                      if (!hours) return null;
-                      const dayName = day.charAt(0).toUpperCase() + day.slice(1);
-                      return (
-                        <div
-                          key={day}
-                          className="flex items-center justify-between py-1 border-b border-border last:border-0"
-                        >
-                          <span className="font-medium text-foreground">{dayName}</span>
-                          <span className="text-muted-foreground">
-                            {hours.open} - {hours.close}
-                          </span>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">Sort by</span>
+                <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+                  <SelectTrigger className="w-44 rounded-lg border-neutral-200 dark:border-neutral-800">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="popular">Most Popular</SelectItem>
+                    <SelectItem value="price_asc">Price: Low to High</SelectItem>
+                    <SelectItem value="price_desc">Price: High to Low</SelectItem>
+                    <SelectItem value="rating">Top Rated</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Products */}
+            {sortedProducts && sortedProducts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {sortedProducts.map((product) => (
+                  <Card
+                    key={product._id}
+                    className="group border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-hidden hover:shadow-xl hover:shadow-neutral-200/50 dark:hover:shadow-neutral-900/50 transition-all duration-300"
+                  >
+                    {/* Product Image */}
+                    <button
+                      onClick={() => {
+                        if (product.images && product.images.length > 0) {
+                          setSelectedImage({
+                            url: product.images[0],
+                            alt: product.name,
+                            title: product.name,
+                          })
+                        }
+                      }}
+                      className="relative aspect-square w-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden"
+                    >
+                      {product.images && product.images.length > 0 ? (
+                        <Image
+                          src={product.images[0] || "/placeholder.svg"}
+                          alt={product.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          unoptimized={product.images[0].includes("convex.cloud")}
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <Package className="h-16 w-16 text-neutral-300 dark:text-neutral-600" />
                         </div>
-                      );
-                    })}
+                      )}
+
+                      {/* Discount Badge */}
+                      {product.original_price && product.original_price > product.price && (
+                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-500 text-white">
+                          {Math.round(((product.original_price - product.price) / product.original_price) * 100)}% OFF
+                        </span>
+                      )}
+
+                      {/* Featured Badge */}
+                      {product.is_featured && (
+                        <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
+                          Featured
+                        </span>
+                      )}
+                    </button>
+
+                    <CardContent className="p-5">
+                      {/* Product Name */}
+                      <h3 className="font-semibold text-neutral-900 dark:text-white line-clamp-1 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
+                        {product.name}
+                      </h3>
+
+                      {/* Description */}
+                      {product.description && (
+                        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400 line-clamp-2">
+                          {product.description}
+                        </p>
+                      )}
+
+                      {/* Price Row */}
+                      <div className="mt-4 flex items-end justify-between">
+                        <div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xl font-bold text-neutral-900 dark:text-white">
+                              ₹{product.price.toFixed(2)}
+                            </span>
+                            <span className="text-sm text-neutral-400">/{product.unit}</span>
+                          </div>
+                          {product.original_price && product.original_price > product.price && (
+                            <span className="text-sm text-neutral-400 line-through">
+                              ₹{product.original_price.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+
+                        {product.rating && (
+                          <div className="flex items-center gap-1 text-sm">
+                            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                            <span className="text-neutral-600 dark:text-neutral-400">{product.rating.toFixed(1)}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Stock Info */}
+                      <div className="mt-3 flex items-center justify-between text-xs">
+                        <span className="text-neutral-500 dark:text-neutral-400">
+                          Min: {product.min_order_quantity} {product.unit}
+                        </span>
+                        {product.stock_quantity > 0 ? (
+                          <span className="text-green-600 dark:text-green-400 font-medium">
+                            In Stock ({product.stock_quantity})
+                          </span>
+                        ) : (
+                          <span className="text-red-500 font-medium">Out of Stock</span>
+                        )}
+                      </div>
+
+                      {/* Add to Cart */}
+                      <Button
+                        onClick={() => handleAddToCart(product)}
+                        disabled={product.stock_quantity === 0}
+                        className="w-full mt-4 rounded-lg bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 disabled:opacity-50"
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Add to Cart
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+                <CardContent className="py-16 text-center">
+                  <div className="mx-auto w-16 h-16 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4">
+                    <Package className="h-8 w-8 text-neutral-400" />
                   </div>
+                  <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">No Products Available</h3>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                    This shop hasn&apos;t added any products yet.
+                  </p>
                 </CardContent>
               </Card>
             )}
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Contact Information */}
-            <Card className="border-border bg-card">
-              <CardHeader>
-                <CardTitle className="text-lg">Contact Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-3 text-muted-foreground">
-                  <Phone className="h-4 w-4 text-primary" />
-                  <span>{shop.contact.phone}</span>
-                </div>
-                {shop.contact.email && (
-                  <div className="flex items-center gap-3 text-muted-foreground">
-                    <Mail className="h-4 w-4 text-primary" />
-                    <span className="text-sm break-all">{shop.contact.email}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+          {/* Sidebar - Business Hours */}
+          {shop.business_hours && (
+            <aside className="w-full lg:w-72 flex-shrink-0">
+              <div className="lg:sticky lg:top-6">
+                <Card className="border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-base font-semibold text-neutral-900 dark:text-white">
+                      <Clock className="h-4 w-4" />
+                      Business Hours
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="space-y-1">
+                      {hoursOrder.map((d) => {
+                        const hours = (
+                          shop.business_hours as Record<string, { open?: string; close?: string } | null | undefined>
+                        )[d]
+                        const isClosed = !hours || !hours.open || !hours.close
+                        const isToday = d === todayKey
+
+                        return (
+                          <div
+                            key={d}
+                            className={`flex items-center justify-between py-2 px-2 rounded-lg text-sm ${
+                              isToday ? "bg-neutral-100 dark:bg-neutral-800" : ""
+                            }`}
+                          >
+                            <span
+                              className={`font-medium ${
+                                isToday ? "text-neutral-900 dark:text-white" : "text-neutral-600 dark:text-neutral-400"
+                              }`}
+                            >
+                              {hoursLabel[d]}
+                              {isToday && <span className="ml-2 text-xs text-neutral-400">Today</span>}
+                            </span>
+                            <span className={isClosed ? "text-red-500" : "text-neutral-600 dark:text-neutral-400"}>
+                              {isClosed ? "Closed" : `${hours.open} - ${hours.close}`}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </aside>
+          )}
         </div>
-      </div>
+      </main>
 
       {/* Image Modal */}
       {selectedImage && (
@@ -406,5 +544,5 @@ export default function ShopPage() {
         />
       )}
     </div>
-  );
+  )
 }

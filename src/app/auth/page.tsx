@@ -1,44 +1,86 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, Component, ReactNode, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { useStore } from "@/store/useStore";
 import LoginForm from "@/components/auth/LoginForm";
 import SignupForm from "@/components/auth/SignupForm";
 
-export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true);
+class AuthErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false }
+  static getDerivedStateFromError() { return { hasError: true } }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="max-w-md w-full mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-2xl font-bold text-foreground">Something went wrong</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Please refresh the page or try again later.</p>
+          </div>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
+function AuthPageContent() {
+  const search = useSearchParams();
+  const initialMode = (search?.get("mode") || "login").toLowerCase();
+  const next = search?.get("next") || "/";
+  const [isLogin, setIsLogin] = useState(initialMode !== "signup");
   const router = useRouter();
   const { isLoggedIn } = useStore();
 
   useEffect(() => {
     if (isLoggedIn()) {
-      router.replace("/");
+      router.replace(next);
     }
-  }, [isLoggedIn, router]);
+  }, [isLoggedIn, router, next]);
 
   const handleAuthSuccess = () => {
-    router.replace("/");
+    router.replace(next);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[var(--color-primary)] via-white to-[var(--color-secondary)] dark:from-[var(--color-primary)] dark:via-gray-950 dark:to-[var(--color-secondary)]">
-      <AnimatePresence mode="wait">
-        {isLogin ? (
-          <LoginForm
-            key="login"
-            onSuccess={handleAuthSuccess}
-            onSwitchToSignup={() => setIsLogin(false)}
-          />
-        ) : (
-          <SignupForm
-            key="signup"
-            onSuccess={handleAuthSuccess}
-            onSwitchToLogin={() => setIsLogin(true)}
-          />
-        )}
-      </AnimatePresence>
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <AnimatePresence mode="wait">
+          {isLogin ? (
+            <LoginForm
+              key="login"
+              onSuccess={handleAuthSuccess}
+              onSwitchToSignup={() => setIsLogin(false)}
+            />
+          ) : (
+            <SignupForm
+              key="signup"
+              onSuccess={handleAuthSuccess}
+              onSwitchToLogin={() => setIsLogin(true)}
+            />
+          )}
+        </AnimatePresence>
+      </div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <AuthErrorBoundary>
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center bg-background">
+            <div className="max-w-md w-full mx-auto px-4 sm:px-6 lg:px-8 text-center">
+              <h1 className="text-xl font-semibold text-foreground">Loading...</h1>
+              <p className="mt-2 text-sm text-muted-foreground">Preparing authentication</p>
+            </div>
+          </div>
+        }
+      >
+        <AuthPageContent />
+      </Suspense>
+    </AuthErrorBoundary>
   );
 }

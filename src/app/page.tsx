@@ -1,19 +1,20 @@
 "use client";
-
 import {
   HeroSection,
   FeaturesSection,
   CTASection,
   AboutSection,
   NearbyStoresSection,
+  TopRatedProductsSection,
 } from "@/components/sections";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors">
-      <main className="flex flex-col gap-0">
+      <main className="flex flex-col ">
         <HeroSection />
         <NearbyStoresSection />
+        <TopRatedProductsSection />
         <FeaturesSection />
         <CTASection />
         <AboutSection />

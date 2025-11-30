@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Coffee,
-  Clock,
   Grid2x2,
   Home as HomeIcon,
   Laptop,
@@ -12,7 +11,6 @@ import {
   MapPin,
   Menu,
   Moon,
-  Percent,
   Search as SearchIcon,
   Shirt,
   ShoppingCart,
@@ -30,8 +28,22 @@ import { useToast } from "@/hooks/useToast";
 import LocationModal from "./LocationModal";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
+
+// Icon mapping for categories
+const categoryIconMap: Record<string, LucideIcon> = {
+  All: Grid2x2,
+  Cafe: Coffee,
+  Home: HomeIcon,
+  Toys: ToyBrick,
+  "Fresh Grocery": Leaf,
+  Electronics: Laptop,
+  Mobiles: Smartphone,
+  Beauty: Sparkles,
+  Fashion: Shirt,
+};
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,6 +52,8 @@ export default function Navbar() {
   const [isSearchOpen, setIsSearchOpenState] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isDark, setIsDark] = useState<boolean | null>(null);
+  const accountRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
 
   const { location, getTotalItems, user, setSearchOpen } = useStore();
   const { logout } = useAuth();
@@ -82,6 +96,35 @@ export default function Navbar() {
       // ignore (SSR safety)
     }
     return unsubscribe;
+  }, []);
+
+  // Global Escape key to close open menus/modals
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsAccountOpen(false);
+        setIsMenuOpen(false);
+        setIsLocationModalOpen(false);
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [setSearchOpen]);
+
+  // Close account dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent | TouchEvent) => {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setIsAccountOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    document.addEventListener("touchstart", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchstart", handler);
+    };
   }, []);
 
   // Watch for location changes and show toast
@@ -141,54 +184,27 @@ export default function Navbar() {
     id?: string;
   };
 
-  // Map category names to icons
-  const categoryIconMap: Record<string, LucideIcon> = {
-    All: Grid2x2,
-    Cafe: Coffee,
-    Home: HomeIcon,
-    Toys: ToyBrick,
-    "Fresh Grocery": Leaf,
-    Electronics: Laptop,
-    Mobiles: Smartphone,
-    Beauty: Sparkles,
-    Fashion: Shirt,
-  };
-
   // Build categories list from database, with "All" first
-  // Filter out "All" from database categories since we add it manually
-  const dbCategories = (categories || []).filter((cat) => cat.name.toLowerCase() !== "all");
+  const dbCategories = useMemo(
+    () => (categories || []).filter((cat) => cat.name.toLowerCase() !== "all"),
+    [categories]
+  );
 
-  const groceryCategories: Category[] = [
-    { name: "All", href: "/shops", icon: Grid2x2 },
-    ...dbCategories.map((cat) => ({
-      name: cat.name,
-      href: `/shops?category=${encodeURIComponent(cat.name)}`,
-      icon: categoryIconMap[cat.name] || Grid2x2,
-      id: cat._id,
-    })),
-  ];
+  const groceryCategories: Category[] = useMemo(() => (
+    [
+      { name: "All", href: "/shops", icon: Grid2x2 },
+      ...dbCategories.map((cat) => ({
+        name: cat.name,
+        href: `/shops?category=${encodeURIComponent(cat.name)}`,
+        icon: categoryIconMap[cat.name] || Grid2x2,
+        id: cat._id,
+      })),
+    ]
+  ), [dbCategories]);
 
   return (
     <>
-      {/* Top Banner */}
-      <div className="bg-linear-to-r from-primary-brand via-[#37c978] to-secondary-brand dark:from-[#1f2f25] dark:via-[#24292e] dark:to-[#3b2f22] text-white dark:text-[#f9f6f2] py-2.5 text-center text-sm transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center gap-4 sm:gap-6">
-            <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm font-medium">10-min delivery</span>
-            </div>
-            <div className="hidden xs:flex items-center gap-1.5">
-              <Percent className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm font-medium">Free delivery above ₹199</span>
-            </div>
-            <span className="hidden sm:inline text-xs sm:text-sm font-medium">
-              🎉 Get 10% off on first order
-            </span>
-          </div>
-        </div>
-      </div>
-      <nav className="bg-[#f9f6f2]/95 text-[#212121] dark:text-[#f9f6f2] dark:bg-[#181c1f]/95 shadow-sm dark:shadow-md sticky top-0 z-50 border-b border-[#e0e0e0] dark:border-[#2d333b] backdrop-blur-md transition-colors">
+      <nav role="navigation" aria-label="Primary" className="bg-[#f9f6f2]/95 text-[#212121] dark:text-[#f9f6f2] dark:bg-[#181c1f]/95 shadow-sm dark:shadow-md sticky top-0 z-50 border-b border-[#e0e0e0] dark:border-[#2d333b] backdrop-blur-md transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-18">
             {/* Logo & Location */}
@@ -303,12 +319,12 @@ export default function Navbar() {
                   );
                 })()}
                 {/* Theme toggle */}
-                <button
-                  onClick={toggleTheme}
-                  className="p-2.5 rounded-lg hover:bg-muted transition-all hover:scale-110 active:scale-95"
-                  aria-label="Toggle color theme"
-                  title="Toggle dark / light"
-                >
+              <button
+                onClick={toggleTheme}
+                className="p-2.5 rounded-lg hover:bg-muted transition-all hover:scale-110 active:scale-95"
+                aria-label="Toggle color theme"
+                title="Toggle dark / light"
+              >
                   {isDark ? (
                     <Sun className="h-5 w-5 text-yellow-400" />
                   ) : (
@@ -317,12 +333,13 @@ export default function Navbar() {
                 </button>
                 {/* User Account */}
                 {user ? (
-                  <div className="relative">
+                  <div ref={accountRef} className="relative">
                     <button
                       onClick={() => setIsAccountOpen((v) => !v)}
                       className="flex items-center text-[#212121] dark:text-[#f9f6f2] px-3 py-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all hover:shadow-sm active:scale-95 border border-transparent hover:border-[#e0e0e0] dark:hover:border-[#2d333b]"
                       aria-haspopup="menu"
                       aria-expanded={isAccountOpen}
+                      aria-controls="account-menu"
                     >
                       <User className="h-5 w-5 mr-2" />
                       <div className="text-left min-w-0">
@@ -331,7 +348,7 @@ export default function Navbar() {
                       </div>
                     </button>
                     {isAccountOpen && (
-                      <div className="absolute right-0 mt-2 w-48 bg-card border-2 border-border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div id="account-menu" className="absolute right-0 mt-2 w-48 bg-card border-2 border-border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                         {/* Role-based profile links */}
                         {dbUser?.role === "admin" ? (
                           <>
@@ -448,52 +465,48 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* Mobile menu buttons */}
-            <div className="lg:hidden flex items-center gap-2">
-              {/* Mobile Theme Toggle */}
+          {/* Mobile menu buttons */}
+          <div className="lg:hidden flex items-center gap-2">
+            {/* Mobile Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand dark:hover:text-primary-brand/80 p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
+              aria-label="Toggle color theme"
+              title="Toggle dark / light"
+            >
+              {isDark ? (
+                <Sun className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-400" />
+              ) : (
+                <Moon className="h-5 w-5 sm:h-6 sm:w-6" />
+              )}
+            </button>
+            {/* Mobile Location */}
+            {mounted && (
               <button
-                onClick={toggleTheme}
-                className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand dark:hover:text-primary-brand/80 p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
-                aria-label="Toggle color theme"
-                title="Toggle dark / light"
-              >
-                {isDark ? (
-                  <Sun className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-400" />
-                ) : (
-                  <Moon className="h-5 w-5 sm:h-6 sm:w-6" />
-                )}
-              </button>
-              {/* Mobile Search */}
-              <button
-                onClick={() => setSearchOpen(true)}
+                onClick={() => setIsLocationModalOpen(true)}
                 className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
-                aria-label="Open search"
+                aria-label="Open location selector"
+                title={location ? `${location.area}${location.pincode ? ` (${location.pincode})` : ""}` : "Select Location"}
               >
-                <SearchIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+                <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />
               </button>
-              {/* Mobile Cart */}
-              <Link href="/cart">
-                <button
-                  className="relative text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
-                  aria-label="Open cart"
-                >
-                  <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
-                  {mounted && getTotalItems() > 0 && (
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 bg-secondary-brand text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-[#181c1f]"
-                    >
-                      {getTotalItems()}
-                    </motion.span>
-                  )}
-                </button>
-              </Link>
+            )}
+            {/* Mobile Search */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
+              aria-label="Open search"
+            >
+              <SearchIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+            </button>
+              {/* Mobile Cart removed per request; moved to bottom tabs */}
               {/* Mobile Menu */}
               <button
                 onClick={toggleMenu}
                 className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+                aria-controls="mobile-menu"
+                aria-expanded={isMenuOpen}
               >
                 {isMenuOpen ? (
                   <X className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -531,18 +544,33 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Mobile Navigation */}
+          {/* Mobile Sidebar Drawer */}
           <AnimatePresence>
             {isMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className="md:hidden border-t border-[#e0e0e0] dark:border-[#2d333b] overflow-hidden"
-              >
-                <div className="px-4 py-4 space-y-3 bg-[#fffdf5] dark:bg-[#24292e]"
-                  aria-label="Mobile navigation menu">
+              <>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.5 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="md:hidden fixed inset-0 z-50 bg-black"
+                  onClick={() => setIsMenuOpen(false)}
+                  aria-hidden="true"
+                />
+                {/* Sidebar Panel */}
+                <motion.div
+                  initial={{ x: -320 }}
+                  animate={{ x: 0 }}
+                  exit={{ x: -320 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  id="mobile-menu"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Mobile navigation"
+                  className="md:hidden fixed top-0 left-0 bottom-0 z-50 w-[85vw] max-w-sm bg-[#fffdf5] dark:bg-[#24292e] border-r border-[#e0e0e0] dark:border-[#2d333b] shadow-xl"
+                >
+                  <div className="px-4 py-4 space-y-3 bg-[#fffdf5] dark:bg-[#24292e]" aria-label="Mobile navigation menu">
                   {/* Mobile Location */}
                   <button
                     onClick={() => {
@@ -723,8 +751,9 @@ export default function Navbar() {
                       </Link>
                     )}
                   </div>
-                </div>
-              </motion.div>
+                  </div>
+                </motion.div>
+              </>
             )}
           </AnimatePresence>
         </div>
@@ -735,6 +764,38 @@ export default function Navbar() {
           onClose={() => setIsLocationModalOpen(false)}
         />
       </nav>
+      {/* Bottom Tabs - Mobile */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-[#e0e0e0] dark:border-[#2d333b] bg-[#fffdf5]/95 dark:bg-[#181c1f]/95 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-4 gap-1 py-2">
+            <Link href="/" aria-label="Home" className="flex flex-col items-center justify-center gap-1 py-1">
+              <HomeIcon className={`${pathname === "/" ? "text-primary-brand" : "text-[#85786a] dark:text-[#a2a6b2]"} h-5 w-5`} />
+              <span className={`text-[11px] ${pathname === "/" ? "text-primary-brand font-medium" : "text-[#85786a] dark:text-[#a2a6b2]"}`}>Home</span>
+            </Link>
+            <Link href="/shops" aria-label="Categories" className="flex flex-col items-center justify-center gap-1 py-1">
+              <Grid2x2 className={`${pathname?.startsWith("/shops") ? "text-primary-brand" : "text-[#85786a] dark:text-[#a2a6b2]"} h-5 w-5`} />
+              <span className={`text-[11px] ${pathname?.startsWith("/shops") ? "text-primary-brand font-medium" : "text-[#85786a] dark:text-[#a2a6b2]"}`}>Categories</span>
+            </Link>
+            <Link href="/cart" aria-label="Cart" className="flex flex-col items-center justify-center gap-1 py-1 relative">
+              <ShoppingCart className={`${pathname === "/cart" ? "text-primary-brand" : "text-[#85786a] dark:text-[#a2a6b2]"} h-5 w-5`} />
+              {mounted && getTotalItems() > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 right-6 bg-secondary-brand text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-[#181c1f]"
+                >
+                  {getTotalItems()}
+                </motion.span>
+              )}
+              <span className={`text-[11px] ${pathname === "/cart" ? "text-primary-brand font-medium" : "text-[#85786a] dark:text-[#a2a6b2]"}`}>Cart</span>
+            </Link>
+            <Link href={user ? "/profile" : "/auth"} aria-label="Account" className="flex flex-col items-center justify-center gap-1 py-1">
+              <User className={`${pathname?.startsWith("/profile") || pathname === "/auth" ? "text-primary-brand" : "text-[#85786a] dark:text-[#a2a6b2]"} h-5 w-5`} />
+              <span className={`text-[11px] ${pathname?.startsWith("/profile") || pathname === "/auth" ? "text-primary-brand font-medium" : "text-[#85786a] dark:text-[#a2a6b2]"}`}>Account</span>
+            </Link>
+          </div>
+        </div>
+      </div>
     </>
   );
 }

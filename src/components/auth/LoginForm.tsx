@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase, getEmailRedirectUrl, validateSupabaseConfig } from "@/lib/supabase";
+import { withRetry } from "@/lib/retry";
 import {
   Eye,
   EyeOff,
@@ -54,10 +55,23 @@ export default function LoginForm({
     setError("");
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        const m = "Please enter a valid email address";
+        setError(m);
+        errorToast(m);
+        setLoading(false);
+        return;
+      }
+      if (password.length < 6) {
+        const m = "Password must be at least 6 characters";
+        setError(m);
+        errorToast(m);
+        setLoading(false);
+        return;
+      }
+      const { data, error } = await withRetry(() =>
+        supabase.auth.signInWithPassword({ email, password })
+      );
 
       if (error) {
         setError(error.message);
@@ -66,7 +80,6 @@ export default function LoginForm({
       } else if (data?.user) {
         success("Welcome back! Redirecting...");
         onSuccess?.();
-        // Don't set loading to false here - let redirect happen
       } else {
         setError("Login failed. Please try again.");
         errorToast("Login failed. Please try again.");
@@ -97,9 +110,11 @@ export default function LoginForm({
     }
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${getEmailRedirectUrl()}?next=/auth/reset-password`,
-      });
+      const { error } = await withRetry(() =>
+        supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${getEmailRedirectUrl()}?next=/auth/reset-password`,
+        })
+      );
 
       if (error) {
         setError(error.message);
@@ -260,12 +275,13 @@ export default function LoginForm({
               </motion.div>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-6">
+            <form onSubmit={handleLogin} className="space-y-6" aria-busy={loading} noValidate>
               {error && (
                 <motion.div
                   initial={false}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-800 dark:text-red-300 px-4 py-3 rounded-xl text-sm flex items-start gap-3"
+                  aria-live="assertive"
                 >
                   <span className="text-lg flex-shrink-0">⚠️</span>
                   <span className="flex-1">{error}</span>
@@ -290,6 +306,9 @@ export default function LoginForm({
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="pl-12 h-12 bg-neutral-50 dark:bg-neutral-800 border-2 border-neutral-200 dark:border-neutral-700 rounded-xl text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:border-green-500 focus:ring-green-500/20 transition-all"
+                    autoComplete="email"
+                    aria-invalid={!!error && !password}
+                    aria-describedby={error ? "login-error" : undefined}
                     placeholder="your.email@example.com"
                   />
                 </div>
@@ -322,6 +341,9 @@ export default function LoginForm({
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className="pl-12 pr-12 h-12 bg-neutral-50 dark:bg-neutral-800 border-2 border-neutral-200 dark:border-neutral-700 rounded-xl text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:border-green-500 focus:ring-green-500/20 transition-all"
+                    autoComplete={rememberMe ? "current-password" : "off"}
+                    aria-invalid={!!error && !!password}
+                    aria-describedby={error ? "login-error" : undefined}
                     placeholder="Enter your password"
                   />
                   <button
@@ -362,7 +384,7 @@ export default function LoginForm({
               >
                 {loading ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" aria-hidden="true" />
                     Signing in...
                   </>
                 ) : (

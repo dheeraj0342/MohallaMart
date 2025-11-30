@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { withRetry } from "@/lib/retry";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -8,20 +9,18 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     try {
-      // Exchange the code for a session
-      await supabase.auth.exchangeCodeForSession(code);
+      await withRetry(() => supabase.auth.exchangeCodeForSession(code), {
+        retries: 2,
+        baseDelayMs: 300,
+      });
 
-      // Redirect to the home page or specified next page
       return NextResponse.redirect(new URL(next, requestUrl.origin));
-    } catch (error) {
-      console.error("Error exchanging code for session:", error);
-      // Redirect to auth page with error
+    } catch {
       return NextResponse.redirect(
         new URL("/auth?error=Unable to verify email", requestUrl.origin),
       );
     }
   }
 
-  // No code present, redirect to auth page
   return NextResponse.redirect(new URL("/auth", requestUrl.origin));
 }

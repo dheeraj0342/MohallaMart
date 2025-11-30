@@ -6,3 +6,4 @@ export { default as CTASection } from "./CTASection";
 export { default as AboutSection } from "./AboutSection";
 export { default as Footer } from "../Footer";
 export { default as NearbyStoresSection } from "./NearbyStoresSection";
+export { default as TopRatedProductsSection } from "./TopRatedProductsSection";
