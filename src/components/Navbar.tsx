@@ -331,63 +331,63 @@ export default function Navbar() {
                       </div>
                     </button>
                     {isAccountOpen && (
-                      <div className="absolute right-0 mt-2 w-48 bg-[#ffffff] dark:bg-[#24292e] border-2 border-[#e0e0e0] dark:border-[#2d333b] rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="absolute right-0 mt-2 w-48 bg-card border-2 border-border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                         {/* Role-based profile links */}
                         {dbUser?.role === "admin" ? (
                           <>
-                            <Link
-                              href="/admin"
-                              onClick={() => setIsAccountOpen(false)}
-                              className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-t-lg border-b border-[#e0e0e0] dark:border-[#2d333b]"
-                            >
+                      <Link
+                        href="/admin"
+                        onClick={() => setIsAccountOpen(false)}
+                        className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted rounded-t-lg border-b border-border"
+                      >
                               <User className="h-4 w-4 mr-2" />
                               Admin Dashboard
                             </Link>
-                            <Link
-                              href="/profile"
-                              onClick={() => setIsAccountOpen(false)}
-                              className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] border-b border-[#e0e0e0] dark:border-[#2d333b]"
-                            >
+                      <Link
+                        href="/profile"
+                        onClick={() => setIsAccountOpen(false)}
+                        className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border"
+                      >
                               <User className="h-4 w-4 mr-2" />
                               My Profile
                             </Link>
                           </>
                         ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
                           <>
-                            <Link
-                              href="/shopkeeper"
-                              onClick={() => setIsAccountOpen(false)}
-                              className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-t-lg border-b border-[#e0e0e0] dark:border-[#2d333b]"
-                            >
+                      <Link
+                        href="/shopkeeper"
+                        onClick={() => setIsAccountOpen(false)}
+                        className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted rounded-t-lg border-b border-border"
+                      >
                               <User className="h-4 w-4 mr-2" />
                               Shopkeeper Dashboard
                             </Link>
-                            <Link
-                              href="/shopkeeper/profile"
-                              onClick={() => setIsAccountOpen(false)}
-                              className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] border-b border-[#e0e0e0] dark:border-[#2d333b]"
-                            >
+                      <Link
+                        href="/shopkeeper/profile"
+                        onClick={() => setIsAccountOpen(false)}
+                        className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border"
+                      >
                               <User className="h-4 w-4 mr-2" />
                               Shopkeeper Profile
                             </Link>
                           </>
                         ) : (
-                          <Link
-                            href="/profile"
-                            onClick={() => setIsAccountOpen(false)}
-                            className="flex items-center w-full px-4 py-3 text-sm text-[#212121] dark:text-[#f9f6f2] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-t-lg border-b border-[#e0e0e0] dark:border-[#2d333b]"
-                          >
+                      <Link
+                        href="/profile"
+                        onClick={() => setIsAccountOpen(false)}
+                        className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted rounded-t-lg border-b border-border"
+                      >
                             <User className="h-4 w-4 mr-2" />
                             My Profile
                           </Link>
                         )}
 
                         {/* Role indicator */}
-                        <div className="px-4 py-2 border-b bg-[#faffd2] dark:bg-[#3b2f22] border-[#e0e0e0] dark:border-[#2d333b]">
-                          <div className="text-xs font-semibold text-[#85786a] dark:text-[#a2a6b2] uppercase">
+                        <div className="px-4 py-2 border-b bg-secondary border-border">
+                          <div className="text-xs font-semibold text-muted-foreground uppercase">
                             Role
                           </div>
-                          <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2] mt-1">
+                          <div className="text-sm font-medium text-foreground mt-1">
                             {dbUser?.role === "admin" ? "👑 Admin" :
                               dbUser?.role === "shop_owner" && dbUser?.is_active === true ? "🏪 Active Shopkeeper" :
                                 dbUser?.role === "shop_owner" && dbUser?.is_active === false ? "⏳ Pending Shopkeeper" :

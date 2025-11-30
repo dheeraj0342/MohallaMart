@@ -11,13 +11,9 @@ export default function ConditionalNavbar() {
   const shouldHide =
     pathname?.startsWith("/shopkeeper") || pathname?.startsWith("/admin");
 
-  if (shouldHide) {
-    return null;
-  }
-
   return (
     <>
-      <Navbar />
+      {!shouldHide && <Navbar />}
       <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-2xl px-4">
         <SearchBar />
       </div>

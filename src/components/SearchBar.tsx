@@ -94,17 +94,19 @@ export default function SearchBar() {
         const active = document.activeElement as HTMLElement | null;
         const tag = active?.tagName;
         const isEditable = active?.isContentEditable;
-
-        if (
-          event.key.toLowerCase() === "m" &&
+        const isM = event.key.toLowerCase() === "m";
+        const allowWithoutModifiers =
+          isM &&
           !event.ctrlKey &&
           !event.metaKey &&
           !event.altKey &&
           tag !== "INPUT" &&
           tag !== "TEXTAREA" &&
           tag !== "SELECT" &&
-          !isEditable
-        ) {
+          !isEditable;
+        const allowWithCtrlOrMeta = isM && (event.ctrlKey || event.metaKey);
+
+        if (allowWithoutModifiers || allowWithCtrlOrMeta) {
           event.preventDefault();
           setSearchOpen(true);
           setTimeout(() => {
@@ -123,8 +125,8 @@ export default function SearchBar() {
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown, { capture: true });
+    return () => document.removeEventListener("keydown", handleKeyDown, { capture: true } as any);
   }, [setSearchOpen]);
 
   useEffect(() => {
@@ -150,15 +152,7 @@ export default function SearchBar() {
   };
 
   const handleProductClick = (productId: string, shopId: string) => {
-    // Find shop name from fetched shops or use shopId as fallback
-    const shop = shops?.find((s) => s._id === shopId);
-    if (shop) {
-      router.push(`/shop/${generateSlug(shop.name)}`);
-    } else {
-      // Fallback: try to navigate with shopId (if route supports it)
-      // For now, just close search - shop will be fetched on product detail page
-      router.push(`/shops`);
-    }
+    router.push(`/product/${productId}`);
     closeSearch();
   };
 
@@ -181,7 +175,7 @@ export default function SearchBar() {
       {isSearchOpen && (
         <motion.div
           ref={searchRef}
-          className="fixed inset-0 z-[9999] flex items-start justify-center pt-20 px-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-start justify-center  px-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -200,7 +194,7 @@ export default function SearchBar() {
             transition={{ duration: 0.2 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <Card className="bg-card border-border shadow-xl overflow-hidden">
+            <Card className="bg-card border border-border shadow-xl overflow-hidden rounded-xl focus-within:ring-1 focus-within:ring-ring">
               {/* Search Input */}
               <div className="relative p-4 border-b border-border">
                 <div className="relative flex items-center">
@@ -212,7 +206,7 @@ export default function SearchBar() {
                     onChange={(e) => handleSearch(e.target.value)}
                     onFocus={() => setSearchOpen(true)}
                     placeholder="Search for products, shops, categories..."
-                    className="pl-10 pr-20 h-12 text-base bg-background text-foreground placeholder:text-muted-foreground"
+                    className="pl-10 pr-20 h-12 text-base bg-background text-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
                   />
                   <div className="absolute right-3 flex items-center gap-2">
                     {query && (
@@ -220,7 +214,7 @@ export default function SearchBar() {
                         variant="ghost"
                         size="sm"
                         onClick={clearSearch}
-                        className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                        className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
                         aria-label="Clear search"
                       >
                         <X className="h-4 w-4" />
@@ -230,7 +224,7 @@ export default function SearchBar() {
                       variant="ghost"
                       size="sm"
                       onClick={closeSearch}
-                      className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                      className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
                       aria-label="Close search"
                     >
                       <X className="h-5 w-5" />
@@ -241,7 +235,7 @@ export default function SearchBar() {
                 <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
                   <span>🔍 Search for products, shops, and categories</span>
                   <div className="flex items-center gap-2">
-                    <kbd className="px-2 py-0.5 rounded border border-border bg-muted text-xs font-mono">
+                    <kbd className="px-2 py-0.5 rounded border border-border bg-card text-xs font-mono">
                       Esc
                     </kbd>
                     <span>to close</span>
@@ -273,7 +267,7 @@ export default function SearchBar() {
                           {products.map((product) => (
                             <button
                               key={product._id}
-                              className="w-full p-3 rounded-lg border border-border bg-card hover:bg-muted/50 text-left transition-colors group"
+                              className="w-full p-3 rounded-lg border border-border bg-card hover:bg-muted/60 text-left transition-colors group focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
                               onClick={() =>
                                 handleProductClick(
                                   product._id,
@@ -324,14 +318,14 @@ export default function SearchBar() {
                                 {product.stock_quantity > 0 ? (
                                   <Badge
                                     variant="outline"
-                                    className="bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 border-green-300 dark:border-green-700"
+                                    className="text-xs bg-[var(--success-bg-light)] text-[var(--success-fg)] border-[var(--success-border)]"
                                   >
                                     In Stock
                                   </Badge>
                                 ) : (
                                   <Badge
                                     variant="outline"
-                                    className="bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 border-red-300 dark:border-red-700"
+                                    className="text-xs bg-[var(--error-bg-light)] text-[var(--error-fg)] border-[var(--error-border)]"
                                   >
                                     Out of Stock
                                   </Badge>
@@ -356,7 +350,7 @@ export default function SearchBar() {
                           {shops.map((shop) => (
                             <button
                               key={shop._id}
-                              className="w-full p-3 rounded-lg border border-border bg-card hover:bg-muted/50 text-left transition-colors group"
+                              className="w-full p-3 rounded-lg border border-border bg-card hover:bg-muted/60 text-left transition-colors group focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
                               onClick={() => handleShopClick(shop.name)}
                             >
                               <div className="flex items-center gap-3">
@@ -389,7 +383,7 @@ export default function SearchBar() {
                                     {shop.rating && shop.rating > 0 && (
                                       <Badge
                                         variant="outline"
-                                        className="text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700"
+                                        className="text-xs bg-secondary text-secondary-foreground border-border"
                                       >
                                         ⭐ {shop.rating.toFixed(1)}
                                       </Badge>
@@ -435,7 +429,7 @@ export default function SearchBar() {
                           {popularCategories.map((category) => (
                             <button
                               key={category.id}
-                              className="p-3 rounded-lg border border-border bg-card hover:bg-muted/50 text-left transition-colors group"
+                              className="p-3 rounded-lg border border-border bg-card hover:bg-muted/60 text-left transition-colors group focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
                               onClick={() => handleCategoryClick(category.name)}
                             >
                               <div className="font-medium text-foreground group-hover:text-primary transition-colors">
@@ -459,7 +453,7 @@ export default function SearchBar() {
                         {trendingSearches.map((trend, index) => (
                           <button
                             key={index}
-                            className="w-full p-2 rounded-lg hover:bg-muted/50 text-left transition-colors group"
+                            className="w-full p-2 rounded-lg hover:bg-muted/60 text-left transition-colors group focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
                             onClick={() => {
                               setQuery(trend);
                               setSearchQuery(trend);
