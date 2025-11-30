@@ -20,7 +20,7 @@ export default function AboutSection() {
   return (
     <section
       id="about"
-      className="py-20 bg-white dark:bg-black transition-colors"
+      className="py-20 bg-background transition-colors"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -30,10 +30,10 @@ export default function AboutSection() {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-black dark:text-white mb-4 transition-colors">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
             About MohallaMart
           </h2>
-          <p className="text-xl text-neutral-600 dark:text-neutral-300 max-w-3xl mx-auto transition-colors">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Your trusted neighborhood marketplace connecting communities with
             quality products and services
           </p>
@@ -46,10 +46,10 @@ export default function AboutSection() {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-2xl font-semibold text-black dark:text-white mb-4 transition-colors">
+            <h3 className="text-2xl font-semibold mb-4">
               Our Mission
             </h3>
-            <p className="text-neutral-600 dark:text-neutral-300 mb-6 transition-colors">
+            <p className="text-muted-foreground mb-6">
               MohallaMart is dedicated to revolutionizing neighborhood commerce
               by connecting local communities with quality products and
               services. We believe in supporting local businesses while
@@ -67,14 +67,14 @@ export default function AboutSection() {
                   viewport={{ once: true }}
                 >
                   <CheckCircle className="h-5 w-5 text-primary mr-3 shrink-0" />
-                  <span className="text-black dark:text-white transition-colors">{point}</span>
+                  <span className="transition-colors">{point}</span>
                 </motion.div>
               ))}
             </div>
           </motion.div>
 
           <motion.div
-            className="bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 p-8 rounded-xl shadow-lg transition-colors"
+            className="bg-card border border-border p-8 rounded-xl shadow-lg transition-colors"
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
@@ -92,7 +92,7 @@ export default function AboutSection() {
                   <div className="text-3xl font-bold text-primary mb-2">
                     {stat.value}
                   </div>
-                  <div className="text-neutral-600 dark:text-neutral-300 transition-colors">
+                  <div className="text-muted-foreground transition-colors">
                     {stat.label}
                   </div>
                 </motion.div>

@@ -108,15 +108,15 @@ export default function NearbyStoresSection() {
   }, [nearbyShops, userCoordinates]);
 
   return (
-    <section className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black py-16">
+    <section className="border-t border-border bg-background py-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-3xl font-bold text-black dark:text-white flex items-center gap-2">
+            <h2 className="text-3xl font-bold flex items-center gap-2">
               <Compass className="h-6 w-6 text-primary" /> Stores Near You
             </h2>
-            <p className="mt-2 max-w-2xl text-neutral-600 dark:text-neutral-300">
+            <p className="mt-2 max-w-2xl text-muted-foreground">
               Showing hyperlocal partners within {DELIVERY_RADIUS_KM} km
               {location?.pincode ? ` or PIN ${location.pincode}` : ""}.
             </p>
@@ -134,13 +134,13 @@ export default function NearbyStoresSection() {
 
         {/* No location state */}
         {!hasLocation ? (
-          <div className="flex flex-col items-center gap-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black p-10 text-center shadow-sm">
+          <div className="flex flex-col items-center gap-6 rounded-2xl border border-border bg-card p-10 text-center shadow-sm">
             <Navigation className="h-14 w-14 text-primary" />
             <div className="space-y-3 max-w-lg">
-              <h3 className="text-xl font-semibold text-black dark:text-white">
+              <h3 className="text-xl font-semibold">
                 Share your location to explore local stores
               </h3>
-              <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Tap the location picker in the navbar and allow access. We only use your
                 coordinates to show stores that can reach you quickly.
               </p>
@@ -149,12 +149,12 @@ export default function NearbyStoresSection() {
         ) : (
           <>
             {/* Status Bar */}
-            <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black p-4">
-              <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+            <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-border bg-card p-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Navigation className="h-4 w-4 text-primary" />
                 <span>
                   Showing {isLoading ? "..." : sortedShops.length} store{sortedShops.length !== 1 ? "s" : ""} near
-                  <span className="font-semibold text-black dark:text-white ml-1">
+                  <span className="font-semibold ml-1">
                     {location?.area || location?.city || "you"}
                   </span>
                 </span>
@@ -169,18 +169,18 @@ export default function NearbyStoresSection() {
 
             {/* Loading State */}
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black p-12">
+              <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-card p-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-sm text-neutral-600 dark:text-neutral-300">Scanning nearby stores...</p>
+                <p className="text-sm text-muted-foreground">Scanning nearby stores...</p>
               </div>
             ) : sortedShops.length === 0 ? (
-              <div className="flex flex-col items-center gap-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black p-10 text-center">
+              <div className="flex flex-col items-center gap-6 rounded-2xl border border-border bg-card p-10 text-center">
                 <StoreIcon className="h-14 w-14 text-neutral-400 dark:text-neutral-500" />
                 <div className="space-y-2 max-w-lg">
-                  <h3 className="text-xl font-semibold text-black dark:text-white">
+                  <h3 className="text-xl font-semibold">
                     No stores found in your area
                   </h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                  <p className="text-sm text-muted-foreground">
                     We couldn&apos;t find any active stores within {DELIVERY_RADIUS_KM} km.
                     We&apos;re expanding to new areas soon!
                   </p>
@@ -198,12 +198,12 @@ export default function NearbyStoresSection() {
                   return (
                     <Card
                       key={shop._id}
-                      className="group hover:shadow-lg transition-shadow border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black"
+                      className="group hover:shadow-lg transition-shadow border-border bg-card"
                     >
                       <CardHeader className="pb-3">
                         <div className="flex items-start gap-3">
                           {shop.logo_url ? (
-                            <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 shrink-0">
+                            <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-border bg-muted shrink-0">
                               <Image
                                 src={shop.logo_url}
                                 alt={shop.name}
@@ -219,11 +219,11 @@ export default function NearbyStoresSection() {
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <CardTitle className="text-lg font-bold text-black dark:text-white line-clamp-1 group-hover:text-primary transition-colors">
+                            <CardTitle className="text-lg font-bold line-clamp-1 group-hover:text-primary transition-colors">
                               {shop.name}
                             </CardTitle>
                             {shop.description && (
-                              <p className="text-xs text-neutral-600 dark:text-neutral-300 mt-1 line-clamp-2">
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                                 {shop.description}
                               </p>
                             )}
@@ -234,8 +234,8 @@ export default function NearbyStoresSection() {
                       <CardContent className="space-y-3">
                         {/* Address */}
                         <div className="flex items-start gap-2 text-sm">
-                          <MapPin className="h-4 w-4 text-neutral-500 dark:text-neutral-400 shrink-0 mt-0.5" />
-                          <div className="text-neutral-600 dark:text-neutral-300 min-w-0">
+                          <MapPin className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                          <div className="text-muted-foreground min-w-0">
                             {shop.address?.street && (
                               <p className="line-clamp-1">{shop.address.street}</p>
                             )}
@@ -251,14 +251,14 @@ export default function NearbyStoresSection() {
                         {distance !== null && (
                           <div className="flex items-center gap-2 text-sm">
                             <Navigation className="h-4 w-4 text-primary" />
-                            <span className="text-neutral-600 dark:text-neutral-300">
+                            <span className="text-muted-foreground">
                               {distance.toFixed(1)} km away
                             </span>
                           </div>
                         )}
 
                         {/* Rating & Orders */}
-                        <div className="flex items-center gap-3 pt-2 border-t border-neutral-200 dark:border-neutral-800">
+                        <div className="flex items-center gap-3 pt-2 border-t border-border">
                           {shop.rating ? (
                             <Badge variant="secondary" className="bg-[var(--success-bg-light)] text-[var(--success-fg)]">
                               <Star className="h-3 w-3 mr-1 fill-current" />
@@ -271,7 +271,7 @@ export default function NearbyStoresSection() {
                           )}
 
                           {shop.total_orders !== undefined && shop.total_orders > 0 && (
-                            <div className="flex items-center gap-1 text-xs text-neutral-600 dark:text-neutral-300">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
                               <Package className="h-3 w-3" />
                               <span>{shop.total_orders.toLocaleString()}+ orders</span>
                             </div>
@@ -282,7 +282,7 @@ export default function NearbyStoresSection() {
                         <Button
                           asChild
                           variant="outline"
-                          className="w-full mt-2 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                          className="w-full mt-2 group-hover:bg-primary group-hover:text-primary-foreground transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                         >
                           <Link href={`/shop/${generateSlug(shop.name)}`}>
                             View Shop

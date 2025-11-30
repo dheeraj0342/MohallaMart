@@ -58,7 +58,7 @@ export default function FeaturesSection() {
   return (
     <section
       id="features"
-      className="py-20 bg-white dark:bg-black transition-colors"
+      className="py-20 bg-background transition-colors"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -68,10 +68,10 @@ export default function FeaturesSection() {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-black dark:text-white mb-4 transition-colors">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Our Key Features
           </h2>
-          <p className="text-xl text-neutral-600 dark:text-neutral-300 max-w-3xl mx-auto transition-colors">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Discover what makes MohallaMart your trusted neighborhood
             marketplace
           </p>
@@ -83,7 +83,7 @@ export default function FeaturesSection() {
             return (
               <motion.div
                 key={feature.title}
-                className="bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 p-8 rounded-xl hover:shadow-lg transition-all duration-300 shadow-sm"
+                className="bg-card border border-border p-8 rounded-xl hover:shadow-lg transition-all duration-300 shadow-sm focus-within:ring-2 focus-within:ring-ring"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -91,16 +91,16 @@ export default function FeaturesSection() {
                 whileHover={{ y: -5 }}
               >
                 <div
-                  className={`${feature.iconBg} w-16 h-16 rounded-full flex items-center justify-center mb-6 border border-neutral-200 dark:border-neutral-800 transition-colors`}
+                  className={`${feature.iconBg} w-16 h-16 rounded-full flex items-center justify-center mb-6 border border-border transition-colors`}
                 >
                   <IconComponent
                     className={`h-8 w-8 ${feature.iconColor} transition-colors`}
                   />
                 </div>
-                <h3 className="text-xl font-semibold text-black dark:text-white mb-4 transition-colors">
+                <h3 className="text-xl font-semibold mb-4">
                   {feature.title}
                 </h3>
-                <p className="text-neutral-600 dark:text-neutral-300 transition-colors">
+                <p className="text-muted-foreground">
                   {feature.description}
                 </p>
               </motion.div>

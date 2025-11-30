@@ -10,12 +10,14 @@ import {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-black transition-colors">
-      <HeroSection />
-      <NearbyStoresSection />
-      <FeaturesSection />
-      <CTASection />
-      <AboutSection />
+    <div className="min-h-screen bg-background text-foreground transition-colors">
+      <main className="flex flex-col gap-0">
+        <HeroSection />
+        <NearbyStoresSection />
+        <FeaturesSection />
+        <CTASection />
+        <AboutSection />
+      </main>
     </div>
   );
 }

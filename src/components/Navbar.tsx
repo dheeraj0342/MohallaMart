@@ -62,14 +62,21 @@ export default function Navbar() {
       if (saved === "dark") {
         setIsDark(true);
         document.documentElement.classList.add("dark");
+        document.documentElement.classList.remove("light");
       } else if (saved === "light") {
         setIsDark(false);
+        document.documentElement.classList.add("light");
         document.documentElement.classList.remove("dark");
       } else {
         const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
         setIsDark(prefersDark);
-        if (prefersDark) document.documentElement.classList.add("dark");
-        else document.documentElement.classList.remove("dark");
+        if (prefersDark) {
+          document.documentElement.classList.add("dark");
+          document.documentElement.classList.remove("light");
+        } else {
+          document.documentElement.classList.add("light");
+          document.documentElement.classList.remove("dark");
+        }
       }
     } catch {
       // ignore (SSR safety)
@@ -98,9 +105,11 @@ export default function Navbar() {
       setIsDark(next);
       if (next) {
         document.documentElement.classList.add("dark");
+        document.documentElement.classList.remove("light");
         localStorage.setItem("theme", "dark");
         info("Dark mode enabled");
       } else {
+        document.documentElement.classList.add("light");
         document.documentElement.classList.remove("dark");
         localStorage.setItem("theme", "light");
         info("Light mode enabled");

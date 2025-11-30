@@ -308,112 +308,7 @@ className="bg-[var(--success-bg-light)] text-[var(--success-fg)]" // Direct vari
 
 2. **Always test both themes** before submitting code
 
-### 🎨 **Background Color Scheme (MANDATORY)**
-
-**CRITICAL**: All page and section backgrounds **MUST use white in light mode and black in dark mode** - no gradients, no gray backgrounds.
-
-#### ✅ **Correct Background Usage**
-
-* **Page/Section backgrounds**: Always use pure white for light mode and pure black for dark mode:
-  ```tsx
-  // ✅ Good: Pure white/black backgrounds
-  className="bg-white dark:bg-black"
-  className="min-h-screen bg-white dark:bg-black"
-  
-  // ✅ Good: Section backgrounds
-  className="py-20 bg-white dark:bg-black"
-  ```
-
-* **Card backgrounds**: Use white/black for cards as well:
-  ```tsx
-  // ✅ Good: Card backgrounds
-  className="bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800"
-  className="bg-white dark:bg-black p-8 rounded-xl"
-  ```
-
-* **Special sections** (like CTA with colored backgrounds) can use brand colors:
-  ```tsx
-  // ✅ Good: Colored sections (intentional design)
-  className="bg-primary" // CTA sections, hero banners, etc.
-  className="bg-secondary"
-  ```
-
-#### ❌ **Incorrect Background Usage**
-
-* **NEVER use gradients for backgrounds**:
-  ```tsx
-  // ❌ Bad: Gradients
-  className="bg-gradient-to-br from-green-100 via-white to-yellow-100"
-  className="bg-gradient-to-r from-neutral-50 to-neutral-100"
-  ```
-
-* **NEVER use gray backgrounds**:
-  ```tsx
-  // ❌ Bad: Gray backgrounds
-  className="bg-neutral-50 dark:bg-neutral-950"
-  className="bg-gray-100 dark:bg-gray-900"
-  className="bg-background" // If it resolves to gray, use explicit white/black
-  ```
-
-* **NEVER use muted/transparent backgrounds for main sections**:
-  ```tsx
-  // ❌ Bad: Muted backgrounds
-  className="bg-muted/30"
-  className="bg-neutral-50/50"
-  ```
-
-#### 📋 **Background Color Best Practices**
-
-1. **Page containers**: Always use `bg-white dark:bg-black`
-   ```tsx
-   // ✅ Good: Page wrapper
-   <div className="min-h-screen bg-white dark:bg-black">
-   ```
-
-2. **Section backgrounds**: Use `bg-white dark:bg-black` for all sections
-   ```tsx
-   // ✅ Good: Section
-   <section className="py-20 bg-white dark:bg-black">
-   ```
-
-3. **Card backgrounds**: Use `bg-white dark:bg-black` with proper borders
-   ```tsx
-   // ✅ Good: Card
-   <div className="bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800">
-   ```
-
-4. **Borders**: Always use theme-aware borders
-   ```tsx
-   // ✅ Good: Theme-aware borders
-   className="border-neutral-200 dark:border-neutral-800"
-   className="border-t border-neutral-200 dark:border-neutral-800"
-   ```
-
-5. **Text on backgrounds**: Ensure proper contrast
-   ```tsx
-   // ✅ Good: High contrast text
-   className="bg-white dark:bg-black text-black dark:text-white"
-   ```
-
-#### 🎯 **Common Background Patterns**
-
-```tsx
-// Page wrapper
-className="min-h-screen bg-white dark:bg-black"
-
-// Section
-className="py-20 bg-white dark:bg-black"
-
-// Card
-className="bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 p-8 rounded-xl"
-
-// Container with border
-className="bg-white dark:bg-black border-t border-neutral-200 dark:border-neutral-800"
-
-// Special colored sections (intentional)
-className="bg-primary" // For CTA, hero banners, etc.
-className="bg-secondary"
-```
+/* Removed legacy Background Color Scheme section in favor of token-based guidance */
 
 ### 📝 **Text Color Guidelines (MANDATORY)**
 
@@ -678,3 +573,46 @@ Storage: Convex File Storage
 Jobs: Inngest
 ```
 
+### 🌈 **Theme & Tokens (Updated)**
+
+**Use semantic tokens instead of hardcoded colors.** The source of truth is `src/app/globals.css`.
+
+- Surfaces: `bg-background`, `bg-card`, `bg-popover`
+- Text: `text-foreground`, `text-muted-foreground`, `text-heading`, `text-body`, `text-caption`
+- Borders/inputs: `border-border`, `border-t border-border`, `focus-visible:outline-ring`
+- Brand: `bg-primary`, `text-primary-foreground`, `bg-secondary`, `text-secondary-foreground`
+- Containers: `bg-container-primary`, `bg-container-secondary`, `bg-container-tertiary`
+- Status: `bg-[var(--success-bg-light)] text-[var(--success-fg)]` etc.
+
+#### Examples
+
+```tsx
+// Page wrapper
+<div className="min-h-screen bg-background text-foreground">
+
+// Section
+<section className="py-20 bg-background">
+
+// Card
+<div className="bg-card border border-border p-8 rounded-xl">
+
+// Secondary text
+<p className="text-muted-foreground">Supporting copy...</p>
+
+// Accessible focus
+<button className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">Click</button>
+```
+
+### 🌗 **Dark/Light Implementation (Updated)**
+
+- Respect system preference with `@media (prefers-color-scheme: dark)`; override with `.dark` or `.light` classes.
+- Use the theme API `applyTheme("dark" | "light" | "system")` when toggling in components.
+- Never hardcode hex colors in components; rely on tokens.
+- Smooth transitions are enabled globally.
+
+### 🎨 **Background Policy (Updated)**
+
+- Main pages and sections should use `bg-background` for consistency.
+- Cards and popovers use `bg-card`, `bg-popover` with `border-border`.
+- Banners/CTAs may use brand colors (`bg-primary`, `bg-secondary`) with proper contrast.
+- Avoid arbitrary grays; use tokens to meet AA contrast.
