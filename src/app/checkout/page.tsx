@@ -16,6 +16,11 @@ import { Loader2, MapPin, CreditCard } from "lucide-react";
 import LocationModal from "@/components/LocationModal";
 import { useMemo } from "react";
 
+/**
+ * Checkout Page
+ * Handles order placement with address, payment method, and location selection
+ */
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useAuth();
