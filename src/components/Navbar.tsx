@@ -33,6 +33,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 import { MobileHeader } from "./MobileHeader";
 import { MobileBottomNav } from "./MobileBottomNav";
+import NotificationBell from "./NotificationBell";
 
 const categoryIconMap: Record<string, LucideIcon> = {
   All: Grid2x2,
@@ -321,6 +322,8 @@ export default function Navbar() {
                     <Moon className="h-5 w-5 text-black" />
                   )}
                 </button>
+                {/* Notification Bell */}
+                {user && <NotificationBell />}
                 {/* User Account */}
                 {user ? (
                   <div ref={accountRef} className="relative">

@@ -48,19 +48,42 @@ export default function RiderAppPage() {
   }, [riderProfile]);
 
   // Auto-update location every 5-10 seconds when online
+  // Updates both Convex (for persistence) and WebSocket API (for real-time broadcasting)
   useEffect(() => {
     if (!isOnline || !riderProfileId) return;
 
     const interval = setInterval(() => {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          updateLocation({
-            id: riderProfileId,
-            location: {
-              lat: position.coords.latitude,
-              lon: position.coords.longitude,
-            },
-          });
+        async (position) => {
+          const location = {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+          };
+
+          // Update Convex (persistent storage)
+          try {
+            await updateLocation({
+              id: riderProfileId,
+              location,
+            });
+          } catch (err) {
+            console.error("Failed to update location in Convex:", err);
+          }
+
+          // Also send to WebSocket API for real-time broadcasting
+          try {
+            await fetch("/api/ws/rider", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                riderId: riderProfileId,
+                lat: location.lat,
+                lon: location.lon,
+              }),
+            });
+          } catch (err) {
+            console.error("Failed to broadcast location:", err);
+          }
         },
         (err) => {
           console.error("Geolocation error:", err);

@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Clock, ShoppingCart, Store, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Clock, ShoppingCart, Store, ShieldCheck, Truck, Bell } from "lucide-react";
 
 interface Feature {
   name: string;
@@ -30,13 +30,14 @@ const featureData: FeatureCategory[] = [
       { name: "Image Modal/Viewer", status: "implemented", description: "View images in full-screen modal" },
       { name: "Dark/Light Theme", status: "implemented", description: "Theme switching support" },
       { name: "User Profile", status: "implemented", description: "View and edit profile" },
-      { name: "Checkout & Payment", status: "pending", description: "Razorpay integration for payments (backend ready, UI pending)" },
-      { name: "Order History", status: "pending", description: "View past orders" },
-      { name: "Order Tracking", status: "pending", description: "Real-time order status updates" },
+      { name: "Checkout & Payment", status: "implemented", description: "Complete checkout flow with address, payment method selection, and order creation" },
+      { name: "Order Tracking", status: "implemented", description: "Real-time order tracking with live map, status timeline, and ETA updates" },
+      { name: "Delivery ETA System", status: "implemented", description: "Blinkit-style ETA calculation with distance, peak hours, and store capacity" },
+      { name: "Notifications", status: "implemented", description: "In-app notifications with bell icon, real-time updates via Convex, email/SMS placeholders" },
+      { name: "Delivery Address Management", status: "implemented", description: "Location selection with Leaflet map, address form, and geocoding" },
+      { name: "Order History", status: "pending", description: "View past orders with filters" },
       { name: "Wishlist/Favorites", status: "pending", description: "Save favorite products/shops" },
       { name: "Product Reviews & Ratings", status: "pending", description: "Rate and review products" },
-      { name: "Notifications", status: "pending", description: "Push notifications via OneSignal" },
-      { name: "Delivery Address Management", status: "pending", description: "Save multiple delivery addresses" },
     ],
   },
   {
@@ -59,9 +60,11 @@ const featureData: FeatureCategory[] = [
       { name: "Shop Products View", status: "implemented", description: "View all products in shop" },
       { name: "Product Availability Toggle", status: "implemented", description: "Show/hide products" },
       { name: "Shopkeeper Profile", status: "implemented", description: "Manage shopkeeper profile" },
-      { name: "Order Management", status: "pending", description: "View and process customer orders" },
+      { name: "Order Management", status: "implemented", description: "View orders, accept orders, assign riders, and manage order status" },
+      { name: "Inventory Management", status: "implemented", description: "Complete inventory system with stock tracking, low stock alerts, and auto-deduction" },
+      { name: "Inventory Alerts", status: "implemented", description: "Low stock and out-of-stock notifications on dashboard" },
+      { name: "Rider Assignment", status: "implemented", description: "Manually assign riders to orders with availability checking" },
       { name: "Sales Analytics", status: "pending", description: "View sales reports and analytics" },
-      { name: "Inventory Alerts", status: "pending", description: "Low stock notifications" },
       { name: "Bulk Product Operations", status: "pending", description: "Import/export products" },
       { name: "Product Variants", status: "pending", description: "Manage product sizes, colors, etc." },
       { name: "Delivery Zone Management", status: "pending", description: "Set delivery areas and charges" },
@@ -80,15 +83,46 @@ const featureData: FeatureCategory[] = [
       { name: "View All Registrations", status: "implemented", description: "Filter by status, view details" },
       { name: "Shopkeeper Management", status: "implemented", description: "Approve/disable shopkeepers" },
       { name: "Audit Logs", status: "implemented", description: "Track admin actions" },
+      { name: "Order Management", status: "implemented", description: "View and manage all orders across the platform" },
+      { name: "Rider Management", status: "implemented", description: "View and manage delivery riders" },
       { name: "Shop Management", status: "pending", description: "Edit/delete shops directly" },
       { name: "Product Moderation", status: "pending", description: "Review and approve products" },
-      { name: "Order Management", status: "pending", description: "View and manage all orders" },
       { name: "Category Management", status: "pending", description: "Create/edit/delete categories" },
       { name: "Content Moderation", status: "pending", description: "Review shop/product content" },
       { name: "Analytics Dashboard", status: "pending", description: "Advanced analytics and reports" },
       { name: "Bulk Operations", status: "pending", description: "Bulk approve/reject operations" },
       { name: "Email Notifications", status: "pending", description: "Send notifications to users" },
       { name: "System Configuration", status: "pending", description: "Manage platform settings" },
+    ],
+  },
+  {
+    category: "Rider Side (Delivery Partners)",
+    icon: <Truck className="h-6 w-6" />,
+    features: [
+      { name: "Rider Registration", status: "implemented", description: "Create rider profile linked to user account" },
+      { name: "Rider Login", status: "implemented", description: "Authentication for delivery riders" },
+      { name: "Rider Dashboard", status: "implemented", description: "View assigned orders and manage delivery status" },
+      { name: "Live Location Tracking", status: "implemented", description: "Auto-update location every 5 seconds when online" },
+      { name: "Order Status Updates", status: "implemented", description: "Update order status: Start Pickup, Out for Delivery, Delivered" },
+      { name: "Online/Offline Toggle", status: "implemented", description: "Toggle availability status" },
+      { name: "Real-time Notifications", status: "implemented", description: "Receive notifications for new order assignments" },
+      { name: "Delivery History", status: "pending", description: "View past deliveries and earnings" },
+      { name: "Earnings Dashboard", status: "pending", description: "Track earnings and payments" },
+    ],
+  },
+  {
+    category: "Core Systems",
+    icon: <Bell className="h-6 w-6" />,
+    features: [
+      { name: "Notification System", status: "implemented", description: "Complete notification system with DB, WebSocket (Convex), email/SMS placeholders" },
+      { name: "Order Lifecycle Management", status: "implemented", description: "Full order flow: PLACED → ACCEPTED → ASSIGNED → OUT_FOR_DELIVERY → DELIVERED" },
+      { name: "Stock Management", status: "implemented", description: "Auto stock deduction on order, stock validation, low stock alerts" },
+      { name: "Location & ETA System", status: "implemented", description: "Haversine distance calculation, Blinkit-style ETA, peak hour detection" },
+      { name: "Real-time Updates", status: "implemented", description: "Convex subscriptions for real-time data sync" },
+      { name: "WebSocket/SSE Location Tracking", status: "implemented", description: "Server-Sent Events for real-time rider location broadcasting" },
+      { name: "Multi-tenant Architecture", status: "implemented", description: "Shopkeeper-based multi-tenant system" },
+      { name: "Role-Based Access Control", status: "implemented", description: "USER, SHOPKEEPER, ADMIN, RIDER roles with permissions" },
+      { name: "Background Jobs (Inngest)", status: "implemented", description: "Event-driven background jobs for notifications and sync" },
     ],
   },
 ];
@@ -128,30 +162,30 @@ export default function FeaturesPage() {
   const implementationRate = ((totalImplemented / totalFeatures) * 100).toFixed(1);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-black mb-4">Feature Implementation Status</h1>
-          <p className="text-lg text-gray-600 mb-8">MohallaMart Platform Features</p>
+          <h1 className="text-4xl font-bold text-foreground mb-4">Feature Implementation Status</h1>
+          <p className="text-lg text-muted-foreground mb-8">MohallaMart Platform Features</p>
 
           {/* Statistics */}
           <div className="flex flex-wrap justify-center gap-6 mb-8">
-            <div className="bg-green-50 border-2 border-green-300 rounded-lg px-6 py-4">
-              <div className="text-3xl font-bold text-green-700">{totalImplemented}</div>
-              <div className="text-sm text-green-600 font-medium">Implemented</div>
+            <div className="bg-[var(--success-bg-light)] border-2 border-green-300 dark:border-green-700 rounded-lg px-6 py-4">
+              <div className="text-3xl font-bold text-green-600 dark:text-green-400">{totalImplemented}</div>
+              <div className="text-sm text-green-700 dark:text-green-300 font-medium">Implemented</div>
             </div>
-            <div className="bg-red-50 border-2 border-red-300 rounded-lg px-6 py-4">
-              <div className="text-3xl font-bold text-red-700">{totalPending}</div>
-              <div className="text-sm text-red-600 font-medium">Pending</div>
+            <div className="bg-red-50 dark:bg-red-950/20 border-2 border-red-300 dark:border-red-700 rounded-lg px-6 py-4">
+              <div className="text-3xl font-bold text-red-600 dark:text-red-400">{totalPending}</div>
+              <div className="text-sm text-red-700 dark:text-red-300 font-medium">Pending</div>
             </div>
-            <div className="bg-blue-50 border-2 border-blue-300 rounded-lg px-6 py-4">
-              <div className="text-3xl font-bold text-blue-700">{totalFeatures}</div>
-              <div className="text-sm text-blue-600 font-medium">Total Features</div>
+            <div className="bg-blue-50 dark:bg-blue-950/20 border-2 border-blue-300 dark:border-blue-700 rounded-lg px-6 py-4">
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{totalFeatures}</div>
+              <div className="text-sm text-blue-700 dark:text-blue-300 font-medium">Total Features</div>
             </div>
-            <div className="bg-gray-50 border-2 border-gray-300 rounded-lg px-6 py-4">
-              <div className="text-3xl font-bold text-gray-700">{implementationRate}%</div>
-              <div className="text-sm text-gray-600 font-medium">Complete</div>
+            <div className="bg-muted border-2 border-border rounded-lg px-6 py-4">
+              <div className="text-3xl font-bold text-foreground">{implementationRate}%</div>
+              <div className="text-sm text-muted-foreground font-medium">Complete</div>
             </div>
           </div>
         </div>
@@ -163,35 +197,37 @@ export default function FeaturesPage() {
             const pendingCount = category.features.filter((f) => f.status === "pending").length;
 
             return (
-              <div key={categoryIndex} className="border-2 border-gray-300 rounded-lg overflow-hidden">
+              <div key={categoryIndex} className="border-2 border-border rounded-lg overflow-hidden">
                 {/* Category Header */}
-                <div className="bg-black text-white px-6 py-4 flex items-center justify-between">
+                <div className="bg-primary text-primary-foreground px-6 py-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="text-white">{category.icon}</div>
+                    <div className="text-primary-foreground">{category.icon}</div>
                     <h2 className="text-2xl font-bold">{category.category}</h2>
                   </div>
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="bg-green-600 px-3 py-1 rounded">{implementedCount} Done</span>
-                    <span className="bg-red-600 px-3 py-1 rounded">{pendingCount} Pending</span>
+                    <span className="bg-green-600 dark:bg-green-500 px-3 py-1 rounded">{implementedCount} Done</span>
+                    <span className="bg-red-600 dark:bg-red-500 px-3 py-1 rounded">{pendingCount} Pending</span>
                   </div>
                 </div>
 
                 {/* Features List */}
-                <div className="bg-white divide-y divide-gray-200">
+                <div className="bg-card divide-y divide-border">
                   {category.features.map((feature, featureIndex) => (
                     <div
                       key={featureIndex}
-                      className={`px-6 py-4 flex items-start gap-4 ${feature.status === "implemented" ? "bg-green-50/30" : "bg-red-50/30"
+                      className={`px-6 py-4 flex items-start gap-4 ${feature.status === "implemented"
+                        ? "bg-green-50/30 dark:bg-green-950/10"
+                        : "bg-red-50/30 dark:bg-red-950/10"
                         }`}
                     >
                       <div className="mt-0.5">{getStatusIcon(feature.status)}</div>
                       <div className="flex-1">
                         <div className="flex items-start justify-between gap-4 mb-1">
-                          <h3 className="font-semibold text-black text-lg">{feature.name}</h3>
+                          <h3 className="font-semibold text-foreground text-lg">{feature.name}</h3>
                           {getStatusBadge(feature.status)}
                         </div>
                         {feature.description && (
-                          <p className="text-sm text-gray-600 mt-1">{feature.description}</p>
+                          <p className="text-sm text-muted-foreground mt-1">{feature.description}</p>
                         )}
                       </div>
                     </div>
@@ -204,7 +240,7 @@ export default function FeaturesPage() {
 
         {/* Footer Note */}
         <div className="mt-12 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             Last updated: {new Date().toLocaleDateString()} | Status: Active Development
           </p>
         </div>

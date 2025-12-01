@@ -232,10 +232,10 @@ export default defineSchema({
   notifications: defineTable({
     user_id: v.id("users"),
     type: v.union(
-      v.literal("order_update"),
-      v.literal("promotion"),
-      v.literal("system"),
-      v.literal("delivery"),
+      v.literal("ORDER"),
+      v.literal("DELIVERY"),
+      v.literal("PAYMENT"),
+      v.literal("SYSTEM"),
     ),
     title: v.string(),
     message: v.string(),
@@ -248,7 +248,8 @@ export default defineSchema({
     .index("by_user", ["user_id"])
     .index("by_type", ["type"])
     .index("by_read", ["is_read"])
-    .index("by_sent", ["is_sent"]),
+    .index("by_sent", ["is_sent"])
+    .index("by_user_read", ["user_id", "is_read"]),
 
   // User locations table
   user_locations: defineTable({

@@ -79,6 +79,34 @@ export const createOrder = mutation({
       }
     }
 
+    // Notify user and shopkeeper about order placement
+    const shop = await ctx.db.get(args.shop_id);
+    if (shop) {
+      // Notify user
+      await ctx.db.insert("notifications", {
+        user_id: args.user_id,
+        title: "Order Placed",
+        message: `Your order #${orderNumber} has been placed successfully. Total: ₹${args.total_amount.toFixed(2)}`,
+        type: "ORDER",
+        data: { order_id: orderId, order_number: orderNumber },
+        is_read: false,
+        is_sent: false,
+        created_at: Date.now(),
+      });
+
+      // Notify shopkeeper
+      await ctx.db.insert("notifications", {
+        user_id: shop.owner_id,
+        title: "New Order Received",
+        message: `New order #${orderNumber} received. Total: ₹${args.total_amount.toFixed(2)}`,
+        type: "ORDER",
+        data: { order_id: orderId, order_number: orderNumber },
+        is_read: false,
+        is_sent: false,
+        created_at: Date.now(),
+      });
+    }
+
     return orderId;
   },
 });
@@ -188,6 +216,18 @@ export const acceptOrder = mutation({
       updated_at: Date.now(),
     });
 
+    // Notify user about order acceptance
+    await ctx.db.insert("notifications", {
+      user_id: order.user_id,
+      title: "Order Accepted",
+      message: `Your order #${order.order_number} has been accepted by the shopkeeper.`,
+      type: "ORDER",
+      data: { order_id: args.id, order_number: order.order_number },
+      is_read: false,
+      is_sent: false,
+      created_at: Date.now(),
+    });
+
     return args.id;
   },
 });
@@ -241,6 +281,30 @@ export const assignRider = mutation({
       updated_at: Date.now(),
     });
 
+    // Notify rider (rider is already fetched and validated above)
+    await ctx.db.insert("notifications", {
+      user_id: rider.rider_id,
+      title: "New Delivery Assignment",
+      message: `You have been assigned order #${order.order_number}. Please proceed to the shop.`,
+      type: "DELIVERY",
+      data: { order_id: args.id, order_number: order.order_number },
+      is_read: false,
+      is_sent: false,
+      created_at: Date.now(),
+    });
+
+    // Notify user
+    await ctx.db.insert("notifications", {
+      user_id: order.user_id,
+      title: "Rider Assigned",
+      message: `A rider has been assigned to your order #${order.order_number}.`,
+      type: "DELIVERY",
+      data: { order_id: args.id, order_number: order.order_number },
+      is_read: false,
+      is_sent: false,
+      created_at: Date.now(),
+    });
+
     return args.id;
   },
 });
@@ -285,6 +349,50 @@ export const updateOrderStatus = mutation({
 
     await ctx.db.patch(args.id, updateData);
 
+    // Send notifications based on status
+    if (args.status === "out_for_delivery") {
+      // Notify user
+      await ctx.db.insert("notifications", {
+        user_id: order.user_id,
+        title: "Out for Delivery",
+        message: `Your order #${order.order_number} is out for delivery.`,
+        type: "DELIVERY",
+        data: { order_id: args.id, order_number: order.order_number },
+        is_read: false,
+        is_sent: false,
+        created_at: Date.now(),
+      });
+    } else if (args.status === "delivered") {
+      // Get shop to notify shopkeeper
+      const shop = await ctx.db.get(order.shop_id);
+
+      // Notify user
+      await ctx.db.insert("notifications", {
+        user_id: order.user_id,
+        title: "Order Delivered",
+        message: `Your order #${order.order_number} has been delivered successfully.`,
+        type: "DELIVERY",
+        data: { order_id: args.id, order_number: order.order_number },
+        is_read: false,
+        is_sent: false,
+        created_at: Date.now(),
+      });
+
+      // Notify shopkeeper
+      if (shop) {
+        await ctx.db.insert("notifications", {
+          user_id: shop.owner_id,
+          title: "Order Delivered",
+          message: `Order #${order.order_number} has been delivered to the customer.`,
+          type: "ORDER",
+          data: { order_id: args.id, order_number: order.order_number },
+          is_read: false,
+          is_sent: false,
+          created_at: Date.now(),
+        });
+      }
+    }
+
     return args.id;
   },
 });
@@ -310,6 +418,20 @@ export const updatePaymentStatus = mutation({
       payment_status: args.payment_status,
       updated_at: Date.now(),
     });
+
+    // Notify user about payment status
+    if (args.payment_status === "paid") {
+      await ctx.db.insert("notifications", {
+        user_id: order.user_id,
+        title: "Payment Successful",
+        message: `Payment for order #${order.order_number} has been processed successfully.`,
+        type: "PAYMENT",
+        data: { order_id: args.id, order_number: order.order_number },
+        is_read: false,
+        is_sent: false,
+        created_at: Date.now(),
+      });
+    }
 
     return args.id;
   },

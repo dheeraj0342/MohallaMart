@@ -66,8 +66,11 @@ export default function CheckoutPage() {
     user?.email ? { email: user.email } : "skip"
   );
 
-  // Get shop details for ETA preview
-  const shop = shopId ? useQuery(api.shops.getShop, { id: shopId as any }) : null;
+  // Get shop details for ETA preview (must call hook unconditionally)
+  const shop = useQuery(
+    api.shops.getShop,
+    shopId ? { id: shopId as any } : "skip"
+  );
 
   // Calculate ETA preview when location and shop are available
   useEffect(() => {
