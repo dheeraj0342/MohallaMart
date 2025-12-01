@@ -13,6 +13,7 @@ import { useStore } from "@/store/useStore"
 import { useToast } from "@/hooks/useToast"
 import { generateSlug } from "@/lib/utils"
 import ImageModal from "@/components/ImageModal"
+import ShopProductCard from "@/components/products/ShopCard"
 
 export default function ShopPage() {
   const params = useParams()
@@ -87,18 +88,18 @@ export default function ShopPage() {
 
   const sortedProducts = Array.isArray(products)
     ? [...products].sort((a, b) => {
-        switch (sortBy) {
-          case "price_asc":
-            return (a.price ?? 0) - (b.price ?? 0)
-          case "price_desc":
-            return (b.price ?? 0) - (a.price ?? 0)
-          case "rating":
-            return (b.rating ?? 0) - (a.rating ?? 0)
-          case "popular":
-          default:
-            return (b.total_sales ?? 0) - (a.total_sales ?? 0)
-        }
-      })
+      switch (sortBy) {
+        case "price_asc":
+          return (a.price ?? 0) - (b.price ?? 0)
+        case "price_desc":
+          return (b.price ?? 0) - (a.price ?? 0)
+        case "rating":
+          return (b.rating ?? 0) - (a.rating ?? 0)
+        case "popular":
+        default:
+          return (b.total_sales ?? 0) - (a.total_sales ?? 0)
+      }
+    })
     : []
 
   const hoursOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
@@ -156,19 +157,19 @@ export default function ShopPage() {
   })()
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-      <header className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="bg-card border-b border-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <nav className="py-4 text-sm flex items-center gap-2" aria-label="Breadcrumb">
             <a
               href="/shops"
-              className="text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Shops
             </a>
-            <span className="text-neutral-300 dark:text-neutral-600">/</span>
-            <span className="text-neutral-900 dark:text-white font-medium truncate" aria-current="page">
+            <span className="text-muted-foreground">/</span>
+            <span className="font-medium truncate" aria-current="page">
               {shop.name}
             </span>
           </nav>
@@ -189,7 +190,7 @@ export default function ShopPage() {
                           title: `${shop.name} Logo`,
                         })
                       }
-                      className="relative h-24 w-24 sm:h-28 sm:w-28 rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 ring-1 ring-neutral-200 dark:ring-neutral-700 flex-shrink-0 hover:ring-2 hover:ring-neutral-900 dark:hover:ring-white transition-all duration-200"
+                      className="relative h-24 w-24 sm:h-28 sm:w-28 rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 ring-1 ring-neutral-200 dark:ring-neutral-700 shrink-0 hover:ring-2 hover:ring-neutral-900 dark:hover:ring-white transition-all duration-200"
                     >
                       <Image
                         src={shop.logo_url || "/placeholder.svg"}
@@ -201,19 +202,19 @@ export default function ShopPage() {
                       />
                     </button>
                   ) : (
-                    <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl bg-neutral-900 dark:bg-white flex items-center justify-center flex-shrink-0">
+                    <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl bg-neutral-900 dark:bg-white flex items-center justify-center shrink-0">
                       <Store className="h-12 w-12 text-white dark:text-neutral-900" />
                     </div>
                   )}
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-neutral-900 dark:text-white">
+                    <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
                       {shop.name}
                     </h1>
 
                     {shop.description && (
-                      <p className="mt-2 text-neutral-600 dark:text-neutral-400 max-w-xl line-clamp-2">
+                      <p className="mt-2 text-muted-foreground max-w-xl line-clamp-2">
                         {shop.description}
                       </p>
                     )}
@@ -222,11 +223,10 @@ export default function ShopPage() {
                     <div className="mt-4 flex flex-wrap items-center gap-2">
                       {/* Open/Closed Status */}
                       <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
-                          openNow
-                            ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                            : "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400"
-                        }`}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${openNow
+                          ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
+                          : "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400"
+                          }`}
                       >
                         <span className={`h-1.5 w-1.5 rounded-full ${openNow ? "bg-green-500" : "bg-red-500"}`} />
                         {openNow ? "Open" : "Closed"}
@@ -258,15 +258,15 @@ export default function ShopPage() {
 
               {/* Right: Contact Card */}
               <div className="w-full lg:w-80 space-y-4">
-                <Card className="border-neutral-200 dark:border-neutral-800 shadow-sm">
+                <Card className="border-border bg-card shadow-sm">
                   <CardContent className="p-4 space-y-3">
                     <a
                       href={mapsHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-start gap-3 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors group"
+                      className="flex items-start gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group"
                     >
-                      <MapPin className="h-4 w-4 mt-0.5 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white flex-shrink-0" />
+                      <MapPin className="h-4 w-4 mt-0.5 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white shrink-0" />
                       <span className="line-clamp-2">
                         {shop.address.street}, {shop.address.city}
                       </span>
@@ -274,18 +274,18 @@ export default function ShopPage() {
 
                     <a
                       href={`tel:${shop.contact.phone}`}
-                      className="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors group"
+                      className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group"
                     >
-                      <Phone className="h-4 w-4 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white flex-shrink-0" />
+                      <Phone className="h-4 w-4 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white shrink-0" />
                       <span>{shop.contact.phone}</span>
                     </a>
 
                     {shop.contact.email && (
                       <a
                         href={`mailto:${shop.contact.email}`}
-                        className="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors group"
+                        className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group"
                       >
-                        <Mail className="h-4 w-4 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white flex-shrink-0" />
+                        <Mail className="h-4 w-4 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white shrink-0" />
                         <span className="truncate">{shop.contact.email}</span>
                       </a>
                     )}
@@ -332,7 +332,7 @@ export default function ShopPage() {
               <div>
                 <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Products</h2>
                 {products && products.length > 0 && (
-                  <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+                  <p className="text-sm text-muted-foreground mt-1">
                     {products.length} {products.length === 1 ? "item" : "items"} available
                   </p>
                 )}
@@ -356,137 +356,31 @@ export default function ShopPage() {
 
             {/* Products */}
             {sortedProducts && sortedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-6">
                 {sortedProducts.map((product) => (
-                  <Card
+                  <ShopProductCard
                     key={product._id}
-                    className="group border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-hidden hover:shadow-xl hover:shadow-neutral-200/50 dark:hover:shadow-neutral-900/50 transition-all duration-300"
-                  >
-                    {/* Product Image */}
-                    <button
-                      onClick={() => {
-                        if (product.images && product.images.length > 0) {
-                          setSelectedImage({
-                            url: product.images[0],
-                            alt: product.name,
-                            title: product.name,
-                          })
-                        }
-                      }}
-                      className="relative aspect-square w-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden"
-                    >
-                      {product.images && product.images.length > 0 ? (
-                        <Image
-                          src={product.images[0] || "/placeholder.svg"}
-                          alt={product.name}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          unoptimized={product.images[0].includes("convex.cloud")}
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full">
-                          <Package className="h-16 w-16 text-neutral-300 dark:text-neutral-600" />
-                        </div>
-                      )}
-
-                      {/* Discount Badge */}
-                      {product.original_price && product.original_price > product.price && (
-                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-500 text-white">
-                          {Math.round(((product.original_price - product.price) / product.original_price) * 100)}% OFF
-                        </span>
-                      )}
-
-                      {/* Featured Badge */}
-                      {product.is_featured && (
-                        <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
-                          Featured
-                        </span>
-                      )}
-                    </button>
-
-                    <CardContent className="p-5">
-                      {/* Product Name */}
-                      <h3 className="font-semibold text-neutral-900 dark:text-white line-clamp-1 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
-                        {product.name}
-                      </h3>
-
-                      {/* Description */}
-                      {product.description && (
-                        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400 line-clamp-2">
-                          {product.description}
-                        </p>
-                      )}
-
-                      {/* Price Row */}
-                      <div className="mt-4 flex items-end justify-between">
-                        <div>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-xl font-bold text-neutral-900 dark:text-white">
-                              ₹{product.price.toFixed(2)}
-                            </span>
-                            <span className="text-sm text-neutral-400">/{product.unit}</span>
-                          </div>
-                          {product.original_price && product.original_price > product.price && (
-                            <span className="text-sm text-neutral-400 line-through">
-                              ₹{product.original_price.toFixed(2)}
-                            </span>
-                          )}
-                        </div>
-
-                        {product.rating && (
-                          <div className="flex items-center gap-1 text-sm">
-                            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                            <span className="text-neutral-600 dark:text-neutral-400">{product.rating.toFixed(1)}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Stock Info */}
-                      <div className="mt-3 flex items-center justify-between text-xs">
-                        <span className="text-neutral-500 dark:text-neutral-400">
-                          Min: {product.min_order_quantity} {product.unit}
-                        </span>
-                        {product.stock_quantity > 0 ? (
-                          <span className="text-green-600 dark:text-green-400 font-medium">
-                            In Stock ({product.stock_quantity})
-                          </span>
-                        ) : (
-                          <span className="text-red-500 font-medium">Out of Stock</span>
-                        )}
-                      </div>
-
-                      {/* View Details Link */}
-                      <div className="mt-3">
-                        <a
-                          href={`/product/${generateSlug(product.name)}`}
-                          className="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:underline"
-                        >
-                          View details
-                        </a>
-                      </div>
-
-                      {/* Add to Cart */}
-                      <Button
-                        onClick={() => handleAddToCart(product)}
-                        disabled={product.stock_quantity === 0}
-                        className="w-full mt-4 rounded-lg bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 disabled:opacity-50"
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-2" />
-                        Add to Cart
-                      </Button>
-                    </CardContent>
-                  </Card>
+                    product={product as any}
+                    onAddToCart={(p) => handleAddToCart(p)}
+                    href={`/pd/${product._id}/${generateSlug(product.name)}`}
+                    onImageClick={({ url, alt, title }) =>
+                      setSelectedImage({
+                        url,
+                        alt,
+                        title: title ?? product.name,
+                      })
+                    }
+                  />
                 ))}
               </div>
             ) : (
-              <Card className="border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+              <Card className="border-border bg-card">
                 <CardContent className="py-16 text-center">
                   <div className="mx-auto w-16 h-16 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4">
                     <Package className="h-8 w-8 text-neutral-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">No Products Available</h3>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                  <h3 className="text-lg font-semibold mb-2">No Products Available</h3>
+                  <p className="text-sm text-muted-foreground">
                     This shop hasn&apos;t added any products yet.
                   </p>
                 </CardContent>
@@ -496,9 +390,9 @@ export default function ShopPage() {
 
           {/* Sidebar - Business Hours */}
           {shop.business_hours && (
-            <aside className="w-full lg:w-72 flex-shrink-0">
+            <aside className="w-full lg:w-72 shrink-0 lg:pl-4">
               <div className="lg:sticky lg:top-6">
-                <Card className="border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+                <Card className="border-border bg-card">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-base font-semibold text-neutral-900 dark:text-white">
                       <Clock className="h-4 w-4" />
@@ -517,14 +411,12 @@ export default function ShopPage() {
                         return (
                           <div
                             key={d}
-                            className={`flex items-center justify-between py-2 px-2 rounded-lg text-sm ${
-                              isToday ? "bg-neutral-100 dark:bg-neutral-800" : ""
-                            }`}
+                            className={`flex items-center justify-between py-2 px-2 rounded-lg text-sm ${isToday ? "bg-neutral-100 dark:bg-neutral-800" : ""
+                              }`}
                           >
                             <span
-                              className={`font-medium ${
-                                isToday ? "text-neutral-900 dark:text-white" : "text-neutral-600 dark:text-neutral-400"
-                              }`}
+                              className={`font-medium ${isToday ? "text-neutral-900 dark:text-white" : "text-neutral-600 dark:text-neutral-400"
+                                }`}
                             >
                               {hoursLabel[d]}
                               {isToday && <span className="ml-2 text-xs text-neutral-400">Today</span>}

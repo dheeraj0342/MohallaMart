@@ -25,8 +25,7 @@ const mockProducts: MockProduct[] = [
     description: "Organic ripe bananas (1kg)",
     price: 89,
     category: "Fruits",
-    image_url:
-      "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400",
+    image_url: "/placeholder.svg",
     stock_quantity: 50,
     is_available: true,
     tags: ["organic", "fresh", "tropical", "healthy"],
@@ -39,8 +38,7 @@ const mockProducts: MockProduct[] = [
     description: "Red delicious apples (1kg)",
     price: 180,
     category: "Fruits",
-    image_url:
-      "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400",
+    image_url: "/placeholder.svg",
     stock_quantity: 30,
     is_available: true,
     tags: ["organic", "red", "crisp", "healthy"],
@@ -53,8 +51,7 @@ const mockProducts: MockProduct[] = [
     description: "Full cream milk (1L)",
     price: 65,
     category: "Dairy",
-    image_url:
-      "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",
+    image_url: "/placeholder.svg",
     stock_quantity: 100,
     is_available: true,
     tags: ["fresh", "dairy", "full-cream", "daily"],

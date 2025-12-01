@@ -88,6 +88,9 @@ export default defineSchema({
   products: defineTable({
     name: v.string(),
     description: v.optional(v.string()),
+    brand: v.optional(v.string()),
+    ingredients: v.optional(v.array(v.string())),
+    nutrition_facts: v.optional(v.array(v.string())),
     shop_id: v.id("shops"),
     category_id: v.id("categories"),
     price: v.number(),
@@ -98,6 +101,7 @@ export default defineSchema({
     unit: v.string(), // kg, piece, liter, etc.
     images: v.array(v.string()),
     tags: v.array(v.string()),
+    variants: v.optional(v.array(v.string())),
     is_available: v.boolean(),
     is_featured: v.boolean(),
     rating: v.optional(v.number()),

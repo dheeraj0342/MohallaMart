@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
-import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,11 +14,12 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { Package, Star, ShoppingCart } from "lucide-react";
+import { Package, Star } from "lucide-react";
 import Link from "next/link";
 import type { Id } from "@/../convex/_generated/dataModel";
 import { useStore } from "@/store/useStore";
 import { useToast } from "@/hooks/useToast";
+import ShopProductCard from "@/components/products/ShopCard";
 
 export default function TopRatedProductsSection() {
   const { addToCart } = useStore();
@@ -41,9 +41,9 @@ export default function TopRatedProductsSection() {
     api.products.getProductsByCategory,
     selectedCategory !== "all"
       ? ({ category_id: selectedCategory as Id<"categories">, is_available: true } as {
-          category_id: Id<"categories">;
-          is_available: boolean;
-        })
+        category_id: Id<"categories">;
+        is_available: boolean;
+      })
       : ("skip" as const),
   );
   const baseProducts =
@@ -53,33 +53,26 @@ export default function TopRatedProductsSection() {
 
   const sortedProducts = Array.isArray(baseProducts)
     ? [...baseProducts].sort((a, b) => {
-        switch (sortBy) {
-          case "price_asc":
-            return (a.price ?? 0) - (b.price ?? 0);
-          case "price_desc":
-            return (b.price ?? 0) - (a.price ?? 0);
-          case "popular":
-            return (b.total_sales ?? 0) - (a.total_sales ?? 0);
-          case "rating":
-          default:
-            return (b.rating ?? 0) - (a.rating ?? 0);
-        }
-      })
+      switch (sortBy) {
+        case "price_asc":
+          return (a.price ?? 0) - (b.price ?? 0);
+        case "price_desc":
+          return (b.price ?? 0) - (a.price ?? 0);
+        case "popular":
+          return (b.total_sales ?? 0) - (a.total_sales ?? 0);
+        case "rating":
+        default:
+          return (b.rating ?? 0) - (a.rating ?? 0);
+      }
+    })
     : [];
   const displayProducts = inStockOnly
     ? sortedProducts.filter(
-        (p) => typeof p.stock_quantity === "number" && p.stock_quantity > 0
-      )
+      (p) => typeof p.stock_quantity === "number" && p.stock_quantity > 0
+    )
     : sortedProducts;
   const limitedProducts = displayProducts.slice(0, 8);
-  const handleAddToCart = (product: {
-    _id: string;
-    name: string;
-    price: number;
-    images: string[];
-    min_order_quantity: number;
-    unit: string;
-  }) => {
+  const handleAddToCart = (product: any) => {
     addToCart({
       id: product._id,
       name: `${product.name} (${product.unit})`,
@@ -156,101 +149,11 @@ export default function TopRatedProductsSection() {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
               {limitedProducts.map((product) => (
-                <Card
+                <ShopProductCard
                   key={product._id}
-                  className="group hover:shadow-lg transition-shadow border-border bg-card overflow-hidden"
-                >
-                <div className="relative h-48 sm:h-56 md:h-64 w-full bg-muted overflow-hidden">
-                  {product.images && product.images.length > 0 ? (
-                    <Image
-                      src={product.images[0]}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                      unoptimized={product.images[0].includes("convex.cloud")}
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <Package className="h-20 w-20 text-muted-foreground" />
-                    </div>
-                  )}
-                  {product.original_price && product.original_price > product.price && (
-                    <Badge className="absolute top-2 right-2 bg-red-500 text-white dark:bg-red-600 dark:text-white z-10">
-                      {Math.round(
-                        ((product.original_price - product.price) /
-                          product.original_price) *
-                        100
-                      )}
-                      % OFF
-                    </Badge>
-                  )}
-                  {typeof product.stock_quantity === "number" && (
-                    <Badge
-                      className={`absolute bottom-2 left-2 z-10 ${
-                        product.stock_quantity > 0
-                          ? "bg-green-600 text-white"
-                          : "bg-gray-500 text-white"
-                      }`}
-                    >
-                      {product.stock_quantity > 0 ? "In Stock" : "Out of Stock"}
-                    </Badge>
-                  )}
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-foreground line-clamp-1 mb-1 group-hover:text-primary transition-colors">
-                    {product.name}
-                  </h3>
-                  {product.description && (
-                    <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
-                      {product.description}
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-lg font-bold text-foreground">
-                        ₹{product.price.toFixed(2)}
-                      </span>
-                      {product.original_price && product.original_price > product.price && (
-                        <span className="text-sm text-muted-foreground line-through">
-                          ₹{product.original_price.toFixed(2)}
-                        </span>
-                      )}
-                      <span className="text-xs text-muted-foreground">/{product.unit}</span>
-                    </div>
-                    {product.rating && (
-                      <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 dark:fill-yellow-500 dark:text-yellow-500" />
-                        <span className="text-xs text-muted-foreground">
-                          {product.rating.toFixed(1)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-                    <span>
-                      Min: {product.min_order_quantity} {product.unit}
-                    </span>
-                    {product.stock_quantity > 0 ? (
-                      <span className="text-green-600 dark:text-green-400">
-                        In Stock ({product.stock_quantity})
-                      </span>
-                    ) : (
-                      <span className="text-red-600 dark:text-red-400">Out of Stock</span>
-                    )}
-                  </div>
-                  <Button
-                    onClick={() => handleAddToCart(product)}
-                    disabled={product.stock_quantity === 0}
-                    className="w-full"
-                    size="sm"
-                    aria-label={`Add ${product.name} to cart`}
-                  >
-                    <ShoppingCart className="h-4 w-4" />
-                    Add to Cart
-                  </Button>
-                </CardContent>
-                </Card>
+                  product={product as any}
+                  onAddToCart={handleAddToCart}
+                />
               ))}
             </div>
             <div className="mt-6 flex justify-end">

@@ -10,6 +10,9 @@ interface CartItem {
   quantity: number;
   image?: string;
   productId?: Id<"products">;
+  variant?: string;
+  grade?: string;
+  notes?: string;
 }
 
 interface User {

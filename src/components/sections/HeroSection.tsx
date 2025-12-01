@@ -5,25 +5,38 @@ import Image from "next/image"
 import { ShoppingCart, Store, BadgeCheck, Truck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
+const gradientImage = (from: string, to: string) =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(`
+    <svg xmlns='http://www.w3.org/2000/svg' width='1600' height='900'>
+      <defs>
+        <linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'>
+          <stop offset='0%' stop-color='${from}' />
+          <stop offset='100%' stop-color='${to}' />
+        </linearGradient>
+      </defs>
+      <rect width='1600' height='900' rx='40' fill='url(#grad)' />
+    </svg>
+  `)}`
+
 const bannerSlides = [
   {
-    src: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?auto=format&fit=crop&w=1600&q=80",
+    src: gradientImage("#f7c4d4", "#fef0c7"),
     label: "Farm Fresh",
   },
   {
-    src: "https://images.unsplash.com/photo-1505253216365-40c9d88c3c49?auto=format&fit=crop&w=1600&q=80",
+    src: gradientImage("#c3f0ca", "#8ee4ff"),
     label: "10-min Express",
   },
   {
-    src: "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=1600&q=80",
+    src: gradientImage("#ffe4c8", "#ffd1dc"),
     label: "Everyday Essentials",
   },
   {
-    src: "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=1600&q=80",
+    src: gradientImage("#d4dcff", "#fff6eb"),
     label: "Dairy & Bakery",
   },
   {
-    src: "https://images.unsplash.com/photo-1543168256-418811576931?auto=format&fit=crop&w=1600&q=80",
+    src: gradientImage("#fbe6ff", "#d8f4ff"),
     label: "Home & Essentials",
   },
 ]
@@ -76,7 +89,7 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Image Carousel */}
+        {/* Media Carousel */}
         <div className="relative w-full h-56 sm:h-72 overflow-hidden mt-8">
           <motion.div
             animate={{ x: ["0%", "-50%"] }}
@@ -85,15 +98,26 @@ export default function HeroSection() {
           >
             {[...bannerSlides, ...bannerSlides].map((slide, idx) => (
               <div key={`${slide.label}-${idx}`} className="relative w-full h-56 sm:h-72 shrink-0">
-                <Image
-                  src={slide.src || "/placeholder.svg"}
-                  alt={`Promo banner - ${slide.label}`}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  priority={idx < 2}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
+                {slide.src?.endsWith(".mp4") ? (
+                  <video
+                    src={slide.src}
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  <Image
+                    src={slide.src || "/placeholder.svg"}
+                    alt={`Promo banner - ${slide.label}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority={idx < 2}
+                  />
+                )}
+                <div className="absolute inset-0 bg-linear-to-t from-black/50 via-black/20 to-transparent" />
                 <div className="absolute bottom-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card/90 backdrop-blur-sm text-card-foreground border border-border">
                   <BadgeCheck className="h-4 w-4 text-primary" />
                   <span className="text-sm font-medium">{slide.label}</span>
