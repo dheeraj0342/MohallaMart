@@ -630,9 +630,9 @@ export const getShopStats = query({
           : 0,
       pending_orders: orders.filter((order) => order.status === "pending")
         .length,
-      confirmed_orders: orders.filter((order) => order.status === "confirmed")
+      accepted_orders: orders.filter((order) => order.status === "accepted_by_shopkeeper")
         .length,
-      preparing_orders: orders.filter((order) => order.status === "preparing")
+      assigned_orders: orders.filter((order) => order.status === "assigned_to_rider")
         .length,
       out_for_delivery_orders: orders.filter(
         (order) => order.status === "out_for_delivery",

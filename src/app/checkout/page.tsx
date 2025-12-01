@@ -46,8 +46,15 @@ export default function CheckoutPage() {
   const tax = subtotal * 0.05; // 5% tax
   const payableAmount = subtotal + deliveryFee + tax;
 
-  // Get shop ID from cart (assuming all items are from same shop)
-  const shopId = cart.length > 0 && cart[0].shopId ? cart[0].shopId : null;
+  // Get shop ID from products (fetch product details to get shop_id)
+  const productIds = cart.map((item) => item.id as any);
+  const products = useQuery(
+    api.products.getProducts,
+    cart.length > 0 ? { ids: productIds } : "skip"
+  );
+
+  // Get shop ID from first product (assuming all items are from same shop)
+  const shopId = products && products.length > 0 ? products[0].shop_id : null;
 
   const handlePlaceOrder = async () => {
     if (!user) {
@@ -72,7 +79,7 @@ export default function CheckoutPage() {
       // TODO: Get user ID from Convex
       const userId = user.id as any; // This should be Convex user ID
 
-      await createOrder({
+      const orderId = await createOrder({
         user_id: userId,
         shop_id: shopId as any,
         items: cart.map((item) => ({
@@ -91,8 +98,8 @@ export default function CheckoutPage() {
           city,
           pincode,
           state,
-          coordinates: location
-            ? { lat: location.lat, lng: location.lon }
+          coordinates: location?.coordinates
+            ? { lat: location.coordinates.lat, lng: location.coordinates.lng }
             : undefined,
         },
         payment_method: paymentMethod,
@@ -101,7 +108,7 @@ export default function CheckoutPage() {
 
       success("Order placed successfully!");
       clearCart();
-      router.push("/");
+      router.push(`/track/${orderId}`);
     } catch (err: any) {
       error(err.message || "Failed to place order");
     } finally {
@@ -142,8 +149,8 @@ export default function CheckoutPage() {
                   onClick={() => setIsLocationModalOpen(true)}
                   className="w-full"
                 >
-                  {location
-                    ? `Location: ${location.lat.toFixed(4)}, ${location.lon.toFixed(4)}`
+                  {location?.coordinates
+                    ? `Location: ${location.coordinates.lat.toFixed(4)}, ${location.coordinates.lng.toFixed(4)}`
                     : "Select Location on Map"}
                 </Button>
                 <div>
@@ -288,7 +295,7 @@ export default function CheckoutPage() {
       <LocationModal
         isOpen={isLocationModalOpen}
         onClose={() => setIsLocationModalOpen(false)}
-        initial={location ? { lat: location.lat, lon: location.lon } : null}
+        initial={location?.coordinates ? { lat: location.coordinates.lat, lon: location.coordinates.lng } : null}
       />
     </div>
   );

@@ -147,12 +147,11 @@ export default defineSchema({
     rider_id: v.optional(v.id("riders")), // Assigned delivery rider
     order_number: v.string(),
     status: v.union(
-      v.literal("pending"),
-      v.literal("confirmed"),
-      v.literal("preparing"),
-      v.literal("assigned_to_rider"), // New status for rider assignment
-      v.literal("out_for_delivery"),
-      v.literal("delivered"),
+      v.literal("pending"), // PLACED - Customer placed order
+      v.literal("accepted_by_shopkeeper"), // ACCEPTED_BY_SHOPKEEPER - Shopkeeper accepted
+      v.literal("assigned_to_rider"), // ASSIGNED_TO_RIDER - Rider assigned manually
+      v.literal("out_for_delivery"), // OUT_FOR_DELIVERY - Rider picked up and delivering
+      v.literal("delivered"), // DELIVERED - Order completed
       v.literal("cancelled"),
     ),
     items: v.array(

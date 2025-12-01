@@ -98,8 +98,8 @@ export const getOrdersByUser = query({
     status: v.optional(
       v.union(
         v.literal("pending"),
-        v.literal("confirmed"),
-        v.literal("preparing"),
+        v.literal("accepted_by_shopkeeper"),
+        v.literal("assigned_to_rider"),
         v.literal("out_for_delivery"),
         v.literal("delivered"),
         v.literal("cancelled"),
@@ -133,8 +133,8 @@ export const getOrdersByShop = query({
     status: v.optional(
       v.union(
         v.literal("pending"),
-        v.literal("confirmed"),
-        v.literal("preparing"),
+        v.literal("accepted_by_shopkeeper"),
+        v.literal("assigned_to_rider"),
         v.literal("out_for_delivery"),
         v.literal("delivered"),
         v.literal("cancelled"),
@@ -161,21 +161,103 @@ export const getOrdersByShop = query({
   },
 });
 
-// Update order status
+// Accept order by shopkeeper
+export const acceptOrder = mutation({
+  args: {
+    id: v.id("orders"),
+    shopkeeper_id: v.id("users"), // Verify shopkeeper owns the shop
+  },
+  handler: async (ctx, args) => {
+    const order = await ctx.db.get(args.id);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    // Verify shopkeeper owns the shop
+    const shop = await ctx.db.get(order.shop_id);
+    if (!shop || shop.owner_id !== args.shopkeeper_id) {
+      throw new Error("Unauthorized: You do not own this shop");
+    }
+
+    if (order.status !== "pending") {
+      throw new Error(`Order cannot be accepted. Current status: ${order.status}`);
+    }
+
+    await ctx.db.patch(args.id, {
+      status: "accepted_by_shopkeeper",
+      updated_at: Date.now(),
+    });
+
+    return args.id;
+  },
+});
+
+// Assign rider to order (manual assignment by shopkeeper)
+export const assignRider = mutation({
+  args: {
+    id: v.id("orders"),
+    rider_id: v.id("riders"),
+    shopkeeper_id: v.id("users"), // Verify shopkeeper owns the shop
+  },
+  handler: async (ctx, args) => {
+    const order = await ctx.db.get(args.id);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    // Verify shopkeeper owns the shop
+    const shop = await ctx.db.get(order.shop_id);
+    if (!shop || shop.owner_id !== args.shopkeeper_id) {
+      throw new Error("Unauthorized: You do not own this shop");
+    }
+
+    if (order.status !== "accepted_by_shopkeeper") {
+      throw new Error(`Order must be accepted first. Current status: ${order.status}`);
+    }
+
+    // Verify rider exists and is available
+    const rider = await ctx.db.get(args.rider_id);
+    if (!rider) {
+      throw new Error("Rider not found");
+    }
+    if (!rider.is_online) {
+      throw new Error("Rider is offline");
+    }
+    if (rider.is_busy) {
+      throw new Error("Rider is busy");
+    }
+
+    // Update order
+    await ctx.db.patch(args.id, {
+      status: "assigned_to_rider",
+      rider_id: args.rider_id,
+      updated_at: Date.now(),
+    });
+
+    // Update rider status
+    await ctx.db.patch(args.rider_id, {
+      is_busy: true,
+      assigned_order_id: args.id,
+      updated_at: Date.now(),
+    });
+
+    return args.id;
+  },
+});
+
+// Update order status (for rider status updates)
 export const updateOrderStatus = mutation({
   args: {
     id: v.id("orders"),
     status: v.union(
       v.literal("pending"),
-      v.literal("confirmed"),
-      v.literal("preparing"),
+      v.literal("accepted_by_shopkeeper"),
       v.literal("assigned_to_rider"),
       v.literal("out_for_delivery"),
       v.literal("delivered"),
       v.literal("cancelled"),
     ),
     delivery_time: v.optional(v.string()),
-    rider_id: v.optional(v.id("riders")),
   },
   handler: async (ctx, args) => {
     const order = await ctx.db.get(args.id);
@@ -192,8 +274,13 @@ export const updateOrderStatus = mutation({
       updateData.delivery_time = args.delivery_time;
     }
 
-    if (args.rider_id) {
-      updateData.rider_id = args.rider_id;
+    // If delivered, mark rider as available
+    if (args.status === "delivered" && order.rider_id) {
+      await ctx.db.patch(order.rider_id, {
+        is_busy: false,
+        assigned_order_id: undefined,
+        updated_at: Date.now(),
+      });
     }
 
     await ctx.db.patch(args.id, updateData);
@@ -314,9 +401,9 @@ export const getOrderStats = query({
       total_revenue: orders.reduce((sum, order) => sum + order.total_amount, 0),
       pending_orders: orders.filter((order) => order.status === "pending")
         .length,
-      confirmed_orders: orders.filter((order) => order.status === "confirmed")
+      accepted_orders: orders.filter((order) => order.status === "accepted_by_shopkeeper")
         .length,
-      preparing_orders: orders.filter((order) => order.status === "preparing")
+      assigned_orders: orders.filter((order) => order.status === "assigned_to_rider")
         .length,
       out_for_delivery_orders: orders.filter(
         (order) => order.status === "out_for_delivery",

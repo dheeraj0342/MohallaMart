@@ -6,8 +6,7 @@ import { v } from "convex/values";
  */
 export const create = mutation({
   args: {
-    name: v.string(),
-    phone: v.string(),
+    rider_id: v.id("users"), // References users table
     currentLocation: v.object({
       lat: v.number(),
       lon: v.number(),
@@ -17,16 +16,15 @@ export const create = mutation({
     // Check if rider already exists
     const existing = await ctx.db
       .query("riders")
-      .withIndex("by_phone", (q) => q.eq("phone", args.phone))
+      .withIndex("by_rider", (q) => q.eq("rider_id", args.rider_id))
       .first();
 
     if (existing) {
-      throw new Error("Rider with this phone already exists");
+      throw new Error("Rider profile already exists");
     }
 
     const riderId = await ctx.db.insert("riders", {
-      name: args.name,
-      phone: args.phone,
+      rider_id: args.rider_id,
       current_location: {
         lat: args.currentLocation.lat,
         lon: args.currentLocation.lon,
@@ -56,7 +54,7 @@ export const getOnlineRiders = query({
 });
 
 /**
- * Get available riders (online and not busy)
+ * Get available riders (online and not busy) with user details
  */
 export const getAvailableRiders = query({
   handler: async (ctx) => {
@@ -65,7 +63,27 @@ export const getAvailableRiders = query({
       .withIndex("by_online", (q) => q.eq("is_online", true))
       .collect();
 
-    return riders.filter((rider) => !rider.is_busy);
+    const availableRiders = riders.filter((rider) => !rider.is_busy);
+
+    // Get user details for each rider
+    const ridersWithUserInfo = await Promise.all(
+      availableRiders.map(async (rider) => {
+        const user = await ctx.db.get(rider.rider_id);
+        return {
+          _id: rider._id,
+          rider_id: rider.rider_id,
+          name: user?.name || "Unknown Rider",
+          phone: user?.phone || "",
+          email: user?.email || "",
+          current_location: rider.current_location,
+          is_online: rider.is_online,
+          is_busy: rider.is_busy,
+          assigned_order_id: rider.assigned_order_id,
+        };
+      }),
+    );
+
+    return ridersWithUserInfo;
   },
 });
 
@@ -131,17 +149,26 @@ export const getById = query({
 });
 
 /**
- * Get rider by phone
+ * Get rider by user ID
  */
-export const getByPhone = query({
-  args: { phone: v.string() },
+export const getByUserId = query({
+  args: { user_id: v.id("users") },
   handler: async (ctx, args) => {
     const rider = await ctx.db
       .query("riders")
-      .withIndex("by_phone", (q) => q.eq("phone", args.phone))
+      .withIndex("by_rider", (q) => q.eq("rider_id", args.user_id))
       .first();
 
-    return rider;
+    if (!rider) return null;
+
+    // Get user details
+    const user = await ctx.db.get(rider.rider_id);
+    return {
+      ...rider,
+      name: user?.name || "Unknown",
+      phone: user?.phone || "",
+      email: user?.email || "",
+    };
   },
 });
 
