@@ -20,9 +20,22 @@ export default function OrderTrackingPage() {
   const shop = order?.shop_id
     ? useQuery(api.shops.getShop, { id: order.shop_id })
     : null;
-  const rider = order?.rider_id
+
+  // Get rider with user details
+  const riderData = order?.rider_id
     ? useQuery(api.riders.getById, { id: order.rider_id })
     : null;
+
+  const riderUser = riderData?.rider_id
+    ? useQuery(api.users.getUser, { id: riderData.rider_id })
+    : null;
+
+  // Combine rider data with user info
+  const rider = riderData && riderUser ? {
+    ...riderData,
+    name: riderUser.name || "Unknown Rider",
+    phone: riderUser.phone || "",
+  } : null;
 
   const [eta, setEta] = useState<{ minEta: number; maxEta: number } | null>(null);
 

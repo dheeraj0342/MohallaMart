@@ -79,6 +79,7 @@ export const getAvailableRiders = query({
           is_online: rider.is_online,
           is_busy: rider.is_busy,
           assigned_order_id: rider.assigned_order_id,
+          updated_at: rider.updated_at,
         };
       }),
     );

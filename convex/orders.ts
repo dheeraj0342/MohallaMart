@@ -279,8 +279,8 @@ export const updateOrderStatus = mutation({
       await ctx.db.patch(order.rider_id, {
         is_busy: false,
         assigned_order_id: undefined,
-        updated_at: Date.now(),
-      });
+      updated_at: Date.now(),
+    });
     }
 
     await ctx.db.patch(args.id, updateData);

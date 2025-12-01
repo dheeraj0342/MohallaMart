@@ -75,7 +75,7 @@ export default function LoginForm({
         // Role-based redirect will happen in useAuth hook
         // Small delay to ensure user is synced
         setTimeout(() => {
-          onSuccess?.();
+        onSuccess?.();
         }, 500);
       } else {
         setError("Login failed. Please try again.");

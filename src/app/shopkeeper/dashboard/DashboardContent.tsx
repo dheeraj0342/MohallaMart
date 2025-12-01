@@ -29,12 +29,12 @@ export default function DashboardPage() {
     dbUser?._id ? { owner_id: dbUser._id, is_active: true } : "skip"
   ) as
     | Array<{
-      _id: string;
-      name: string;
-      address: { city?: string; state?: string };
-      rating?: number;
-    }>
-
+        _id: string;
+        name: string;
+        address: { city?: string; state?: string };
+        rating?: number;
+      }>
+      
     | null
     | undefined;
 

@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchMutation, fetchQuery } from "convex/nextjs";
+import { fetchMutation } from "convex/nextjs";
 import { api } from "@/../../convex/_generated/api";
-import { assignRider } from "@/lib/orderAssignment";
-import type { Rider, Order } from "@/lib/orderAssignment";
 
 /**
  * POST /api/order/create
- * Create a new order and auto-assign rider
+ * Create a new order (rider assignment is done manually by shopkeeper)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -38,99 +36,8 @@ export async function POST(request: NextRequest) {
       notes,
     });
 
-    // Get shop location for rider assignment
-    const shop = await fetchQuery(api.shops.getShop, { id: shop_id as any });
-    
-    if (!shop || !shop.address?.coordinates) {
-      return NextResponse.json({
-        success: true,
-        orderId,
-        message: "Order created but rider assignment skipped (no shop location)",
-      });
-    }
-
-    // Get available riders
-    const riders = await fetchQuery(api.riders.getAvailableRiders);
-    
-    if (!riders || riders.length === 0) {
-      return NextResponse.json({
-        success: true,
-        orderId,
-        message: "Order created but no riders available",
-      });
-    }
-
-    // Convert riders to assignment format
-    const ridersForAssignment: Rider[] = riders.map((rider) => ({
-      id: rider._id,
-      name: rider.name,
-      phone: rider.phone,
-      currentLocation: {
-        lat: rider.current_location.lat,
-        lon: rider.current_location.lon,
-      },
-      isOnline: rider.is_online,
-      isBusy: rider.is_busy,
-      assignedOrderId: rider.assigned_order_id,
-      updatedAt: rider.updated_at,
-    }));
-
-    // Assign rider
-    const orderForAssignment: Order = {
-      id: orderId,
-      shopId: shop_id,
-      vendorLocation: {
-        lat: shop.address.coordinates.lat,
-        lng: shop.address.coordinates.lng,
-      },
-      deliveryAddress: delivery_address,
-    };
-
-    const assignment = assignRider(
-      orderForAssignment,
-      ridersForAssignment,
-      {
-        lat: shop.address.coordinates.lat,
-        lng: shop.address.coordinates.lng,
-      }
-    );
-
-    if (assignment) {
-      // Update rider status
-      await fetchMutation(api.riders.updateStatus, {
-        id: assignment.riderId as any,
-        isBusy: true,
-        assignedOrderId: orderId as any,
-      });
-
-      // Update order status
-      await fetchMutation(api.orders.updateOrderStatus, {
-        id: orderId as any,
-        status: "assigned_to_rider",
-        rider_id: assignment.riderId as any,
-      });
-
-      // TODO: Send WebSocket notification to rider and customer
-      // TODO: Trigger Inngest event for order assignment
-
-      return NextResponse.json({
-        success: true,
-        orderId,
-        rider: {
-          id: assignment.riderId,
-          name: assignment.riderName,
-          distanceToVendor: assignment.distanceToVendor,
-          estimatedPickupTime: assignment.estimatedPickupTime,
-        },
-        message: "Order created and rider assigned",
-      });
-    }
-
-    return NextResponse.json({
-      success: true,
-      orderId,
-      message: "Order created but no rider available",
-    });
+    // Note: Rider assignment is done manually by shopkeeper from their dashboard
+    // Order is created with status "pending" and shopkeeper will accept and assign rider
   } catch (err: any) {
     console.error("[Order Create] Error:", err);
     return NextResponse.json(
