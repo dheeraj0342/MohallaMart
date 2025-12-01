@@ -41,7 +41,7 @@ export const seedDefaultCategories = mutation({
       { name: "Cafe", description: "Coffee, tea, and beverages", sort_order: 1 },
       { name: "Home", description: "Home and kitchen essentials", sort_order: 2 },
       { name: "Toys", description: "Toys and games", sort_order: 3 },
-      { name: "Fresh Grocery", description: "Fresh fruits, vegetables, and groceries", sort_order: 4 },
+      { name: "Fresh Groceries", description: "Fresh fruits, vegetables, and groceries", sort_order: 4 },
       { name: "Electronics", description: "Electronic devices and accessories", sort_order: 5 },
       { name: "Mobiles", description: "Mobile phones and accessories", sort_order: 6 },
       { name: "Beauty", description: "Beauty and personal care products", sort_order: 7 },

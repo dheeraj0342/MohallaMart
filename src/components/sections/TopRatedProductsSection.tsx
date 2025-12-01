@@ -19,7 +19,7 @@ import Link from "next/link";
 import type { Id } from "@/../convex/_generated/dataModel";
 import { useStore } from "@/store/useStore";
 import { useToast } from "@/hooks/useToast";
-import ShopProductCard from "@/components/products/ShopCard";
+import { ProductCard, type Product } from "@/components/products/ProductCard";
 
 export default function TopRatedProductsSection() {
   const { addToCart } = useStore();
@@ -72,7 +72,25 @@ export default function TopRatedProductsSection() {
     )
     : sortedProducts;
   const limitedProducts = displayProducts.slice(0, 8);
-  const handleAddToCart = (product: any) => {
+  const adaptProductForCard = (product: any): Product => ({
+    _id: (product._id ?? "") as string,
+    name: product.name ?? "Unnamed product",
+    price: typeof product.price === "number" ? product.price : 0,
+    original_price:
+      typeof product.original_price === "number" ? product.original_price : undefined,
+    images: Array.isArray(product.images) ? product.images : [],
+    description: product.description ?? "",
+    stock_quantity:
+      typeof product.stock_quantity === "number" ? product.stock_quantity : undefined,
+    unit: product.unit ?? "unit",
+    rating: typeof product.rating === "number" ? product.rating : undefined,
+    min_order_quantity:
+      typeof product.min_order_quantity === "number" ? product.min_order_quantity : 1,
+    total_sales:
+      typeof product.total_sales === "number" ? product.total_sales : undefined,
+    is_featured: Boolean(product.is_featured),
+  });
+  const handleAddToCart = (product: Product) => {
     addToCart({
       id: product._id,
       name: `${product.name} (${product.unit})`,
@@ -86,7 +104,7 @@ export default function TopRatedProductsSection() {
   };
   return (
     <section id="top-rated" className="py-16 bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl mx-auto bg-background text-foreground">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Star className="h-5 w-5 text-primary" />
@@ -148,13 +166,16 @@ export default function TopRatedProductsSection() {
         {limitedProducts && limitedProducts.length > 0 ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-              {limitedProducts.map((product) => (
-                <ShopProductCard
-                  key={product._id}
-                  product={product as any}
-                  onAddToCart={handleAddToCart}
-                />
-              ))}
+              {limitedProducts.map((product) => {
+                const adaptedProduct = adaptProductForCard(product);
+                return (
+                  <ProductCard
+                    key={adaptedProduct._id}
+                    product={adaptedProduct}
+                    onAddToCart={handleAddToCart}
+                  />
+                );
+              })}
             </div>
             <div className="mt-6 flex justify-end">
               <Link href="/shops">

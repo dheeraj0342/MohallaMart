@@ -3,7 +3,7 @@
 export default function CoreInfoSection() {
   return (
     <div className="py-16 bg-background">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl ">
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground">MohallaMart — online grocery store</h1>
         <p className="mt-3 text-base sm:text-lg text-muted-foreground">
           Did you ever imagine that the freshest fruits and vegetables, top-quality pulses and grains, dairy products,

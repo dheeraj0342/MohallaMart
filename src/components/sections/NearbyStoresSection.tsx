@@ -97,7 +97,7 @@ export default function NearbyStoresSection() {
 
   return (
     <section id="nearby" className="py-16 bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
           <div className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
@@ -116,14 +116,14 @@ export default function NearbyStoresSection() {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
             {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-              <Card key={i} className="border-border bg-card overflow-hidden">
+              <Card key={i} className="border-border bg-card overflow-hidden rounded-xl shadow-sm">
                 <div className="relative h-28 sm:h-32 md:h-36 w-full bg-muted animate-pulse" />
-                <CardContent className="p-3 sm:p-4">
-                  <div className="h-3 w-2/3 bg-muted rounded mb-2 animate-pulse" />
-                  <div className="h-3 w-3/5 bg-muted rounded mb-2 animate-pulse" />
-                  <div className="flex items-center justify-between">
+                <CardContent className="p-3 sm:p-4 space-y-2">
+                  <div className="h-3 w-2/3 bg-muted rounded animate-pulse" />
+                  <div className="h-3 w-1/2 bg-muted rounded animate-pulse" />
+                  <div className="flex items-center justify-between gap-2">
                     <div className="h-3 w-20 bg-muted rounded animate-pulse" />
-                    <div className="h-3 w-10 bg-muted rounded animate-pulse" />
+                    <div className="h-3 w-14 bg-muted rounded animate-pulse" />
                   </div>
                 </CardContent>
               </Card>
@@ -131,92 +131,109 @@ export default function NearbyStoresSection() {
           </div>
         ) : shops.length > 0 ? (
           <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-            {visibleShops.map((shop) => {
-              const coordinates = shop.address?.coordinates
-              const distance = coordinates && userCoordinates ? calculateDistanceKm(userCoordinates, coordinates) : null
-              return (
-                <Link key={shop._id} href={`/shop/${generateSlug(shop.name)}`} className="group">
-                  <Card className="h-full hover:shadow-lg transition-shadow border-border bg-card overflow-hidden">
-                    <div className="relative h-28 sm:h-32 md:h-36 w-full bg-muted overflow-hidden">
-                      {shop.logo_url ? (
-                        <Image
-                          src={shop.logo_url}
-                          alt={shop.name}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          unoptimized={shop.logo_url.includes("convex.cloud")}
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full">
-                          <Store className="h-10 w-10 text-muted-foreground" />
-                        </div>
-                      )}
-                      {shop.rating && shop.rating > 0 && (
-                        <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground">
-                          <Star className="h-3 w-3 mr-1 fill-current" />
-                          {shop.rating.toFixed(1)}
-                        </Badge>
-                      )}
-                    </div>
-                    <CardContent className="p-3 sm:p-4">
-                      <h3 className="font-semibold text-foreground text-sm md:text-base mb-1 group-hover:text-primary transition-colors">
-                        {shop.name}
-                      </h3>
-                      {shop.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-2 mb-1">{shop.description}</p>
-                      )}
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                        <MapPin className="h-3 w-3" />
-                        <span className="line-clamp-1">{shop.address.city}, {shop.address.state}</span>
-                      </div>
-                      {distance !== null && (
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                          <Navigation className="h-3 w-3 text-primary" />
-                          <span>{distance.toFixed(1)} km away</span>
-                        </div>
-                      )}
-                      <div className="flex items-center justify-between text-xs pt-2 border-t border-border">
-                        <div className="flex items-center gap-1 text-muted-foreground">
-                          <Package className="h-3 w-3" />
-                          <span>{shop.total_orders || 0} orders</span>
-                        </div>
-                        {shop.is_active && (
-                          <Badge variant="outline" className="text-xs">Active</Badge>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+              {visibleShops.map((shop) => {
+                const coordinates = shop.address?.coordinates
+                const distance = coordinates && userCoordinates ? calculateDistanceKm(userCoordinates, coordinates) : null
+                return (
+                  <Link key={shop._id} href={`/shop/${generateSlug(shop.name)}`} className="group">
+                    <Card className="h-full overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:shadow-lg hover:border-primary/40">
+                      {/* Image / header */}
+                      <div className="relative h-28 sm:h-32 md:h-36 w-full bg-muted overflow-hidden">
+                        {shop.logo_url ? (
+                          <Image
+                            src={shop.logo_url}
+                            alt={shop.name}
+                            fill
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            unoptimized={shop.logo_url.includes("convex.cloud")}
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center">
+                            <Store className="h-10 w-10 text-muted-foreground" />
+                          </div>
+                        )}
+
+                        {/* Rating badge */}
+                        {shop.rating && shop.rating > 0 && (
+                          <Badge className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-2 py-0.5 text-xs shadow-sm">
+                            <Star className="h-3 w-3 fill-current" />
+                            {shop.rating.toFixed(1)}
+                          </Badge>
                         )}
                       </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              )
-            })}
-          </div>
-          {shops.length > PAGE_SIZE && (
-            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <Button
-                variant="outline"
-                className="bg-transparent"
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                disabled={page === 0}
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Prev
-              </Button>
-              <span className="text-sm text-muted-foreground">{page + 1} / {totalPages}</span>
-              <Button
-                variant="outline"
-                className="bg-transparent"
-                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                disabled={page >= totalPages - 1}
-                aria-label="Next page"
-              >
-                Next
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
+
+                      {/* Content */}
+                      <CardContent className="flex flex-col gap-2 p-3 sm:p-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="font-semibold text-foreground text-sm md:text-base leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                            {shop.name}
+                          </h3>
+                          {shop.is_active && (
+                            <Badge variant="outline" className="text-[10px] px-2 py-0.5">
+                              Active
+                            </Badge>
+                          )}
+                        </div>
+
+                        {shop.description && (
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {shop.description}
+                          </p>
+                        )}
+
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <MapPin className="h-3 w-3" />
+                          <span className="line-clamp-1">
+                            {shop.address.city}, {shop.address.state}
+                          </span>
+                        </div>
+
+                        {distance !== null && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Navigation className="h-3 w-3 text-primary" />
+                            <span>{distance.toFixed(1)} km away</span>
+                          </div>
+                        )}
+
+                        <div className="mt-2 flex items-center justify-between border-t border-border pt-2 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Package className="h-3 w-3" />
+                            <span>{shop.total_orders || 0} orders</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                )
+              })}
             </div>
-          )}
+            {shops.length > PAGE_SIZE && (
+              <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <Button
+                  variant="outline"
+                  className="bg-transparent"
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Prev
+                </Button>
+                <span className="text-sm text-muted-foreground">{page + 1} / {totalPages}</span>
+                <Button
+                  variant="outline"
+                  className="bg-transparent"
+                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={page >= totalPages - 1}
+                  aria-label="Next page"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            )}
           </>
         ) : (
           <Card className="border-border bg-card">

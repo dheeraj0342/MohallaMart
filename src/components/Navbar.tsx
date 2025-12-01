@@ -26,6 +26,7 @@ import { useStore } from "@/store/useStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
 import LocationModal from "./LocationModal";
+import CartSidebar from "./cart/CartSidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -52,6 +53,8 @@ export default function Navbar() {
   const [isSearchOpen, setIsSearchOpenState] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isDark, setIsDark] = useState<boolean | null>(null);
+  const [showDesktopCategories, setShowDesktopCategories] = useState(true);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
 
@@ -106,11 +109,36 @@ export default function Navbar() {
         setIsMenuOpen(false);
         setIsLocationModalOpen(false);
         setSearchOpen(false);
+        setIsCartOpen(false);
       }
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [setSearchOpen]);
+
+  // Hide desktop category bar after scrolling down
+  useEffect(() => {
+    const handleScrollOrResize = () => {
+      // Only care about desktop viewports (lg and above ~1024px)
+      if (typeof window === "undefined") return;
+      const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+      if (!isDesktop) {
+        // On tablet/mobile we don't show the desktop categories strip
+        setShowDesktopCategories(false);
+        return;
+      }
+      // Show categories only when at the very top of the page
+      setShowDesktopCategories(window.scrollY <= 0);
+    };
+
+    handleScrollOrResize();
+    window.addEventListener("scroll", handleScrollOrResize, { passive: true });
+    window.addEventListener("resize", handleScrollOrResize);
+    return () => {
+      window.removeEventListener("scroll", handleScrollOrResize);
+      window.removeEventListener("resize", handleScrollOrResize);
+    };
+  }, []);
 
   // Close account dropdown on outside click
   useEffect(() => {
@@ -319,12 +347,12 @@ export default function Navbar() {
                   );
                 })()}
                 {/* Theme toggle */}
-              <button
-                onClick={toggleTheme}
-                className="p-2.5 rounded-lg hover:bg-muted transition-all hover:scale-110 active:scale-95"
-                aria-label="Toggle color theme"
-                title="Toggle dark / light"
-              >
+                <button
+                  onClick={toggleTheme}
+                  className="p-2.5 rounded-lg hover:bg-muted transition-all hover:scale-110 active:scale-95"
+                  aria-label="Toggle color theme"
+                  title="Toggle dark / light"
+                >
                   {isDark ? (
                     <Sun className="h-5 w-5 text-yellow-400" />
                   ) : (
@@ -352,48 +380,48 @@ export default function Navbar() {
                         {/* Role-based profile links */}
                         {dbUser?.role === "admin" ? (
                           <>
-                      <Link
-                        href="/admin"
-                        onClick={() => setIsAccountOpen(false)}
-                        className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted rounded-t-lg border-b border-border"
-                      >
+                            <Link
+                              href="/admin"
+                              onClick={() => setIsAccountOpen(false)}
+                              className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted rounded-t-lg border-b border-border"
+                            >
                               <User className="h-4 w-4 mr-2" />
                               Admin Dashboard
                             </Link>
-                      <Link
-                        href="/profile"
-                        onClick={() => setIsAccountOpen(false)}
-                        className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border"
-                      >
+                            <Link
+                              href="/profile"
+                              onClick={() => setIsAccountOpen(false)}
+                              className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border"
+                            >
                               <User className="h-4 w-4 mr-2" />
                               My Profile
                             </Link>
                           </>
                         ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
                           <>
-                      <Link
-                        href="/shopkeeper"
-                        onClick={() => setIsAccountOpen(false)}
-                        className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted rounded-t-lg border-b border-border"
-                      >
+                            <Link
+                              href="/shopkeeper"
+                              onClick={() => setIsAccountOpen(false)}
+                              className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted rounded-t-lg border-b border-border"
+                            >
                               <User className="h-4 w-4 mr-2" />
                               Shopkeeper Dashboard
                             </Link>
-                      <Link
-                        href="/shopkeeper/profile"
-                        onClick={() => setIsAccountOpen(false)}
-                        className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border"
-                      >
+                            <Link
+                              href="/shopkeeper/profile"
+                              onClick={() => setIsAccountOpen(false)}
+                              className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border"
+                            >
                               <User className="h-4 w-4 mr-2" />
                               Shopkeeper Profile
                             </Link>
                           </>
                         ) : (
-                      <Link
-                        href="/profile"
-                        onClick={() => setIsAccountOpen(false)}
-                        className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted rounded-t-lg border-b border-border"
-                      >
+                          <Link
+                            href="/profile"
+                            onClick={() => setIsAccountOpen(false)}
+                            className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted rounded-t-lg border-b border-border"
+                          >
                             <User className="h-4 w-4 mr-2" />
                             My Profile
                           </Link>
@@ -439,66 +467,66 @@ export default function Navbar() {
                   </Link>
                 )}
 
-                {/* Cart Button */}
-                <Link href="/cart">
-                  <button
-                    className="bg-primary-brand text-white px-5 py-2.5 rounded-lg hover:bg-primary-hover transition-all flex items-center relative shadow-sm hover:shadow-md active:scale-95 border-2 border-transparent hover:border-[#1f8f4e]"
-                  >
-                    <ShoppingCart className="h-5 w-5 mr-2" />
-                    <div className="text-left min-w-0">
-                      <div className="text-xs opacity-90 leading-tight">My Cart</div>
-                      <div className="text-sm font-semibold leading-tight">
-                        {mounted && getTotalItems() > 0 ? `${getTotalItems()} items` : "Empty"}
-                      </div>
+                {/* Cart Button (opens sidebar) */}
+                <button
+                  onClick={() => setIsCartOpen(true)}
+                  className="bg-primary-brand text-white px-5 py-2.5 rounded-lg hover:bg-primary-hover transition-all flex items-center relative shadow-sm hover:shadow-md active:scale-95 border-2 border-transparent hover:border-[#1f8f4e]"
+                  aria-label="Open cart"
+                >
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  <div className="text-left min-w-0">
+                    <div className="text-xs opacity-90 leading-tight">My Cart</div>
+                    <div className="text-sm font-semibold leading-tight">
+                      {mounted && getTotalItems() > 0 ? `${getTotalItems()} items` : "Empty"}
                     </div>
-                    {mounted && getTotalItems() > 0 && (
-                      <motion.span
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute -top-2 -right-2 bg-secondary-brand text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg ring-2 ring-white dark:ring-[#181c1f]"
-                      >
-                        {getTotalItems()}
-                      </motion.span>
-                    )}
-                  </button>
-                </Link>
+                  </div>
+                  {mounted && getTotalItems() > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-2 -right-2 bg-secondary-brand text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg ring-2 ring-white dark:ring-[#181c1f]"
+                    >
+                      {getTotalItems()}
+                    </motion.span>
+                  )}
+                </button>
               </div>
             )}
 
-          {/* Mobile menu buttons */}
-          <div className="lg:hidden flex items-center gap-2">
-            {/* Mobile Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand dark:hover:text-primary-brand/80 p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
-              aria-label="Toggle color theme"
-              title="Toggle dark / light"
-            >
-              {isDark ? (
-                <Sun className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-400" />
-              ) : (
-                <Moon className="h-5 w-5 sm:h-6 sm:w-6" />
-              )}
-            </button>
-            {/* Mobile Location */}
-            {mounted && (
+            {/* Mobile menu buttons */}
+            <div className="lg:hidden flex items-center gap-2">
+              {/* Mobile Theme Toggle */}
               <button
-                onClick={() => setIsLocationModalOpen(true)}
-                className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
-                aria-label="Open location selector"
-                title={location ? `${location.area}${location.pincode ? ` (${location.pincode})` : ""}` : "Select Location"}
+                onClick={toggleTheme}
+                className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand dark:hover:text-primary-brand/80 p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
+                aria-label="Toggle color theme"
+                title="Toggle dark / light"
               >
-                <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />
+                {isDark ? (
+                  <Sun className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-400" />
+                ) : (
+                  <Moon className="h-5 w-5 sm:h-6 sm:w-6" />
+                )}
               </button>
-            )}
-            {/* Mobile Search */}
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
-              aria-label="Open search"
-            >
-              <SearchIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-            </button>
+              {/* Mobile Location */}
+              {mounted && (
+                <button
+                  onClick={() => setIsLocationModalOpen(true)}
+                  className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
+                  aria-label="Open location selector"
+                  title={location ? `${location.area}${location.pincode ? ` (${location.pincode})` : ""}` : "Select Location"}
+                >
+                  <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />
+                </button>
+              )}
+              {/* Mobile Search */}
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
+                aria-label="Open search"
+              >
+                <SearchIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
               {/* Mobile Cart removed per request; moved to bottom tabs */}
               {/* Mobile Menu */}
               <button
@@ -517,32 +545,43 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Category Navigation - Desktop */}
-          <div className="hidden lg:block border-t border-[#e0e0e0] dark:border-[#2d333b] mt-0.5">
-            <div className="flex items-center justify-between py-2.5">
-              <div className="flex gap-6">
-                {groceryCategories.map((category, index) => {
-                  const Icon = category.icon;
-                  return (
-                    <Link
-                      key={index}
-                      href={category.href}
-                      className="group relative flex items-center gap-2 py-1 text-sm font-medium text-[#212121] transition-colors hover:text-primary-brand dark:text-[#f9f6f2] dark:hover:text-primary-brand"
-                    >
-                      <Icon className="size-4 text-[#85786a] transition-colors group-hover:text-primary-brand dark:text-[#a2a6b2]" />
-                      <span>{category.name}</span>
-                      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 w-0 bg-primary-brand transition-all duration-300 group-hover:w-full" />
-                    </Link>
-                  );
-                })}
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-[#ffe066]/90 dark:bg-[#3b2f22] text-[#3b2f22] dark:text-[#ffe066] px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 border border-[#ffd700]/30">
-                  🎯 Same Day Delivery Available
-                </span>
-              </div>
-            </div>
-          </div>
+          {/* Category Navigation - Desktop (only when at top, not after scroll) with smooth animation */}
+          <AnimatePresence initial={false}>
+            {showDesktopCategories && (
+              <motion.div
+                key="desktop-categories"
+                initial={{ opacity: 0, y: -8, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: "auto" }}
+                exit={{ opacity: 0, y: -8, height: 0 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+                className="hidden lg:block border-t border-[#e0e0e0] dark:border-[#2d333b] mt-0.5 overflow-hidden"
+              >
+                <div className="flex items-center justify-between py-2.5">
+                  <div className="flex gap-6">
+                    {groceryCategories.map((category, index) => {
+                      const Icon = category.icon;
+                      return (
+                        <Link
+                          key={index}
+                          href={category.href}
+                          className="group relative flex items-center gap-2 py-1 text-sm font-medium text-[#212121] transition-colors hover:text-primary-brand dark:text-[#f9f6f2] dark:hover:text-primary-brand"
+                        >
+                          <Icon className="size-4 text-[#85786a] transition-colors group-hover:text-primary-brand dark:text-[#a2a6b2]" />
+                          <span>{category.name}</span>
+                          <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 w-0 bg-primary-brand transition-all duration-300 group-hover:w-full" />
+                        </Link>
+                      );
+                    })}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-[#ffe066]/90 dark:bg-[#3b2f22] text-[#3b2f22] dark:text-[#ffe066] px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 border border-[#ffd700]/30">
+                      🎯 Same Day Delivery Available
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Mobile Sidebar Drawer */}
           <AnimatePresence>
@@ -571,186 +610,186 @@ export default function Navbar() {
                   className="md:hidden fixed top-0 left-0 bottom-0 z-50 w-[85vw] max-w-sm bg-[#fffdf5] dark:bg-[#24292e] border-r border-[#e0e0e0] dark:border-[#2d333b] shadow-xl"
                 >
                   <div className="px-4 py-4 space-y-3 bg-[#fffdf5] dark:bg-[#24292e]" aria-label="Mobile navigation menu">
-                  {/* Mobile Location */}
-                  <button
-                    onClick={() => {
-                      setIsLocationModalOpen(true);
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center w-full text-left p-3 bg-white dark:bg-[#24292e] hover:bg-gray-50 dark:hover:bg-[#2d333b] rounded-xl border-2 border-[#e0e0e0] dark:border-[#2d333b] hover:border-primary-brand dark:hover:border-primary-brand transition-all duration-200 group"
-                  >
-                    <MapPin className="h-5 w-5 mr-3 text-primary-brand dark:text-primary-brand transition-colors" />
-                    <div className="text-xs text-neutral-500 dark:text-neutral-400">Deliver to</div>
-                    <div className="text-sm font-medium text-primary-brand dark:text-primary-brand min-w-[80px] truncate">
-                      {location ? (
-                        <>
-                          <span>{location.area}</span>
-                          {location.pincode && (
-                            <span className="ml-1 text-xs text-neutral-500 dark:text-neutral-400 font-normal">
-                              ({location.pincode})
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        "Select Location"
-                      )}
-                    </div>
+                    {/* Mobile Location */}
+                    <button
+                      onClick={() => {
+                        setIsLocationModalOpen(true);
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex items-center w-full text-left p-3 bg-white dark:bg-[#24292e] hover:bg-gray-50 dark:hover:bg-[#2d333b] rounded-xl border-2 border-[#e0e0e0] dark:border-[#2d333b] hover:border-primary-brand dark:hover:border-primary-brand transition-all duration-200 group"
+                    >
+                      <MapPin className="h-5 w-5 mr-3 text-primary-brand dark:text-primary-brand transition-colors" />
+                      <div className="text-xs text-neutral-500 dark:text-neutral-400">Deliver to</div>
+                      <div className="text-sm font-medium text-primary-brand dark:text-primary-brand min-w-[80px] truncate">
+                        {location ? (
+                          <>
+                            <span>{location.area}</span>
+                            {location.pincode && (
+                              <span className="ml-1 text-xs text-neutral-500 dark:text-neutral-400 font-normal">
+                                ({location.pincode})
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          "Select Location"
+                        )}
+                      </div>
 
-                  </button>
+                    </button>
 
-                  {/* Mobile Categories */}
-                  <div className="border-t pt-3">
-                    <div className="text-xs font-semibold text-[#85786a] uppercase tracking-wide mb-2">
-                      Categories
-                    </div>
-                    {groceryCategories.map((category, index) => {
-                      const Icon = category.icon;
-                      return (
-                        <Link
-                          key={index}
-                          href={category.href}
-                          className="flex items-center gap-2 rounded-lg px-3 py-2 text-[#212121] transition-colors hover:bg-[#e6f4ec] hover:text-primary-brand dark:text-[#f9f6f2] dark:hover:bg-[#1f2f25]"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Icon className="size-4 text-[#85786a] dark:text-[#a2a6b2]" />
-                          <span>{category.name}</span>
-                        </Link>
-                      );
-                    })}
-                  </div>
-
-                  {/* Mobile User Account */}
-                  <div className="border-t pt-3 space-y-3">
-                    {/* Become Shopkeeper Button - only show if not admin and not active shopkeeper */}
-                    {dbUser?.role !== "admin" && !(dbUser?.role === "shop_owner" && dbUser?.is_active === true) && (
-                      <Link
-                        href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <button className="flex items-center w-full text-left p-3 bg-[#27ae60] hover:bg-[#1f8f4e] text-white rounded-lg transition-colors">
-                          <div className="h-5 w-5 mr-3">🏪</div>
-                          <div>
-                            <div className="text-xs text-[#ffe066]">
-                              {dbUser?.role === "shop_owner" && !dbUser?.is_active
-                                ? "Pending Application"
-                                : "Grow with us"}
-                            </div>
-                            <div className="text-sm font-medium text-white">
-                              {dbUser?.role === "shop_owner" && !dbUser?.is_active
-                                ? "⏳ Application Pending"
-                                : "Register Your Shop (for store owners)"}
-                            </div>
-                          </div>
-                        </button>
-                      </Link>
-                    )}
-
-                    {user ? (
-                      <div className="space-y-2">
-                        {/* User Info */}
-                        <div className="flex items-center w-full text-left p-3 bg-[#faffd2] dark:bg-[#3b2f22] rounded-lg border border-[#e0e0e0] dark:border-[#2d333b]">
-                          <User className="h-5 w-5 mr-3 text-[#85786a] dark:text-[#f9f6f2]" />
-                          <div className="flex-1">
-                            <div className="text-xs text-[#85786a] dark:text-[#a2a6b2]">Account</div>
-                            <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">
-                              {user.name}
-                            </div>
-                          </div>
-                          <div className="text-xs font-semibold px-2 py-1 rounded bg-primary-brand/10 text-primary-brand">
-                            {dbUser?.role === "admin" ? "Admin" :
-                              dbUser?.role === "shop_owner" && dbUser?.is_active === true ? "Shopkeeper" :
-                                dbUser?.role === "shop_owner" && dbUser?.is_active === false ? "Pending" :
-                                  "Customer"}
-                          </div>
-                        </div>
-
-                        {/* Profile Links */}
-                        {dbUser?.role === "admin" ? (
+                    {/* Mobile Categories */}
+                    <div className="border-t pt-3">
+                      <div className="text-xs font-semibold text-[#85786a] uppercase tracking-wide mb-2">
+                        Categories
+                      </div>
+                      {groceryCategories.map((category, index) => {
+                        const Icon = category.icon;
+                        return (
                           <Link
-                            href="/admin"
+                            key={index}
+                            href={category.href}
+                            className="flex items-center gap-2 rounded-lg px-3 py-2 text-[#212121] transition-colors hover:bg-[#e6f4ec] hover:text-primary-brand dark:text-[#f9f6f2] dark:hover:bg-[#1f2f25]"
                             onClick={() => setIsMenuOpen(false)}
                           >
-                            <button className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-[#212121] dark:text-[#f9f6f2] border border-[#e0e0e0] dark:border-[#2d333b]">
-                              <User className="h-5 w-5 mr-3" />
-                              <div>
-                                <div className="text-sm font-medium">
-                                  Admin Dashboard
-                                </div>
-                              </div>
-                            </button>
+                            <Icon className="size-4 text-[#85786a] dark:text-[#a2a6b2]" />
+                            <span>{category.name}</span>
                           </Link>
-                        ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
-                          <>
+                        );
+                      })}
+                    </div>
+
+                    {/* Mobile User Account */}
+                    <div className="border-t pt-3 space-y-3">
+                      {/* Become Shopkeeper Button - only show if not admin and not active shopkeeper */}
+                      {dbUser?.role !== "admin" && !(dbUser?.role === "shop_owner" && dbUser?.is_active === true) && (
+                        <Link
+                          href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <button className="flex items-center w-full text-left p-3 bg-[#27ae60] hover:bg-[#1f8f4e] text-white rounded-lg transition-colors">
+                            <div className="h-5 w-5 mr-3">🏪</div>
+                            <div>
+                              <div className="text-xs text-[#ffe066]">
+                                {dbUser?.role === "shop_owner" && !dbUser?.is_active
+                                  ? "Pending Application"
+                                  : "Grow with us"}
+                              </div>
+                              <div className="text-sm font-medium text-white">
+                                {dbUser?.role === "shop_owner" && !dbUser?.is_active
+                                  ? "⏳ Application Pending"
+                                  : "Register Your Shop (for store owners)"}
+                              </div>
+                            </div>
+                          </button>
+                        </Link>
+                      )}
+
+                      {user ? (
+                        <div className="space-y-2">
+                          {/* User Info */}
+                          <div className="flex items-center w-full text-left p-3 bg-[#faffd2] dark:bg-[#3b2f22] rounded-lg border border-[#e0e0e0] dark:border-[#2d333b]">
+                            <User className="h-5 w-5 mr-3 text-[#85786a] dark:text-[#f9f6f2]" />
+                            <div className="flex-1">
+                              <div className="text-xs text-[#85786a] dark:text-[#a2a6b2]">Account</div>
+                              <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">
+                                {user.name}
+                              </div>
+                            </div>
+                            <div className="text-xs font-semibold px-2 py-1 rounded bg-primary-brand/10 text-primary-brand">
+                              {dbUser?.role === "admin" ? "Admin" :
+                                dbUser?.role === "shop_owner" && dbUser?.is_active === true ? "Shopkeeper" :
+                                  dbUser?.role === "shop_owner" && dbUser?.is_active === false ? "Pending" :
+                                    "Customer"}
+                            </div>
+                          </div>
+
+                          {/* Profile Links */}
+                          {dbUser?.role === "admin" ? (
                             <Link
-                              href="/shopkeeper"
+                              href="/admin"
                               onClick={() => setIsMenuOpen(false)}
                             >
                               <button className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-[#212121] dark:text-[#f9f6f2] border border-[#e0e0e0] dark:border-[#2d333b]">
                                 <User className="h-5 w-5 mr-3" />
                                 <div>
-                                  <div className="text-xs text-[#85786a]">Shopkeeper</div>
-                                  <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">Dashboard</div>
+                                  <div className="text-sm font-medium">
+                                    Admin Dashboard
+                                  </div>
                                 </div>
                               </button>
                             </Link>
+                          ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
+                            <>
+                              <Link
+                                href="/shopkeeper"
+                                onClick={() => setIsMenuOpen(false)}
+                              >
+                                <button className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-[#212121] dark:text-[#f9f6f2] border border-[#e0e0e0] dark:border-[#2d333b]">
+                                  <User className="h-5 w-5 mr-3" />
+                                  <div>
+                                    <div className="text-xs text-[#85786a]">Shopkeeper</div>
+                                    <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">Dashboard</div>
+                                  </div>
+                                </button>
+                              </Link>
+                              <Link
+                                href="/shopkeeper/profile"
+                                onClick={() => setIsMenuOpen(false)}
+                              >
+                                <button className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-[#212121] dark:text-[#f9f6f2] border border-[#e0e0e0] dark:border-[#2d333b]">
+                                  <User className="h-5 w-5 mr-3" />
+                                  <div>
+                                    <div className="text-xs text-[#85786a]">Shopkeeper</div>
+                                    <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">Profile</div>
+                                  </div>
+                                </button>
+                              </Link>
+                            </>
+                          ) : (
                             <Link
-                              href="/shopkeeper/profile"
+                              href="/profile"
                               onClick={() => setIsMenuOpen(false)}
                             >
                               <button className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-[#212121] dark:text-[#f9f6f2] border border-[#e0e0e0] dark:border-[#2d333b]">
                                 <User className="h-5 w-5 mr-3" />
                                 <div>
-                                  <div className="text-xs text-[#85786a]">Shopkeeper</div>
+                                  <div className="text-xs text-[#85786a]">Your</div>
                                   <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">Profile</div>
                                 </div>
                               </button>
                             </Link>
-                          </>
-                        ) : (
-                          <Link
-                            href="/profile"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <button className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-[#212121] dark:text-[#f9f6f2] border border-[#e0e0e0] dark:border-[#2d333b]">
-                              <User className="h-5 w-5 mr-3" />
-                              <div>
-                                <div className="text-xs text-[#85786a]">Your</div>
-                                <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">Profile</div>
-                              </div>
-                            </button>
-                          </Link>
-                        )}
+                          )}
 
-                        {/* Logout Button */}
-                        <button
-                          onClick={() => {
-                            logout();
-                            setIsMenuOpen(false);
-                            success("Logged out successfully");
-                          }}
-                          className="flex items-center w-full text-left p-3 hover:bg-[#fff1eb] dark:hover:bg-[#3c1f18] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-red-600 border border-[#ffb199]"
-                        >
-                          <LogOut className="h-5 w-5 mr-3" />
-                          <div>
-                            <div className="text-xs text-red-600">Sign Out</div>
-                            <div className="text-sm font-medium">Logout</div>
-                          </div>
-                        </button>
-                      </div>
-                    ) : (
-                      <Link href="/auth" onClick={() => setIsMenuOpen(false)}>
-                        <button className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-lg transition-colors border border-[#e0e0e0] dark:border-[#2d333b] bg-[#fffdf5] dark:bg-[#24292e]">
-                          <User className="h-5 w-5 mr-3 text-[#85786a] dark:text-[#f9f6f2]" />
-                          <div>
-                            <div className="text-xs text-[#85786a] dark:text-[#a2a6b2]">Account</div>
-                            <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">
-                              Sign In / Sign Up
+                          {/* Logout Button */}
+                          <button
+                            onClick={() => {
+                              logout();
+                              setIsMenuOpen(false);
+                              success("Logged out successfully");
+                            }}
+                            className="flex items-center w-full text-left p-3 hover:bg-[#fff1eb] dark:hover:bg-[#3c1f18] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-red-600 border border-[#ffb199]"
+                          >
+                            <LogOut className="h-5 w-5 mr-3" />
+                            <div>
+                              <div className="text-xs text-red-600">Sign Out</div>
+                              <div className="text-sm font-medium">Logout</div>
                             </div>
-                          </div>
-                        </button>
-                      </Link>
-                    )}
-                  </div>
+                          </button>
+                        </div>
+                      ) : (
+                        <Link href="/auth" onClick={() => setIsMenuOpen(false)}>
+                          <button className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-lg transition-colors border border-[#e0e0e0] dark:border-[#2d333b] bg-[#fffdf5] dark:bg-[#24292e]">
+                            <User className="h-5 w-5 mr-3 text-[#85786a] dark:text-[#f9f6f2]" />
+                            <div>
+                              <div className="text-xs text-[#85786a] dark:text-[#a2a6b2]">Account</div>
+                              <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">
+                                Sign In / Sign Up
+                              </div>
+                            </div>
+                          </button>
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               </>
@@ -776,8 +815,13 @@ export default function Navbar() {
               <Grid2x2 className={`${pathname?.startsWith("/shops") ? "text-primary-brand" : "text-[#85786a] dark:text-[#a2a6b2]"} h-5 w-5`} />
               <span className={`text-[11px] ${pathname?.startsWith("/shops") ? "text-primary-brand font-medium" : "text-[#85786a] dark:text-[#a2a6b2]"}`}>Categories</span>
             </Link>
-            <Link href="/cart" aria-label="Cart" className="flex flex-col items-center justify-center gap-1 py-1 relative">
-              <ShoppingCart className={`${pathname === "/cart" ? "text-primary-brand" : "text-[#85786a] dark:text-[#a2a6b2]"} h-5 w-5`} />
+            <button
+              type="button"
+              onClick={() => setIsCartOpen(true)}
+              aria-label="Cart"
+              className="flex flex-col items-center justify-center gap-1 py-1 relative"
+            >
+              <ShoppingCart className="h-5 w-5 text-[#85786a] dark:text-[#a2a6b2]" />
               {mounted && getTotalItems() > 0 && (
                 <motion.span
                   initial={{ scale: 0 }}
@@ -787,8 +831,10 @@ export default function Navbar() {
                   {getTotalItems()}
                 </motion.span>
               )}
-              <span className={`text-[11px] ${pathname === "/cart" ? "text-primary-brand font-medium" : "text-[#85786a] dark:text-[#a2a6b2]"}`}>Cart</span>
-            </Link>
+              <span className="text-[11px] text-[#85786a] dark:text-[#a2a6b2]">
+                Cart
+              </span>
+            </button>
             <Link href={user ? "/profile" : "/auth"} aria-label="Account" className="flex flex-col items-center justify-center gap-1 py-1">
               <User className={`${pathname?.startsWith("/profile") || pathname === "/auth" ? "text-primary-brand" : "text-[#85786a] dark:text-[#a2a6b2]"} h-5 w-5`} />
               <span className={`text-[11px] ${pathname?.startsWith("/profile") || pathname === "/auth" ? "text-primary-brand font-medium" : "text-[#85786a] dark:text-[#a2a6b2]"}`}>Account</span>
@@ -796,6 +842,9 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+
+      {/* Cart sidebar */}
+      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );
 }

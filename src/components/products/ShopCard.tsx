@@ -47,9 +47,17 @@ export default function ShopProductCard({
       src={imageUrl}
       alt={product.name}
       fill
-      className="object-cover group-hover:scale-105 transition-transform duration-300"
+      className="object-contain px-3 py-4 transition-transform duration-300 group-hover:scale-105 bg-card"
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       unoptimized={imageUrl.includes("convex.cloud")}
+      priority={false}
+      style={{
+        color: "transparent",
+      }}
+      // Add a fallback background via className for situations where image fails to load
+      onError={(e) => {
+        (e.currentTarget as HTMLImageElement).style.background = "var(--muted)";
+      }}
     />
   ) : (
     <div className="flex items-center justify-center h-full">
@@ -62,39 +70,36 @@ export default function ShopProductCard({
     ? {
       type: "button" as const,
       onClick: handleImageClick,
-      className: `relative aspect-square w-full bg-muted overflow-hidden cursor-zoom-in`,
+      className: `relative w-full aspect-4/3 bg-muted overflow-hidden cursor-zoom-in flex items-center justify-center`,
     }
     : {
-      className: "relative aspect-square w-full bg-muted overflow-hidden",
+      className: "relative w-full aspect-4/3 bg-muted overflow-hidden flex items-center justify-center",
     };
 
   return (
     <div className={className}>
       <Card
-        className={`group h-full flex flex-col overflow-hidden border-border bg-card hover:shadow-lg hover:border-primary/50 transition-all duration-300 ${href ? "cursor-pointer" : ""
+        className={`group flex max-w-[220px] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-lg hover:border-primary/40 ${href ? "cursor-pointer" : ""
           }`}
         onClick={href ? () => router.push(href) : undefined}
         role={href ? "link" : undefined}
         aria-label={href ? product.name : undefined}
       >
-        {/* Image Container - Square Aspect */}
+        {/* Image */}
         <ImageWrapper {...(imageWrapperProps as any)}>
           {imageContent}
 
-          {/* Top Badges Row */}
-          <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2 z-10">
-            <div className="flex flex-col gap-2">
-              {/* Discount Badge */}
-              {discountPercentage > 0 && (
-                <span className="inline-block rounded-full bg-destructive text-destructive-foreground px-2.5 py-1 text-xs font-semibold shadow-md">
-                  {discountPercentage}% OFF
-                </span>
-              )}
-            </div>
-
+          {/* Badges */}
+          <div className="absolute top-2 left-2 right-2 flex items-start justify-between gap-2 z-10">
+            {/* Discount Badge */}
+            {discountPercentage > 0 && (
+              <span className="inline-flex items-center rounded-full bg-destructive text-destructive-foreground px-2 py-0.5 text-[11px] font-semibold shadow-sm">
+                {discountPercentage}% OFF
+              </span>
+            )}
             {/* Featured Badge */}
             {product.is_featured && (
-              <span className="inline-block rounded-full bg-primary text-primary-foreground px-2.5 py-1 text-xs font-semibold shadow-md">
+              <span className="inline-flex items-center rounded-full bg-primary text-primary-foreground px-2 py-0.5 text-[11px] font-semibold shadow-sm">
                 Featured
               </span>
             )}
@@ -102,10 +107,28 @@ export default function ShopProductCard({
         </ImageWrapper>
 
         {/* Content */}
-        <CardContent className="flex flex-col flex-grow gap-3 p-4">
-          {/* Title & Description */}
+        <CardContent className="flex flex-col gap-1.5 p-2 grow">
+          {/* Delivery & Rating (match ProductCard) */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span className="flex items-center gap-1 bg-muted px-2 py-0.5 rounded-full">
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="5" stroke="currentColor" />
+                <path d="M6 3v3l2 1" stroke="currentColor" strokeLinecap="round" />
+              </svg>
+              13 mins
+            </span>
+
+            {product.rating && (
+              <span className="flex items-center gap-1 font-medium text-foreground">
+                <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                {product.rating.toFixed(1)}
+              </span>
+            )}
+          </div>
+
+          {/* Title & optional description */}
           <div className="space-y-1">
-            <h3 className="text-sm font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors min-h-[2.5rem]">
+            <h3 className="text-[13px] font-semibold leading-snug text-foreground line-clamp-2 min-h-[32px] group-hover:text-primary transition-colors">
               {product.name}
             </h3>
             {product.description && (
@@ -115,74 +138,66 @@ export default function ShopProductCard({
             )}
           </div>
 
-          {/* Price & Rating Row */}
-          <div className="flex items-end justify-between gap-2">
-            <div className="space-y-0.5">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-lg font-bold text-foreground">
-                  ₹{product.price.toFixed(2)}
-                </span>
-                <span className="text-xs text-muted-foreground font-medium">
-                  /{product.unit}
-                </span>
-              </div>
+          {/* Quantity / unit */}
+          <p className="text-[11px] text-muted-foreground">
+            {product.min_order_quantity} {product.unit}
+          </p>
+
+          {/* Price + CTA (match ProductCard layout, keep this card's CTA styling) */}
+          <div className="mt-1 flex items-center justify-between gap-2">
+            <div>
+              <span className="text-base font-bold text-foreground">
+                ₹{Math.round(product.price)}
+              </span>
               {product.original_price && product.original_price > product.price && (
-                <span className="text-xs text-muted-foreground line-through">
-                  ₹{product.original_price.toFixed(2)}
+                <span className="ml-1 text-xs text-muted-foreground line-through">
+                  ₹{Math.round(product.original_price)}
                 </span>
               )}
             </div>
 
-            {/* Rating Badge */}
-            {product.rating && (
-              <div className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1.5 text-xs font-semibold text-foreground shadow-sm">
-                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                <span>{product.rating.toFixed(1)}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Meta Information Row */}
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground font-medium">
-              Min {product.min_order_quantity} {product.unit}
-            </span>
-            {isInStock ? (
-              <span className="font-semibold text-green-600 dark:text-green-400">
-                In stock ({product.stock_quantity})
-              </span>
-            ) : (
-              <span className="font-semibold text-red-600 dark:text-red-400">
-                Out of stock
-              </span>
-            )}
-          </div>
-
-          {/* Actions - Auto margin top to push to bottom */}
-          <div className="mt-auto pt-2 flex flex-col gap-2 border-t border-border">
-            {href && (
-              <Link
-                href={href}
-                className="text-xs font-semibold text-primary hover:text-primary/80 hover:underline text-center transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                View details →
-              </Link>
-            )}
             <Button
               onClick={(e) => {
                 e.stopPropagation();
                 onAddToCart(product);
               }}
               disabled={!isInStock}
-              className="w-full font-semibold shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              size="default"
+              className="h-8 px-4 rounded-md border-2 border-green-600 text-green-600 font-semibold text-xs hover:bg-green-50 dark:hover:bg-green-950/40 disabled:opacity-50"
+              variant="outline"
               aria-label={`Add ${product.name} to cart`}
             >
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              {isInStock ? "Add to cart" : "Out of stock"}
+              ADD
             </Button>
           </div>
+
+          {/* Stock meta + optional link */}
+          <div className="mt-1 flex flex-col gap-1 text-[11px]">
+            <div className="flex items-center justify-end">
+              {isInStock ? (
+                <span className="font-semibold text-green-600 dark:text-green-400">
+                  In stock ({product.stock_quantity})
+                </span>
+              ) : (
+                <span className="font-semibold text-red-600 dark:text-red-400">
+                  Out of stock
+                </span>
+              )}
+            </div>
+
+            {/* Optional details link below, matching compact layout */}
+            {href && (
+              <Link
+                href={href}
+                className="text-[11px] font-semibold text-primary hover:text-primary/80 hover:underline text-center transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                View details →
+              </Link>
+            )}
+          </div>
+
+          {/* Spacer to push bottom content when needed */}
+          <div className="mt-auto" />
         </CardContent>
       </Card>
     </div>
