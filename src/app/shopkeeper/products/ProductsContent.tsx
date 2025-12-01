@@ -310,8 +310,9 @@ export default function ProductsContent() {
                       onChange={handleChange("description")}
                       placeholder="Provide a detailed description of your product..."
                       className="min-h-[100px] bg-background border-border resize-none"
+                      aria-describedby="description-help"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p id="description-help" className="text-xs text-muted-foreground mt-1">
                       Help customers understand what makes your product special
                     </p>
                   </div>
@@ -355,43 +356,16 @@ export default function ProductsContent() {
                         onChange={handleChange("originalPrice")}
                         placeholder="0.00"
                         className="bg-background border-border"
+                        aria-describedby="original-price-help"
                       />
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p id="original-price-help" className="text-xs text-muted-foreground mt-1">
                         Leave empty if no discount
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <Separator className="bg-border" />
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Price (₹)
-                    </label>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.5"
-                      required
-                      value={form.price}
-                      onChange={handleChange("price")}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Original price (₹)
-                    </label>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.5"
-                      value={form.originalPrice}
-                      onChange={handleChange("originalPrice")}
-                    />
-                  </div>
-                </div>
+                
 
                 {/* Inventory & Ordering */}
                 <div className="space-y-4">
@@ -490,8 +464,9 @@ export default function ProductsContent() {
                       onChange={handleChange("tags")}
                       placeholder="organic, bestseller, breakfast (comma separated)"
                       className="bg-background border-border"
+                      aria-describedby="tags-help"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p id="tags-help" className="text-xs text-muted-foreground mt-1">
                       Add tags to help customers discover your product
                     </p>
                   </div>
@@ -637,7 +612,7 @@ export default function ProductsContent() {
 
 function Loader({ text = "Loading…" }: { text?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground" role="status" aria-live="polite">
       <Package className="h-4 w-4 animate-spin" />
       <span>{text}</span>
     </div>

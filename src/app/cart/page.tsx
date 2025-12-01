@@ -29,24 +29,22 @@ export default function CartPage() {
   const [promoStatus, setPromoStatus] = useState<"none" | "applied" | "invalid">("none");
   const [promoDiscount, setPromoDiscount] = useState(0);
 
-  const { totalItems, subtotal, instantSavings } = useMemo(() => {
+  const { totalItems, subtotal } = useMemo(() => {
     const newSubtotal = cart.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0,
     );
     const newTotalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const savingsRate = 0.08;
-    const savings = newSubtotal * savingsRate;
-
     return {
       totalItems: newTotalItems,
       subtotal: newSubtotal,
-      instantSavings: savings,
     };
   }, [cart]);
 
-  const payableAmount = Math.max(0, subtotal - instantSavings - promoDiscount);
   const FREE_THRESHOLD = 199;
+  const DELIVERY_FEE = 40;
+  const deliveryFee = subtotal >= FREE_THRESHOLD ? 0 : DELIVERY_FEE;
+  const payableAmount = Math.max(0, subtotal - promoDiscount + deliveryFee);
   const remainingForFree = Math.max(0, FREE_THRESHOLD - subtotal);
   const freeProgress = Math.min(100, Math.round((subtotal / FREE_THRESHOLD) * 100));
 
@@ -334,38 +332,33 @@ export default function CartPage() {
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span className="flex items-center gap-2">
                     Delivery fee
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-                      Save ₹40
-                    </span>
-                  </span>
-                  <span className="font-semibold text-primary">Free</span>
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                  Free above ₹{FREE_THRESHOLD}
+                </span>
+              </span>
+              <span className="font-semibold text-foreground">
+                {deliveryFee === 0 ? "Free" : `₹${deliveryFee.toFixed(2)}`}
+              </span>
+            </div>
+            
+            {promoDiscount > 0 && (
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>Promo discount</span>
+                <span className="font-semibold text-primary">-₹{promoDiscount.toFixed(2)}</span>
+              </div>
+            )}
+            <div className="border-t border-border/70 pt-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-muted-foreground">
+                    Payable amount
+                  </p>
+                  <p className="text-xs text-muted-foreground">Includes delivery fee if applicable</p>
                 </div>
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span>Instant savings</span>
-                  <span className="font-semibold text-primary">
-                    -₹{instantSavings.toFixed(2)}
-                  </span>
-                </div>
-                {promoDiscount > 0 && (
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>Promo discount</span>
-                    <span className="font-semibold text-primary">-₹{promoDiscount.toFixed(2)}</span>
-                  </div>
-                )}
-                <div className="border-t border-border/70 pt-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-muted-foreground">
-                        Payable amount
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Incl. taxes & platform fee
-                      </p>
-                    </div>
-                    <p className="text-3xl font-bold text-primary">
-                      ₹{payableAmount.toFixed(2)}
-                    </p>
-                  </div>
+                <p className="text-3xl font-bold text-primary">
+                  ₹{payableAmount.toFixed(2)}
+                </p>
+              </div>
                   <Link href="/checkout" className="mt-6 block">
                     <motion.button
                       whileHover={{ scale: 1.01 }}
@@ -403,14 +396,14 @@ export default function CartPage() {
         )}
       </div>
       {cart.length > 0 && (
-        <div className="fixed bottom-20 left-0 right-0 z-40 px-4 lg:hidden">
+        <div className="fixed bottom-20 left-0 right-0 z-40 px-4 lg:hidden" role="region" aria-label="Mobile checkout bar">
           <div className="mx-auto max-w-7xl rounded-xl border border-border bg-card p-3 shadow-lg">
             <div className="flex items-center justify-between">
               <div className="text-sm text-muted-foreground">{totalItems} items</div>
               <div className="text-lg font-bold text-primary">₹{payableAmount.toFixed(2)}</div>
             </div>
             <Link href="/checkout" className="mt-3 block">
-              <button className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Checkout</button>
+              <button className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground" aria-label="Proceed to checkout">Checkout</button>
             </Link>
           </div>
         </div>

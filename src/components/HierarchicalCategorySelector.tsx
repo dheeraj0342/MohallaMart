@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, X, Tag } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { Input } from "@/components/ui/input";
+import { resolveSelectionId } from "@/lib/categorySelection";
 
 interface Category {
   _id: Id<"categories">;
@@ -118,14 +119,15 @@ export default function HierarchicalCategorySelector({
 
   // Update parent when selection changes
   useEffect(() => {
-    if (selectedSubSubCategory) {
-      onChange(selectedSubSubCategory as Id<"categories">);
-    } else if (selectedSubCategory) {
-      onChange(selectedSubCategory as Id<"categories">);
-    } else if (selectedCategory) {
-      onChange(selectedCategory as Id<"categories">);
+    const resolved = resolveSelectionId(
+      selectedCategory,
+      selectedSubCategory,
+      selectedSubSubCategory,
+    );
+    if (resolved && resolved !== value) {
+      onChange(resolved as Id<"categories">);
     }
-  }, [selectedCategory, selectedSubCategory, selectedSubSubCategory, onChange]);
+  }, [selectedCategory, selectedSubCategory, selectedSubSubCategory, value, onChange]);
 
   const handleAddCategory = async () => {
     if (!newCategoryName.trim()) {
@@ -219,7 +221,7 @@ export default function HierarchicalCategorySelector({
               setSelectedSubSubCategory("");
             }}
           >
-            <SelectTrigger className="flex-1">
+            <SelectTrigger className="flex-1" aria-label="Main Category">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
@@ -276,18 +278,23 @@ export default function HierarchicalCategorySelector({
         <div className="space-y-2">
           <Label className="text-sm text-muted-foreground">Sub-Category (Optional)</Label>
           <div className="flex gap-2">
-            <Select
-              value={selectedSubCategory}
-              onValueChange={(val) => {
+          <Select
+            value={selectedSubCategory}
+            onValueChange={(val) => {
+              if (val === "none") {
+                setSelectedSubCategory("");
+                setSelectedSubSubCategory("");
+              } else {
                 setSelectedSubCategory(val as Id<"categories">);
                 setSelectedSubSubCategory("");
-              }}
-            >
-              <SelectTrigger className="flex-1">
+              }
+            }}
+          >
+              <SelectTrigger className="flex-1" aria-label="Sub-Category">
                 <SelectValue placeholder="Select sub-category (optional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {subCategories?.map((subCat) => (
                   <SelectItem key={subCat._id} value={subCat._id}>
                     {subCat.name}
@@ -342,17 +349,21 @@ export default function HierarchicalCategorySelector({
         <div className="space-y-2">
           <Label className="text-sm text-muted-foreground">Sub-Sub-Category (Optional)</Label>
           <div className="flex gap-2">
-            <Select
-              value={selectedSubSubCategory}
-              onValueChange={(val) => {
+          <Select
+            value={selectedSubSubCategory}
+            onValueChange={(val) => {
+              if (val === "none") {
+                setSelectedSubSubCategory("");
+              } else {
                 setSelectedSubSubCategory(val as Id<"categories">);
-              }}
-            >
-              <SelectTrigger className="flex-1">
+              }
+            }}
+          >
+              <SelectTrigger className="flex-1" aria-label="Sub-Sub-Category">
                 <SelectValue placeholder="Select sub-sub-category (optional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {subSubCategories?.map((subSubCat) => (
                   <SelectItem key={subSubCat._id} value={subSubCat._id}>
                     {subSubCat.name}
@@ -404,7 +415,7 @@ export default function HierarchicalCategorySelector({
 
       {/* Selected Category Display */}
       {value && (
-        <div className="text-xs text-muted-foreground p-2 bg-muted/30 rounded border border-border">
+        <div className="text-xs text-muted-foreground p-2 bg-muted/30 rounded border border-border" aria-live="polite">
           Selected:{" "}
           {(() => {
             if (selectedSubSubCategory && allCategories) {
