@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Minus, Plus, ShoppingCart, X, Package } from "lucide-react";
+import { Minus, Plus, ShoppingCart, X, Package, Trash2, ArrowRight } from "lucide-react";
 import { useMemo } from "react";
 import { useStore } from "@/store/useStore";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/button";
 
 interface CartSidebarProps {
@@ -13,6 +16,9 @@ interface CartSidebarProps {
 }
 
 export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { success } = useToast();
   const cart = useStore((state) => state.cart);
   const removeFromCart = useStore((state) => state.removeFromCart);
   const updateQuantity = useStore((state) => state.updateQuantity);
@@ -34,6 +40,21 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
       updateQuantity(id, next);
     } else {
       removeFromCart(id);
+      success("Item removed from cart");
+    }
+  };
+
+  const handleRemoveItem = (id: string) => {
+    removeFromCart(id);
+    success("Item removed from cart");
+  };
+
+  const handleCheckout = () => {
+    onClose();
+    if (!user) {
+      router.push("/auth?next=/checkout");
+    } else {
+      router.push("/checkout");
     }
   };
 
@@ -116,12 +137,23 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground truncate">
-                            {item.name}
-                          </p>
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            ₹{item.price.toFixed(2)} each
-                          </p>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-foreground truncate">
+                                {item.name}
+                              </p>
+                              <p className="mt-0.5 text-xs text-muted-foreground">
+                                ₹{item.price.toFixed(2)} each
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => handleRemoveItem(item.id)}
+                              className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                              aria-label="Remove item"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                           <div className="mt-2 flex items-center justify-between">
                             <div className="inline-flex items-center rounded-full border border-border bg-muted/40">
                               <button
@@ -133,7 +165,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                               >
                                 <Minus className="h-3 w-3" />
                               </button>
-                              <span className="min-w-[32px] text-center text-sm font-semibold">
+                              <span className="min-w-[32px] text-center text-sm font-semibold text-foreground">
                                 {item.quantity}
                               </span>
                               <button
@@ -187,18 +219,24 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
 
             {/* Footer CTA */}
             {cart.length > 0 && (
-              <div className="bg-card px-4 py-6">
-                <Link href="/checkout" onClick={onClose}>
-                  <Button className="w-full justify-between rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 min-h-[60px]">
-                    <span className="text-sm font-semibold">
-                      ₹{payableAmount.toFixed(2)} total
-                    </span>
-                    <span className="inline-flex items-center gap-2 text-sm font-semibold">
-                      Login to proceed
-                      <ShoppingCart className="h-4 w-4" />
-                    </span>
-                  </Button>
-                </Link>
+              <div className="bg-card border-t border-border px-4 py-4 space-y-2">
+                {subtotal < FREE_THRESHOLD && (
+                  <p className="text-xs text-center text-muted-foreground">
+                    Add ₹{(FREE_THRESHOLD - subtotal).toFixed(2)} more for free delivery
+                  </p>
+                )}
+                <Button
+                  onClick={handleCheckout}
+                  className="w-full justify-between rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 min-h-[56px]"
+                >
+                  <span className="text-base font-semibold">
+                    ₹{payableAmount.toFixed(2)}
+                  </span>
+                  <span className="inline-flex items-center gap-2 text-sm font-semibold">
+                    {user ? "Proceed to Checkout" : "Login to proceed"}
+                    {user ? <ArrowRight className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
+                  </span>
+                </Button>
               </div>
             )}
           </motion.aside>

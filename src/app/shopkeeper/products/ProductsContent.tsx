@@ -113,6 +113,10 @@ export default function ProductsContent() {
       error("Create your shop profile before adding products.");
       return;
     }
+    if (!dbUser) {
+      error("User not found. Please login again.");
+      return;
+    }
     if (!form.categoryId) {
       error("Choose a category for this product.");
       return;
@@ -140,10 +144,15 @@ export default function ProductsContent() {
 
     try {
       setSubmitting(true);
+      if (!dbUser) {
+        error("User not found. Please login again.");
+        return;
+      }
       await createProduct({
         name: form.name,
         description: form.description || undefined,
         shop_id: activeShop._id,
+        owner_id: dbUser._id,
         category_id: form.categoryId as Id<"categories">,
         price: Number(form.price),
         original_price: form.originalPrice ? Number(form.originalPrice) : undefined,
@@ -365,7 +374,7 @@ export default function ProductsContent() {
                   </div>
                 </div>
 
-                
+
 
                 {/* Inventory & Ordering */}
                 <div className="space-y-4">

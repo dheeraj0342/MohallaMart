@@ -72,24 +72,28 @@ export default function TopRatedProductsSection() {
     )
     : sortedProducts;
   const limitedProducts = displayProducts.slice(0, 8);
-  const adaptProductForCard = (product: any): Product => ({
-    _id: (product._id ?? "") as string,
-    name: product.name ?? "Unnamed product",
-    price: typeof product.price === "number" ? product.price : 0,
-    original_price:
-      typeof product.original_price === "number" ? product.original_price : undefined,
-    images: Array.isArray(product.images) ? product.images : [],
-    description: product.description ?? "",
-    stock_quantity:
-      typeof product.stock_quantity === "number" ? product.stock_quantity : undefined,
-    unit: product.unit ?? "unit",
-    rating: typeof product.rating === "number" ? product.rating : undefined,
-    min_order_quantity:
-      typeof product.min_order_quantity === "number" ? product.min_order_quantity : 1,
-    total_sales:
-      typeof product.total_sales === "number" ? product.total_sales : undefined,
-    is_featured: Boolean(product.is_featured),
-  });
+
+  const adaptProductForCard = (product: any): Product => {
+    return {
+      _id: (product._id ?? "") as string,
+      name: product.name ?? "Unnamed product",
+      price: typeof product.price === "number" ? product.price : 0,
+      original_price:
+        typeof product.original_price === "number" ? product.original_price : undefined,
+      images: Array.isArray(product.images) ? product.images : [],
+      description: product.description ?? "",
+      stock_quantity:
+        typeof product.stock_quantity === "number" ? product.stock_quantity : undefined,
+      unit: product.unit ?? "unit",
+      rating: typeof product.rating === "number" ? product.rating : undefined,
+      min_order_quantity:
+        typeof product.min_order_quantity === "number" ? product.min_order_quantity : 1,
+      total_sales:
+        typeof product.total_sales === "number" ? product.total_sales : undefined,
+      is_featured: Boolean(product.is_featured),
+      shop_id: product.shop_id ? String(product.shop_id) : undefined,
+    };
+  };
   const handleAddToCart = (product: Product) => {
     addToCart({
       id: product._id,
@@ -103,7 +107,7 @@ export default function TopRatedProductsSection() {
     success(`${product.name} added to cart!`);
   };
   return (
-    <section id="top-rated" className="py-16 bg-background">
+    <section id="top-rated" className="pt-4 pb-16 sm:pt-2 sm:pb-8 bg-background">
       <div className="w-full max-w-7xl mx-auto bg-background text-foreground">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
@@ -139,7 +143,7 @@ export default function TopRatedProductsSection() {
                 </SelectContent>
               </Select>
             </div>
-            <label className="inline-flex items-center gap-2 text-sm">
+            <label className="hidden sm:inline-flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
                 className="h-4 w-4 accent-primary"
@@ -165,7 +169,22 @@ export default function TopRatedProductsSection() {
         </div>
         {limitedProducts && limitedProducts.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+            {/* Mobile: horizontal scroll with 2 visible cards */}
+            <div className="sm:hidden flex gap-4 overflow-x-auto no-scrollbar">
+              {limitedProducts.map((product) => {
+                const adaptedProduct = adaptProductForCard(product);
+                return (
+                  <div key={adaptedProduct._id} className="basis-1/2 shrink-0">
+                    <ProductCard
+                      product={adaptedProduct}
+                      onAddToCart={handleAddToCart}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            {/* Desktop: grid */}
+            <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
               {limitedProducts.map((product) => {
                 const adaptedProduct = adaptProductForCard(product);
                 return (

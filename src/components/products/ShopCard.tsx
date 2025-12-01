@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Package, Star, ShoppingCart } from "lucide-react";
 import type { Product } from "./ProductCard";
+import { EtaBadge, type EtaInfo } from "./EtaBadge";
 
 interface ShopProductCardProps {
   product: Product;
@@ -14,6 +15,7 @@ interface ShopProductCardProps {
   href?: string;
   className?: string;
   onImageClick?: (args: { url: string; alt: string; title?: string }) => void;
+  eta?: EtaInfo;
 }
 
 export default function ShopProductCard({
@@ -22,6 +24,7 @@ export default function ShopProductCard({
   href,
   className,
   onImageClick,
+  eta,
 }: ShopProductCardProps) {
   const router = useRouter();
   const hasImage = product.images && product.images.length > 0;
@@ -109,14 +112,8 @@ export default function ShopProductCard({
         {/* Content */}
         <CardContent className="flex flex-col gap-1.5 p-2 grow">
           {/* Delivery & Rating (match ProductCard) */}
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="flex items-center gap-1 bg-muted px-2 py-0.5 rounded-full">
-              <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                <circle cx="6" cy="6" r="5" stroke="currentColor" />
-                <path d="M6 3v3l2 1" stroke="currentColor" strokeLinecap="round" />
-              </svg>
-              13 mins
-            </span>
+          <div className="flex items-center justify-between text-xs">
+            <EtaBadge shopId={product.shop_id} eta={eta} />
 
             {product.rating && (
               <span className="flex items-center gap-1 font-medium text-foreground">

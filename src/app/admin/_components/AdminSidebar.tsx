@@ -8,6 +8,9 @@ import {
   ClipboardList,
   LogOut,
   Users,
+  Package,
+  Bike,
+  Settings,
 } from "lucide-react";
 
 import {
@@ -35,6 +38,14 @@ const NAV = [
     items: [
       { href: "/admin/registrations", label: "Registrations", icon: ClipboardList },
       { href: "/admin/users", label: "Users", icon: Users },
+      { href: "/admin/orders", label: "Orders", icon: Package },
+      { href: "/admin/riders", label: "Riders", icon: Bike },
+    ],
+  },
+  {
+    title: "Settings",
+    items: [
+      { href: "/admin/settings", label: "Platform Settings", icon: Settings },
     ],
   },
 ];

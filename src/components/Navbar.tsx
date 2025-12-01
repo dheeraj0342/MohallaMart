@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Coffee,
   Grid2x2,
-  Home as HomeIcon,
   Laptop,
   Leaf,
   LogOut,
@@ -32,12 +31,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
+import { MobileHeader } from "./MobileHeader";
+import { MobileBottomNav } from "./MobileBottomNav";
 
-// Icon mapping for categories
 const categoryIconMap: Record<string, LucideIcon> = {
   All: Grid2x2,
   Cafe: Coffee,
-  Home: HomeIcon,
+  Home: Grid2x2,
   Toys: ToyBrick,
   "Fresh Grocery": Leaf,
   Electronics: Laptop,
@@ -55,6 +55,7 @@ export default function Navbar() {
   const [isDark, setIsDark] = useState<boolean | null>(null);
   const [showDesktopCategories, setShowDesktopCategories] = useState(true);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const accountRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
 
@@ -63,7 +64,6 @@ export default function Navbar() {
   const { success, info } = useToast();
   const [prevLocation, setPrevLocation] = useState(location);
 
-  // Sync search state with store
   useEffect(() => {
     setIsSearchOpenState(useStore.getState().isSearchOpen);
     const unsubscribe = useStore.subscribe(
@@ -71,9 +71,7 @@ export default function Navbar() {
         setIsSearchOpenState(state.isSearchOpen);
       }
     );
-    // mark mounted after first paint so client and server HTML match
     setMounted(true);
-    // initialize theme from localStorage or system preference
     try {
       const saved = localStorage.getItem("theme");
       if (saved === "dark") {
@@ -101,7 +99,6 @@ export default function Navbar() {
     return unsubscribe;
   }, []);
 
-  // Global Escape key to close open menus/modals
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -116,28 +113,22 @@ export default function Navbar() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [setSearchOpen]);
 
-  // Hide desktop category bar after scrolling down
   useEffect(() => {
-    const handleScrollOrResize = () => {
-      // Only care about desktop viewports (lg and above ~1024px)
-      if (typeof window === "undefined") return;
-      const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
-      if (!isDesktop) {
-        // On tablet/mobile we don't show the desktop categories strip
-        setShowDesktopCategories(false);
-        return;
+    setShowDesktopCategories(true);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 8) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
       }
-      // Show categories only when at the very top of the page
-      setShowDesktopCategories(window.scrollY <= 0);
     };
 
-    handleScrollOrResize();
-    window.addEventListener("scroll", handleScrollOrResize, { passive: true });
-    window.addEventListener("resize", handleScrollOrResize);
-    return () => {
-      window.removeEventListener("scroll", handleScrollOrResize);
-      window.removeEventListener("resize", handleScrollOrResize);
-    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Close account dropdown on outside click
@@ -155,7 +146,6 @@ export default function Navbar() {
     };
   }, []);
 
-  // Watch for location changes and show toast
   useEffect(() => {
     if (mounted && location) {
       const locationChanged =
@@ -193,9 +183,8 @@ export default function Navbar() {
   const dbUser = useQuery(
     api.users.getUser,
     user ? { id: user.id } : "skip",
-  ) as { role?: string; is_active?: boolean } | null | undefined;
+  ) as { role?: string; is_active?: boolean; avatar_url?: string } | null | undefined;
 
-  // Fetch categories from database
   const categories = useQuery(
     api.categories.getAllCategories,
     { is_active: true },
@@ -212,7 +201,6 @@ export default function Navbar() {
     id?: string;
   };
 
-  // Build categories list from database, with "All" first
   const dbCategories = useMemo(
     () => (categories || []).filter((cat) => cat.name.toLowerCase() !== "all"),
     [categories]
@@ -232,10 +220,17 @@ export default function Navbar() {
 
   return (
     <>
-      <nav role="navigation" aria-label="Primary" className="bg-[#f9f6f2]/95 text-[#212121] dark:text-[#f9f6f2] dark:bg-[#181c1f]/95 shadow-sm dark:shadow-md sticky top-0 z-50 border-b border-[#e0e0e0] dark:border-[#2d333b] backdrop-blur-md transition-colors">
+      <nav
+        role="navigation"
+        aria-label="Primary"
+        className={`bg-[#f9f6f2]/95 text-[#212121] dark:text-[#f9f6f2] dark:bg-[#181c1f]/95 shadow-sm dark:shadow-md sticky top-0 z-50 border-b border-[#e0e0e0] dark:border-[#2d333b] backdrop-blur-md transition-all duration-200 ${isScrolled ? "backdrop-saturate-150 shadow-md" : ""
+          }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16 sm:h-18">
-            {/* Logo & Location */}
+          <div
+            className={`hidden lg:flex justify-between items-center transition-all duration-200 ${isScrolled ? "h-14 sm:h-16" : "h-16 sm:h-20"
+              }`}
+          >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="shrink-0">
                 <Link href="/">
@@ -283,7 +278,6 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Search Bar - Desktop (only show when search modal is closed) */}
             {!isSearchOpen && (
               <div className="hidden lg:flex flex-1 max-w-2xl mx-6">
                 <div className="relative w-full">
@@ -305,47 +299,15 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* Action Buttons - Desktop */}
             {mounted && (
               <div className="hidden lg:flex items-center gap-3">
-                {(() => {
-                  const userRole = dbUser?.role;
-                  const isActive = dbUser?.is_active === true;
-
-                  // Don't show shopkeeper options for admin users
-                  if (userRole === "admin") {
-                    return null;
-                  }
-
-                  // Active shopkeeper
-                  if (userRole === "shop_owner" && isActive) {
-                    return (
-                      <Link href="/shopkeeper">
-                        <button className="px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all text-primary-brand border-primary-brand hover:bg-primary-brand hover:text-white hover:shadow-md active:scale-95">
-                          Shopkeeper Dashboard
-                        </button>
-                      </Link>
-                    );
-                  }
-
-                  // Pending shopkeeper
-                  if (userRole === "shop_owner" && !isActive) {
-                    return (
-                      <span className="px-4 py-2 rounded-lg border-2 text-sm font-semibold text-amber-600 border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 dark:text-amber-400 cursor-not-allowed">
-                        ⏳ Application Pending
-                      </span>
-                    );
-                  }
-
-                  // Regular customer or not logged in
-                  return (
-                    <Link href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}>
-                      <button className="px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all text-primary-brand border-primary-brand hover:bg-primary-brand hover:text-white hover:shadow-md active:scale-95 whitespace-nowrap">
-                        🏪 Register Your Shop
-                      </button>
-                    </Link>
-                  );
-                })()}
+                {dbUser?.role !== "admin" && (
+                  <Link href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}>
+                    <button className="px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all text-primary-brand border-primary-brand hover:bg-primary-brand hover:text-white hover:shadow-md active:scale-95 whitespace-nowrap">
+                      🏪 Register Your Shop
+                    </button>
+                  </Link>
+                )}
                 {/* Theme toggle */}
                 <button
                   onClick={toggleTheme}
@@ -369,7 +331,15 @@ export default function Navbar() {
                       aria-expanded={isAccountOpen}
                       aria-controls="account-menu"
                     >
-                      <User className="h-5 w-5 mr-2" />
+                      {dbUser?.avatar_url ? (
+                        <img
+                          src={dbUser.avatar_url}
+                          alt={user.name || "User"}
+                          className="h-8 w-8 rounded-full object-cover mr-2 border-2 border-border"
+                        />
+                      ) : (
+                        <User className="h-5 w-5 mr-2" />
+                      )}
                       <div className="text-left min-w-0">
                         <div className="text-xs text-[#85786a] dark:text-[#a2a6b2] leading-tight">Account</div>
                         <div className="text-sm font-medium leading-tight truncate max-w-[100px]">{user.name}</div>
@@ -377,70 +347,14 @@ export default function Navbar() {
                     </button>
                     {isAccountOpen && (
                       <div id="account-menu" className="absolute right-0 mt-2 w-48 bg-card border-2 border-border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                        {/* Role-based profile links */}
-                        {dbUser?.role === "admin" ? (
-                          <>
-                            <Link
-                              href="/admin"
-                              onClick={() => setIsAccountOpen(false)}
-                              className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted rounded-t-lg border-b border-border"
-                            >
-                              <User className="h-4 w-4 mr-2" />
-                              Admin Dashboard
-                            </Link>
-                            <Link
-                              href="/profile"
-                              onClick={() => setIsAccountOpen(false)}
-                              className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border"
-                            >
-                              <User className="h-4 w-4 mr-2" />
-                              My Profile
-                            </Link>
-                          </>
-                        ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
-                          <>
-                            <Link
-                              href="/shopkeeper"
-                              onClick={() => setIsAccountOpen(false)}
-                              className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted rounded-t-lg border-b border-border"
-                            >
-                              <User className="h-4 w-4 mr-2" />
-                              Shopkeeper Dashboard
-                            </Link>
-                            <Link
-                              href="/shopkeeper/profile"
-                              onClick={() => setIsAccountOpen(false)}
-                              className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border"
-                            >
-                              <User className="h-4 w-4 mr-2" />
-                              Shopkeeper Profile
-                            </Link>
-                          </>
-                        ) : (
-                          <Link
-                            href="/profile"
-                            onClick={() => setIsAccountOpen(false)}
-                            className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted rounded-t-lg border-b border-border"
-                          >
-                            <User className="h-4 w-4 mr-2" />
-                            My Profile
-                          </Link>
-                        )}
-
-                        {/* Role indicator */}
-                        <div className="px-4 py-2 border-b bg-secondary border-border">
-                          <div className="text-xs font-semibold text-muted-foreground uppercase">
-                            Role
-                          </div>
-                          <div className="text-sm font-medium text-foreground mt-1">
-                            {dbUser?.role === "admin" ? "👑 Admin" :
-                              dbUser?.role === "shop_owner" && dbUser?.is_active === true ? "🏪 Active Shopkeeper" :
-                                dbUser?.role === "shop_owner" && dbUser?.is_active === false ? "⏳ Pending Shopkeeper" :
-                                  "🛒 Customer"}
-                          </div>
-                        </div>
-
-                        {/* Logout button */}
+                        <Link
+                          href="/profile"
+                          onClick={() => setIsAccountOpen(false)}
+                          className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border"
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          My Profile
+                        </Link>
                         <button
                           onClick={() => {
                             setIsAccountOpen(false);
@@ -492,60 +406,23 @@ export default function Navbar() {
                 </button>
               </div>
             )}
-
-            {/* Mobile menu buttons */}
-            <div className="lg:hidden flex items-center gap-2">
-              {/* Mobile Theme Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand dark:hover:text-primary-brand/80 p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
-                aria-label="Toggle color theme"
-                title="Toggle dark / light"
-              >
-                {isDark ? (
-                  <Sun className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-400" />
-                ) : (
-                  <Moon className="h-5 w-5 sm:h-6 sm:w-6" />
-                )}
-              </button>
-              {/* Mobile Location */}
-              {mounted && (
-                <button
-                  onClick={() => setIsLocationModalOpen(true)}
-                  className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
-                  aria-label="Open location selector"
-                  title={location ? `${location.area}${location.pincode ? ` (${location.pincode})` : ""}` : "Select Location"}
-                >
-                  <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />
-                </button>
-              )}
-              {/* Mobile Search */}
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
-                aria-label="Open search"
-              >
-                <SearchIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-              </button>
-              {/* Mobile Cart removed per request; moved to bottom tabs */}
-              {/* Mobile Menu */}
-              <button
-                onClick={toggleMenu}
-                className="text-[#212121] dark:text-[#f9f6f2] hover:text-primary-brand p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all"
-                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-                aria-controls="mobile-menu"
-                aria-expanded={isMenuOpen}
-              >
-                {isMenuOpen ? (
-                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
-                ) : (
-                  <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
-                )}
-              </button>
-            </div>
           </div>
 
-          {/* Category Navigation - Desktop (only when at top, not after scroll) with smooth animation */}
+          <MobileHeader
+            location={location}
+            isSearchOpen={isSearchOpen}
+            onOpenSearch={() => setSearchOpen(true)}
+            onOpenLocation={() => setIsLocationModalOpen(true)}
+            toggleTheme={toggleTheme}
+            isDark={isDark}
+            toggleMenu={toggleMenu}
+            isMenuOpen={isMenuOpen}
+            groceryCategories={groceryCategories}
+            pathname={pathname}
+            user={user}
+            dbUser={dbUser}
+          />
+
           <AnimatePresence initial={false}>
             {showDesktopCategories && (
               <motion.div
@@ -583,7 +460,6 @@ export default function Navbar() {
             )}
           </AnimatePresence>
 
-          {/* Mobile Sidebar Drawer */}
           <AnimatePresence>
             {isMenuOpen && (
               <>
@@ -610,6 +486,19 @@ export default function Navbar() {
                   className="md:hidden fixed top-0 left-0 bottom-0 z-50 w-[85vw] max-w-sm bg-[#fffdf5] dark:bg-[#24292e] border-r border-[#e0e0e0] dark:border-[#2d333b] shadow-xl"
                 >
                   <div className="px-4 py-4 space-y-3 bg-[#fffdf5] dark:bg-[#24292e]" aria-label="Mobile navigation menu">
+                    <div className="flex items-center justify-between mb-2 border-b border-[#e0e0e0] dark:border-[#2d333b] pb-2">
+                      <Link href="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2">
+                        <span className="text-2xl">🛒</span>
+                        <span className="text-base font-bold text-[#212121] dark:text-[#f9f6f2]">MohallaMart</span>
+                      </Link>
+                      <button
+                        onClick={() => setIsMenuOpen(false)}
+                        aria-label="Close menu"
+                        className="p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22]"
+                      >
+                        <X className="h-5 w-5 text-[#212121] dark:text-[#f9f6f2]" />
+                      </button>
+                    </div>
                     {/* Mobile Location */}
                     <button
                       onClick={() => {
@@ -637,155 +526,18 @@ export default function Navbar() {
 
                     </button>
 
-                    {/* Mobile Categories */}
-                    <div className="border-t pt-3">
-                      <div className="text-xs font-semibold text-[#85786a] uppercase tracking-wide mb-2">
-                        Categories
-                      </div>
-                      {groceryCategories.map((category, index) => {
-                        const Icon = category.icon;
-                        return (
-                          <Link
-                            key={index}
-                            href={category.href}
-                            className="flex items-center gap-2 rounded-lg px-3 py-2 text-[#212121] transition-colors hover:bg-[#e6f4ec] hover:text-primary-brand dark:text-[#f9f6f2] dark:hover:bg-[#1f2f25]"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <Icon className="size-4 text-[#85786a] dark:text-[#a2a6b2]" />
-                            <span>{category.name}</span>
-                          </Link>
-                        );
-                      })}
-                    </div>
 
-                    {/* Mobile User Account */}
+
+                    {/* Mobile Actions - minimal */}
                     <div className="border-t pt-3 space-y-3">
-                      {/* Become Shopkeeper Button - only show if not admin and not active shopkeeper */}
-                      {dbUser?.role !== "admin" && !(dbUser?.role === "shop_owner" && dbUser?.is_active === true) && (
+                      {dbUser?.role !== "admin" && (
                         <Link
                           href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}
                           onClick={() => setIsMenuOpen(false)}
                         >
                           <button className="flex items-center w-full text-left p-3 bg-[#27ae60] hover:bg-[#1f8f4e] text-white rounded-lg transition-colors">
                             <div className="h-5 w-5 mr-3">🏪</div>
-                            <div>
-                              <div className="text-xs text-[#ffe066]">
-                                {dbUser?.role === "shop_owner" && !dbUser?.is_active
-                                  ? "Pending Application"
-                                  : "Grow with us"}
-                              </div>
-                              <div className="text-sm font-medium text-white">
-                                {dbUser?.role === "shop_owner" && !dbUser?.is_active
-                                  ? "⏳ Application Pending"
-                                  : "Register Your Shop (for store owners)"}
-                              </div>
-                            </div>
-                          </button>
-                        </Link>
-                      )}
-
-                      {user ? (
-                        <div className="space-y-2">
-                          {/* User Info */}
-                          <div className="flex items-center w-full text-left p-3 bg-[#faffd2] dark:bg-[#3b2f22] rounded-lg border border-[#e0e0e0] dark:border-[#2d333b]">
-                            <User className="h-5 w-5 mr-3 text-[#85786a] dark:text-[#f9f6f2]" />
-                            <div className="flex-1">
-                              <div className="text-xs text-[#85786a] dark:text-[#a2a6b2]">Account</div>
-                              <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">
-                                {user.name}
-                              </div>
-                            </div>
-                            <div className="text-xs font-semibold px-2 py-1 rounded bg-primary-brand/10 text-primary-brand">
-                              {dbUser?.role === "admin" ? "Admin" :
-                                dbUser?.role === "shop_owner" && dbUser?.is_active === true ? "Shopkeeper" :
-                                  dbUser?.role === "shop_owner" && dbUser?.is_active === false ? "Pending" :
-                                    "Customer"}
-                            </div>
-                          </div>
-
-                          {/* Profile Links */}
-                          {dbUser?.role === "admin" ? (
-                            <Link
-                              href="/admin"
-                              onClick={() => setIsMenuOpen(false)}
-                            >
-                              <button className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-[#212121] dark:text-[#f9f6f2] border border-[#e0e0e0] dark:border-[#2d333b]">
-                                <User className="h-5 w-5 mr-3" />
-                                <div>
-                                  <div className="text-sm font-medium">
-                                    Admin Dashboard
-                                  </div>
-                                </div>
-                              </button>
-                            </Link>
-                          ) : dbUser?.role === "shop_owner" && dbUser?.is_active === true ? (
-                            <>
-                              <Link
-                                href="/shopkeeper"
-                                onClick={() => setIsMenuOpen(false)}
-                              >
-                                <button className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-[#212121] dark:text-[#f9f6f2] border border-[#e0e0e0] dark:border-[#2d333b]">
-                                  <User className="h-5 w-5 mr-3" />
-                                  <div>
-                                    <div className="text-xs text-[#85786a]">Shopkeeper</div>
-                                    <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">Dashboard</div>
-                                  </div>
-                                </button>
-                              </Link>
-                              <Link
-                                href="/shopkeeper/profile"
-                                onClick={() => setIsMenuOpen(false)}
-                              >
-                                <button className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-[#212121] dark:text-[#f9f6f2] border border-[#e0e0e0] dark:border-[#2d333b]">
-                                  <User className="h-5 w-5 mr-3" />
-                                  <div>
-                                    <div className="text-xs text-[#85786a]">Shopkeeper</div>
-                                    <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">Profile</div>
-                                  </div>
-                                </button>
-                              </Link>
-                            </>
-                          ) : (
-                            <Link
-                              href="/profile"
-                              onClick={() => setIsMenuOpen(false)}
-                            >
-                              <button className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-[#212121] dark:text-[#f9f6f2] border border-[#e0e0e0] dark:border-[#2d333b]">
-                                <User className="h-5 w-5 mr-3" />
-                                <div>
-                                  <div className="text-xs text-[#85786a]">Your</div>
-                                  <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">Profile</div>
-                                </div>
-                              </button>
-                            </Link>
-                          )}
-
-                          {/* Logout Button */}
-                          <button
-                            onClick={() => {
-                              logout();
-                              setIsMenuOpen(false);
-                              success("Logged out successfully");
-                            }}
-                            className="flex items-center w-full text-left p-3 hover:bg-[#fff1eb] dark:hover:bg-[#3c1f18] bg-[#fffdf5] dark:bg-[#24292e] rounded-lg transition-colors text-red-600 border border-[#ffb199]"
-                          >
-                            <LogOut className="h-5 w-5 mr-3" />
-                            <div>
-                              <div className="text-xs text-red-600">Sign Out</div>
-                              <div className="text-sm font-medium">Logout</div>
-                            </div>
-                          </button>
-                        </div>
-                      ) : (
-                        <Link href="/auth" onClick={() => setIsMenuOpen(false)}>
-                          <button className="flex items-center w-full text-left p-3 hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] rounded-lg transition-colors border border-[#e0e0e0] dark:border-[#2d333b] bg-[#fffdf5] dark:bg-[#24292e]">
-                            <User className="h-5 w-5 mr-3 text-[#85786a] dark:text-[#f9f6f2]" />
-                            <div>
-                              <div className="text-xs text-[#85786a] dark:text-[#a2a6b2]">Account</div>
-                              <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2]">
-                                Sign In / Sign Up
-                              </div>
-                            </div>
+                            <div className="text-sm font-medium">Register Your Shop</div>
                           </button>
                         </Link>
                       )}
@@ -803,45 +555,17 @@ export default function Navbar() {
           onClose={() => setIsLocationModalOpen(false)}
         />
       </nav>
-      {/* Bottom Tabs - Mobile */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-[#e0e0e0] dark:border-[#2d333b] bg-[#fffdf5]/95 dark:bg-[#181c1f]/95 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-4 gap-1 py-2">
-            <Link href="/" aria-label="Home" className="flex flex-col items-center justify-center gap-1 py-1">
-              <HomeIcon className={`${pathname === "/" ? "text-primary-brand" : "text-[#85786a] dark:text-[#a2a6b2]"} h-5 w-5`} />
-              <span className={`text-[11px] ${pathname === "/" ? "text-primary-brand font-medium" : "text-[#85786a] dark:text-[#a2a6b2]"}`}>Home</span>
-            </Link>
-            <Link href="/shops" aria-label="Categories" className="flex flex-col items-center justify-center gap-1 py-1">
-              <Grid2x2 className={`${pathname?.startsWith("/shops") ? "text-primary-brand" : "text-[#85786a] dark:text-[#a2a6b2]"} h-5 w-5`} />
-              <span className={`text-[11px] ${pathname?.startsWith("/shops") ? "text-primary-brand font-medium" : "text-[#85786a] dark:text-[#a2a6b2]"}`}>Categories</span>
-            </Link>
-            <button
-              type="button"
-              onClick={() => setIsCartOpen(true)}
-              aria-label="Cart"
-              className="flex flex-col items-center justify-center gap-1 py-1 relative"
-            >
-              <ShoppingCart className="h-5 w-5 text-[#85786a] dark:text-[#a2a6b2]" />
-              {mounted && getTotalItems() > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-1 right-6 bg-secondary-brand text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-[#181c1f]"
-                >
-                  {getTotalItems()}
-                </motion.span>
-              )}
-              <span className="text-[11px] text-[#85786a] dark:text-[#a2a6b2]">
-                Cart
-              </span>
-            </button>
-            <Link href={user ? "/profile" : "/auth"} aria-label="Account" className="flex flex-col items-center justify-center gap-1 py-1">
-              <User className={`${pathname?.startsWith("/profile") || pathname === "/auth" ? "text-primary-brand" : "text-[#85786a] dark:text-[#a2a6b2]"} h-5 w-5`} />
-              <span className={`text-[11px] ${pathname?.startsWith("/profile") || pathname === "/auth" ? "text-primary-brand font-medium" : "text-[#85786a] dark:text-[#a2a6b2]"}`}>Account</span>
-            </Link>
-          </div>
-        </div>
-      </div>
+      <MobileBottomNav
+        pathname={pathname}
+        mounted={mounted}
+        getTotalItems={getTotalItems}
+        onOpenCart={() => setIsCartOpen(true)}
+        isLoggedIn={Boolean(user)}
+        location={location}
+        onOpenLocation={() => setIsLocationModalOpen(true)}
+        dbUser={dbUser || undefined}
+        user={user}
+      />
 
       {/* Cart sidebar */}
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />

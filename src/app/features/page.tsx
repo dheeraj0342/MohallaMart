@@ -30,7 +30,7 @@ const featureData: FeatureCategory[] = [
       { name: "Image Modal/Viewer", status: "implemented", description: "View images in full-screen modal" },
       { name: "Dark/Light Theme", status: "implemented", description: "Theme switching support" },
       { name: "User Profile", status: "implemented", description: "View and edit profile" },
-      { name: "Checkout & Payment", status: "pending", description: "Razorpay integration for payments" },
+      { name: "Checkout & Payment", status: "pending", description: "Razorpay integration for payments (backend ready, UI pending)" },
       { name: "Order History", status: "pending", description: "View past orders" },
       { name: "Order Tracking", status: "pending", description: "Real-time order status updates" },
       { name: "Wishlist/Favorites", status: "pending", description: "Save favorite products/shops" },

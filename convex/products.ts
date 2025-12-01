@@ -1,12 +1,13 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-// Create a new product
+// Create a new product (with vendor permission check)
 export const createProduct = mutation({
   args: {
     name: v.string(),
     description: v.optional(v.string()),
     shop_id: v.id("shops"),
+    owner_id: v.id("users"), // Verify ownership
     category_id: v.id("categories"),
     price: v.number(),
     original_price: v.optional(v.number()),
@@ -19,6 +20,12 @@ export const createProduct = mutation({
     is_featured: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    // Verify ownership
+    const shop = await ctx.db.get(args.shop_id);
+    if (!shop || shop.owner_id !== args.owner_id) {
+      throw new Error("Unauthorized: You can only add products to your own shops");
+    }
+
     const productId = await ctx.db.insert("products", {
       name: args.name,
       description: args.description,
@@ -32,7 +39,7 @@ export const createProduct = mutation({
       unit: args.unit,
       images: args.images,
       tags: args.tags,
-      is_available: true,
+      is_available: args.stock_quantity > 0,
       is_featured: args.is_featured || false,
       rating: 0,
       total_sales: 0,
@@ -49,6 +56,19 @@ export const getProduct = query({
   args: { id: v.id("products") },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
+  },
+});
+
+// Get multiple products by IDs
+export const getProducts = query({
+  args: { ids: v.array(v.id("products")) },
+  handler: async (ctx, args) => {
+    const products = [];
+    for (const id of args.ids) {
+      const product = await ctx.db.get(id);
+      if (product) products.push(product);
+    }
+    return products;
   },
 });
 
@@ -198,10 +218,11 @@ export const searchProducts = query({
   },
 });
 
-// Update product
+// Update product (with vendor permission check)
 export const updateProduct = mutation({
   args: {
     id: v.id("products"),
+    owner_id: v.id("users"), // Verify ownership
     name: v.optional(v.string()),
     description: v.optional(v.string()),
     price: v.optional(v.number()),
@@ -219,6 +240,12 @@ export const updateProduct = mutation({
     const product = await ctx.db.get(args.id);
     if (!product) {
       throw new Error("Product not found");
+    }
+
+    // Verify ownership
+    const shop = await ctx.db.get(product.shop_id);
+    if (!shop || shop.owner_id !== args.owner_id) {
+      throw new Error("Unauthorized: You can only update your own products");
     }
 
     await ctx.db.patch(args.id, {
@@ -341,15 +368,79 @@ export const getProductsByTags = query({
   },
 });
 
-// Delete product
+// Get products by vendor (shop owner)
+export const getMyProducts = query({
+  args: {
+    owner_id: v.id("users"),
+    search: v.optional(v.string()),
+    category_id: v.optional(v.id("categories")),
+    is_available: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    // Get shops owned by this user
+    const shops = await ctx.db
+      .query("shops")
+      .withIndex("by_owner", (q) => q.eq("owner_id", args.owner_id))
+      .collect();
+
+    if (shops.length === 0) {
+      return [];
+    }
+
+    const shopIds = shops.map((s) => s._id);
+
+    // Get all products from these shops
+    let products = await ctx.db.query("products").collect();
+    products = products.filter((p) => shopIds.includes(p.shop_id));
+
+    // Filter by search query
+    if (args.search) {
+      const searchTerm = args.search.toLowerCase();
+      products = products.filter(
+        (product) =>
+          product.name.toLowerCase().includes(searchTerm) ||
+          product.description?.toLowerCase().includes(searchTerm) ||
+          product.tags.some((tag) => tag.toLowerCase().includes(searchTerm)),
+      );
+    }
+
+    // Filter by category
+    if (args.category_id) {
+      products = products.filter(
+        (product) => product.category_id === args.category_id,
+      );
+    }
+
+    // Filter by availability
+    if (args.is_available !== undefined) {
+      products = products.filter(
+        (product) => product.is_available === args.is_available,
+      );
+    }
+
+    // Sort by created_at (newest first)
+    products.sort((a, b) => b.created_at - a.created_at);
+
+    return products;
+  },
+});
+
+// Delete product (with vendor permission check)
 export const deleteProduct = mutation({
   args: {
     id: v.id("products"),
+    owner_id: v.id("users"), // Verify ownership
   },
   handler: async (ctx, args) => {
     const product = await ctx.db.get(args.id);
     if (!product) {
       throw new Error("Product not found");
+    }
+
+    // Verify ownership
+    const shop = await ctx.db.get(product.shop_id);
+    if (!shop || shop.owner_id !== args.owner_id) {
+      throw new Error("Unauthorized: You can only delete your own products");
     }
 
     await ctx.db.delete(args.id);

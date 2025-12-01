@@ -1,16 +1,23 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useStore } from "@/store/useStore";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 
 export const useAuth = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const { supabaseUser, setSupabaseUser, setUser, signOut, user: storeUser } = useStore();
   const syncUser = useMutation(api.users.syncUserWithSupabase);
+  
+  // Get user role from Convex
+  const dbUser = useQuery(
+    api.users.getUser,
+    storeUser || supabaseUser ? { id: (storeUser || supabaseUser)?.id || "" } : "skip"
+  ) as { role?: string; is_active?: boolean } | null | undefined;
 
   useEffect(() => {
     // Get initial session
@@ -45,6 +52,7 @@ export const useAuth = () => {
             email,
             phone: user_metadata?.phone,
             avatar_url: user_metadata?.avatar_url,
+            role: user_metadata?.role,
           }).catch(() => {
             // Silently fail - sync can happen in background
           });
@@ -83,6 +91,7 @@ export const useAuth = () => {
             email,
             phone: user_metadata?.phone,
             avatar_url: user_metadata?.avatar_url,
+            role: user_metadata?.role,
           }).catch(() => {
             // Silently fail - sync can happen in background
           });
@@ -96,6 +105,41 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, [setSupabaseUser, setUser, syncUser]);
 
+  // Role-based redirect after login
+  useEffect(() => {
+    if (!storeUser && !supabaseUser) return;
+    if (!dbUser) return;
+    
+    // Don't redirect if on auth pages or already on correct role page
+    if (pathname === "/auth" || pathname === "/login" || pathname === "/register") return;
+    if (pathname.startsWith("/shopkeeper/login") || pathname.startsWith("/shopkeeper/signup")) return;
+    if (pathname.startsWith("/admin/login")) return;
+    if (pathname.startsWith("/rider/login")) return;
+
+    const userRole = dbUser.role;
+    const isActive = dbUser.is_active;
+
+    // Redirect based on role
+    if (userRole === "admin" && isActive) {
+      if (!pathname.startsWith("/admin")) {
+        router.push("/admin");
+      }
+    } else if (userRole === "shop_owner" && isActive) {
+      if (!pathname.startsWith("/shopkeeper")) {
+        router.push("/shopkeeper/dashboard");
+      }
+    } else if (userRole === "rider" && isActive) {
+      if (!pathname.startsWith("/rider")) {
+        router.push("/rider/app");
+      }
+    } else if (userRole === "customer") {
+      // Customers should not access admin/shopkeeper/rider pages
+      if (pathname.startsWith("/admin") || pathname.startsWith("/shopkeeper") || pathname.startsWith("/rider")) {
+        router.push("/");
+      }
+    }
+  }, [storeUser, supabaseUser, dbUser, pathname, router]);
+
   const logout = async () => {
     await supabase.auth.signOut();
     signOut();
@@ -105,6 +149,7 @@ export const useAuth = () => {
   // Return store user if available (faster), otherwise supabase user
   return {
     user: storeUser || supabaseUser,
+    dbUser, // Include Convex user data with role
     logout,
   };
 };

@@ -101,9 +101,10 @@ export default function ShopProductsContent() {
     return shops[0];
   }, [shops]);
 
+  // Use getMyProducts for vendor-specific products (better for multi-shop owners)
   const products = useQuery(
-    api.products.getProductsByShop,
-    activeShop ? { shop_id: activeShop._id } : "skip",
+    api.products.getMyProducts,
+    dbUser?._id ? { owner_id: dbUser._id } : "skip",
   ) as Product[] | null | undefined;
 
   const deleteProduct = useMutation(api.products.deleteProduct);
@@ -170,15 +171,18 @@ export default function ShopProductsContent() {
   }, [products, searchQuery, filterCategory, filterStatus, sortBy]);
 
   const handleDelete = async () => {
-    if (!deleteProductId) return;
+    if (!deleteProductId || !dbUser) return;
 
     try {
-      await deleteProduct({ id: deleteProductId });
+      await deleteProduct({
+        id: deleteProductId,
+        owner_id: dbUser._id,
+      });
       success("Product deleted successfully");
       setDeleteProductId(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      error("Failed to delete product. Please try again.");
+      error(err.message || "Failed to delete product. Please try again.");
     }
   };
 

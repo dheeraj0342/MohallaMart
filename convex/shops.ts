@@ -65,8 +65,35 @@ export const createShop = mutation({
         sunday: v.optional(v.object({ open: v.string(), close: v.string() })),
       }),
     ),
+    // Vendor-specific fields (optional, defaults provided)
+    owner_name: v.optional(v.string()),
+    shop_type: v.optional(v.string()),
+    radius_km: v.optional(v.number()),
+    delivery_profile: v.optional(
+      v.object({
+        base_prep_minutes: v.number(),
+        max_parallel_orders: v.number(),
+        buffer_minutes: v.number(),
+        avg_rider_speed_kmph: v.number(),
+      }),
+    ),
   },
   handler: async (ctx, args) => {
+    // Get owner name from user if not provided
+    let ownerName = args.owner_name;
+    if (!ownerName) {
+      const owner = await ctx.db.get(args.owner_id);
+      ownerName = owner?.name || "Shop Owner";
+    }
+
+    // Default delivery profile
+    const defaultDeliveryProfile = {
+      base_prep_minutes: 5,
+      max_parallel_orders: 3,
+      buffer_minutes: 5,
+      avg_rider_speed_kmph: 20,
+    };
+
     // Check if user already has an active shop to prevent duplicates
     const existingShops = await ctx.db
       .query("shops")
@@ -80,11 +107,15 @@ export const createShop = mutation({
       await ctx.db.patch(existingShop._id, {
         name: args.name,
         description: args.description,
+        owner_name: ownerName,
+        shop_type: args.shop_type,
         categories: args.categories || [],
         logo_url: args.logo_url,
         address: args.address,
         contact: args.contact,
         business_hours: args.business_hours,
+        radius_km: args.radius_km ?? existingShop.radius_km ?? 2,
+        delivery_profile: args.delivery_profile ?? existingShop.delivery_profile ?? defaultDeliveryProfile,
         updated_at: Date.now(),
       });
       return existingShop._id;
@@ -95,11 +126,16 @@ export const createShop = mutation({
       name: args.name,
       description: args.description,
       owner_id: args.owner_id,
+      owner_name: ownerName || undefined,
+      shop_type: args.shop_type || undefined,
       categories: args.categories || [],
       logo_url: args.logo_url,
       address: args.address,
       contact: args.contact,
       business_hours: args.business_hours,
+      radius_km: args.radius_km ?? 2, // Default 2km radius
+      delivery_profile: args.delivery_profile ?? defaultDeliveryProfile,
+      is_verified: false, // Requires admin verification
       is_active: true,
       rating: 0,
       total_orders: 0,
@@ -305,6 +341,7 @@ export const updateShop = mutation({
     id: v.id("shops"),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
+    shop_type: v.optional(v.string()),
     categories: v.optional(v.array(v.id("categories"))),
     logo_url: v.optional(v.string()),
     address: v.optional(
@@ -340,6 +377,15 @@ export const updateShop = mutation({
         sunday: v.optional(v.object({ open: v.string(), close: v.string() })),
       }),
     ),
+    radius_km: v.optional(v.number()),
+    delivery_profile: v.optional(
+      v.object({
+        base_prep_minutes: v.number(),
+        max_parallel_orders: v.number(),
+        buffer_minutes: v.number(),
+        avg_rider_speed_kmph: v.number(),
+      }),
+    ),
     is_active: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
@@ -351,11 +397,21 @@ export const updateShop = mutation({
     await ctx.db.patch(args.id, {
       ...(args.name && { name: args.name }),
       ...(args.description !== undefined && { description: args.description }),
+      ...(args.shop_type && { shop_type: args.shop_type }),
       ...(args.categories !== undefined && { categories: args.categories }),
       ...(args.logo_url !== undefined && { logo_url: args.logo_url }),
       ...(args.address && { address: args.address }),
       ...(args.contact && { contact: args.contact }),
       ...(args.business_hours && { business_hours: args.business_hours }),
+      ...(args.radius_km !== undefined && { radius_km: args.radius_km }),
+      ...(args.delivery_profile && {
+        delivery_profile: {
+          base_prep_minutes: args.delivery_profile.base_prep_minutes,
+          max_parallel_orders: args.delivery_profile.max_parallel_orders,
+          buffer_minutes: args.delivery_profile.buffer_minutes,
+          avg_rider_speed_kmph: args.delivery_profile.avg_rider_speed_kmph,
+        },
+      }),
       ...(args.is_active !== undefined && { is_active: args.is_active }),
       updated_at: Date.now(),
     });

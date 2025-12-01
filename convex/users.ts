@@ -298,6 +298,14 @@ export const syncUserWithSupabase = mutation({
     email: v.string(),
     phone: v.optional(v.string()),
     avatar_url: v.optional(v.string()),
+    role: v.optional(
+      v.union(
+        v.literal("customer"),
+        v.literal("shop_owner"),
+        v.literal("admin"),
+        v.literal("rider"),
+      ),
+    ),
   },
   handler: async (ctx, args) => {
     const existingUser = await ctx.db
@@ -316,6 +324,10 @@ export const syncUserWithSupabase = mutation({
         patch.phone = args.phone;
       if (existingUser.avatar_url == null && args.avatar_url !== undefined)
         patch.avatar_url = args.avatar_url;
+      // Only update role if provided and user doesn't have one set
+      if (args.role && !existingUser.role) {
+        patch.role = args.role;
+      }
       await ctx.db.patch(existingUser._id, patch);
       return existingUser._id;
     } else {
@@ -326,8 +338,8 @@ export const syncUserWithSupabase = mutation({
         email: args.email,
         phone: args.phone,
         avatar_url: args.avatar_url,
-        role: "customer",
-        is_active: true,
+        role: args.role || "customer",
+        is_active: args.role === "admin" ? true : args.role === "shop_owner" ? false : true,
         created_at: Date.now(),
         updated_at: Date.now(),
       });

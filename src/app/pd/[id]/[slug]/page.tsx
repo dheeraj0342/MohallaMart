@@ -10,22 +10,24 @@ import { Button } from "@/components/ui/button"
 import { Loader2, Package, ShoppingCart, Heart, Star } from "lucide-react"
 import { useStore } from "@/store/useStore"
 import { useToast } from "@/hooks/useToast"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { type Product } from "@/components/products/ProductCard"
 import { RelatedProductsRow } from "@/components/products/RelatedProductsRow"
 import ImageModal from "@/components/ImageModal"
+import { EtaBadge, type EtaInfo } from "@/components/products/EtaBadge"
 
 export default function ProductPdPage() {
   const params = useParams()
   const idParam = params.id as string
   const slug = params.slug as string
-  const { addToCart } = useStore()
+  const { addToCart, location } = useStore()
   const { success } = useToast()
   const [qty, setQty] = useState<number>(1)
   const [grade, setGrade] = useState<string>("Standard")
   const [wish, setWish] = useState<boolean>(false)
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
+  const [productEta, setProductEta] = useState<EtaInfo | null>(null)
 
 
   const isValidConvexId = typeof idParam === "string" && /^[a-z0-9]{20,}$/i.test(idParam)
@@ -43,6 +45,46 @@ export default function ProductPdPage() {
     is_available: true,
     limit: 60,
   })
+
+  // Fetch ETA for the product's shop when product and location are available
+  useEffect(() => {
+    if (!product?.shop_id || !location) return
+
+    // Location can be stored in two formats:
+    // 1. { coordinates: { lat, lng } } - nested format
+    // 2. { lat, lon } - flat format (from LocationModal)
+    const lat = (location as any)?.coordinates?.lat ?? (location as any)?.lat
+    const lng = (location as any)?.coordinates?.lng ?? (location as any)?.lon
+
+    if (!lat || !lng) return
+
+    const fetchProductEta = async () => {
+      try {
+        const response = await fetch(
+          `/api/vendors/nearby?userLat=${lat}&userLon=${lng}&radiusKm=2`
+        )
+        if (response.ok) {
+          const data = await response.json()
+          if (data.vendors && Array.isArray(data.vendors)) {
+            // Find the shop with matching ID
+            const vendor = data.vendors.find((v: any) => v.id === product.shop_id)
+            if (vendor?.eta) {
+              setProductEta(vendor.eta)
+            }
+          }
+        }
+      } catch (error) {
+        console.error("[ProductDetailPage] Error fetching product ETA:", error)
+      }
+    }
+
+    fetchProductEta()
+
+    // Refresh ETA every 2 minutes
+    const interval = setInterval(fetchProductEta, 120000)
+
+    return () => clearInterval(interval)
+  }, [product?.shop_id, location])
 
   const discount =
     product && product.original_price && product.original_price > product.price
@@ -149,6 +191,7 @@ export default function ProductPdPage() {
     min_order_quantity: p.min_order_quantity,
     total_sales: p.total_sales,
     is_featured: p.is_featured,
+    shop_id: p.shop_id ? String(p.shop_id) : undefined,
   })
 
   return (
@@ -231,6 +274,9 @@ export default function ProductPdPage() {
                     <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                     {product.rating.toFixed(1)}
                   </span>
+                )}
+                {productEta && (
+                  <EtaBadge shopId={product.shop_id ? String(product.shop_id) : undefined} eta={productEta} className="text-xs" />
                 )}
                 {product.total_sales ? (
                   <span className="text-[11px]">

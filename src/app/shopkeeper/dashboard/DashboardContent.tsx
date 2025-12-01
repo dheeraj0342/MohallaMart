@@ -13,6 +13,7 @@ import StatCard from "./components/StatCard";
 import ActionCard from "./components/ActionCard";
 import ShopCard from "./components/ShopCard";
 import TipsCard from "./components/TipsCard";
+import LowStockAlert from "./components/LowStockAlert";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -28,12 +29,12 @@ export default function DashboardPage() {
     dbUser?._id ? { owner_id: dbUser._id, is_active: true } : "skip"
   ) as
     | Array<{
-        _id: string;
-        name: string;
-        address: { city?: string; state?: string };
-        rating?: number;
-      }>
-      
+      _id: string;
+      name: string;
+      address: { city?: string; state?: string };
+      rating?: number;
+    }>
+
     | null
     | undefined;
 
@@ -144,6 +145,11 @@ export default function DashboardPage() {
           <TipsCard />
         </div>
 
+        {/* Low Stock Alert */}
+        <div className="md:col-span-2">
+          <LowStockAlert />
+        </div>
+
         {/* Support Card - Compact */}
         <div className="rounded-3xl p-5 sm:p-6 border bg-gradient-to-br from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-800 dark:border-neutral-800 shadow-sm">
           <div className="flex items-start gap-3 mb-3">
@@ -191,7 +197,7 @@ export default function DashboardPage() {
             icon={<Package className="h-6 w-6 sm:h-7 sm:w-7" />}
             title="Manage Products"
             description="Add/Edit items"
-            href="/shopkeeper/products"
+            href="/shopkeeper/shop/products"
             color="purple"
           />
         </div>

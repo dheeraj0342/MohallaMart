@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Package, Star } from "lucide-react";
 import { generateSlug } from "@/lib/utils";
+import { EtaBadge, type EtaInfo } from "./EtaBadge";
 
 export interface Product {
   _id: string;
@@ -22,15 +23,19 @@ export interface Product {
   min_order_quantity: number;
   total_sales?: number;
   is_featured?: boolean;
+  shop_id?: string; // Shop ID for ETA calculation
 }
+
+export type { EtaInfo };
 
 interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
   href?: string;
+  eta?: EtaInfo;
 }
 
-export function ProductCard({ product, onAddToCart, href }: ProductCardProps) {
+export function ProductCard({ product, onAddToCart, href, eta }: ProductCardProps) {
   const router = useRouter();
   const hasImage = product.images?.length > 0;
   const img = hasImage ? product.images[0] : "";
@@ -84,14 +89,8 @@ export function ProductCard({ product, onAddToCart, href }: ProductCardProps) {
       {/* Content */}
       <CardContent className="flex flex-col gap-1.5 p-2.5">
         {/* Delivery & Rating */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span className="flex items-center gap-1 bg-muted px-2 py-0.5 rounded-full">
-            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-              <circle cx="6" cy="6" r="5" stroke="currentColor" />
-              <path d="M6 3v3l2 1" stroke="currentColor" strokeLinecap="round" />
-            </svg>
-            13 mins
-          </span>
+        <div className="flex items-center justify-between text-xs">
+          <EtaBadge shopId={product.shop_id} eta={eta} />
 
           {product.rating && (
             <span className="flex items-center gap-1 font-medium text-foreground">

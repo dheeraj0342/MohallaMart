@@ -55,41 +55,115 @@ Built with **Next.js 15**, **TypeScript**, **Convex realtime backend**, and a re
 src/
 ├── app/
 │   ├── auth/
+│   │   ├── page.tsx (Login/Signup page)
+│   │   └── callback/ (Supabase auth callback)
 │   ├── api/
+│   │   ├── admin/ (Admin API routes)
+│   │   ├── debug/ (Debug endpoints)
+│   │   ├── inngest/ (Inngest webhook)
+│   │   ├── shopkeeper/ (Shopkeeper API routes)
+│   │   ├── trpc/ (tRPC endpoint)
+│   │   └── vendors/
+│   │       └── nearby/ (GET endpoint for nearby vendors with ETA)
 │   ├── shopkeeper/
-│   │   ├── _components/ (ShopkeeperGuard, etc.)
-│   │   ├── dashboard/
-│   │   ├── profile/
-│   │   ├── apply/
-│   │   └── registration/
+│   │   ├── _components/ (ShopkeeperGuard, ShopkeeperHeader, etc.)
+│   │   ├── dashboard/ (Dashboard with stats and actions)
+│   │   ├── profile/ (Shopkeeper profile management)
+│   │   ├── products/ (Product management)
+│   │   ├── shop/ (Shop creation and management)
+│   │   ├── apply/ (Shopkeeper application)
+│   │   ├── registration/ (Registration status)
+│   │   ├── login/ (Shopkeeper login)
+│   │   └── signup/ (Shopkeeper signup)
 │   ├── admin/
-│   ├── globals.css
-│   ├── layout.tsx
-│   └── page.tsx
+│   │   ├── _components/ (AdminHeader, AdminSidebar, etc.)
+│   │   ├── (protected)/ (Protected admin routes)
+│   │   │   ├── registrations/ (Registration management)
+│   │   │   └── users/ (User management)
+│   │   └── login/ (Admin login)
+│   ├── shops/ (Shop listing page)
+│   ├── shop/[slug]/ (Individual shop page)
+│   ├── pd/[id]/[slug]/ (Product detail page)
+│   ├── profile/ (User profile page)
+│   ├── features/ (Feature status page)
+│   ├── globals.css (Theme variables and global styles)
+│   ├── layout.tsx (Root layout)
+│   └── page.tsx (Home page)
 ├── components/
 │   ├── auth/
+│   │   ├── LoginForm.tsx
+│   │   ├── SignupForm.tsx
+│   │   └── shopkeeper/ (Shopkeeper auth forms)
 │   ├── sections/
-│   ├── ui/
-│   ├── Navbar.tsx
+│   │   ├── HeroSection.tsx
+│   │   ├── NearbyStoresSection.tsx
+│   │   ├── TopRatedProductsSection.tsx
+│   │   └── CoreInfoSection.tsx
+│   ├── products/
+│   │   ├── ProductCard.tsx (with ETA support)
+│   │   ├── ShopCard.tsx
+│   │   └── RelatedProductsRow.tsx
+│   ├── cart/
+│   │   └── CartSidebar.tsx
+│   ├── ui/ (Shadcn UI components)
+│   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── input.tsx
+│   │   ├── dialog.tsx
+│   │   └── ... (other Shadcn components)
+│   ├── Navbar.tsx (Desktop navigation)
+│   ├── MobileHeader.tsx (Mobile header with dynamic ETA)
+│   ├── MobileBottomNav.tsx (Mobile bottom navigation)
 │   ├── SearchBar.tsx
-│   ├── CartSidebar.tsx
-│   ├── LocationModal.tsx
+│   ├── LocationModal.tsx (Location picker with Leaflet)
+│   ├── MapView.tsx (Leaflet map component)
+│   ├── ImageModal.tsx
+│   ├── ImageUpload.tsx
 │   ├── ToastProvider.tsx
-│   └── ConvexProvider.tsx
+│   ├── ConvexProvider.tsx
+│   ├── TRPCProvider.tsx
+│   └── InngestProvider.tsx
 ├── hooks/
 │   ├── useAuth.ts
-│   └── useToast.ts
+│   ├── useToast.ts
+│   ├── useConvex.ts
+│   └── use-mobile.ts
 ├── lib/
-│   ├── supabase.ts
-│   ├── convex.ts
-│   ├── trpc.ts
-│   ├── typesense.ts
-│   ├── redis.ts
-│   ├── adminAuth.ts
-│   └── inngest/
-├── convex/
+│   ├── supabase.ts (Supabase client)
+│   ├── convex.ts (Convex client)
+│   ├── trpc.ts (tRPC client)
+│   ├── typesense.ts (Typesense search)
+│   ├── redis.ts (Redis client)
+│   ├── razorpay.ts (Payment integration)
+│   ├── adminAuth.ts (Admin authentication)
+│   ├── utils.ts (Utility functions)
+│   ├── images.ts (Image path management)
+│   ├── retry.ts (Retry logic)
+│   ├── distance.ts (Haversine distance calculation)
+│   ├── eta.ts (ETA calculation system)
+│   ├── vendor-geo.ts (Vendor geographic utilities)
+│   ├── time.ts (Peak hour detection)
+│   ├── data/ (Data sync utilities)
+│   │   ├── sync.ts
+│   │   └── examples.ts
+│   └── inngest/ (Background jobs)
+│       ├── events.ts
+│       ├── functions.ts
+│       └── serve.ts
+├── convex/ (Convex backend functions)
+│   ├── users.ts
+│   ├── shops.ts
+│   ├── products.ts
+│   ├── orders.ts
+│   ├── categories.ts
+│   └── schema.ts
 ├── server/
-└── store/
+│   └── trpc.ts (tRPC server setup)
+├── store/
+│   └── useStore.ts (Zustand global store)
+└── theme/
+    ├── config.ts
+    └── types.ts
 ```
 
 ---
@@ -498,6 +572,161 @@ className="text-blue-600 dark:text-blue-400" // Info
 
 ---
 
+## 📍 **Location & ETA System**
+
+### 🎯 **Overview**
+
+MohallaMart uses a **Blinkit-style delivery ETA system** optimized for OpenStreetMap (OSM). The system calculates accurate, hyperlocal delivery times based on distance, store capacity, and peak hours.
+
+### 📦 **Core Utilities**
+
+#### **Distance Calculation** (`src/lib/distance.ts`)
+
+* **`haversineDistanceKm(lat1, lon1, lat2, lon2)`**: Pure math implementation using Haversine formula
+* Returns distance in kilometers (rounded to 4 decimals)
+* Works with Leaflet marker coordinates
+* No external API calls required
+
+#### **ETA Calculation** (`src/lib/eta.ts`)
+
+* **`calculateEtaMinutes(input: EtaInput)`**: Blinkit-style ETA calculation
+* **Formula**:
+  1. Prep time = `basePrepMinutes + (excessOrders * 2)`
+  2. Travel time = `(distanceKm / avgRiderSpeedKmph) * 60`
+  3. Peak hour multiplier: `travelTime *= 1.25` (if peak hour)
+  4. Final ETA = `prepTime + travelTime + bufferMinutes`
+  5. Safe range: `minEta = max(5, round(rawEta - 5))`, `maxEta = round(rawEta + 5)`
+* **Default Store Profile**:
+  ```typescript
+  {
+    basePrepMinutes: 5,
+    maxParallelOrders: 3,
+    bufferMinutes: 5,
+    avgRiderSpeedKmph: 20
+  }
+  ```
+
+#### **Vendor Geographic Utilities** (`src/lib/vendor-geo.ts`)
+
+* **`findNearbyVendors(vendors, userCoords, radiusKm = 2)`**: Find vendors within radius
+* Filters vendors by distance using Haversine formula
+* Returns vendors sorted by distance (closest first)
+* Only includes vendors with valid coordinates
+
+#### **Peak Hour Detection** (`src/lib/time.ts`)
+
+* **`isPeakHour(now?: Date)`**: Detects peak delivery hours
+* Peak hours: **7-10 AM** and **6-10 PM (18-22)**
+* Returns `true` during peak hours, `false` otherwise
+
+### 🔌 **API Endpoint**
+
+#### **GET `/api/vendors/nearby`**
+
+**Query Parameters:**
+- `userLat` (required): User's latitude
+- `userLon` (required): User's longitude
+- `radiusKm` (optional): Search radius in km (default: 2)
+
+**Response:**
+```json
+{
+  "vendors": [
+    {
+      "id": "shop_id",
+      "name": "Shop Name",
+      "distanceKm": 1.23,
+      "eta": {
+        "minEta": 12,
+        "maxEta": 22
+      },
+      "location": {
+        "lat": 28.6139,
+        "lon": 77.2090
+      },
+      "...otherShopFields": "..."
+    }
+  ],
+  "count": 2,
+  "userLocation": { "lat": 28.6129, "lon": 77.2080 },
+  "radiusKm": 2,
+  "peakHour": false
+}
+```
+
+### 🎨 **UI Integration**
+
+#### **ProductCard Component**
+
+* Accepts optional `eta` prop: `{ minEta: number; maxEta: number }`
+* Displays: `${eta.minEta}-${eta.maxEta} mins` if ETA provided
+* Falls back to `"30 mins"` if ETA not available
+* Blinkit-style delivery pill design
+
+#### **MobileHeader Component**
+
+* Automatically fetches ETA from `/api/vendors/nearby` when location coordinates are available
+* Displays dynamic ETA: `"${minEta}-${maxEta} mins"` or `"20 mins"` fallback
+* Auto-refreshes ETA every 2 minutes
+* Shows loading state (`"..."`) while fetching
+
+### 📋 **Usage Examples**
+
+#### **Calculate ETA Manually**
+
+```typescript
+import { calculateEtaMinutes, DEFAULT_STORE_PROFILE } from "@/lib/eta";
+import { isPeakHour } from "@/lib/time";
+import { haversineDistanceKm } from "@/lib/distance";
+
+const distance = haversineDistanceKm(userLat, userLon, shopLat, shopLng);
+const eta = calculateEtaMinutes({
+  storeProfile: DEFAULT_STORE_PROFILE,
+  distanceKm: distance,
+  currentPendingOrders: 2,
+  isPeakHour: isPeakHour(),
+});
+// Result: { rawEta: 15.5, minEta: 10, maxEta: 20 }
+```
+
+#### **Fetch Nearby Vendors with ETA**
+
+```typescript
+const response = await fetch(
+  `/api/vendors/nearby?userLat=${lat}&userLon=${lng}&radiusKm=2`
+);
+const data = await response.json();
+// data.vendors contains vendors with distance and ETA
+```
+
+#### **Use ETA in ProductCard**
+
+```typescript
+<ProductCard
+  product={product}
+  onAddToCart={handleAddToCart}
+  eta={vendor.eta} // { minEta: 12, maxEta: 22 }
+/>
+```
+
+### ⚠️ **Implementation Notes**
+
+* **Store Delivery Profiles**: Currently uses default profile. TODO: Add per-store delivery profiles to shop schema
+* **Pending Orders**: Uses `api.orders.getOrdersByShop` with `status: "pending"` filter
+* **Caching**: Consider caching ETA calculations for performance (not yet implemented)
+* **Real-time Updates**: ETA refreshes every 2 minutes in MobileHeader
+* **Error Handling**: Gracefully falls back to default values if API fails
+
+### 🔧 **Future Enhancements**
+
+* Per-store delivery profile configuration
+* Real-time order queue updates
+* Rider availability tracking
+* Traffic-aware ETA adjustments
+* Historical delivery time analytics
+
+---
+
 ## ⚙️ **Background Jobs (Inngest)**
 
 * 16+ automated job functions
@@ -544,7 +773,9 @@ className="text-blue-600 dark:text-blue-400" // Info
 * Loading skeletons (use Shadcn `Skeleton` component)
 * Accessible dropdowns (use Shadcn `DropdownMenu` component)
 * Geolocation via `navigator.geolocation`
-* Haversine formula for shop distance filtering
+* Haversine formula for shop distance filtering (use `haversineDistanceKm` from `@/lib/distance`)
+* **Location & ETA System**: Use utilities from `@/lib/distance`, `@/lib/eta`, `@/lib/vendor-geo`, `@/lib/time` for delivery time calculations
+* **Dynamic ETA Display**: Use `/api/vendors/nearby` endpoint to fetch nearby vendors with ETA, display in `ProductCard` and `MobileHeader`
 * Route guards for protected pages (`ShopkeeperGuard`, etc.)
 * **Toast notifications**: Always use `useToast()` hook for user feedback - `const { success, error, warning, info } = useToast();` (Never use `alert()` or `confirm()`)
 * Always wrap protected routes with guard components, never return `null` from guards during loading

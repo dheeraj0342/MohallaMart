@@ -2,17 +2,19 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  // Users table
+  // Users table (Unified auth for all roles)
   users: defineTable({
     id: v.string(), // Supabase user ID
     name: v.string(),
     email: v.string(),
     phone: v.optional(v.string()),
+    password_hash: v.optional(v.string()), // For direct auth (if not using Supabase)
     avatar_url: v.optional(v.string()),
     role: v.union(
-      v.literal("customer"),
-      v.literal("shop_owner"),
-      v.literal("admin"),
+      v.literal("customer"), // USER role
+      v.literal("shop_owner"), // SHOPKEEPER role
+      v.literal("admin"), // ADMIN role
+      v.literal("rider"), // RIDER role
     ),
     is_active: v.boolean(),
     created_at: v.number(),
@@ -22,11 +24,13 @@ export default defineSchema({
     .index("by_phone", ["phone"])
     .index("by_role", ["role"]),
 
-  // Shops table
+  // Shops table (Vendor shops)
   shops: defineTable({
     name: v.string(),
     description: v.optional(v.string()),
     owner_id: v.id("users"),
+    owner_name: v.optional(v.string()), // Vendor owner name (optional for backward compatibility)
+    shop_type: v.optional(v.string()), // e.g., "grocery", "pharmacy", "restaurant" (optional for backward compatibility)
     categories: v.optional(v.array(v.id("categories"))),
     logo_url: v.optional(v.string()),
     address: v.object({
@@ -58,6 +62,17 @@ export default defineSchema({
         sunday: v.optional(v.object({ open: v.string(), close: v.string() })),
       }),
     ),
+    // Vendor-specific fields (optional for backward compatibility)
+    radius_km: v.optional(v.number()), // Delivery radius in km (default: 2)
+    delivery_profile: v.optional(
+      v.object({
+        base_prep_minutes: v.number(), // Base preparation time
+        max_parallel_orders: v.number(), // Max orders prepared simultaneously
+        buffer_minutes: v.number(), // Buffer time for delays
+        avg_rider_speed_kmph: v.number(), // Average rider speed
+      }),
+    ),
+    is_verified: v.optional(v.boolean()), // Admin verification status (optional for backward compatibility)
     is_active: v.boolean(),
     rating: v.optional(v.number()),
     total_orders: v.number(),
@@ -129,11 +144,13 @@ export default defineSchema({
   orders: defineTable({
     user_id: v.id("users"),
     shop_id: v.id("shops"),
+    rider_id: v.optional(v.id("riders")), // Assigned delivery rider
     order_number: v.string(),
     status: v.union(
       v.literal("pending"),
       v.literal("confirmed"),
       v.literal("preparing"),
+      v.literal("assigned_to_rider"), // New status for rider assignment
       v.literal("out_for_delivery"),
       v.literal("delivered"),
       v.literal("cancelled"),
@@ -177,6 +194,7 @@ export default defineSchema({
   })
     .index("by_user", ["user_id"])
     .index("by_shop", ["shop_id"])
+    .index("by_rider", ["rider_id"])
     .index("by_status", ["status"])
     .index("by_order_number", ["order_number"])
     .index("by_created_at", ["created_at"]),
@@ -300,6 +318,24 @@ export default defineSchema({
     .index("by_target", ["target_user_id"])
     .index("by_action", ["action"])
     .index("by_created_at", ["created_at"]),
+
+  // Riders table (Delivery partners) - linked to users
+  riders: defineTable({
+    rider_id: v.id("users"), // References users table
+    current_location: v.object({
+      lat: v.number(),
+      lon: v.number(),
+    }),
+    is_online: v.boolean(),
+    is_busy: v.boolean(),
+    assigned_order_id: v.optional(v.id("orders")),
+    updated_at: v.number(),
+    created_at: v.number(),
+  })
+    .index("by_rider", ["rider_id"])
+    .index("by_online", ["is_online"])
+    .index("by_busy", ["is_busy"])
+    .index("by_assigned_order", ["assigned_order_id"]),
 
   // Seller (Shopkeeper) registrations table
   seller_registrations: defineTable({

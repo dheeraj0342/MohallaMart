@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useQuery } from "convex/react"
 import { useParams } from "next/navigation"
 import Image from "next/image"
@@ -14,11 +14,12 @@ import { useToast } from "@/hooks/useToast"
 import { generateSlug } from "@/lib/utils"
 import ImageModal from "@/components/ImageModal"
 import ShopProductCard from "@/components/products/ShopCard"
+import { EtaBadge, type EtaInfo } from "@/components/products/EtaBadge"
 
 export default function ShopPage() {
   const params = useParams()
   const slug = params.slug as string
-  const { addToCart } = useStore()
+  const { addToCart, location } = useStore()
   const { success } = useToast()
 
   const [selectedImage, setSelectedImage] = useState<{
@@ -27,9 +28,50 @@ export default function ShopPage() {
     title?: string
   } | null>(null)
   const [sortBy, setSortBy] = useState<"popular" | "price_asc" | "price_desc" | "rating">("popular")
+  const [shopEta, setShopEta] = useState<EtaInfo | null>(null)
 
   const shop = useQuery(api.shops.getShopBySlug, { slug })
   const products = useQuery(api.products.getProductsByShop, shop ? { shop_id: shop._id, is_available: true } : "skip")
+
+  // Fetch ETA for the shop when shop and location are available
+  useEffect(() => {
+    if (!shop?._id || !location) return
+
+    // Location can be stored in two formats:
+    // 1. { coordinates: { lat, lng } } - nested format
+    // 2. { lat, lon } - flat format (from LocationModal)
+    const lat = (location as any)?.coordinates?.lat ?? (location as any)?.lat
+    const lng = (location as any)?.coordinates?.lng ?? (location as any)?.lon
+
+    if (!lat || !lng) return
+
+    const fetchShopEta = async () => {
+      try {
+        const response = await fetch(
+          `/api/vendors/nearby?userLat=${lat}&userLon=${lng}&radiusKm=2`
+        )
+        if (response.ok) {
+          const data = await response.json()
+          if (data.vendors && Array.isArray(data.vendors)) {
+            // Find the shop with matching ID
+            const vendor = data.vendors.find((v: any) => v.id === shop._id)
+            if (vendor?.eta) {
+              setShopEta(vendor.eta)
+            }
+          }
+        }
+      } catch (error) {
+        console.error("[ShopPage] Error fetching shop ETA:", error)
+      }
+    }
+
+    fetchShopEta()
+
+    // Refresh ETA every 2 minutes
+    const interval = setInterval(fetchShopEta, 120000)
+
+    return () => clearInterval(interval)
+  }, [shop?._id, location])
 
   const handleAddToCart = (product: {
     _id: string
@@ -241,6 +283,11 @@ export default function ShopPage() {
                         </span>
                       )}
 
+                      {/* ETA Badge */}
+                      {shopEta && (
+                        <EtaBadge shopId={shop._id} eta={shopEta} className="text-xs" />
+                      )}
+
                       {/* Active Status */}
                       {shop.is_active ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
@@ -260,6 +307,19 @@ export default function ShopPage() {
               <div className="w-full lg:w-80 space-y-4">
                 <Card className="border-border bg-card shadow-sm">
                   <CardContent className="p-4 space-y-3">
+                    {/* ETA Display */}
+                    {shopEta && (
+                      <div className="flex items-center gap-3 text-sm pb-2 border-b border-border">
+                        <Clock className="h-4 w-4 text-primary shrink-0" />
+                        <div className="flex-1">
+                          <span className="text-muted-foreground">Delivery Time</span>
+                          <div className="font-semibold text-foreground">
+                            {shopEta.minEta}-{shopEta.maxEta} mins
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     <a
                       href={mapsHref}
                       target="_blank"
@@ -370,6 +430,7 @@ export default function ShopPage() {
                         title: title ?? product.name,
                       })
                     }
+                    eta={shopEta || undefined}
                   />
                 ))}
               </div>

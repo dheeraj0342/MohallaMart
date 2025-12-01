@@ -6,6 +6,9 @@ import { withRetry } from "@/lib/retry";
 import { Eye, EyeOff, Mail, Lock, Loader2, User, Store } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useToast } from "@/hooks/useToast";
+import { useMutation } from "convex/react";
+import { api } from "@/../convex/_generated/api";
 
 interface ShopkeeperSignupFormProps {
   onSuccess?: () => void;
@@ -22,6 +25,8 @@ export default function ShopkeeperSignupForm({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { success, error: errorToast } = useToast();
+  const syncUser = useMutation(api.users.syncUserWithSupabase);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,18 +50,41 @@ export default function ShopkeeperSignupForm({
         setLoading(false);
         return;
       }
-      const { error } = await withRetry(() =>
+      const { data, error } = await withRetry(() =>
         supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: getEmailRedirectUrl(),
-            data: { full_name: fullName },
+            data: {
+              full_name: fullName,
+              role: "shop_owner", // Set role in user metadata
+            },
           },
         })
       );
-      if (error) setError(error.message);
-      else onSuccess?.();
+
+      if (error) {
+        setError(error.message);
+        errorToast(error.message);
+      } else if (data?.user) {
+        // Sync user to Convex with shop_owner role
+        try {
+          await syncUser({
+            supabaseUserId: data.user.id,
+            name: fullName || email.split("@")[0],
+            email: email,
+            phone: data.user.user_metadata?.phone,
+            avatar_url: data.user.user_metadata?.avatar_url,
+            role: "shop_owner", // Explicitly set role
+          });
+        } catch (syncError) {
+          console.error("Failed to sync user:", syncError);
+          // Continue anyway - sync can happen later
+        }
+        success("Account created! Please check your email to confirm your account.");
+        onSuccess?.();
+      }
     } catch {
       setError("An unexpected error occurred");
     } finally {

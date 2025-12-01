@@ -57,7 +57,7 @@ export const createOrder = mutation({
       updated_at: Date.now(),
     });
 
-    // Create order items for detailed tracking
+    // Create order items for detailed tracking and update stock
     for (const item of args.items) {
       await ctx.db.insert("order_items", {
         order_id: orderId,
@@ -66,6 +66,17 @@ export const createOrder = mutation({
         price: item.price,
         total_price: item.total_price,
       });
+
+      // Update product stock
+      const product = await ctx.db.get(item.product_id);
+      if (product) {
+        const newStock = Math.max(0, product.stock_quantity - item.quantity);
+        await ctx.db.patch(item.product_id, {
+          stock_quantity: newStock,
+          is_available: newStock > 0,
+          updated_at: Date.now(),
+        });
+      }
     }
 
     return orderId;
@@ -158,11 +169,13 @@ export const updateOrderStatus = mutation({
       v.literal("pending"),
       v.literal("confirmed"),
       v.literal("preparing"),
+      v.literal("assigned_to_rider"),
       v.literal("out_for_delivery"),
       v.literal("delivered"),
       v.literal("cancelled"),
     ),
     delivery_time: v.optional(v.string()),
+    rider_id: v.optional(v.id("riders")),
   },
   handler: async (ctx, args) => {
     const order = await ctx.db.get(args.id);
@@ -170,11 +183,20 @@ export const updateOrderStatus = mutation({
       throw new Error("Order not found");
     }
 
-    await ctx.db.patch(args.id, {
+    const updateData: any = {
       status: args.status,
-      ...(args.delivery_time && { delivery_time: args.delivery_time }),
       updated_at: Date.now(),
-    });
+    };
+
+    if (args.delivery_time) {
+      updateData.delivery_time = args.delivery_time;
+    }
+
+    if (args.rider_id) {
+      updateData.rider_id = args.rider_id;
+    }
+
+    await ctx.db.patch(args.id, updateData);
 
     return args.id;
   },
@@ -345,5 +367,15 @@ export const getRecentOrders = query({
     }
 
     return orders;
+  },
+});
+
+// Get all orders (for admin)
+export const getAllOrders = query({
+  args: {},
+  handler: async (ctx) => {
+    const orders = await ctx.db.query("orders").collect();
+    // Sort by created_at descending
+    return orders.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
   },
 });

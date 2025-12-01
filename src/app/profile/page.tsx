@@ -4,6 +4,36 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/../convex/_generated/api";
+import { useToast } from "@/hooks/useToast";
+import Link from "next/link";
+import {
+  User,
+  Mail,
+  Phone,
+  CheckCircle2,
+  Copy,
+  Loader2,
+  Settings,
+  Shield,
+  ShoppingCart,
+  Heart,
+  Star,
+  Save,
+  RotateCcw,
+  Lock,
+  Smartphone,
+  AlertTriangle,
+  Edit,
+  Share2,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 type DBUser = {
   _id: string;
@@ -21,13 +51,14 @@ export default function UserProfilePage() {
     user ? { id: user.id } : "skip",
   ) as DBUser | null | undefined;
   const updateUser = useMutation(api.users.updateUser);
+  const { success, error: errorToast } = useToast();
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [avatar, setAvatar] = useState("");
   const [saving, setSaving] = useState(false);
-  const [copied, setCopied] = useState<"email" | null>(null);
-  const [activeTab, setActiveTab] = useState<"profile" | "settings" | "security">("profile");
+  const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState("profile");
 
   useEffect(() => {
     if (dbUser) {
@@ -43,12 +74,20 @@ export default function UserProfilePage() {
     setSaving(true);
     try {
       await updateUser({ id: user.id, name, phone, avatar_url: avatar });
-      alert("Profile updated successfully");
-    } catch (error) {
-      alert("Failed to update profile");
-      console.error(error);
+      success("Profile updated successfully");
+    } catch (err) {
+      errorToast("Failed to update profile");
+      console.error(err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleReset = () => {
+    if (dbUser) {
+      setName(dbUser.name || "");
+      setPhone(dbUser.phone || "");
+      setAvatar(dbUser.avatar_url || "");
     }
   };
 
@@ -56,29 +95,30 @@ export default function UserProfilePage() {
     if (dbUser?.email) {
       try {
         await navigator.clipboard.writeText(dbUser.email);
-        setCopied("email");
-        setTimeout(() => setCopied(null), 2000);
+        setCopied(true);
+        success("Email copied to clipboard");
+        setTimeout(() => setCopied(false), 2000);
       } catch {
-        // ignore
+        errorToast("Failed to copy email");
       }
     }
   };
 
   if (user === null || dbUser === undefined) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[var(--neutral-50)] to-[var(--neutral-100)] flex items-center justify-center px-4">
-        <div className="bg-white border border-[var(--color-border)] rounded-2xl p-8 text-center max-w-md w-full shadow-lg">
-          <div className="text-6xl mb-6">🔐</div>
-          <h1 className="text-3xl font-bold text-[var(--neutral-900)] mb-3">
-            Sign In Required
-          </h1>
-          <p className="text-[var(--neutral-600)] mb-8 text-lg">
-            Please sign in to access and manage your profile.
-          </p>
-          <button className="w-full px-6 py-3 rounded-xl bg-[var(--primary-brand)] hover:bg-[var(--primary-hover)] text-white font-semibold transition-all duration-200 shadow-lg hover:shadow-xl">
-            Sign In
-          </button>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6 text-center">
+            <div className="text-6xl mb-6">🔐</div>
+            <CardTitle className="text-3xl mb-3">Sign In Required</CardTitle>
+            <CardDescription className="text-lg mb-8">
+              Please sign in to access and manage your profile.
+            </CardDescription>
+            <Button asChild className="w-full">
+              <Link href="/auth">Sign In</Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -88,29 +128,25 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--neutral-50)] to-[var(--neutral-100)]">
-      {/* Modern Header with Glass Effect */}
-      <div className="relative bg-gradient-to-r from-[var(--primary-brand)] via-[var(--primary-brand)]/90 to-[var(--secondary-brand)] text-white">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative container mx-auto px-4 py-16">
-          <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-background">
+      {/* Header Section */}
+      <div className="bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row items-center gap-8">
-              {/* Avatar Section */}
+              {/* Avatar */}
               <div className="relative">
-                <div className="h-32 w-32 rounded-3xl bg-white/20 border-4 border-white/30 overflow-hidden flex items-center justify-center backdrop-blur-sm shadow-2xl">
+                <Avatar className="h-32 w-32 border-4 border-white/30 shadow-2xl">
                   {avatar ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={avatar}
-                      alt="Avatar"
-                      className="h-full w-full object-cover"
-                    />
+                    <AvatarImage src={avatar} alt={name || "User"} />
                   ) : (
-                    <span className="text-6xl">👤</span>
+                    <AvatarFallback className="bg-white/20 text-white text-4xl">
+                      <User className="h-16 w-16" />
+                    </AvatarFallback>
                   )}
-                </div>
-                <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-[var(--success-bg-light)] border-4 border-white flex items-center justify-center">
-                  <span className="text-[var(--success-fg)] text-sm">✓</span>
+                </Avatar>
+                <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-[var(--success-bg-light)] dark:bg-[var(--success-bg-light)] border-4 border-white flex items-center justify-center">
+                  <CheckCircle2 className="h-4 w-4 text-[var(--success-fg)]" />
                 </div>
               </div>
 
@@ -123,19 +159,19 @@ export default function UserProfilePage() {
                   Welcome back! Manage your account and preferences
                 </p>
                 <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-sm font-medium">
-                    <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                    <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse mr-2" />
                     Active User
-                  </span>
-                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-sm font-medium">
-                    <span>📧</span>
+                  </Badge>
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                    <Mail className="h-3 w-3 mr-2" />
                     {dbUser?.email}
-                  </span>
+                  </Badge>
                   {phone && (
-                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-sm font-medium">
-                      <span>📱</span>
+                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                      <Phone className="h-3 w-3 mr-2" />
                       {phone}
-                    </span>
+                    </Badge>
                   )}
                 </div>
               </div>
@@ -145,286 +181,310 @@ export default function UserProfilePage() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="grid lg:grid-cols-4 gap-8">
-          {/* Sidebar Navigation */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6 shadow-sm sticky top-8">
-              <h3 className="text-lg font-bold text-[var(--neutral-900)] mb-4">Account</h3>
-              <nav className="space-y-2">
-                <button
-                  onClick={() => setActiveTab("profile")}
-                  className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 flex items-center gap-3 ${
-                    activeTab === "profile"
-                      ? "bg-[var(--primary-brand)] text-white shadow-lg"
-                      : "text-[var(--neutral-700)] hover:bg-[var(--neutral-50)]"
-                  }`}
-                >
-                  <span className="text-xl">👤</span>
-                  <span className="font-medium">Profile</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("settings")}
-                  className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 flex items-center gap-3 ${
-                    activeTab === "settings"
-                      ? "bg-[var(--primary-brand)] text-white shadow-lg"
-                      : "text-[var(--neutral-700)] hover:bg-[var(--neutral-50)]"
-                  }`}
-                >
-                  <span className="text-xl">⚙️</span>
-                  <span className="font-medium">Settings</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("security")}
-                  className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 flex items-center gap-3 ${
-                    activeTab === "security"
-                      ? "bg-[var(--primary-brand)] text-white shadow-lg"
-                      : "text-[var(--neutral-700)] hover:bg-[var(--neutral-50)]"
-                  }`}
-                >
-                  <span className="text-xl">🔒</span>
-                  <span className="font-medium">Security</span>
-                </button>
-              </nav>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-6xl">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Sidebar Navigation */}
+            <div className="lg:w-64 shrink-0">
+              <Card className="sticky top-8">
+                <CardHeader>
+                  <CardTitle>Account</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <TabsList className="flex flex-col w-full h-auto bg-transparent p-0 gap-2">
+                    <TabsTrigger
+                      value="profile"
+                      className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Profile
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="settings"
+                      className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Settings
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="security"
+                      className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                    >
+                      <Shield className="h-4 w-4 mr-2" />
+                      Security
+                    </TabsTrigger>
+                  </TabsList>
+                </CardContent>
+              </Card>
             </div>
-          </div>
 
-          {/* Main Content Area */}
-          <div className="lg:col-span-3">
-            {activeTab === "profile" && (
-              <div className="space-y-6">
-                {/* Profile Overview Card */}
-                <div className="bg-white rounded-2xl border border-[var(--color-border)] p-8 shadow-sm">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-[var(--neutral-900)]">Profile Overview</h2>
-                    <div className="flex gap-3">
-                      <button className="px-4 py-2 rounded-lg border border-[var(--color-border)] text-[var(--neutral-700)] hover:bg-[var(--neutral-50)] transition">
-                        📤 Share
-                      </button>
-                      <button className="px-4 py-2 rounded-lg bg-[var(--primary-brand)] text-white hover:bg-[var(--primary-hover)] transition">
-                        ✏️ Edit
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-[var(--neutral-700)] mb-2">
-                          Full Name
-                        </label>
-                        <div className="p-4 bg-[var(--neutral-50)] rounded-xl border border-[var(--color-border)]">
-                          <span className="text-[var(--neutral-900)] font-medium">{name || "Not set"}</span>
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-[var(--neutral-700)] mb-2">
-                          Phone Number
-                        </label>
-                        <div className="p-4 bg-[var(--neutral-50)] rounded-xl border border-[var(--color-border)]">
-                          <span className="text-[var(--neutral-900)] font-medium">{phone || "Not set"}</span>
-                        </div>
+            {/* Main Content Area */}
+            <div className="flex-1">
+              <TabsContent value="profile" className="space-y-6 mt-0">
+                {/* Profile Overview */}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Profile Overview</CardTitle>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">
+                          <Share2 className="h-4 w-4 mr-2" />
+                          Share
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setActiveTab("settings")}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </Button>
                       </div>
                     </div>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-[var(--neutral-700)] mb-2">
-                          Email Address
-                        </label>
-                        <div className="p-4 bg-[var(--neutral-50)] rounded-xl border border-[var(--color-border)] flex items-center justify-between">
-                          <span className="text-[var(--neutral-900)] font-medium">{dbUser?.email}</span>
-                          <button
-                            onClick={copyEmail}
-                            className="px-3 py-1 rounded-lg bg-white hover:bg-[var(--neutral-100)] border border-[var(--color-border)] text-sm transition"
-                          >
-                            {copied === "email" ? "✓ Copied" : "📋 Copy"}
-                          </button>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <Label className="text-sm font-semibold mb-2">Full Name</Label>
+                          <div className="p-4 bg-muted rounded-xl border border-border">
+                            <span className="text-foreground font-medium">{name || "Not set"}</span>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-semibold mb-2">Phone Number</Label>
+                          <div className="p-4 bg-muted rounded-xl border border-border">
+                            <span className="text-foreground font-medium">{phone || "Not set"}</span>
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-[var(--neutral-700)] mb-2">
-                          Account Status
-                        </label>
-                        <div className="p-4 bg-[var(--success-bg-light)] rounded-xl border border-[var(--success-fg)]/20">
-                          <span className="text-[var(--success-fg)] font-medium flex items-center gap-2">
-                            <span className="h-2 w-2 rounded-full bg-[var(--success-fg)] animate-pulse"></span>
-                            Active & Verified
-                          </span>
+                      <div className="space-y-4">
+                        <div>
+                          <Label className="text-sm font-semibold mb-2">Email Address</Label>
+                          <div className="p-4 bg-muted rounded-xl border border-border flex items-center justify-between">
+                            <span className="text-foreground font-medium">{dbUser?.email}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={copyEmail}
+                              className="h-8"
+                            >
+                              {copied ? (
+                                <>
+                                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                                  Copied
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="h-4 w-4 mr-2" />
+                                  Copy
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-semibold mb-2">Account Status</Label>
+                          <div className="p-4 bg-[var(--success-bg-light)] dark:bg-[var(--success-bg-light)] rounded-xl border border-[var(--success-fg)]/20">
+                            <span className="text-[var(--success-fg)] font-medium flex items-center gap-2">
+                              <div className="h-2 w-2 rounded-full bg-[var(--success-fg)] animate-pulse" />
+                              Active & Verified
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
                 {/* Quick Stats */}
                 <div className="grid md:grid-cols-3 gap-6">
-                  <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6 shadow-sm text-center">
-                    <div className="text-3xl mb-2">🛒</div>
-                    <div className="text-2xl font-bold text-[var(--neutral-900)] mb-1">0</div>
-                    <div className="text-sm text-[var(--neutral-600)]">Total Orders</div>
-                  </div>
-                  <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6 shadow-sm text-center">
-                    <div className="text-3xl mb-2">❤️</div>
-                    <div className="text-2xl font-bold text-[var(--neutral-900)] mb-1">0</div>
-                    <div className="text-sm text-[var(--neutral-600)]">Wishlist Items</div>
-                  </div>
-                  <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6 shadow-sm text-center">
-                    <div className="text-3xl mb-2">⭐</div>
-                    <div className="text-2xl font-bold text-[var(--neutral-900)] mb-1">—</div>
-                    <div className="text-sm text-[var(--neutral-600)]">Average Rating</div>
-                  </div>
+                  <Card>
+                    <CardContent className="pt-6 text-center">
+                      <ShoppingCart className="h-8 w-8 mx-auto mb-2 text-primary" />
+                      <div className="text-2xl font-bold text-foreground mb-1">0</div>
+                      <div className="text-sm text-muted-foreground">Total Orders</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-6 text-center">
+                      <Heart className="h-8 w-8 mx-auto mb-2 text-primary" />
+                      <div className="text-2xl font-bold text-foreground mb-1">0</div>
+                      <div className="text-sm text-muted-foreground">Wishlist Items</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-6 text-center">
+                      <Star className="h-8 w-8 mx-auto mb-2 text-primary" />
+                      <div className="text-2xl font-bold text-foreground mb-1">—</div>
+                      <div className="text-sm text-muted-foreground">Average Rating</div>
+                    </CardContent>
+                  </Card>
                 </div>
-              </div>
-            )}
+              </TabsContent>
 
-            {activeTab === "settings" && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl border border-[var(--color-border)] p-8 shadow-sm">
-                  <h2 className="text-2xl font-bold text-[var(--neutral-900)] mb-6">Edit Profile</h2>
-                  
-                  <form onSubmit={onSave} className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-semibold text-[var(--neutral-700)] mb-2">
-                          Full Name
-                        </label>
-                        <input
-                          type="text"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder="Enter your full name"
-                          className="w-full px-4 py-3 border-2 border-[var(--color-border)] rounded-xl focus:outline-none focus:border-[var(--primary-brand)] focus:ring-2 focus:ring-[var(--primary-brand)]/10 transition bg-white text-[var(--neutral-900)]"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-[var(--neutral-700)] mb-2">
-                          Phone Number
-                        </label>
-                        <input
-                          type="tel"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          placeholder="+91 XXXXX XXXXX"
-                          className="w-full px-4 py-3 border-2 border-[var(--color-border)] rounded-xl focus:outline-none focus:border-[var(--primary-brand)] focus:ring-2 focus:ring-[var(--primary-brand)]/10 transition bg-white text-[var(--neutral-900)]"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-[var(--neutral-700)] mb-2">
-                        Avatar URL
-                      </label>
-                      <input
-                        type="url"
-                        value={avatar}
-                        onChange={(e) => setAvatar(e.target.value)}
-                        placeholder="https://example.com/avatar.png"
-                        className="w-full px-4 py-3 border-2 border-[var(--color-border)] rounded-xl focus:outline-none focus:border-[var(--primary-brand)] focus:ring-2 focus:ring-[var(--primary-brand)]/10 transition bg-white text-[var(--neutral-900)]"
-                      />
-                      {avatar && (
-                        <div className="mt-4 p-4 bg-[var(--neutral-50)] rounded-xl flex items-center gap-4 border border-[var(--color-border)]">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={avatar}
-                            alt="Avatar Preview"
-                            className="h-16 w-16 rounded-xl object-cover"
+              <TabsContent value="settings" className="space-y-6 mt-0">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Edit Profile</CardTitle>
+                    <CardDescription>
+                      Update your personal information and preferences
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={onSave} className="space-y-6">
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="name">Full Name</Label>
+                          <Input
+                            id="name"
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Enter your full name"
                           />
-                          <div>
-                            <div className="text-sm text-[var(--neutral-600)] font-semibold">Preview</div>
-                            <div className="text-sm text-[var(--neutral-900)] font-medium truncate max-w-xs">
-                              {avatar}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone">Phone Number</Label>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder="+91 XXXXX XXXXX"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="avatar">Avatar URL</Label>
+                        <Input
+                          id="avatar"
+                          type="url"
+                          value={avatar}
+                          onChange={(e) => setAvatar(e.target.value)}
+                          placeholder="https://example.com/avatar.png"
+                        />
+                        {avatar && (
+                          <div className="mt-4 p-4 bg-muted rounded-xl flex items-center gap-4 border border-border">
+                            <Avatar className="h-16 w-16">
+                              <AvatarImage src={avatar} alt="Avatar Preview" />
+                              <AvatarFallback>
+                                <User className="h-8 w-8" />
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="text-sm font-semibold text-muted-foreground">Preview</div>
+                              <div className="text-sm font-medium text-foreground truncate max-w-xs">
+                                {avatar}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="pt-6 border-t border-[var(--color-border)] flex gap-4">
-                      <button
-                        type="submit"
-                        disabled={saving}
-                        className="flex-1 px-6 py-3 rounded-xl bg-[var(--primary-brand)] hover:bg-[var(--primary-hover)] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
-                      >
-                        {saving ? (
-                          <>
-                            <span className="animate-spin">⏳</span>
-                            Saving…
-                          </>
-                        ) : (
-                          <>
-                            <span>💾</span>
-                            Save Changes
-                          </>
                         )}
-                      </button>
-                      <button
-                        type="button"
-                        className="px-6 py-3 rounded-xl border-2 border-[var(--color-border)] hover:bg-[var(--neutral-50)] text-[var(--neutral-900)] font-semibold transition"
-                      >
-                        🔄 Reset
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
+                      </div>
 
-            {activeTab === "security" && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl border border-[var(--color-border)] p-8 shadow-sm">
-                  <h2 className="text-2xl font-bold text-[var(--neutral-900)] mb-6">Security Settings</h2>
-                  
-                  <div className="space-y-6">
-                    <div className="p-6 bg-[var(--info-bg-light)] rounded-xl border border-[var(--info-fg)]/20">
+                      <Separator />
+
+                      <div className="flex gap-4">
+                        <Button
+                          type="submit"
+                          disabled={saving}
+                          className="flex-1"
+                        >
+                          {saving ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Saving…
+                            </>
+                          ) : (
+                            <>
+                              <Save className="h-4 w-4 mr-2" />
+                              Save Changes
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleReset}
+                        >
+                          <RotateCcw className="h-4 w-4 mr-2" />
+                          Reset
+                        </Button>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="security" className="space-y-6 mt-0">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Security Settings</CardTitle>
+                    <CardDescription>
+                      Manage your account security and privacy settings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="p-6 bg-[var(--info-bg-light)] dark:bg-[var(--info-bg-light)] rounded-xl border border-[var(--info-fg)]/20">
                       <div className="flex items-start gap-4">
-                        <span className="text-2xl">🔐</span>
-                        <div>
-                          <h3 className="font-semibold text-[var(--info-fg)] text-lg mb-2">Password Security</h3>
-                          <p className="text-[var(--neutral-700)] mb-4">
+                        <Lock className="h-6 w-6 text-[var(--info-fg)] mt-1" />
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-[var(--info-fg)] text-lg mb-2">
+                            Password Security
+                          </h3>
+                          <p className="text-muted-foreground mb-4">
                             Keep your account secure with a strong password. Change it regularly for better security.
                           </p>
-                          <button className="px-4 py-2 rounded-lg bg-[var(--info-fg)] text-white hover:bg-[var(--info-fg)]/90 transition">
+                          <Button variant="outline" size="sm" className="bg-[var(--info-fg)] text-white hover:bg-[var(--info-fg)]/90 border-[var(--info-fg)]">
                             Change Password
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-6 bg-[var(--warning-bg-light)] rounded-xl border border-[var(--warning-fg)]/20">
+                    <div className="p-6 bg-[var(--warning-bg-light)] dark:bg-[var(--warning-bg-light)] rounded-xl border border-[var(--warning-fg)]/20">
                       <div className="flex items-start gap-4">
-                        <span className="text-2xl">📱</span>
-                        <div>
-                          <h3 className="font-semibold text-[var(--warning-fg)] text-lg mb-2">Two-Factor Authentication</h3>
-                          <p className="text-[var(--neutral-700)] mb-4">
+                        <Smartphone className="h-6 w-6 text-[var(--warning-fg)] mt-1" />
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-[var(--warning-fg)] text-lg mb-2">
+                            Two-Factor Authentication
+                          </h3>
+                          <p className="text-muted-foreground mb-4">
                             Add an extra layer of security to your account with 2FA.
                           </p>
-                          <button className="px-4 py-2 rounded-lg bg-[var(--warning-fg)] text-white hover:bg-[var(--warning-fg)]/90 transition">
+                          <Button variant="outline" size="sm" className="bg-[var(--warning-fg)] text-white hover:bg-[var(--warning-fg)]/90 border-[var(--warning-fg)]">
                             Enable 2FA
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-6 bg-[var(--error-bg-light)] rounded-xl border border-[var(--error-fg)]/20">
+                    <div className="p-6 bg-[var(--error-bg-light)] dark:bg-[var(--error-bg-light)] rounded-xl border border-[var(--error-fg)]/20">
                       <div className="flex items-start gap-4">
-                        <span className="text-2xl">⚠️</span>
-                        <div>
-                          <h3 className="font-semibold text-[var(--error-fg)] text-lg mb-2">Danger Zone</h3>
-                          <p className="text-[var(--neutral-700)] mb-4">
+                        <AlertTriangle className="h-6 w-6 text-[var(--error-fg)] mt-1" />
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-[var(--error-fg)] text-lg mb-2">
+                            Danger Zone
+                          </h3>
+                          <p className="text-muted-foreground mb-4">
                             Permanently delete your account and all associated data.
                           </p>
-                          <button className="px-4 py-2 rounded-lg bg-(--error-fg) text-white hover:bg-[var(--error-fg)]/90 transition">
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                          >
                             Delete Account
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-            )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </div>
           </div>
-        </div>
+        </Tabs>
       </div>
     </div>
   );

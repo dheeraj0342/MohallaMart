@@ -7,6 +7,8 @@ import { Eye, EyeOff, Mail, Lock, Loader2, Store } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
+import { useMutation } from "convex/react";
+import { api } from "@/../convex/_generated/api";
 
 interface ShopkeeperLoginFormProps {
   onSuccess?: () => void;
@@ -20,7 +22,8 @@ export default function ShopkeeperLoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const {} = useToast();
+  const { success, error: errorToast } = useToast();
+  const syncUser = useMutation(api.users.syncUserWithSupabase);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,19 +41,39 @@ export default function ShopkeeperLoginForm({
         setLoading(false);
         return;
       }
-      const { error } = await withRetry(() =>
+      const { data, error } = await withRetry(() =>
         supabase.auth.signInWithPassword({
           email,
           password,
         })
       );
+
       if (error) {
         setError(error.message);
+        errorToast(error.message);
         setLoading(false);
-      } else {
-        // Immediately redirect without waiting
-        onSuccess?.();
-        // Don't set loading to false here - let redirect happen
+      } else if (data?.user) {
+        // Sync user to Convex with shop_owner role (if not already set)
+        try {
+          await syncUser({
+            supabaseUserId: data.user.id,
+            name: data.user.user_metadata?.full_name ||
+              data.user.user_metadata?.name ||
+              email.split("@")[0],
+            email: data.user.email!,
+            phone: data.user.user_metadata?.phone,
+            avatar_url: data.user.user_metadata?.avatar_url,
+            role: "shop_owner", // Ensure role is set
+          });
+        } catch (syncError) {
+          console.error("Failed to sync user:", syncError);
+          // Continue anyway - sync can happen later
+        }
+        success("Welcome back! Redirecting...");
+        // Small delay to ensure user is synced
+        setTimeout(() => {
+          onSuccess?.();
+        }, 500);
       }
     } catch {
       setError("An unexpected error occurred");
