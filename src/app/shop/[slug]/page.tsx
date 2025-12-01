@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
 import { useStore } from "@/store/useStore"
 import { useToast } from "@/hooks/useToast"
+import { generateSlug } from "@/lib/utils"
 import ImageModal from "@/components/ImageModal"
 
 export default function ShopPage() {
@@ -453,6 +454,16 @@ export default function ShopPage() {
                         ) : (
                           <span className="text-red-500 font-medium">Out of Stock</span>
                         )}
+                      </div>
+
+                      {/* View Details Link */}
+                      <div className="mt-3">
+                        <a
+                          href={`/product/${generateSlug(product.name)}`}
+                          className="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:underline"
+                        >
+                          View details
+                        </a>
                       </div>
 
                       {/* Add to Cart */}

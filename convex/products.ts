@@ -52,6 +52,29 @@ export const getProduct = query({
   },
 });
 
+// Get product by slug (generated from name)
+export const getProductBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args) => {
+    const products = await ctx.db
+      .query("products")
+      .filter((q) => q.eq(q.field("is_available"), true))
+      .collect();
+
+    const generateSlug = (text: string): string => {
+      return text
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/[\s_-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    };
+
+    const product = products.find((p) => generateSlug(p.name) === args.slug);
+    return product || null;
+  },
+});
+
 // Get products by shop
 export const getProductsByShop = query({
   args: {

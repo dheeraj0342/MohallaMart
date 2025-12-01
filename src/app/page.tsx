@@ -1,9 +1,7 @@
 "use client";
 import {
   HeroSection,
-  FeaturesSection,
-  CTASection,
-  AboutSection,
+  CoreInfoSection,
   NearbyStoresSection,
   TopRatedProductsSection,
 } from "@/components/sections";
@@ -15,9 +13,7 @@ export default function HomePage() {
         <HeroSection />
         <NearbyStoresSection />
         <TopRatedProductsSection />
-        <FeaturesSection />
-        <CTASection />
-        <AboutSection />
+        <CoreInfoSection />
       </main>
     </div>
   );
