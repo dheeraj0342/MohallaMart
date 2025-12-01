@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchMutation } from "convex/nextjs";
+import { fetchMutation, fetchQuery } from "convex/nextjs";
 import { api } from "@/../../convex/_generated/api";
+import { haversineDistanceKm } from "@/lib/distance";
+import { calculateEtaMinutes, DEFAULT_STORE_PROFILE } from "@/lib/eta";
+import { isPeakHour } from "@/lib/time";
 
 /**
  * POST /api/order/create
- * Create a new order (rider assignment is done manually by shopkeeper)
+ * Create a new order with stock validation, ETA calculation, and tracking URL
+ * 
+ * Returns: { orderId, trackingUrl, eta: { minEta, maxEta } }
  */
 export async function POST(request: NextRequest) {
   try {
@@ -22,7 +27,81 @@ export async function POST(request: NextRequest) {
       notes,
     } = body;
 
-    // Create order
+    // 1. Validate stock availability
+    const productIds = items.map((item: { product_id: string }) => item.product_id);
+    const products = await fetchQuery(api.products.getProducts, { ids: productIds as any });
+
+    for (const item of items) {
+      const product = products.find((p) => p._id === item.product_id);
+      if (!product) {
+        return NextResponse.json(
+          { error: `Product ${item.name} not found` },
+          { status: 404 }
+        );
+      }
+      if (!product.is_available) {
+        return NextResponse.json(
+          { error: `Product ${item.name} is currently unavailable` },
+          { status: 400 }
+        );
+      }
+      if (product.stock_quantity < item.quantity) {
+        return NextResponse.json(
+          { error: `Insufficient stock for ${item.name}. Available: ${product.stock_quantity}, Requested: ${item.quantity}` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // 2. Get shop details for ETA calculation
+    const shop = await fetchQuery(api.shops.getShop, { id: shop_id as any });
+    if (!shop) {
+      return NextResponse.json(
+        { error: "Shop not found" },
+        { status: 404 }
+      );
+    }
+
+    // 3. Calculate ETA if delivery address has coordinates
+    let eta = null;
+    if (delivery_address?.coordinates && shop.address?.coordinates) {
+      const distanceKm = haversineDistanceKm(
+        shop.address.coordinates.lat,
+        shop.address.coordinates.lng,
+        delivery_address.coordinates.lat,
+        delivery_address.coordinates.lng
+      );
+
+      // Get pending orders count for this shop
+      const pendingOrders = await fetchQuery(api.orders.getOrdersByShop, {
+        shop_id: shop_id as any,
+        status: "pending",
+      });
+
+      // Convert shop delivery_profile to StoreDeliveryProfile format
+      const storeProfile = shop.delivery_profile
+        ? {
+            basePrepMinutes: shop.delivery_profile.base_prep_minutes,
+            maxParallelOrders: shop.delivery_profile.max_parallel_orders,
+            bufferMinutes: shop.delivery_profile.buffer_minutes,
+            avgRiderSpeedKmph: shop.delivery_profile.avg_rider_speed_kmph,
+          }
+        : DEFAULT_STORE_PROFILE;
+
+      const etaResult = calculateEtaMinutes({
+        storeProfile,
+        distanceKm,
+        currentPendingOrders: pendingOrders?.length || 0,
+        isPeakHour: isPeakHour(),
+      });
+
+      eta = {
+        minEta: etaResult.minEta,
+        maxEta: etaResult.maxEta,
+      };
+    }
+
+    // 4. Create order (stock deduction happens in mutation)
     const orderId = await fetchMutation(api.orders.createOrder, {
       user_id: user_id as any,
       shop_id: shop_id as any,
@@ -36,8 +115,16 @@ export async function POST(request: NextRequest) {
       notes,
     });
 
-    // Note: Rider assignment is done manually by shopkeeper from their dashboard
-    // Order is created with status "pending" and shopkeeper will accept and assign rider
+    // 5. Generate tracking URL
+    const trackingUrl = `/track/${orderId}`;
+
+    return NextResponse.json({
+      success: true,
+      orderId,
+      trackingUrl,
+      eta,
+      message: "Order created successfully. Awaiting shopkeeper acceptance.",
+    });
   } catch (err: any) {
     console.error("[Order Create] Error:", err);
     return NextResponse.json(

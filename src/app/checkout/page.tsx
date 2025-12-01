@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/store/useStore";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,11 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/useToast";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
-import { Loader2, MapPin, CreditCard } from "lucide-react";
+import { Loader2, MapPin, CreditCard, Clock } from "lucide-react";
 import LocationModal from "@/components/LocationModal";
-import { useMemo } from "react";
 
 /**
  * Checkout Page
@@ -28,7 +27,6 @@ export default function CheckoutPage() {
   const cart = useStore((state) => state.cart);
   const location = useStore((state) => state.location);
   const clearCart = useStore((state) => state.clearCart);
-  const createOrder = useMutation(api.orders.createOrder);
 
   const [street, setStreet] = useState("");
   const [city, setCity] = useState("");
@@ -38,6 +36,7 @@ export default function CheckoutPage() {
   const [notes, setNotes] = useState("");
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [eta, setEta] = useState<{ minEta: number; maxEta: number } | null>(null);
 
   const { subtotal, totalItems } = useMemo(() => {
     const sub = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -61,10 +60,45 @@ export default function CheckoutPage() {
   // Get shop ID from first product (assuming all items are from same shop)
   const shopId = products && products.length > 0 ? products[0].shop_id : null;
 
+  // Get user ID from Convex
+  const dbUser = useQuery(
+    api.users.getUserByEmail,
+    user?.email ? { email: user.email } : "skip"
+  );
+
+  // Get shop details for ETA preview
+  const shop = shopId ? useQuery(api.shops.getShop, { id: shopId as any }) : null;
+
+  // Calculate ETA preview when location and shop are available
+  useEffect(() => {
+    if (!location?.coordinates || !shop?.address?.coordinates) {
+      setEta(null);
+      return;
+    }
+
+    // Simple ETA preview (full calculation happens in API)
+    const distanceKm = Math.sqrt(
+      Math.pow(location.coordinates.lat - shop.address.coordinates.lat, 2) +
+      Math.pow(location.coordinates.lng - shop.address.coordinates.lng, 2)
+    ) * 111; // Rough conversion to km
+
+    // Simple estimate: 5 min prep + 3 min/km travel
+    const estimatedMinutes = Math.round(5 + distanceKm * 3);
+    setEta({
+      minEta: Math.max(10, estimatedMinutes - 5),
+      maxEta: estimatedMinutes + 5,
+    });
+  }, [location, shop]);
+
   const handlePlaceOrder = async () => {
     if (!user) {
       error("Please login to place order");
       router.push("/auth?next=/checkout");
+      return;
+    }
+
+    if (!dbUser) {
+      error("User not found. Please try again.");
       return;
     }
 
@@ -78,42 +112,55 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!location?.coordinates) {
+      error("Please select a delivery location on the map");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // TODO: Get user ID from Convex
-      const userId = user.id as any; // This should be Convex user ID
-
-      const orderId = await createOrder({
-        user_id: userId,
-        shop_id: shopId as any,
-        items: cart.map((item) => ({
-          product_id: item.id as any,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          total_price: item.price * item.quantity,
-        })),
-        subtotal,
-        delivery_fee: deliveryFee,
-        tax,
-        total_amount: payableAmount,
-        delivery_address: {
-          street,
-          city,
-          pincode,
-          state,
-          coordinates: location?.coordinates
-            ? { lat: location.coordinates.lat, lng: location.coordinates.lng }
-            : undefined,
-        },
-        payment_method: paymentMethod,
-        notes: notes || undefined,
+      const response = await fetch("/api/order/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: dbUser._id,
+          shop_id: shopId,
+          items: cart.map((item) => ({
+            product_id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            total_price: item.price * item.quantity,
+          })),
+          subtotal,
+          delivery_fee: deliveryFee,
+          tax,
+          total_amount: payableAmount,
+          delivery_address: {
+            street,
+            city,
+            pincode,
+            state,
+            coordinates: {
+              lat: location.coordinates.lat,
+              lng: location.coordinates.lng,
+            },
+          },
+          payment_method: paymentMethod,
+          notes: notes || undefined,
+        }),
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to place order");
+      }
 
       success("Order placed successfully!");
       clearCart();
-      router.push(`/track/${orderId}`);
+      router.push(data.trackingUrl || `/track/${data.orderId}`);
     } catch (err: any) {
       error(err.message || "Failed to place order");
     } finally {
@@ -276,11 +323,19 @@ export default function CheckoutPage() {
                     <span>₹{payableAmount.toFixed(2)}</span>
                   </div>
                 </div>
+                {eta && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-4">
+                    <Clock className="h-4 w-4" />
+                    <span>
+                      Estimated delivery: {eta.minEta}-{eta.maxEta} minutes
+                    </span>
+                  </div>
+                )}
                 <Button
                   className="w-full"
                   size="lg"
                   onClick={handlePlaceOrder}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !location?.coordinates}
                 >
                   {isSubmitting ? (
                     <>
