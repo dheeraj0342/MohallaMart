@@ -45,6 +45,20 @@ export default defineSchema({
         }),
       ),
     }),
+    location: v.optional(
+      v.object({
+        lat: v.number(),
+        lon: v.number(),
+        accuracy: v.number(),
+        snapped: v.boolean(),
+        source: v.string(), // "gps", "gps+snap", "gps+snap+manual"
+        addressText: v.string(),
+        road: v.optional(v.string()),
+        suburb: v.optional(v.string()),
+        city: v.optional(v.string()),
+        postcode: v.optional(v.string()),
+      }),
+    ),
     contact: v.object({
       phone: v.string(),
       email: v.optional(v.string()),

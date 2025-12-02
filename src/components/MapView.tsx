@@ -73,8 +73,8 @@ export default function MapView({ position, defaultCenter, onPositionChange }: M
   // Only render on client side
   if (typeof window === "undefined") {
     return (
-      <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-gray-800">
-        <p className="text-gray-500">Loading map...</p>
+      <div className="flex items-center justify-center h-full bg-muted">
+        <p className="text-muted-foreground">Loading map...</p>
       </div>
     );
   }

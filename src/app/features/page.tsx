@@ -35,9 +35,9 @@ const featureData: FeatureCategory[] = [
       { name: "Delivery ETA System", status: "implemented", description: "Blinkit-style ETA calculation with distance, peak hours, and store capacity" },
       { name: "Notifications", status: "implemented", description: "In-app notifications with bell icon, real-time updates via Convex, email/SMS placeholders" },
       { name: "Delivery Address Management", status: "implemented", description: "Location selection with Leaflet map, address form, and geocoding" },
-      { name: "Order History", status: "pending", description: "View past orders with filters" },
+      { name: "Order History", status: "implemented", description: "Orders page with filters by status, shop, and date range, plus detailed order view" },
+      { name: "Product Reviews & Ratings", status: "implemented", description: "Per-product reviews with star rating, verified purchase badge, and average rating display" },
       { name: "Wishlist/Favorites", status: "pending", description: "Save favorite products/shops" },
-      { name: "Product Reviews & Ratings", status: "pending", description: "Rate and review products" },
     ],
   },
   {

@@ -133,6 +133,9 @@ export const getOrdersByUser = query({
         v.literal("cancelled"),
       ),
     ),
+    shop_id: v.optional(v.id("shops")),
+    startDate: v.optional(v.number()),
+    endDate: v.optional(v.number()),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -144,13 +147,46 @@ export const getOrdersByUser = query({
       query = query.filter((q) => q.eq(q.field("status"), args.status));
     }
 
-    const orders = await query.order("desc").collect();
-
-    if (args.limit) {
-      return orders.slice(0, args.limit);
+    if (args.shop_id) {
+      query = query.filter((q) => q.eq(q.field("shop_id"), args.shop_id));
     }
 
-    return orders;
+    if (args.startDate) {
+      query = query.filter((q) => q.gte(q.field("created_at"), args.startDate!));
+    }
+
+    if (args.endDate) {
+      query = query.filter((q) => q.lte(q.field("created_at"), args.endDate!));
+    }
+
+    const orders = await query.order("desc").collect();
+
+    const shopIds = Array.from(new Set(orders.map((order) => order.shop_id)));
+    const shopMap = new Map<string, any>();
+
+    for (const shopId of shopIds) {
+      const shop = await ctx.db.get(shopId);
+      if (shop) {
+        shopMap.set(shopId, {
+          _id: shop._id,
+          name: shop.name,
+          logo_url: shop.logo_url,
+          address: shop.address,
+        });
+      }
+    }
+
+    if (args.limit) {
+      return orders.slice(0, args.limit).map((order) => ({
+        ...order,
+        shop: shopMap.get(order.shop_id) || null,
+      }));
+    }
+
+    return orders.map((order) => ({
+      ...order,
+      shop: shopMap.get(order.shop_id) || null,
+    }));
   },
 });
 

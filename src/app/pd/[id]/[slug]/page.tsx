@@ -7,6 +7,7 @@ import { api } from "@/../../convex/_generated/api"
 import type { Id } from "@/../../convex/_generated/dataModel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 import { Loader2, Package, ShoppingCart, Heart, Star } from "lucide-react"
 import { useStore } from "@/store/useStore"
 import { useToast } from "@/hooks/useToast"
@@ -15,12 +16,14 @@ import { type Product } from "@/components/products/ProductCard"
 import { RelatedProductsRow } from "@/components/products/RelatedProductsRow"
 import ImageModal from "@/components/ImageModal"
 import { EtaBadge, type EtaInfo } from "@/components/products/EtaBadge"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function ProductPdPage() {
   const params = useParams()
   const idParam = params.id as string
   const slug = params.slug as string
   const { addToCart, location } = useStore()
+  const { user } = useAuth()
   const { success } = useToast()
   const [qty, setQty] = useState<number>(1)
   const [grade, setGrade] = useState<string>("Standard")
@@ -28,6 +31,20 @@ export default function ProductPdPage() {
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [productEta, setProductEta] = useState<EtaInfo | null>(null)
+  const [reviews, setReviews] = useState<
+    Array<{
+      _id: string
+      user?: { name?: string | null }
+      rating: number
+      comment?: string
+      created_at: number
+      is_verified?: boolean
+    }>
+  >([])
+  const [reviewRating, setReviewRating] = useState<number>(0)
+  const [reviewText, setReviewText] = useState<string>("")
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false)
+  const [canReview, setCanReview] = useState<boolean>(false)
 
 
   const isValidConvexId = typeof idParam === "string" && /^[a-z0-9]{20,}$/i.test(idParam)
@@ -45,6 +62,32 @@ export default function ProductPdPage() {
     is_available: true,
     limit: 60,
   })
+
+  // Fetch reviews for this product
+  useEffect(() => {
+    if (!product?._id) return
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch(`/api/reviews/product?productId=${product._id}`)
+        if (res.ok) {
+          const data = await res.json()
+          setReviews(data.reviews || [])
+        }
+      } catch (err) {
+        console.error("[ProductDetailPage] Failed to load reviews", err)
+      }
+    }
+    fetchReviews()
+  }, [product?._id])
+
+  // Simple eligibility check (backend also enforces purchase requirement)
+  useEffect(() => {
+    if (!user || !product?._id) {
+      setCanReview(false)
+      return
+    }
+    setCanReview(true)
+  }, [user, product?._id])
 
   // Fetch ETA for the product's shop when product and location are available
   useEffect(() => {
@@ -105,6 +148,57 @@ export default function ProductPdPage() {
       grade,
     })
     success(`${p.name} added to cart!`)
+  }
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!product?._id || !user || reviewRating < 1 || reviewRating > 5) return
+
+    try {
+      setIsSubmittingReview(true)
+
+      const { supabase } = await import("@/lib/supabase")
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+      if (!accessToken) {
+        throw new Error("You must be logged in to submit a review")
+      }
+
+      const res = await fetch("/api/reviews/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          productId: product._id,
+          rating: reviewRating,
+          reviewText,
+        }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || "Failed to submit review")
+      }
+
+      const refreshed = await fetch(`/api/reviews/product?productId=${product._id}`)
+      if (refreshed.ok) {
+        const data = await refreshed.json()
+        setReviews(data.reviews || [])
+      }
+
+      setReviewRating(0)
+      setReviewText("")
+      success("Review submitted successfully")
+    } catch (err) {
+      console.error("[ProductDetailPage] Submit review error:", err)
+    } finally {
+      setIsSubmittingReview(false)
+    }
   }
 
   if (productById === undefined || productBySlug === undefined) {
@@ -269,10 +363,13 @@ export default function ProductPdPage() {
               </CardTitle>
               {/* Ratings + meta */}
               <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                {product.rating && (
+                {typeof product.rating === "number" && product.rating > 0 && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 font-medium text-foreground">
                     <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                     {product.rating.toFixed(1)}
+                    <span className="text-[10px] text-muted-foreground">
+                      ({reviews.length} review{reviews.length === 1 ? "" : "s"})
+                    </span>
                   </span>
                 )}
                 {productEta && (
@@ -388,8 +485,137 @@ export default function ProductPdPage() {
           </Card>
         </div>
 
-        {/* Related sections */}
+        {/* Reviews & related sections */}
         <div className="mt-10 space-y-10">
+          {/* Reviews */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-4">
+              <Card className="border-border bg-card">
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center justify-between">
+                    <span>Customer Reviews</span>
+                    {typeof product.rating === "number" && product.rating > 0 && (
+                      <span className="flex items-center gap-1 text-sm text-yellow-600 dark:text-yellow-400">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="font-semibold">{product.rating.toFixed(1)} / 5</span>
+                        <span className="text-xs text-muted-foreground">
+                          · {reviews.length} review{reviews.length === 1 ? "" : "s"}
+                        </span>
+                      </span>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {reviews.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No reviews yet. Be the first to review this product.
+                    </p>
+                  ) : (
+                    <div className="space-y-4">
+                      {reviews.map((review) => (
+                        <div
+                          key={review._id}
+                          className="border-b border-border pb-3 last:border-b-0 last:pb-0"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-semibold text-foreground">
+                                {review.user?.name || "Customer"}
+                              </p>
+                              {review.is_verified && (
+                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--success-bg-light)] text-[var(--success-fg)] border border-[var(--success-border)]">
+                                  Verified purchase
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400">
+                              <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                              <span className="font-medium">{review.rating.toFixed(1)}</span>
+                              <span className="text-[10px] text-muted-foreground">
+                                {new Date(review.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                          {review.comment && (
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              {review.comment}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="space-y-4">
+              <Card className="border-border bg-card">
+                <CardHeader>
+                  <CardTitle className="text-base">Write a review</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {!user ? (
+                    <p className="text-sm text-muted-foreground">
+                      Please log in to write a review.
+                    </p>
+                  ) : !canReview ? (
+                    <p className="text-sm text-muted-foreground">
+                      You can only review products you have purchased.
+                    </p>
+                  ) : (
+                    <form className="space-y-3" onSubmit={handleSubmitReview}>
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Rating</p>
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setReviewRating(star)}
+                              className="p-0.5"
+                              aria-label={`Rate ${star} star${star === 1 ? "" : "s"}`}
+                            >
+                              <Star
+                                className={`h-5 w-5 ${reviewRating >= star
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "text-muted-foreground"
+                                  }`}
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Review</p>
+                        <Textarea
+                          rows={4}
+                          placeholder="Share your experience with this product..."
+                          value={reviewText}
+                          onChange={(e) => setReviewText(e.target.value)}
+                        />
+                      </div>
+                      <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={isSubmittingReview || reviewRating < 1}
+                      >
+                        {isSubmittingReview ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Submitting...
+                          </>
+                        ) : (
+                          "Submit review"
+                        )}
+                      </Button>
+                    </form>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
           {similarProducts.length > 0 && (
             <RelatedProductsRow
               title="Similar products"

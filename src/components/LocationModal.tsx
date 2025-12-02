@@ -7,14 +7,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import { useStore } from "@/store/useStore";
 import { useToast } from "@/hooks/useToast";
+import { getHighAccuracyGPS } from "@/lib/location/gps";
+import { snapToRoad } from "@/lib/location/osrm";
+import { reverseGeocode as reverseGeocodeLib } from "@/lib/location/nominatim";
 
 interface MapPickerModalProps {
   isOpen: boolean;
   onClose: () => void;
   initial?: { lat: number; lon: number } | null;
 }
-
-const NOMINATIM_USER_AGENT = "MohallaMart/vipinyadav9m@gmail.com";
 
 // Dynamically import the map component with SSR disabled
 const MapView = dynamic(() => import("./MapView"), {
@@ -52,41 +53,14 @@ export default function MapPickerModal({ isOpen, onClose, initial = null }: MapP
   // Map center fallback
   const defaultCenter = useMemo(() => [20.5937, 78.9629] as [number, number], []); // India center fallback
 
-  // Reverse geocode using Nominatim (jsonv2)
+  // Reverse geocode wrapper using shared Nominatim util
   const reverseGeocode = useCallback(
     async (lat: number, lon: number) => {
-    const url = new URL("https://nominatim.openstreetmap.org/reverse");
-      url.searchParams.set("lat", String(lat));
-      url.searchParams.set("lon", String(lon));
-    url.searchParams.set("format", "jsonv2");
-    url.searchParams.set("addressdetails", "1");
-    url.searchParams.set("accept-language", "en");
-
-      const res = await fetch(url.toString(), {
-        headers: {
-          Accept: "application/json",
-          "User-Agent": NOMINATIM_USER_AGENT,
-        },
-    });
-      if (!res.ok) throw new Error(`Nominatim reverse failed (${res.status})`);
-      const data = await res.json();
-      const a = data.address || {};
-
-    const city =
-        a.city || a.town || a.village || a.municipality || a.state || a.county || "Unknown City";
-    const area =
-        a.suburb ||
-        a.neighbourhood ||
-        a.residential ||
-        a.quarter ||
-        a.district ||
-        a.city_district ||
-        a.village ||
-      city;
-
-      const pincode = a.postcode ?? undefined;
-
-      return { city, area, pincode, raw: a };
+      const r = await reverseGeocodeLib(lat, lon);
+      const city = r.city || "Unknown City";
+      const area = r.suburb || r.city || "Unknown Area";
+      const pincode = r.postcode ?? undefined;
+      return { city, area, pincode, raw: r };
     },
     []
   );
@@ -111,7 +85,6 @@ export default function MapPickerModal({ isOpen, onClose, initial = null }: MapP
         const res = await fetch(url.toString(), {
           headers: {
             Accept: "application/json",
-            "User-Agent": NOMINATIM_USER_AGENT,
           },
         });
         if (!res.ok) throw new Error("Search failed");
@@ -142,38 +115,27 @@ export default function MapPickerModal({ isOpen, onClose, initial = null }: MapP
     setIsDetecting(true);
     setErrorMessage(null);
 
-    if (!("geolocation" in navigator)) {
-      const msg = "Geolocation not supported by your browser.";
-      setErrorMessage(msg);
-      errorToast(msg);
-      setIsDetecting(false);
-      return;
-    }
+    (async () => {
+      try {
+        const gps = await getHighAccuracyGPS();
+        // Snap to road using OSRM
+        const snapped = await snapToRoad(gps.lat, gps.lon);
+        const finalLat = snapped.snapped ? snapped.lat : gps.lat;
+        const finalLon = snapped.snapped ? snapped.lon : gps.lon;
 
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const { latitude, longitude } = pos.coords;
-          setPosition({ lat: latitude, lon: longitude });
-          const resolved = await reverseGeocode(latitude, longitude);
-          setAddress({ city: resolved.city, area: resolved.area, pincode: resolved.pincode });
-          success(`Location updated to ${resolved.area}, ${resolved.city}`);
-        } catch {
-          const msg = "Detected coordinates but failed to resolve address.";
-          setErrorMessage(msg);
-          errorToast(msg);
-        } finally {
-          setIsDetecting(false);
-        }
-      },
-      () => {
-        const msg = "Unable to detect your location. Allow location access and try again.";
+        setPosition({ lat: finalLat, lon: finalLon });
+        const resolved = await reverseGeocode(finalLat, finalLon);
+        setAddress({ city: resolved.city, area: resolved.area, pincode: resolved.pincode });
+        success(`Location updated to ${resolved.area}, ${resolved.city}`);
+      } catch (err) {
+        const msg =
+          err instanceof Error ? err.message : "Unable to detect your location. Try again.";
         setErrorMessage(msg);
         errorToast(msg);
+      } finally {
         setIsDetecting(false);
-      },
-      { enableHighAccuracy: true, timeout: 12000 }
-    );
+      }
+    })();
   }, [isDetecting, reverseGeocode, success, errorToast]);
 
   // when user selects a suggestion
@@ -228,7 +190,7 @@ export default function MapPickerModal({ isOpen, onClose, initial = null }: MapP
       setPosition({ lat: initial.lat, lon: initial.lon });
       reverseGeocode(initial.lat, initial.lon)
         .then((r) => setAddress({ city: r.city, area: r.area, pincode: r.pincode }))
-        .catch(() => {});
+        .catch(() => { });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
@@ -267,14 +229,14 @@ export default function MapPickerModal({ isOpen, onClose, initial = null }: MapP
                   <span className="hidden sm:inline">Detect</span>
                 </button>
 
-              <button
-                onClick={onClose}
+                <button
+                  onClick={onClose}
                   className="rounded-lg p-1.5 text-neutral-500 hover:text-primary-brand hover:bg-gray-100 transition-colors"
-                aria-label="Close"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+                  aria-label="Close"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
             {/* Body */}
@@ -339,18 +301,18 @@ export default function MapPickerModal({ isOpen, onClose, initial = null }: MapP
                 </div>
 
                 <div className="mt-auto flex gap-2 pt-2">
-                  <button 
-                    onClick={confirmLocation} 
+                  <button
+                    onClick={confirmLocation}
                     className="flex-1 rounded-xl bg-primary-brand text-white px-4 py-2.5 font-semibold hover:bg-primary-brand/90 transition-colors text-sm"
                   >
                     Save Location
                   </button>
-              <button
-                    onClick={() => { setPosition(null); setAddress(null); setQuery(""); setSuggestions([]); }} 
+                  <button
+                    onClick={() => { setPosition(null); setAddress(null); setQuery(""); setSuggestions([]); }}
                     className="rounded-xl border-2 border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-gray-50 hover:border-neutral-300 transition-colors"
                   >
                     Clear
-              </button>
+                  </button>
                 </div>
 
                 <div className="text-xs text-gray-400 mt-1 px-1">
