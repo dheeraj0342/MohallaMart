@@ -57,6 +57,11 @@ export default defineSchema({
         suburb: v.optional(v.string()),
         city: v.optional(v.string()),
         postcode: v.optional(v.string()),
+        village: v.optional(v.string()),
+        hamlet: v.optional(v.string()),
+        county: v.optional(v.string()),
+        stateDistrict: v.optional(v.string()),
+        state: v.optional(v.string()),
       }),
     ),
     contact: v.object({

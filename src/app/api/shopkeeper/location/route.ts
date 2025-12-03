@@ -47,6 +47,11 @@ export async function PATCH(request: NextRequest) {
       suburb,
       city,
       postcode,
+      village,
+      hamlet,
+      county,
+      stateDistrict,
+      state,
     } = body;
 
     if (
@@ -87,6 +92,11 @@ export async function PATCH(request: NextRequest) {
         suburb,
         city,
         postcode,
+        village,
+        hamlet,
+        county,
+        stateDistrict,
+        state,
       },
     } as any);
 

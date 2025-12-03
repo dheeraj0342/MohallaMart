@@ -4,6 +4,11 @@ export interface ReverseGeocodeResult {
   suburb?: string;
   city?: string;
   postcode?: string;
+  village?: string;
+  hamlet?: string;
+  county?: string;
+  stateDistrict?: string;
+  state?: string;
 }
 
 export async function reverseGeocode(
@@ -33,6 +38,11 @@ export async function reverseGeocode(
     suburb: address.suburb || address.neighbourhood,
     city: address.city || address.town || address.village,
     postcode: address.postcode,
+    village: address.village,
+    hamlet: address.hamlet,
+    county: address.county,
+    stateDistrict: address.state_district,
+    state: address.state,
   };
 }
 

@@ -24,6 +24,11 @@ export interface AccurateLocation {
   suburb?: string;
   city?: string;
   postcode?: string;
+  village?: string;
+  hamlet?: string;
+  county?: string;
+  stateDistrict?: string;
+  state?: string;
 }
 
 interface LocationPickerProps {
@@ -50,6 +55,11 @@ export function LocationPicker({ initialLocation, onChange }: LocationPickerProp
           suburb: initialLocation.suburb,
           city: initialLocation.city,
           postcode: initialLocation.postcode,
+          village: initialLocation.village,
+          hamlet: initialLocation.hamlet,
+          county: initialLocation.county,
+          stateDistrict: initialLocation.stateDistrict,
+          state: initialLocation.state,
         }
       : null,
   );
@@ -73,6 +83,11 @@ export function LocationPicker({ initialLocation, onChange }: LocationPickerProp
           suburb: addr.suburb,
           city: addr.city,
           postcode: addr.postcode,
+          village: addr.village,
+          hamlet: addr.hamlet,
+          county: addr.county,
+          stateDistrict: addr.stateDistrict,
+          state: addr.state,
         };
 
         onChange(finalLocation);

@@ -57,8 +57,20 @@ export default function MapPickerModal({ isOpen, onClose, initial = null }: MapP
   const reverseGeocode = useCallback(
     async (lat: number, lon: number) => {
       const r = await reverseGeocodeLib(lat, lon);
-      const city = r.city || "Unknown City";
-      const area = r.suburb || r.city || "Unknown Area";
+      
+      // Prioritize hamlet/suburb for Area
+      const area = r.suburb || r.hamlet || r.village || r.road || "Unknown Area";
+      
+      // Prioritize City/Town/Village for City
+      // Note: r.city in nominatim.ts already falls back to town/village, but we can be more explicit if needed
+      // If city is same as area (e.g. both are village), try to find a broader region like county/district
+      let city = r.city || r.county || r.stateDistrict || "Unknown City";
+      
+      if (city === area) {
+         if (r.county) city = r.county;
+         else if (r.stateDistrict) city = r.stateDistrict;
+      }
+
       const pincode = r.postcode ?? undefined;
       return { city, area, pincode, raw: r };
     },
