@@ -334,9 +334,10 @@ export default function Navbar() {
                       aria-expanded={isAccountOpen}
                       aria-controls="account-menu"
                     >
-                      {dbUser?.avatar_url ? (
+                      {dbUser?.avatar_url || user.avatar_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={dbUser.avatar_url}
+                          src={dbUser?.avatar_url || user.avatar_url || ""}
                           alt={user.name || "User"}
                           className="h-8 w-8 rounded-full object-cover mr-2 border-2 border-border"
                         />

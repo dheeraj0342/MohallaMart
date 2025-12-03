@@ -10,6 +10,7 @@ export default defineSchema({
     phone: v.optional(v.string()),
     password_hash: v.optional(v.string()), // For direct auth (if not using Supabase)
     avatar_url: v.optional(v.string()),
+    provider: v.optional(v.string()), // 'google', 'email', etc.
     role: v.union(
       v.literal("customer"), // USER role
       v.literal("shop_owner"), // SHOPKEEPER role

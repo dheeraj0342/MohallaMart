@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, getEmailRedirectUrl } from "@/lib/supabase";
 import { withRetry } from "@/lib/retry";
-import { Eye, EyeOff, Mail, Lock, Loader2, Store } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Loader2, Store, Globe } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
@@ -78,6 +78,23 @@ export default function ShopkeeperLoginForm({
     } catch {
       setError("An unexpected error occurred");
       setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: getEmailRedirectUrl(),
+        },
+      });
+      if (error) {
+        errorToast(error.message);
+      }
+    } catch (err) {
+      console.error("Google login error:", err);
+      errorToast("Failed to initiate Google login");
     }
   };
 
@@ -207,6 +224,26 @@ export default function ShopkeeperLoginForm({
                 "Sign In"
               )}
             </motion.button>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-card text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              className="w-full relative h-12 border-2 border-border rounded-xl bg-card hover:bg-muted text-foreground flex items-center justify-center gap-2 font-medium text-sm transition-all"
+            >
+              <Globe className="h-5 w-5" />
+              <span>Google</span>
+            </button>
 
             <div className="text-center text-sm">
               Don&apos;t have a shop account?{" "}

@@ -111,6 +111,23 @@ export default function SignupForm({
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: getEmailRedirectUrl(),
+        },
+      });
+      if (error) {
+        errorToast(error.message);
+      }
+    } catch (err) {
+      console.error("Google login error:", err);
+      errorToast("Failed to initiate Google login");
+    }
+  };
+
   return (
     <div className="min-h-screen grid md:grid-cols-2 bg-background">
       {/* Left - Branding */}
@@ -384,14 +401,11 @@ export default function SignupForm({
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                disabled
-                className="relative h-12 border-2 border-border rounded-xl bg-muted text-foreground cursor-not-allowed opacity-60 flex items-center justify-center gap-2 font-medium text-sm transition-all"
+                onClick={handleGoogleLogin}
+                className="relative h-12 border-2 border-border rounded-xl bg-card hover:bg-muted text-foreground flex items-center justify-center gap-2 font-medium text-sm transition-all"
               >
                 <Globe className="h-5 w-5" />
                 <span>Google</span>
-                <span className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                  Soon
-                </span>
               </button>
               <button
                 type="button"

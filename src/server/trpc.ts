@@ -1,60 +1,41 @@
 import { router, publicProcedure } from "@/lib/trpc";
 import { z } from "zod";
+import { createClient } from "@supabase/supabase-js";
 
-// Example router with some basic procedures
+// Initialize Supabase Admin client for server-side operations
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
 export const appRouter = router({
   // Health check
   health: publicProcedure.query(() => {
     return { status: "ok", timestamp: new Date().toISOString() };
   }),
 
-  // User procedures
+  // User procedures - Real implementation using Supabase
   getUser: publicProcedure
     .input(z.object({ id: z.string() }))
-    .query(({ input }) => {
-      // This would typically fetch from your database
-      return { id: input.id, name: "John Doe", email: "john@example.com" };
-    }),
+    .query(async ({ input }) => {
+      const { data, error } = await supabase
+        .from("users") // Assuming Supabase has a users table or accessing auth.users via admin API
+        .select("*")
+        .eq("id", input.id)
+        .single();
 
-  // Product procedures
-  getProducts: publicProcedure
-    .input(
-      z.object({
-        limit: z.number().optional(),
-        category: z.string().optional(),
-        search: z.string().optional(),
-      }),
-    )
-    .query(({ input }) => {
-      // This would typically fetch from your database
-      console.log("Fetching products with filters:", input);
-      return [
-        { id: "1", name: "Product 1", price: 100 },
-        { id: "2", name: "Product 2", price: 200 },
-      ];
-    }),
+      if (error) {
+        // Fallback to fetching from auth.users if public users table doesn't exist or is empty
+        const { data: userData, error: userError } = await supabase.auth.admin.getUserById(input.id);
+        if (userError) throw new Error(userError.message);
+        return {
+          id: userData.user.id,
+          email: userData.user.email,
+          name: userData.user.user_metadata?.full_name || userData.user.user_metadata?.name,
+          role: userData.user.user_metadata?.role,
+        };
+      }
 
-  // Order procedures
-  createOrder: publicProcedure
-    .input(
-      z.object({
-        items: z.array(
-          z.object({
-            productId: z.string(),
-            quantity: z.number(),
-            price: z.number(),
-          }),
-        ),
-        totalAmount: z.number(),
-      }),
-    )
-    .mutation(({ input }) => {
-      // This would typically create an order in your database
-      return {
-        orderId: "order_" + Date.now(),
-        status: "pending",
-        totalAmount: input.totalAmount,
-      };
+      return data;
     }),
 });
 

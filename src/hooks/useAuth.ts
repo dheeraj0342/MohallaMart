@@ -52,6 +52,7 @@ export const useAuth = () => {
             email,
             phone: user_metadata?.phone,
             avatar_url: user_metadata?.avatar_url,
+            provider: session.user.app_metadata?.provider || "email",
             role: user_metadata?.role,
           }).catch(() => {
             // Silently fail - sync can happen in background
@@ -91,6 +92,7 @@ export const useAuth = () => {
             email,
             phone: user_metadata?.phone,
             avatar_url: user_metadata?.avatar_url,
+            provider: session.user.app_metadata?.provider || "email",
             role: user_metadata?.role,
           }).catch(() => {
             // Silently fail - sync can happen in background
