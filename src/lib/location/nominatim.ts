@@ -35,7 +35,7 @@ export async function reverseGeocode(
   return {
     addressText: data.display_name as string,
     road: address.road,
-    suburb: address.suburb || address.neighbourhood,
+    suburb: address.suburb || address.neighbourhood || address.residential || address.quarter || address.city_district,
     city: address.city || address.town || address.village,
     postcode: address.postcode,
     village: address.village,

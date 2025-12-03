@@ -59,7 +59,13 @@ export default function MapPickerModal({ isOpen, onClose, initial = null }: MapP
       const r = await reverseGeocodeLib(lat, lon);
       
       // Prioritize hamlet/suburb for Area
-      const area = r.suburb || r.hamlet || r.village || r.road || "Unknown Area";
+      let area = r.suburb || r.hamlet || r.village || r.road;
+      
+      if (!area && r.addressText) {
+        area = r.addressText.split(",")[0].trim();
+      }
+      
+      area = area || "Unknown Area";
       
       // Prioritize City/Town/Village for City
       // Note: r.city in nominatim.ts already falls back to town/village, but we can be more explicit if needed
