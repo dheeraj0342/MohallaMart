@@ -6,14 +6,12 @@ import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 import { useStore } from "@/store/useStore";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Store, MapPin, Star, Package, Loader2, Navigation, ShoppingBag, Clock, Sparkles } from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
-import { generateSlug } from "@/lib/utils";
+import { Store, Loader2, ShoppingBag, Clock, Sparkles } from "lucide-react";
 import CategoryFilterDropdown from "@/components/CategoryFilterDropdown";
 import type { Id } from "@/../convex/_generated/dataModel";
+
+import { ShopCard } from "@/components/shops/ShopCard";
 
 const DELIVERY_RADIUS_KM = 10; // Increased radius for shop listing page
 
@@ -237,74 +235,11 @@ function ShopsPageContent() {
                   : null;
 
               return (
-                <Link
+                <ShopCard
                   key={shop._id}
-                  href={`/shop/${generateSlug(shop.name)}`}
-                  className="group"
-                >
-                  <Card className="h-full hover:shadow-lg transition-shadow border-border bg-card overflow-hidden">
-                    <div className="relative h-48 w-full bg-muted overflow-hidden">
-                      {shop.logo_url ? (
-                        <Image
-                          src={shop.logo_url}
-                          alt={shop.name}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                          unoptimized={shop.logo_url.includes("convex.cloud")}
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full">
-                          <Store className="h-12 w-12 text-muted-foreground" />
-                        </div>
-                      )}
-                      {shop.rating && shop.rating > 0 && (
-                        <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground">
-                          <Star className="h-3 w-3 mr-1 fill-current" />
-                          {shop.rating.toFixed(1)}
-                        </Badge>
-                      )}
-                    </div>
-
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold text-foreground line-clamp-1 mb-1 group-hover:text-primary transition-colors">
-                        {shop.name}
-                      </h3>
-                      {shop.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
-                          {shop.description}
-                        </p>
-                      )}
-
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                        <MapPin className="h-3 w-3" />
-                        <span className="line-clamp-1">
-                          {shop.address.city}, {shop.address.state}
-                        </span>
-                      </div>
-
-                      {/* Distance */}
-                      {distance !== null && (
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-                          <Navigation className="h-3 w-3 text-primary" />
-                          <span>{distance.toFixed(1)} km away</span>
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between text-xs pt-2 border-t border-border">
-                        <div className="flex items-center gap-1 text-muted-foreground">
-                          <Package className="h-3 w-3" />
-                          <span>{shop.total_orders || 0} orders</span>
-                        </div>
-                        {shop.is_active && (
-                          <Badge variant="outline" className="text-xs">
-                            Active
-                          </Badge>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                  shop={shop}
+                  distance={distance}
+                />
               );
             })}
           </div>

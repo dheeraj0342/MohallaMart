@@ -427,4 +427,15 @@ export default defineSchema({
   })
     .index("by_user", ["user_id"])
     .index("by_status", ["status"]),
+
+  // Favorites / Wishlist table
+  favorites: defineTable({
+    user_id: v.id("users"),
+    product_id: v.optional(v.id("products")),
+    shop_id: v.optional(v.id("shops")),
+    created_at: v.number(),
+  })
+    .index("by_user", ["user_id"])
+    .index("by_user_product", ["user_id", "product_id"])
+    .index("by_user_shop", ["user_id", "shop_id"]),
 });

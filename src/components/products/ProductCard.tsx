@@ -6,9 +6,14 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Package, Star } from "lucide-react";
+import { Package, Star, Heart } from "lucide-react";
 import { generateSlug } from "@/lib/utils";
 import { EtaBadge, type EtaInfo } from "./EtaBadge";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/../convex/_generated/api";
+import { useStore } from "@/store/useStore";
+import { Id } from "@/../convex/_generated/dataModel";
+import { useToast } from "@/hooks/useToast";
 
 export interface Product {
   _id: string;
@@ -37,8 +42,42 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onAddToCart, href, eta }: ProductCardProps) {
   const router = useRouter();
+  const { user } = useStore();
+  const { success, error } = useToast();
   const hasImage = product.images?.length > 0;
   const img = hasImage ? product.images[0] : "";
+
+  const toggleFavorite = useMutation(api.favorites.toggleFavoriteProduct);
+  const isFavorite = useQuery(
+    api.favorites.isFavorite,
+    user?.id
+      ? { user_id: user.id as Id<"users">, product_id: product._id as Id<"products"> }
+      : "skip"
+  );
+
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user?.id) {
+      error("Please login to add items to your wishlist");
+      return;
+    }
+
+    try {
+      const added = await toggleFavorite({
+        user_id: user.id as Id<"users">,
+        product_id: product._id as Id<"products">,
+      });
+      
+      if (added) {
+        success(`${product.name} added to favorites`);
+      } else {
+        success(`${product.name} removed from favorites`);
+      }
+    } catch (err) {
+      console.error("Error toggling favorite:", err);
+      error("Failed to update wishlist");
+    }
+  };
 
   const discount =
     product.original_price && product.original_price > product.price
@@ -56,11 +95,11 @@ export function ProductCard({ product, onAddToCart, href, eta }: ProductCardProp
 
   return (
     <Card
-      className="group flex h-full max-w-[200px] flex-col rounded-lg border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer"
+      className="group flex h-full w-full flex-col rounded-lg border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer relative"
       onClick={() => router.push(targetHref)}
     >
       {/* Image */}
-      <div className="relative w-full aspect-4/3 bg-muted flex items-center justify-center overflow-hidden">
+      <div className="relative w-full aspect-4/3 bg-muted flex items-center justify-center overflow-hidden rounded-t-lg">
         {hasImage ? (
           <Link
             href={targetHref}
@@ -80,10 +119,22 @@ export function ProductCard({ product, onAddToCart, href, eta }: ProductCardProp
         )}
 
         {discount > 0 && (
-          <Badge className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] py-0.5 px-2">
+          <Badge className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-[10px] py-0.5 px-2 z-10">
             {discount}% OFF
           </Badge>
         )}
+
+        {/* Favorite Button */}
+        <button
+          onClick={handleToggleFavorite}
+          className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors z-10 shadow-sm"
+          aria-label={isFavorite ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          <Heart
+            className={`h-4 w-4 transition-colors ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground hover:text-red-500"
+              }`}
+          />
+        </button>
       </div>
 
       {/* Content */}

@@ -18,6 +18,7 @@ import {
   ToyBrick,
   User,
   X,
+  Heart,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useStore } from "@/store/useStore";
@@ -357,6 +358,14 @@ export default function Navbar() {
                         >
                           <User className="h-4 w-4 mr-2" />
                           My Profile
+                        </Link>
+                        <Link
+                          href="/wishlist"
+                          onClick={() => setIsAccountOpen(false)}
+                          className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border"
+                        >
+                          <Heart className="h-4 w-4 mr-2" />
+                          My Wishlist
                         </Link>
                         <button
                           onClick={() => {

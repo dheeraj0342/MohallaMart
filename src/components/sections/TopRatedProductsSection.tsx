@@ -20,6 +20,7 @@ import type { Id } from "@/../convex/_generated/dataModel";
 import { useStore } from "@/store/useStore";
 import { useToast } from "@/hooks/useToast";
 import { ProductCard, type Product } from "@/components/products/ProductCard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TopRatedProductsSection() {
   const { addToCart } = useStore();
@@ -46,6 +47,9 @@ export default function TopRatedProductsSection() {
       })
       : ("skip" as const),
   );
+
+  const isLoading = selectedCategory === "all" ? productsAll === undefined : productsByCategory === undefined;
+
   const baseProducts =
     selectedCategory === "all"
       ? (Array.isArray(productsAll) ? productsAll : [])
@@ -114,7 +118,7 @@ export default function TopRatedProductsSection() {
             <Star className="h-5 w-5 text-primary" />
             <h2 className="text-2xl font-bold text-foreground">Top Rated Products</h2>
           </div>
-          {limitedProducts && limitedProducts.length > 0 && (
+          {!isLoading && limitedProducts && limitedProducts.length > 0 && (
             <Badge variant="outline" className="text-sm">
               {limitedProducts.length} {limitedProducts.length === 1 ? "Product" : "Products"}
             </Badge>
@@ -167,7 +171,19 @@ export default function TopRatedProductsSection() {
             </Select>
           </div>
         </div>
-        {limitedProducts && limitedProducts.length > 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex flex-col space-y-3">
+                <Skeleton className="h-[200px] w-full rounded-xl" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : limitedProducts && limitedProducts.length > 0 ? (
           <>
             {/* Mobile: horizontal scroll with 2 visible cards */}
             <div className="sm:hidden flex gap-4 overflow-x-auto no-scrollbar">
