@@ -33,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { LocationPicker, type AccurateLocation } from "@/components/location/LocationPicker";
 
 export default function ShopkeeperRegistrationPage() {
   const router = useRouter();
@@ -45,7 +46,21 @@ export default function ShopkeeperRegistrationPage() {
     pan?: string;
     gstin?: string;
     bank?: { account_holder?: string; account_number?: string; ifsc?: string };
-    address?: { street?: string; city?: string; state?: string; pincode?: string };
+    address?: {
+      street?: string;
+      city?: string;
+      state?: string;
+      pincode?: string;
+      lat?: number;
+      lon?: number;
+      accuracy?: number;
+      snapped?: boolean;
+      source?: string;
+      village?: string;
+      hamlet?: string;
+      county?: string;
+      stateDistrict?: string;
+    };
     identity?: { type?: "aadhaar" | "passport" | "voter_id" | "driver_license"; number?: string };
     business?: { type?: "individual" | "proprietorship" | "partnership" | "company"; name?: string };
     pickup_address?: { street?: string; city?: string; state?: string; pincode?: string };
@@ -77,6 +92,7 @@ export default function ShopkeeperRegistrationPage() {
   const [pickupPincode, setPickupPincode] = useState("");
   const [firstProductName, setFirstProductName] = useState("");
   const [firstProductUrl, setFirstProductUrl] = useState("");
+  const [locationData, setLocationData] = useState<AccurateLocation | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -100,6 +116,24 @@ export default function ShopkeeperRegistrationPage() {
       setPickupPincode(registration.pickup_address?.pincode || "");
       setFirstProductName(registration.first_product?.name || "");
       setFirstProductUrl(registration.first_product?.url || "");
+      
+      if (registration.address?.lat && registration.address?.lon) {
+         setLocationData({
+            lat: registration.address.lat,
+            lon: registration.address.lon,
+            accuracy: registration.address.accuracy || 0,
+            snapped: registration.address.snapped || false,
+            source: (registration.address.source as AccurateLocation["source"]) || "gps",
+            addressText: registration.address.street || "",
+            city: registration.address.city,
+            postcode: registration.address.pincode,
+            village: registration.address.village,
+            hamlet: registration.address.hamlet,
+            county: registration.address.county,
+            stateDistrict: registration.address.stateDistrict,
+            state: registration.address.state,
+         });
+      }
     }
   }, [registration]);
 
@@ -238,7 +272,21 @@ export default function ShopkeeperRegistrationPage() {
           account_number: bankAccountNumber,
           ifsc: bankIfsc,
         },
-        address: { street, city, state: stateValue, pincode },
+        address: { 
+          street, 
+          city, 
+          state: stateValue, 
+          pincode,
+          lat: locationData?.lat,
+          lon: locationData?.lon,
+          accuracy: locationData?.accuracy,
+          snapped: locationData?.snapped,
+          source: locationData?.source,
+          village: locationData?.village,
+          hamlet: locationData?.hamlet,
+          county: locationData?.county,
+          stateDistrict: locationData?.stateDistrict,
+        },
         identity: { type: idType, number: idNumber },
         business: {
           type: bizType,
@@ -390,19 +438,35 @@ export default function ShopkeeperRegistrationPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-primary" />
-                  Business Address
+                  Business Location & Address
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
+                  <Label>Pin your shop location</Label>
+                  <LocationPicker
+                    initialLocation={locationData}
+                    onChange={(loc) => {
+                      setLocationData(loc);
+                      if (loc) {
+                        setStreet(loc.road || loc.addressText || "");
+                        setCity(loc.city || loc.village || "");
+                        setStateValue(loc.state || "");
+                        setPincode(loc.postcode || "");
+                      }
+                    }}
+                  />
+                </div>
+                
+                <div className="space-y-2">
                   <Label htmlFor="street">
-                    Street Address <span className="text-destructive">*</span>
+                    Street Address / Landmark <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="street"
                     value={street}
                     onChange={(e) => setStreet(e.target.value)}
-                    placeholder="Street address"
+                    placeholder="Shop No., Building, Street"
                     required
                     className="bg-background"
                   />
@@ -410,7 +474,7 @@ export default function ShopkeeperRegistrationPage() {
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="city">
-                      City <span className="text-destructive">*</span>
+                      City/Village <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="city"

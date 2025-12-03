@@ -38,7 +38,18 @@ export default function AdminRegistrationsPage() {
     pan: string;
     gstin?: string;
     bank: { account_holder: string; account_number: string; ifsc: string };
-    address: { street: string; city: string; state: string; pincode: string };
+    address: { 
+      street: string; 
+      city: string; 
+      state: string; 
+      pincode: string;
+      lat?: number;
+      lon?: number;
+      village?: string;
+      hamlet?: string;
+      county?: string;
+      stateDistrict?: string;
+    };
     identity: { type: string; number: string };
     business: { type: string; name?: string };
     pickup_address: { street: string; city: string; state: string; pincode: string };
@@ -319,10 +330,33 @@ export default function AdminRegistrationsPage() {
                           <CardTitle className="text-base">Business Address</CardTitle>
                         </div>
                       </CardHeader>
-                      <CardContent className="text-sm">
+                      <CardContent className="text-sm space-y-1">
                         <p className="text-muted-foreground">
                           {reg.address.street}, {reg.address.city}, {reg.address.state} - {reg.address.pincode}
                         </p>
+                        {(reg.address.village || reg.address.hamlet) && (
+                          <p className="text-xs text-muted-foreground">
+                            <span className="font-medium">Village/Hamlet:</span> {reg.address.village || reg.address.hamlet}
+                          </p>
+                        )}
+                        {(reg.address.county || reg.address.stateDistrict) && (
+                          <p className="text-xs text-muted-foreground">
+                            <span className="font-medium">District:</span> {reg.address.county || reg.address.stateDistrict}
+                          </p>
+                        )}
+                        {reg.address.lat && reg.address.lon && (
+                           <p className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1 mt-1">
+                             <MapPin className="h-3 w-3" />
+                             <a 
+                               href={`https://www.google.com/maps?q=${reg.address.lat},${reg.address.lon}`} 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               className="hover:underline"
+                             >
+                               View on Google Maps
+                             </a>
+                           </p>
+                        )}
                       </CardContent>
                     </Card>
 

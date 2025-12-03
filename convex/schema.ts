@@ -371,6 +371,16 @@ export default defineSchema({
       city: v.string(),
       state: v.string(),
       pincode: v.string(),
+      // New accurate location fields
+      lat: v.optional(v.number()),
+      lon: v.optional(v.number()),
+      accuracy: v.optional(v.number()),
+      snapped: v.optional(v.boolean()),
+      source: v.optional(v.string()),
+      village: v.optional(v.string()),
+      hamlet: v.optional(v.string()),
+      county: v.optional(v.string()),
+      stateDistrict: v.optional(v.string()),
     }),
     identity: v.object({
       type: v.union(
