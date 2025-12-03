@@ -37,6 +37,16 @@ export default function NotificationBell() {
     dbUser?._id ? { user_id: dbUser._id, limit: 5 } : "skip"
   );
 
+  // Play sound on new notification
+  useEffect(() => {
+    if (unreadCount && unreadCount > 0) {
+      const audio = new Audio("/notification.mp3");
+      audio.play().catch(() => {
+        // Ignore auto-play errors
+      });
+    }
+  }, [unreadCount]);
+
   if (!user || !dbUser) {
     return null;
   }

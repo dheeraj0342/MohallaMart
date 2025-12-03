@@ -8,7 +8,6 @@ import {
   Leaf,
   LogOut,
   MapPin,
-  Menu,
   Moon,
   Search as SearchIcon,
   Shirt,

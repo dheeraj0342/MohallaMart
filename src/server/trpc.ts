@@ -3,9 +3,17 @@ import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 
 // Initialize Supabase Admin client for server-side operations
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+// Initialize Supabase Admin client for server-side operations
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+
+// Helper to get Supabase client lazily or throw if missing
+const getSupabase = () => {
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error("Missing Supabase environment variables");
+  }
+  return createClient(supabaseUrl, supabaseServiceKey);
+};
 
 export const appRouter = router({
   // Health check
@@ -17,6 +25,7 @@ export const appRouter = router({
   getUser: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
+      const supabase = getSupabase();
       const { data, error } = await supabase
         .from("users") // Assuming Supabase has a users table or accessing auth.users via admin API
         .select("*")
