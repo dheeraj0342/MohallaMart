@@ -27,13 +27,13 @@ export default function AdminSettingsPage() {
   // Load settings when fetched
   useEffect(() => {
     if (settings) {
-      setSupportEmail(settings.support_email || "");
-      setSupportPhone(settings.support_phone || "");
-      setDefaultRadius(settings.default_radius?.toString() || "2");
-      setFreeDeliveryThreshold(settings.free_delivery_threshold?.toString() || "199");
-      setDeliveryFee(settings.delivery_fee?.toString() || "40");
-      setEmailNotifications(settings.email_notifications ?? true);
-      setSmsNotifications(settings.sms_notifications ?? true);
+      setSupportEmail((settings.support_email as string) || "");
+      setSupportPhone((settings.support_phone as string) || "");
+      setDefaultRadius((settings.default_radius as number)?.toString() || "2");
+      setFreeDeliveryThreshold((settings.free_delivery_threshold as number)?.toString() || "199");
+      setDeliveryFee((settings.delivery_fee as number)?.toString() || "40");
+      setEmailNotifications((settings.email_notifications as boolean) ?? true);
+      setSmsNotifications((settings.sms_notifications as boolean) ?? true);
     }
   }, [settings]);
 
