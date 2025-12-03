@@ -17,6 +17,7 @@ import type * as products from "../products.js";
 import type * as registrations from "../registrations.js";
 import type * as reviews from "../reviews.js";
 import type * as riders from "../riders.js";
+import type * as settings from "../settings.js";
 import type * as shops from "../shops.js";
 import type * as users from "../users.js";
 
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   registrations: typeof registrations;
   reviews: typeof reviews;
   riders: typeof riders;
+  settings: typeof settings;
   shops: typeof shops;
   users: typeof users;
 }>;

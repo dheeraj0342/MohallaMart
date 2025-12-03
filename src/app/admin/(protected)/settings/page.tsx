@@ -1,10 +1,99 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/../convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Settings, Save } from "lucide-react";
+import { Settings, Save, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AdminSettingsPage() {
+  const settings = useQuery(api.settings.getSettings);
+  const saveSetting = useMutation(api.settings.saveSetting);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Local state for form inputs
+  const [supportEmail, setSupportEmail] = useState("");
+  const [supportPhone, setSupportPhone] = useState("");
+  const [defaultRadius, setDefaultRadius] = useState("2");
+  const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState("199");
+  const [deliveryFee, setDeliveryFee] = useState("40");
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [smsNotifications, setSmsNotifications] = useState(true);
+
+  // Load settings when fetched
+  useEffect(() => {
+    if (settings) {
+      setSupportEmail(settings.support_email || "");
+      setSupportPhone(settings.support_phone || "");
+      setDefaultRadius(settings.default_radius?.toString() || "2");
+      setFreeDeliveryThreshold(settings.free_delivery_threshold?.toString() || "199");
+      setDeliveryFee(settings.delivery_fee?.toString() || "40");
+      setEmailNotifications(settings.email_notifications ?? true);
+      setSmsNotifications(settings.sms_notifications ?? true);
+    }
+  }, [settings]);
+
+  const handleSavePlatformSettings = async () => {
+    setIsSaving(true);
+    try {
+      await Promise.all([
+        saveSetting({ key: "support_email", value: supportEmail, description: "Support Email Address" }),
+        saveSetting({ key: "support_phone", value: supportPhone, description: "Support Phone Number" }),
+      ]);
+      toast.success("Platform settings saved successfully");
+    } catch (error) {
+      toast.error("Failed to save platform settings");
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveDeliverySettings = async () => {
+    setIsSaving(true);
+    try {
+      await Promise.all([
+        saveSetting({ key: "default_radius", value: parseFloat(defaultRadius), description: "Default Delivery Radius (km)" }),
+        saveSetting({ key: "free_delivery_threshold", value: parseFloat(freeDeliveryThreshold), description: "Free Delivery Threshold (INR)" }),
+        saveSetting({ key: "delivery_fee", value: parseFloat(deliveryFee), description: "Default Delivery Fee (INR)" }),
+      ]);
+      toast.success("Delivery settings saved successfully");
+    } catch (error) {
+      toast.error("Failed to save delivery settings");
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveNotificationSettings = async () => {
+    setIsSaving(true);
+    try {
+      await Promise.all([
+        saveSetting({ key: "email_notifications", value: emailNotifications, description: "Enable Email Notifications" }),
+        saveSetting({ key: "sms_notifications", value: smsNotifications, description: "Enable SMS Notifications" }),
+      ]);
+      toast.success("Notification settings saved successfully");
+    } catch (error) {
+      toast.error("Failed to save notification settings");
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (settings === undefined) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -45,6 +134,8 @@ export default function AdminSettingsPage() {
               id="supportEmail"
               type="email"
               placeholder="support@mohallamart.com"
+              value={supportEmail}
+              onChange={(e) => setSupportEmail(e.target.value)}
             />
           </div>
           <div>
@@ -53,10 +144,12 @@ export default function AdminSettingsPage() {
               id="supportPhone"
               type="tel"
               placeholder="+91 1234567890"
+              value={supportPhone}
+              onChange={(e) => setSupportPhone(e.target.value)}
             />
           </div>
-          <Button>
-            <Save className="h-4 w-4 mr-2" />
+          <Button onClick={handleSavePlatformSettings} disabled={isSaving}>
+            {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
             Save Settings
           </Button>
         </CardContent>
@@ -76,9 +169,10 @@ export default function AdminSettingsPage() {
             <Input
               id="defaultRadius"
               type="number"
-              defaultValue="2"
               min="1"
               max="10"
+              value={defaultRadius}
+              onChange={(e) => setDefaultRadius(e.target.value)}
             />
           </div>
           <div>
@@ -86,8 +180,9 @@ export default function AdminSettingsPage() {
             <Input
               id="freeDeliveryThreshold"
               type="number"
-              defaultValue="199"
               min="0"
+              value={freeDeliveryThreshold}
+              onChange={(e) => setFreeDeliveryThreshold(e.target.value)}
             />
           </div>
           <div>
@@ -95,12 +190,13 @@ export default function AdminSettingsPage() {
             <Input
               id="deliveryFee"
               type="number"
-              defaultValue="40"
               min="0"
+              value={deliveryFee}
+              onChange={(e) => setDeliveryFee(e.target.value)}
             />
           </div>
-          <Button>
-            <Save className="h-4 w-4 mr-2" />
+          <Button onClick={handleSaveDeliverySettings} disabled={isSaving}>
+            {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
             Save Settings
           </Button>
         </CardContent>
@@ -125,7 +221,8 @@ export default function AdminSettingsPage() {
             <input
               id="emailNotifications"
               type="checkbox"
-              defaultChecked
+              checked={emailNotifications}
+              onChange={(e) => setEmailNotifications(e.target.checked)}
               className="h-4 w-4"
             />
           </div>
@@ -139,12 +236,13 @@ export default function AdminSettingsPage() {
             <input
               id="smsNotifications"
               type="checkbox"
-              defaultChecked
+              checked={smsNotifications}
+              onChange={(e) => setSmsNotifications(e.target.checked)}
               className="h-4 w-4"
             />
           </div>
-          <Button>
-            <Save className="h-4 w-4 mr-2" />
+          <Button onClick={handleSaveNotificationSettings} disabled={isSaving}>
+            {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
             Save Settings
           </Button>
         </CardContent>

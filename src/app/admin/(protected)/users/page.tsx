@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import UserRoleChangeDialog from "./_components/UserRoleChangeDialog";
+import DeleteUserDialog from "./_components/DeleteUserDialog";
 
 export type UserRole = "customer" | "shop_owner" | "admin";
 
@@ -376,11 +377,18 @@ export default function AdminUsersPage() {
                           </div>
                         </td>
                         <td className="py-4 px-4">
-                          <UserRoleChangeDialog
-                            userId={user.id}
-                            currentRole={user.role}
-                            userName={user.name}
-                          />
+                          <div className="flex items-center gap-2">
+                            <UserRoleChangeDialog
+                              userId={user.id}
+                              currentRole={user.role}
+                              userName={user.name}
+                            />
+                            <DeleteUserDialog
+                              userId={user._id}
+                              userName={user.name}
+                              userRole={user.role}
+                            />
+                          </div>
                         </td>
                         <td className="py-4 px-4">
                           <div className="flex items-center gap-2">
@@ -433,11 +441,18 @@ export default function AdminUsersPage() {
                               )}
                             </div>
                             <div className="flex flex-col gap-1 shrink-0">
-                              <UserRoleChangeDialog
-                                userId={user.id}
-                                currentRole={user.role}
-                                userName={user.name}
-                              />
+                              <div className="flex items-center gap-1">
+                                <UserRoleChangeDialog
+                                  userId={user.id}
+                                  currentRole={user.role}
+                                  userName={user.name}
+                                />
+                                <DeleteUserDialog
+                                  userId={user._id}
+                                  userName={user.name}
+                                  userRole={user.role}
+                                />
+                              </div>
                               {getStatusBadge(user.is_active)}
                             </div>
                           </div>

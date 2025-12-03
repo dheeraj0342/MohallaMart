@@ -20,7 +20,7 @@ export const createUser = mutation({
   handler: async (ctx, args) => {
     const existingUser = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("id"), args.id))
+      .withIndex("by_user_id", (q) => q.eq("id", args.id))
       .first();
 
     if (existingUser) {
@@ -49,7 +49,7 @@ export const getUser = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("id"), args.id))
+      .withIndex("by_user_id", (q) => q.eq("id", args.id))
       .first();
   },
 });
@@ -84,7 +84,7 @@ export const updateUser = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("id"), args.id))
+      .withIndex("by_user_id", (q) => q.eq("id", args.id))
       .first();
 
     if (!user) {
@@ -110,7 +110,7 @@ export const deactivateUser = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("id"), args.id))
+      .withIndex("by_user_id", (q) => q.eq("id", args.id))
       .first();
 
     if (!user) {
@@ -210,7 +210,7 @@ export const setUserActiveStatus = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("id"), args.id))
+      .withIndex("by_user_id", (q) => q.eq("id", args.id))
       .first();
 
     if (!user) {
@@ -253,7 +253,7 @@ export const requestShopkeeperRole = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("id"), args.id))
+      .withIndex("by_user_id", (q) => q.eq("id", args.id))
       .first();
 
     if (!user) {
@@ -310,7 +310,7 @@ export const syncUserWithSupabase = mutation({
   handler: async (ctx, args) => {
     const existingUser = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("id"), args.supabaseUserId))
+      .withIndex("by_user_id", (q) => q.eq("id", args.supabaseUserId))
       .first();
 
     if (existingUser) {
@@ -345,5 +345,125 @@ export const syncUserWithSupabase = mutation({
       });
       return userId;
     }
+  },
+});
+
+// Delete shopkeeper and all associated data (Admin only)
+export const deleteShopkeeper = mutation({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // 1. Get all shops owned by the user
+    const shops = await ctx.db
+      .query("shops")
+      .withIndex("by_owner", (q) => q.eq("owner_id", args.userId))
+      .collect();
+
+    for (const shop of shops) {
+      // 2. Delete all products for each shop
+      const products = await ctx.db
+        .query("products")
+        .withIndex("by_shop", (q) => q.eq("shop_id", shop._id))
+        .collect();
+      
+      for (const product of products) {
+        await ctx.db.delete(product._id);
+      }
+
+      // 3. Delete all orders for each shop (and their items)
+      const orders = await ctx.db
+        .query("orders")
+        .withIndex("by_shop", (q) => q.eq("shop_id", shop._id))
+        .collect();
+
+      for (const order of orders) {
+        const orderItems = await ctx.db
+          .query("order_items")
+          .withIndex("by_order", (q) => q.eq("order_id", order._id))
+          .collect();
+        
+        for (const item of orderItems) {
+          await ctx.db.delete(item._id);
+        }
+        await ctx.db.delete(order._id);
+      }
+
+      // 4. Delete the shop itself
+      await ctx.db.delete(shop._id);
+    }
+
+    // 5. Delete seller registrations
+    const registrations = await ctx.db
+      .query("seller_registrations")
+      .withIndex("by_user", (q) => q.eq("user_id", args.userId))
+      .collect();
+    for (const reg of registrations) {
+      await ctx.db.delete(reg._id);
+    }
+
+    // 6. Delete shopkeeper applications
+    const applications = await ctx.db
+      .query("shopkeeper_applications")
+      .withIndex("by_applicant", (q) => q.eq("applicant_id", args.userId))
+      .collect();
+    for (const app of applications) {
+      await ctx.db.delete(app._id);
+    }
+
+    // 7. Delete notifications
+    const notifications = await ctx.db
+      .query("notifications")
+      .withIndex("by_user", (q) => q.eq("user_id", args.userId))
+      .collect();
+    for (const notif of notifications) {
+      await ctx.db.delete(notif._id);
+    }
+
+    // 8. Delete cart items
+    const cartItems = await ctx.db
+      .query("cart")
+      .withIndex("by_user", (q) => q.eq("user_id", args.userId))
+      .collect();
+    for (const item of cartItems) {
+      await ctx.db.delete(item._id);
+    }
+
+    // 9. Delete reviews made by the user
+    const reviews = await ctx.db
+      .query("reviews")
+      .withIndex("by_user", (q) => q.eq("user_id", args.userId))
+      .collect();
+    for (const review of reviews) {
+      await ctx.db.delete(review._id);
+    }
+
+    // 10. Delete user locations
+    const locations = await ctx.db
+      .query("user_locations")
+      .withIndex("by_user", (q) => q.eq("user_id", args.userId))
+      .collect();
+    for (const loc of locations) {
+      await ctx.db.delete(loc._id);
+    }
+
+    // 11. Finally, delete the user
+    await ctx.db.delete(args.userId);
+
+    // Log the action
+    await ctx.db.insert("admin_audit_logs", {
+      action: "delete_shopkeeper",
+      target_user_id: args.userId, // Note: This ID will no longer exist in users table
+      created_at: Date.now(),
+      metadata: {
+        deleted_user_name: user.name,
+        deleted_user_email: user.email,
+      }
+    });
+
+    return { success: true };
   },
 });

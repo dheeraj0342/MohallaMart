@@ -22,7 +22,8 @@ export default defineSchema({
   })
     .index("by_email", ["email"])
     .index("by_phone", ["phone"])
-    .index("by_role", ["role"]),
+    .index("by_role", ["role"])
+    .index("by_user_id", ["id"]),
 
   // Shops table (Vendor shops)
   shops: defineTable({
