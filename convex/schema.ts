@@ -480,4 +480,14 @@ export default defineSchema({
     .index("by_shop", ["shop_id"])
     .index("by_code", ["code"])
     .index("by_active", ["is_active"]),
+
+  // Login logs table (for tracking failed attempts)
+  login_logs: defineTable({
+    email: v.string(),
+    error_message: v.string(),
+    ip_address: v.optional(v.string()),
+    user_agent: v.optional(v.string()),
+    status: v.union(v.literal("failed"), v.literal("success")), // future proofing
+    created_at: v.number(),
+  }).index("by_email", ["email"]),
 });

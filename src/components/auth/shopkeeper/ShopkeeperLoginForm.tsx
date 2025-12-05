@@ -7,6 +7,7 @@ import { Eye, EyeOff, Mail, Lock, Loader2, Store, Globe } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
+import { useSearchParams } from "next/navigation";
 import { useMutation } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 
@@ -23,7 +24,10 @@ export default function ShopkeeperLoginForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { success, error: errorToast } = useToast();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next");
   const syncUser = useMutation(api.users.syncUserWithSupabase);
+  const logAttempt = useMutation(api.logs.logLoginAttempt);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,9 +79,16 @@ export default function ShopkeeperLoginForm({
           onSuccess?.();
         }, 500);
       }
-    } catch {
-      setError("An unexpected error occurred");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(errorMessage);
       setLoading(false);
+      logAttempt({
+        email,
+        error_message: errorMessage,
+        status: "failed",
+        user_agent: navigator.userAgent,
+      }).catch(() => {});
     }
   };
 
@@ -86,7 +97,7 @@ export default function ShopkeeperLoginForm({
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: getEmailRedirectUrl(),
+          redirectTo: `${getEmailRedirectUrl()}${next ? `?next=${encodeURIComponent(next)}` : ""}`,
         },
       });
       if (error) {

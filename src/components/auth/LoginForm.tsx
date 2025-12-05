@@ -16,6 +16,9 @@ import {
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
+import { useSearchParams } from "next/navigation";
+import { useMutation } from "convex/react";
+import { api } from "@/../convex/_generated/api";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -32,6 +35,9 @@ export default function LoginForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { error: errorToast, info, success } = useToast();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next");
+  const logAttempt = useMutation(api.logs.logLoginAttempt);
 
   // Validate Supabase configuration on mount
   useEffect(() => {
@@ -96,6 +102,12 @@ export default function LoginForm({
       errorToast(errorMessage);
       setLoading(false);
       console.error("Login error:", err);
+      logAttempt({
+        email,
+        error_message: errorMessage,
+        status: "failed",
+        user_agent: navigator.userAgent,
+      }).catch(() => {});
     }
   };
 
@@ -131,7 +143,7 @@ export default function LoginForm({
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: getEmailRedirectUrl(),
+          redirectTo: `${getEmailRedirectUrl()}${next ? `?next=${encodeURIComponent(next)}` : ""}`,
         },
       });
       if (error) {

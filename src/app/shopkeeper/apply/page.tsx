@@ -19,7 +19,7 @@ export default function ShopkeeperApplyPage() {
   const apply = async () => {
     if (submitting) return;
     if (!user) {
-      router.push("/shopkeeper/login");
+      router.push("/shopkeeper/login?next=/shopkeeper/apply");
       return;
     }
     setSubmitting(true);
@@ -84,21 +84,41 @@ export default function ShopkeeperApplyPage() {
                   approval.
                 </p>
               </div>
-              <div className="space-y-4 text-sm text-[#44525f] dark:text-[#cbd5f5] mb-6">
-                <div className="flex items-start space-x-2">
-                  <span className="mt-0.5">✅</span>
-                  <span>
-                    We will verify your account and enable access when approved.
-                  </span>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <span className="mt-0.5">🚚</span>
-                  <span>
-                    Once approved, manage products, orders, and deliveries in
-                    your dashboard.
-                  </span>
+              
+              <div className="space-y-6 text-sm text-[#44525f] dark:text-[#cbd5f5] mb-8">
+                <div className="space-y-4">
+                  <div className="flex gap-4">
+                    <div className="flex-none flex flex-col items-center">
+                      <div className="w-8 h-8 rounded-full bg-primary-brand text-white flex items-center justify-center font-bold text-sm">1</div>
+                      <div className="w-0.5 h-full bg-border mt-2"></div>
+                    </div>
+                    <div className="pb-6">
+                      <h3 className="font-semibold text-foreground text-base">Submit Application</h3>
+                      <p className="text-muted-foreground mt-1">Start your journey by creating your shopkeeper profile.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="flex-none flex flex-col items-center">
+                      <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground border-2 border-border flex items-center justify-center font-bold text-sm">2</div>
+                      <div className="w-0.5 h-full bg-border mt-2"></div>
+                    </div>
+                    <div className="pb-6">
+                      <h3 className="font-semibold text-foreground text-base">Complete Registration</h3>
+                      <p className="text-muted-foreground mt-1">Provide business details, tax info, and bank account.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="flex-none flex flex-col items-center">
+                      <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground border-2 border-border flex items-center justify-center font-bold text-sm">3</div>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground text-base">Get Verified & Sell</h3>
+                      <p className="text-muted-foreground mt-1">Once approved, setup your shop and start receiving orders.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
+
               <button
                 onClick={apply}
                 disabled={submitting}
@@ -118,12 +138,12 @@ export default function ShopkeeperApplyPage() {
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <Link href="/shopkeeper/login">
+                <Link href="/shopkeeper/login?next=/shopkeeper/apply">
                   <button className="w-full px-4 py-3 rounded-xl font-semibold border-2 border-primary-brand text-primary-brand hover:bg-primary-brand hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-brand">
                     Sign In
                   </button>
                 </Link>
-                <Link href="/shopkeeper/signup">
+                <Link href="/shopkeeper/signup?next=/shopkeeper/apply">
                   <button className="w-full px-4 py-3 rounded-xl font-semibold bg-secondary-brand text-white shadow-lg shadow-secondary-brand/25 hover:bg-[#f97316] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-brand">
                     Create Account
                   </button>

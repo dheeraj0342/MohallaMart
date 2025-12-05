@@ -7,6 +7,7 @@ import { Eye, EyeOff, Mail, Lock, Loader2, User, Store, Globe } from "lucide-rea
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
+import { useSearchParams } from "next/navigation";
 import { useMutation } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 
@@ -26,6 +27,8 @@ export default function ShopkeeperSignupForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { success, error: errorToast } = useToast();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next");
   const syncUser = useMutation(api.users.syncUserWithSupabase);
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -55,7 +58,7 @@ export default function ShopkeeperSignupForm({
           email,
           password,
           options: {
-            emailRedirectTo: getEmailRedirectUrl(),
+            emailRedirectTo: `${getEmailRedirectUrl()}${next ? `?next=${encodeURIComponent(next)}` : ""}`,
             data: {
               full_name: fullName,
               role: "shop_owner", // Set role in user metadata
@@ -97,7 +100,7 @@ export default function ShopkeeperSignupForm({
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: getEmailRedirectUrl(),
+          redirectTo: `${getEmailRedirectUrl()}${next ? `?next=${encodeURIComponent(next)}` : ""}`,
         },
       });
       if (error) {

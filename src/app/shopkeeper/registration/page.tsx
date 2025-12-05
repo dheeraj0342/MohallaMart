@@ -261,6 +261,24 @@ export default function ShopkeeperRegistrationPage() {
       return;
     }
 
+    // Regex Validation
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!panRegex.test(pan)) {
+      error("Invalid PAN format (e.g., ABCDE1234F)");
+      return;
+    }
+
+    if (gstin && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(gstin)) {
+      error("Invalid GSTIN format");
+      return;
+    }
+
+    const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+    if (!ifscRegex.test(bankIfsc)) {
+      error("Invalid IFSC Code format");
+      return;
+    }
+
     setSubmitting(true);
     try {
       await save({
@@ -553,6 +571,27 @@ export default function ShopkeeperRegistrationPage() {
                     required
                     className="bg-background"
                   />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-border/80 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary" />
+                  Documents
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Upload Identity Proof</Label>
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-muted/50 transition-colors cursor-pointer">
+                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-2">
+                      <FileText className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <p className="text-sm font-medium">Click to upload or drag and drop</p>
+                    <p className="text-xs text-muted-foreground mt-1">PDF, JPG or PNG (max. 5MB)</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>

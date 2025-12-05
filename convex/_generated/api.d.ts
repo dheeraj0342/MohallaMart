@@ -14,6 +14,7 @@ import type * as categories from "../categories.js";
 import type * as coupons from "../coupons.js";
 import type * as favorites from "../favorites.js";
 import type * as files from "../files.js";
+import type * as logs from "../logs.js";
 import type * as notifications from "../notifications.js";
 import type * as orders from "../orders.js";
 import type * as products from "../products.js";
@@ -45,6 +46,7 @@ declare const fullApi: ApiFromModules<{
   coupons: typeof coupons;
   favorites: typeof favorites;
   files: typeof files;
+  logs: typeof logs;
   notifications: typeof notifications;
   orders: typeof orders;
   products: typeof products;

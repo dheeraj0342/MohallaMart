@@ -17,6 +17,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
 import { withRetry } from "@/lib/retry";
+import { useSearchParams } from "next/navigation";
 
 interface SignupFormProps {
   onSuccess?: () => void;
@@ -40,6 +41,8 @@ export default function SignupForm({
   const [error, setError] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const { success, error: errorToast } = useToast();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next");
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -86,7 +89,7 @@ export default function SignupForm({
           email: formData.email,
           password: formData.password,
           options: {
-            emailRedirectTo: getEmailRedirectUrl(),
+            emailRedirectTo: `${getEmailRedirectUrl()}${next ? `?next=${encodeURIComponent(next)}` : ""}`,
             data: {
               full_name: formData.fullName,
               phone: formData.phone,
@@ -116,7 +119,7 @@ export default function SignupForm({
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: getEmailRedirectUrl(),
+          redirectTo: `${getEmailRedirectUrl()}${next ? `?next=${encodeURIComponent(next)}` : ""}`,
         },
       });
       if (error) {
