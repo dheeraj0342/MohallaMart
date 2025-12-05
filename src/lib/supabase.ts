@@ -41,14 +41,19 @@ export const validateSupabaseConfig = ():
 
 // Get the site URL based on environment
 export const getSiteUrl = () => {
-  // Check if we're on Vercel
+  // Priority 1: Custom domain (for production with custom domain)
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
+
+  // Priority 2: Vercel URL (automatically set by Vercel)
   if (process.env.NEXT_PUBLIC_VERCEL_URL) {
     return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
   }
 
-  // Check for custom domain
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL;
+  // Priority 3: Check if we're in browser and can get origin
+  if (typeof window !== "undefined") {
+    return window.location.origin;
   }
 
   // Fallback to localhost for development
