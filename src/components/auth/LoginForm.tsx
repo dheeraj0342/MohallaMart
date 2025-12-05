@@ -24,12 +24,14 @@ interface LoginFormProps {
   onSuccess?: () => void;
   onSwitchToSignup?: () => void;
   initialError?: string;
+  role?: string;
 }
 
 export default function LoginForm({
   onSuccess,
   onSwitchToSignup,
   initialError,
+  role = "customer",
 }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -316,40 +318,44 @@ export default function LoginForm({
               </button>
             </div>
 
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-card text-muted-foreground">
-                  Or continue with
-                </span>
-              </div>
-            </div>
+            {/* Social Login - Only show for customers */}
+            {role === "customer" && (
+              <>
+                {/* Divider */}
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-border"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-card text-muted-foreground">
+                      Or continue with
+                    </span>
+                  </div>
+                </div>
 
-            {/* Social Login */}
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={handleGoogleLogin}
-                className="relative h-12 border-2 border-border rounded-xl bg-card hover:bg-muted text-foreground flex items-center justify-center gap-2 font-medium text-sm transition-all"
-              >
-                <Globe className="h-5 w-5" />
-                <span>Google</span>
-              </button>
-              <button
-                type="button"
-                disabled
-                className="relative h-12 border-2 border-border rounded-xl bg-muted text-foreground cursor-not-allowed opacity-60 flex items-center justify-center gap-2 font-medium text-sm transition-all"
-              >
-                <Phone className="h-5 w-5" />
-                <span>Phone</span>
-                <span className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                  Soon
-                </span>
-              </button>
-            </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    className="relative h-12 border-2 border-border rounded-xl bg-card hover:bg-muted text-foreground flex items-center justify-center gap-2 font-medium text-sm transition-all"
+                  >
+                    <Globe className="h-5 w-5" />
+                    <span>Google</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled
+                    className="relative h-12 border-2 border-border rounded-xl bg-muted text-foreground cursor-not-allowed opacity-60 flex items-center justify-center gap-2 font-medium text-sm transition-all"
+                  >
+                    <Phone className="h-5 w-5" />
+                    <span>Phone</span>
+                    <span className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      Soon
+                    </span>
+                  </button>
+                </div>
+              </>
+            )}
           </form>
         </motion.div>
       </div>

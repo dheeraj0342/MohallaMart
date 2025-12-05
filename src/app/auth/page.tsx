@@ -31,6 +31,7 @@ function AuthPageContent() {
   const initialMode = (search?.get("mode") || "login").toLowerCase();
   const next = search?.get("next") || "/";
   const errorMsg = search?.get("error") || undefined;
+  const role = search?.get("role") || undefined;
   const [isLogin, setIsLogin] = useState(initialMode !== "signup");
   const router = useRouter();
   const { isLoggedIn } = useStore();
@@ -129,6 +130,7 @@ function AuthPageContent() {
               onSuccess={handleAuthSuccess}
               onSwitchToSignup={() => setIsLogin(false)}
               initialError={errorMsg}
+              role={role}
             />
           ) : (
             <SignupForm
@@ -136,6 +138,7 @@ function AuthPageContent() {
               onSuccess={handleAuthSuccess}
               onSwitchToLogin={() => setIsLogin(true)}
               initialError={errorMsg}
+              role={role}
             />
           )}
         </AnimatePresence>

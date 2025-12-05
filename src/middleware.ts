@@ -1,11 +1,40 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
 /**
  * Middleware for route protection based on roles
  * Protects routes based on user role
  */
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value);
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+
+  // Refresh session if expired - required for Server Components
+  // https://supabase.com/docs/guides/auth/server-side/nextjs
+  await supabase.auth.getUser();
+
   const { pathname } = request.nextUrl;
 
   // Public routes that don't need auth
@@ -28,7 +57,7 @@ export function middleware(request: NextRequest) {
   );
 
   if (isPublicRoute) {
-    return NextResponse.next();
+    return response;
   }
 
   // Role-based route protection
@@ -36,7 +65,7 @@ export function middleware(request: NextRequest) {
   // This middleware just allows the request through
   // Real auth check happens client-side with useAuth hook
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {

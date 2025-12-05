@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { withRetry } from "@/lib/retry";
 
 /**
@@ -24,12 +25,11 @@ function validateRedirectUrl(url: string, userRole: string | null | undefined): 
     );
     
     if (isProtectedRoute) {
-      // Redirect to home instead of protected route
       return "/";
     }
   }
 
-  // Shopkeeper can access shopkeeper routes
+  // Shopkeeper can't access admin or rider routes
   if (userRole === "shop_owner") {
     const isAdminRoute = adminRoutes.some((route) =>
       normalizedUrl.startsWith(route)
@@ -39,14 +39,12 @@ function validateRedirectUrl(url: string, userRole: string | null | undefined): 
     );
     
     if (isAdminRoute || isRiderRoute) {
-      // Shopkeeper can't access admin or rider routes
       return "/shopkeeper/apply";
     }
   }
 
-  // Admin can access admin routes (add more validation if needed)
+  // Admin can't access shopkeeper or rider routes
   if (userRole === "admin") {
-    // Admin can access admin routes, but not shopkeeper/rider routes
     const isShopkeeperRoute = shopkeeperRoutes.some((route) =>
       normalizedUrl.startsWith(route)
     );
@@ -59,7 +57,7 @@ function validateRedirectUrl(url: string, userRole: string | null | undefined): 
     }
   }
 
-  // Rider can access rider routes (add more validation if needed)
+  // Rider can't access shopkeeper or admin routes
   if (userRole === "rider") {
     const isShopkeeperRoute = shopkeeperRoutes.some((route) =>
       normalizedUrl.startsWith(route)
@@ -84,6 +82,30 @@ export async function GET(request: NextRequest) {
   const role = requestUrl.searchParams.get("role"); // Get role from query params (for OAuth)
 
   if (code) {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+              // The `setAll` method was called from a Server Component.
+              // This can be ignored if you have middleware refreshing
+              // user sessions.
+            }
+          },
+        },
+      }
+    );
+
     try {
       const { data, error } = await withRetry(() => supabase.auth.exchangeCodeForSession(code), {
         retries: 2,
@@ -111,7 +133,9 @@ export async function GET(request: NextRequest) {
       // This prevents customers from being redirected to protected routes (shopkeeper/admin/rider)
       // If a customer signs up with ?next=/shopkeeper/apply, validateRedirectUrl will return "/"
       let redirectUrl = validateRedirectUrl(next, userRole);
-            if (userRole === "shop_owner") {
+      
+      // Additional role-based default redirects
+      if (userRole === "shop_owner") {
         // Shopkeeper should go to apply page if redirected to home
         if (redirectUrl === "/") {
           redirectUrl = "/shopkeeper/apply";
@@ -123,9 +147,16 @@ export async function GET(request: NextRequest) {
       console.error("Auth callback error:", error);
       const errorUrl = new URL("/auth", requestUrl.origin);
       errorUrl.searchParams.set("error", "Unable to verify email");
+      if (role) {
+        errorUrl.searchParams.set("role", role);
+      }
       return NextResponse.redirect(errorUrl);
     }
   }
 
-  return NextResponse.redirect(new URL("/auth", requestUrl.origin));
+  const fallbackUrl = new URL("/auth", requestUrl.origin);
+  if (role) {
+    fallbackUrl.searchParams.set("role", role);
+  }
+  return NextResponse.redirect(fallbackUrl);
 }
