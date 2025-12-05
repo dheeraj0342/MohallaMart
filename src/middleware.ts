@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-
-/**
- * Middleware for route protection based on roles
- * Protects routes based on user role
- */
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Check admin authentication FIRST (just check if cookie exists)
+  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+    const adminCookie = request.cookies.get("admin_session");
+    
+    if (!adminCookie) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+  }
+
   const response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -34,8 +40,6 @@ export async function middleware(request: NextRequest) {
   // Refresh session if expired - required for Server Components
   // https://supabase.com/docs/guides/auth/server-side/nextjs
   await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
 
   // Public routes that don't need auth
   const publicRoutes = [
