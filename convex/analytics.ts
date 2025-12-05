@@ -1,5 +1,6 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
+import { Id } from "./_generated/dataModel";
 
 // Get daily sales for the last 30 days
 export const getDailySales = query({
@@ -96,7 +97,7 @@ export const getTopProducts = query({
 
     const result = [];
     for (const [productId, stats] of sortedStats) {
-      const product = await ctx.db.get(productId as any);
+      const product = await ctx.db.get(productId as Id<"products">);
       result.push({
         name: product?.name || "Unknown Product",
         revenue: stats.revenue,
