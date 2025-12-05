@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import {
   ShieldCheck,
   LayoutDashboard,
@@ -50,19 +49,11 @@ const NAV = [
   },
 ];
 
-
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    fetch('/api/admin/check-auth')
-      .then(res => res.json())
-      .then(data => setIsAuthenticated(data.authenticated))
-      .catch(() => setIsAuthenticated(false));
-  }, []);
-
-  if (!isAuthenticated) {
+  // Hide sidebar only on login page
+  if (pathname === '/admin/login') {
     return null;
   }
 
