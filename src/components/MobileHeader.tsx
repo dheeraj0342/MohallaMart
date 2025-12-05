@@ -9,10 +9,14 @@ import {
   Sun,
   User,
   X,
+  LogOut,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { images } from "@/lib/images";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/useToast";
 
 interface Category {
   name: string;
@@ -50,6 +54,9 @@ export function MobileHeader({
   user,
   dbUser,
 }: MobileHeaderProps) {
+  const { logout } = useAuth();
+  const router = useRouter();
+  const { success } = useToast();
   const isHomePage = pathname === "/" || pathname === null;
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -407,22 +414,87 @@ export function MobileHeader({
                   right: `${menuPosition.right}px`,
                 }}
               >
-                <Link
-                  href="/auth"
-                  onClick={() => setIsUserMenuOpen(false)}
-                  className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border transition-colors"
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  User Login
-                </Link>
-                <Link
-                  href="/shopkeeper/signup"
-                  onClick={() => setIsUserMenuOpen(false)}
-                  className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted transition-colors"
-                >
-                  <span className="h-4 w-4 mr-2 flex items-center justify-center">🏪</span>
-                  Shopkeeper Login
-                </Link>
+                {user && dbUser ? (
+                  <>
+                    {/* User info section */}
+                    <div className="px-4 py-3 border-b border-border">
+                      <div className="flex items-center gap-3">
+                        {dbUser.avatar_url ? (
+                          <img
+                            src={dbUser.avatar_url}
+                            alt={user.name || "User"}
+                            className="h-10 w-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <User className="h-5 w-5 text-primary" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground truncate">
+                            {user.name || user.email?.split("@")[0] || "User"}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {user.email}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Profile link */}
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border transition-colors"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Profile
+                    </Link>
+
+                    {/* Orders link */}
+                    <Link
+                      href="/orders"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border transition-colors"
+                    >
+                      <span className="h-4 w-4 mr-2 flex items-center justify-center">📦</span>
+                      My Orders
+                    </Link>
+
+                    {/* Logout button */}
+                    <button
+                      onClick={async () => {
+                        setIsUserMenuOpen(false);
+                        await logout();
+                        success("Logged out successfully");
+                      }}
+                      className="flex items-center w-full px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* Login links when not logged in */}
+                    <Link
+                      href="/auth"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border transition-colors"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      User Login
+                    </Link>
+                    <Link
+                      href="/shopkeeper/signup"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted transition-colors"
+                    >
+                      <span className="h-4 w-4 mr-2 flex items-center justify-center">🏪</span>
+                      Shopkeeper Login
+                    </Link>
+                  </>
+                )}
               </motion.div>
             </>
           )}

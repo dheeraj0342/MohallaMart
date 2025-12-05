@@ -85,18 +85,18 @@ export function MobileBottomNav({
               </span>
             </Link>
             <Link
-              href="/shops"
+              href="/category"
               aria-label="Categories"
               className="flex flex-col items-center justify-center gap-1 py-1"
             >
               <Grid2x2
-                className={`${pathname?.startsWith("/shops")
+                className={`${pathname?.startsWith("/category") || pathname?.startsWith("/shops")
                   ? "text-primary"
                   : "text-muted-foreground"
                   } h-5 w-5`}
               />
               <span
-                className={`text-[11px] ${pathname?.startsWith("/shops")
+                className={`text-[11px] ${pathname?.startsWith("/category") || pathname?.startsWith("/shops")
                   ? "text-primary font-medium"
                   : "text-muted-foreground"
                   }`}
