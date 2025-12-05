@@ -53,12 +53,16 @@ export default function ShopkeeperSignupForm({
         setLoading(false);
         return;
       }
+      const nextUrl = next || "/shopkeeper/apply";
+      // Include role in the redirect URL so callback can redirect correctly
+      const emailRedirectTo = `${getEmailRedirectUrl()}?next=${encodeURIComponent(nextUrl)}&role=shop_owner`;
+      
       const { data, error } = await withRetry(() =>
         supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${getEmailRedirectUrl()}${next ? `?next=${encodeURIComponent(next)}` : ""}`,
+            emailRedirectTo,
             data: {
               full_name: fullName,
               role: "shop_owner", // Set role in user metadata

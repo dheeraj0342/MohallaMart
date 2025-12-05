@@ -4,6 +4,7 @@ import React, { useState, useEffect, Component, ReactNode, Suspense } from "reac
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { useStore } from "@/store/useStore";
+import { useAuth } from "@/hooks/useAuth";
 import LoginForm from "@/components/auth/LoginForm";
 import SignupForm from "@/components/auth/SignupForm";
 
@@ -32,15 +33,42 @@ function AuthPageContent() {
   const [isLogin, setIsLogin] = useState(initialMode !== "signup");
   const router = useRouter();
   const { isLoggedIn } = useStore();
+  const { dbUser } = useAuth();
 
   useEffect(() => {
-    if (isLoggedIn()) {
-      router.replace(next);
+    if (isLoggedIn() && dbUser !== undefined) {
+      // Role-based redirect
+      const userRole = dbUser?.role;
+
+      if (userRole === "shop_owner") {
+        // Shopkeeper should go to apply page or shopkeeper route
+        if (next === "/" || !next.startsWith("/shopkeeper")) {
+          router.replace("/shopkeeper/apply");
+        } else {
+          router.replace(next);
+        }
+      } else {
+        // Customer or no role - use next or home
+        router.replace(next);
+      }
     }
-  }, [isLoggedIn, router, next]);
+  }, [isLoggedIn, dbUser, router, next]);
 
   const handleAuthSuccess = () => {
-    router.replace(next);
+    // Check if this is a shopkeeper signup by checking the next URL or role
+    const isShopkeeperFlow = next?.startsWith("/shopkeeper") || search?.get("role") === "shop_owner";
+
+    if (isShopkeeperFlow) {
+      // Shopkeeper should go to apply page or shopkeeper route
+      if (next === "/" || !next.startsWith("/shopkeeper")) {
+        router.replace("/shopkeeper/apply");
+      } else {
+        router.replace(next);
+      }
+    } else {
+      // Customer or no role - use next or home
+      router.replace(next);
+    }
   };
 
   return (

@@ -29,7 +29,23 @@ export async function GET(request: NextRequest) {
         });
       }
 
-      return NextResponse.redirect(new URL(next, requestUrl.origin));
+      // Determine redirect URL based on role
+      let redirectUrl = next;
+      const userRole = data?.user?.user_metadata?.role || role;
+      
+      if (userRole === "shop_owner") {
+        // Shopkeeper should go to apply page (or next if specified and it's a shopkeeper route)
+        if (next === "/" || !next.startsWith("/shopkeeper")) {
+          redirectUrl = "/shopkeeper/apply";
+        } else {
+          redirectUrl = next;
+        }
+      } else if (userRole === "customer" || !userRole) {
+        // Customer or no role - use next or home
+        redirectUrl = next;
+      }
+
+      return NextResponse.redirect(new URL(redirectUrl, requestUrl.origin));
     } catch {
       return NextResponse.redirect(
         new URL("/auth?error=Unable to verify email", requestUrl.origin),
