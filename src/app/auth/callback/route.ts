@@ -111,9 +111,7 @@ export async function GET(request: NextRequest) {
       // This prevents customers from being redirected to protected routes (shopkeeper/admin/rider)
       // If a customer signs up with ?next=/shopkeeper/apply, validateRedirectUrl will return "/"
       let redirectUrl = validateRedirectUrl(next, userRole);
-      
-      // Additional role-based default redirects
-      if (userRole === "shop_owner") {
+            if (userRole === "shop_owner") {
         // Shopkeeper should go to apply page if redirected to home
         if (redirectUrl === "/") {
           redirectUrl = "/shopkeeper/apply";
@@ -121,10 +119,11 @@ export async function GET(request: NextRequest) {
       }
 
       return NextResponse.redirect(new URL(redirectUrl, requestUrl.origin));
-    } catch {
-      return NextResponse.redirect(
-        new URL("/auth?error=Unable to verify email", requestUrl.origin),
-      );
+    } catch (error) {
+      console.error("Auth callback error:", error);
+      const errorUrl = new URL("/auth", requestUrl.origin);
+      errorUrl.searchParams.set("error", "Unable to verify email");
+      return NextResponse.redirect(errorUrl);
     }
   }
 

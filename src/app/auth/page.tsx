@@ -30,6 +30,7 @@ function AuthPageContent() {
   const search = useSearchParams();
   const initialMode = (search?.get("mode") || "login").toLowerCase();
   const next = search?.get("next") || "/";
+  const errorMsg = search?.get("error") || undefined;
   const [isLogin, setIsLogin] = useState(initialMode !== "signup");
   const router = useRouter();
   const { isLoggedIn } = useStore();
@@ -67,7 +68,7 @@ function AuthPageContent() {
 
       router.replace(redirectUrl);
     }
-  }, [dbUser, router, next]); // Removed isLoggedIn from dependencies
+  }, [dbUser, router, next]);
 
   const handleAuthSuccess = () => {
     // Use actual user role from dbUser if available, otherwise fall back to URL params
@@ -127,12 +128,14 @@ function AuthPageContent() {
               key="login"
               onSuccess={handleAuthSuccess}
               onSwitchToSignup={() => setIsLogin(false)}
+              initialError={errorMsg}
             />
           ) : (
             <SignupForm
               key="signup"
               onSuccess={handleAuthSuccess}
               onSwitchToLogin={() => setIsLogin(true)}
+              initialError={errorMsg}
             />
           )}
         </AnimatePresence>

@@ -24,11 +24,13 @@ import { api } from "@/../convex/_generated/api";
 interface SignupFormProps {
   onSuccess?: () => void;
   onSwitchToLogin?: () => void;
+  initialError?: string;
 }
 
 export default function SignupForm({
   onSuccess,
   onSwitchToLogin,
+  initialError,
 }: SignupFormProps) {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -40,7 +42,7 @@ export default function SignupForm({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError || "");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const { success, error: errorToast } = useToast();
   const searchParams = useSearchParams();
