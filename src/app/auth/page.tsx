@@ -36,39 +36,86 @@ function AuthPageContent() {
   const { dbUser } = useAuth();
 
   useEffect(() => {
-    if (isLoggedIn() && dbUser !== undefined) {
-      // Role-based redirect
+    // Call isLoggedIn() inside the effect instead of including it in dependencies
+    // This prevents the effect from running on every render due to function reference changes
+    const loggedIn = isLoggedIn();
+
+    if (loggedIn && dbUser !== undefined) {
+      // Role-based redirect with validation
       const userRole = dbUser?.role;
 
-      if (userRole === "shop_owner") {
-        // Shopkeeper should go to apply page or shopkeeper route
-        if (next === "/" || !next.startsWith("/shopkeeper")) {
-          router.replace("/shopkeeper/apply");
-        } else {
-          router.replace(next);
+      // Validate next URL based on role
+      let redirectUrl = next;
+
+      // Block customers from accessing protected routes
+      if (!userRole || userRole === "customer") {
+        if (next.startsWith("/shopkeeper") ||
+          next.startsWith("/admin") ||
+          next.startsWith("/rider")) {
+          redirectUrl = "/";
         }
-      } else {
-        // Customer or no role - use next or home
-        router.replace(next);
       }
+
+      // Block shopkeepers from accessing admin/rider routes
+      if (userRole === "shop_owner") {
+        if (next.startsWith("/admin") || next.startsWith("/rider")) {
+          redirectUrl = "/shopkeeper/apply";
+        } else if (next === "/" || !next.startsWith("/shopkeeper")) {
+          redirectUrl = "/shopkeeper/apply";
+        }
+      }
+
+      router.replace(redirectUrl);
     }
-  }, [isLoggedIn, dbUser, router, next]);
+  }, [dbUser, router, next]); // Removed isLoggedIn from dependencies
 
   const handleAuthSuccess = () => {
-    // Check if this is a shopkeeper signup by checking the next URL or role
-    const isShopkeeperFlow = next?.startsWith("/shopkeeper") || search?.get("role") === "shop_owner";
+    // Use actual user role from dbUser if available, otherwise fall back to URL params
+    // This prevents customers from being redirected to shopkeeper routes based on URL alone
+    const actualUserRole = dbUser?.role;
+    const roleFromUrl = search?.get("role");
 
-    if (isShopkeeperFlow) {
-      // Shopkeeper should go to apply page or shopkeeper route
-      if (next === "/" || !next.startsWith("/shopkeeper")) {
-        router.replace("/shopkeeper/apply");
+    // Determine user role: prioritize actual role from database, then URL param
+    const userRole = actualUserRole || roleFromUrl || null;
+
+    // Validate redirect URL based on actual role, not just URL parameters
+    let redirectUrl = next;
+
+    // Block customers from accessing protected routes (even if URL suggests shopkeeper flow)
+    if (!userRole || userRole === "customer") {
+      if (next.startsWith("/shopkeeper") ||
+        next.startsWith("/admin") ||
+        next.startsWith("/rider")) {
+        redirectUrl = "/";
+      }
+      // For customers, just redirect to home or the safe next URL
+      router.replace(redirectUrl);
+      return;
+    }
+
+    // Shopkeeper flow - only if actual role is shop_owner
+    if (userRole === "shop_owner") {
+      if (next.startsWith("/admin") || next.startsWith("/rider")) {
+        redirectUrl = "/shopkeeper/apply";
+      } else if (next === "/" || !next.startsWith("/shopkeeper")) {
+        redirectUrl = "/shopkeeper/apply";
       } else {
-        router.replace(next);
+        redirectUrl = next;
       }
     } else {
-      // Customer or no role - use next or home
-      router.replace(next);
+      // Other roles (admin, rider) - validate their routes
+      if (userRole === "admin") {
+        if (next.startsWith("/shopkeeper") || next.startsWith("/rider")) {
+          redirectUrl = "/admin";
+        }
+      } else if (userRole === "rider") {
+        if (next.startsWith("/shopkeeper") || next.startsWith("/admin")) {
+          redirectUrl = "/rider/app";
+        }
+      }
     }
+
+    router.replace(redirectUrl);
   };
 
   return (
