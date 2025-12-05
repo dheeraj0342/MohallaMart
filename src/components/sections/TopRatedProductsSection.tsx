@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,13 +23,15 @@ import { ProductCard, type Product } from "@/components/products/ProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TopRatedProductsSection() {
-  const { addToCart } = useStore();
+  const { addToCart, location } = useStore();
   const { success } = useToast();
   const [sortBy, setSortBy] = useState<
     "rating" | "price_asc" | "price_desc" | "popular"
   >("rating");
   const [inStockOnly, setInStockOnly] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Id<"categories"> | "all">("all");
+  const [shopEtas, setShopEtas] = useState<Record<string, { minEta: number; maxEta: number }>>({});
+
   const categories = useQuery(api.categories.getRootCategories, { is_active: true }) as
     | Array<{ _id: Id<"categories">; name: string }>
     | null
@@ -49,6 +51,38 @@ export default function TopRatedProductsSection() {
   );
 
   const isLoading = selectedCategory === "all" ? productsAll === undefined : productsByCategory === undefined;
+
+  // Fetch ETAs for shops
+  useEffect(() => {
+    // Helper to safely access location coordinates
+    const loc = location as unknown as { coordinates?: { lat: number; lng: number }; lat?: number; lon?: number } | null;
+    const lat = loc?.coordinates?.lat ?? loc?.lat;
+    const lng = loc?.coordinates?.lng ?? loc?.lon;
+
+    if (!lat || !lng) return;
+
+    const fetchEtas = async () => {
+      try {
+        const res = await fetch(`/api/vendors/nearby?userLat=${lat}&userLon=${lng}&radiusKm=10`);
+        if (res.ok) {
+          const data = await res.json();
+          const etas: Record<string, { minEta: number; maxEta: number }> = {};
+          if (data.vendors && Array.isArray(data.vendors)) {
+            data.vendors.forEach((v: any) => {
+              if (v.eta) {
+                etas[v.id] = v.eta;
+              }
+            });
+          }
+          setShopEtas(etas);
+        }
+      } catch {
+        // Silent error
+      }
+    };
+
+    fetchEtas();
+  }, [location]);
 
   const baseProducts =
     selectedCategory === "all"
@@ -194,6 +228,7 @@ export default function TopRatedProductsSection() {
                     <ProductCard
                       product={adaptedProduct}
                       onAddToCart={handleAddToCart}
+                      eta={adaptedProduct.shop_id ? shopEtas[adaptedProduct.shop_id] : undefined}
                     />
                   </div>
                 );
@@ -208,6 +243,7 @@ export default function TopRatedProductsSection() {
                     key={adaptedProduct._id}
                     product={adaptedProduct}
                     onAddToCart={handleAddToCart}
+                    eta={adaptedProduct.shop_id ? shopEtas[adaptedProduct.shop_id] : undefined}
                   />
                 );
               })}

@@ -5,11 +5,14 @@ import { usePathname } from "next/navigation";
 import {
   Store,
   LayoutDashboard,
+  BarChart3,
   ClipboardList,
   LogOut,
   Package,
   PlusCircle,
   ShoppingBag,
+  Ticket,
+  FileSpreadsheet,
 } from "lucide-react";
 
 import {
@@ -30,9 +33,12 @@ const NAV = [
     title: "Store HQ",
     items: [
       { href: "/shopkeeper/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/shopkeeper/analytics", label: "Analytics", icon: BarChart3 },
       { href: "/shopkeeper/profile", label: "Profile", icon: Store },
       { href: "/shopkeeper/products", label: "Add Products", icon: Package },
       { href: "/shopkeeper/shop/products", label: "Shop Products", icon: ShoppingBag },
+      { href: "/shopkeeper/coupons", label: "Coupons", icon: Ticket },
+      { href: "/shopkeeper/products/bulk", label: "Bulk Upload", icon: FileSpreadsheet },
     ],
   },
   {
@@ -52,12 +58,12 @@ export default function ShopkeeperSidebar() {
       {/* HEADER */}
       <SidebarHeader>
         <div className="flex items-center gap-2 sm:gap-3 px-2 py-2 sm:py-3 min-w-0">
-          <div className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-[var(--sidebar-accent)] text-[var(--sidebar-primary)]">
+          <div className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 flex items-center justify-center rounded-xl bg-sidebar-accent text-sidebar-primary">
             <Store className="h-4 w-4 sm:h-5 sm:w-5" />
           </div>
           <div className="flex-1 min-w-0 leading-tight text-sm">
-            <p className="font-semibold truncate text-[var(--sidebar-foreground)]">Seller Hub</p>
-            <p className="text-[var(--sidebar-foreground)]/70 text-xs truncate">MohallaMart</p>
+            <p className="font-semibold truncate text-sidebar-foreground">Seller Hub</p>
+            <p className="text-sidebar-foreground/70 text-xs truncate">MohallaMart</p>
           </div>
         </div>
       </SidebarHeader>
@@ -83,7 +89,7 @@ export default function ShopkeeperSidebar() {
                         className="min-w-0"
                       >
                         <Link href={item.href} className="flex items-center gap-2 min-w-0">
-                          <Icon className="h-4 w-4 flex-shrink-0" />
+                          <Icon className="h-4 w-4 shrink-0" />
                           <span className="truncate">{item.label}</span>
                         </Link>
                       </SidebarMenuButton>
@@ -108,7 +114,7 @@ export default function ShopkeeperSidebar() {
                   className="min-w-0"
                 >
                   <Link href="/shopkeeper/login" className="flex items-center gap-2 min-w-0">
-                    <LogOut className="h-4 w-4 flex-shrink-0" />
+                    <LogOut className="h-4 w-4 shrink-0" />
                     <span className="truncate">Manage session</span>
                   </Link>
                 </SidebarMenuButton>

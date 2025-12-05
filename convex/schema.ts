@@ -93,6 +93,17 @@ export default defineSchema({
         avg_rider_speed_kmph: v.number(), // Average rider speed
       }),
     ),
+    delivery_zones: v.optional(
+      v.array(
+        v.object({
+          name: v.string(), // e.g., "Zone A"
+          min_distance: v.number(), // km
+          max_distance: v.number(), // km
+          delivery_fee: v.number(),
+          min_order_value: v.optional(v.number()),
+        })
+      )
+    ),
     is_verified: v.optional(v.boolean()), // Admin verification status (optional for backward compatibility)
     is_active: v.boolean(),
     rating: v.optional(v.number()),
@@ -137,7 +148,16 @@ export default defineSchema({
     unit: v.string(), // kg, piece, liter, etc.
     images: v.array(v.string()),
     tags: v.array(v.string()),
-    variants: v.optional(v.array(v.string())),
+    variants: v.optional(
+      v.array(
+        v.object({
+          name: v.string(), // e.g., "Size: L" or "Red"
+          price: v.number(), // Override price
+          stock: v.number(), // Specific stock
+          sku: v.optional(v.string()),
+        })
+      )
+    ),
     is_available: v.boolean(),
     is_featured: v.boolean(),
     rating: v.optional(v.number()),
@@ -238,6 +258,8 @@ export default defineSchema({
     order_id: v.optional(v.id("orders")),
     rating: v.number(),
     comment: v.optional(v.string()),
+    reply: v.optional(v.string()),
+    replied_at: v.optional(v.number()),
     images: v.optional(v.array(v.string())),
     is_verified: v.boolean(),
     created_at: v.number(),
@@ -438,4 +460,24 @@ export default defineSchema({
     .index("by_user", ["user_id"])
     .index("by_user_product", ["user_id", "product_id"])
     .index("by_user_shop", ["user_id", "shop_id"]),
+
+  // Coupons table
+  coupons: defineTable({
+    code: v.string(),
+    description: v.optional(v.string()),
+    discount_type: v.union(v.literal("percentage"), v.literal("fixed")),
+    discount_value: v.number(),
+    min_order_amount: v.optional(v.number()),
+    max_discount_amount: v.optional(v.number()),
+    start_date: v.number(),
+    end_date: v.number(),
+    usage_limit: v.optional(v.number()),
+    usage_count: v.number(),
+    shop_id: v.id("shops"),
+    is_active: v.boolean(),
+    created_at: v.number(),
+  })
+    .index("by_shop", ["shop_id"])
+    .index("by_code", ["code"])
+    .index("by_active", ["is_active"]),
 });

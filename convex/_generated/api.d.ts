@@ -8,8 +8,10 @@
  * @module
  */
 
+import type * as analytics from "../analytics.js";
 import type * as cart from "../cart.js";
 import type * as categories from "../categories.js";
+import type * as coupons from "../coupons.js";
 import type * as favorites from "../favorites.js";
 import type * as files from "../files.js";
 import type * as notifications from "../notifications.js";
@@ -37,8 +39,10 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  analytics: typeof analytics;
   cart: typeof cart;
   categories: typeof categories;
+  coupons: typeof coupons;
   favorites: typeof favorites;
   files: typeof files;
   notifications: typeof notifications;

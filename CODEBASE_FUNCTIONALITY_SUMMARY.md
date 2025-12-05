@@ -9,6 +9,7 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
 ## 🏗️ **Core Architecture**
 
 ### **Tech Stack**
+
 - **Frontend**: Next.js 15.5.3 (App Router), TypeScript, Tailwind CSS 4, Shadcn UI
 - **Backend**: Convex (realtime database), tRPC (type-safe APIs)
 - **Database**: Convex (primary), Supabase PostgreSQL (auth), Redis (caching)
@@ -24,20 +25,24 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
 ## 👥 **User Roles & Permissions**
 
 ### **1. Customer (USER)**
+
 - Role: `customer` in database
 - Access: Browse shops, products, cart, checkout, order tracking
 
 ### **2. Shopkeeper (SHOP_OWNER)**
+
 - Role: `shop_owner` in database
 - Access: Dashboard, product management, order management, shop settings
 - Registration: Multi-step application process with admin approval
 
 ### **3. Rider (RIDER)**
+
 - Role: `rider` in database
 - Access: Delivery dashboard, order assignments, live location tracking
 - Features: Online/offline toggle, order status updates, real-time location broadcasting
 
 ### **4. Admin (ADMIN)**
+
 - Role: `admin` in database
 - Access: User management, shopkeeper approval, order oversight, rider management
 
@@ -46,11 +51,13 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
 ## 🛍️ **Customer Features (Implemented)**
 
 ### **Authentication & Profile**
+
 - ✅ OTP-based login/signup via Supabase Auth
 - ✅ User profile management (name, phone, avatar)
 - ✅ Dark/Light theme support
 
 ### **Shopping Experience**
+
 - ✅ **Shop Browsing**: View all shops with filtering by category, city, pincode
 - ✅ **Shop Details Page**: Shop info, products, ratings, business hours
 - ✅ **Product Browsing**: Browse by category, shop, search
@@ -61,6 +68,7 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
 - ✅ **Image Modal**: Full-screen image viewer
 
 ### **Location & Delivery**
+
 - ✅ **Location Selection**: Leaflet map with GPS detection, search, manual pick
 - ✅ **Location-based Discovery**: Find nearby shops by distance
 - ✅ **Delivery ETA System**: Blinkit-style ETA calculation
@@ -71,6 +79,7 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
 - ✅ **Delivery Address Management**: Multiple saved addresses
 
 ### **Order Management**
+
 - ✅ **Checkout Flow**: Address selection, payment method, order creation
 - ✅ **Order Placement**: Stock validation, auto stock deduction
 - ✅ **Order Tracking**: Real-time tracking page with:
@@ -82,6 +91,7 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
 - ✅ **Product Reviews**: Add reviews after order completion (verified purchase badge)
 
 ### **Notifications**
+
 - ✅ In-app notification bell with unread count
 - ✅ Real-time notifications via Convex subscriptions
 - ✅ Email/SMS placeholders (Inngest integration ready)
@@ -91,6 +101,7 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
 ## 🏪 **Shopkeeper Features (Implemented)**
 
 ### **Registration & Onboarding**
+
 - ✅ **Shopkeeper Signup**: Create account with email/phone
 - ✅ **Application Form**: Multi-step registration with:
   - PAN, GSTIN, bank details
@@ -102,6 +113,7 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
 - ✅ **Admin Approval**: Admin reviews and approves/rejects applications
 
 ### **Shop Management**
+
 - ✅ **Shop Creation**: Create shop with name, description, logo, categories
 - ✅ **Shop Profile**: Edit shop details, business hours, contact info
 - ✅ **Shop Categories**: Select multiple hierarchical categories
@@ -122,6 +134,7 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
   - API: `PATCH /api/shopkeeper/location`
 
 ### **Product Management**
+
 - ✅ **Add Products**: Name, description, price, stock, images, category
 - ✅ **Edit Products**: Update all product fields
 - ✅ **Delete Products**: Remove products
@@ -131,38 +144,16 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
 - ✅ **Hierarchical Categories**: Select categories with sub-categories
 
 ### **Dashboard & Analytics**
+
 - ✅ **Shop Dashboard**: Overview with:
   - Total orders, revenue, products count
   - Low stock alerts
   - Recent orders
   - Quick actions
   - Tips and recommendations
-- ✅ **Shop Statistics**: Order counts, revenue, ratings
-
-### **Order Management**
-- ✅ **View Orders**: All orders for shopkeeper's shops
-- ✅ **Accept Orders**: Accept/reject incoming orders
-- ✅ **Rider Assignment**: Manually assign riders to orders
-  - Check rider availability (online, not busy)
-  - Verify rider within 3km of shop
-- ✅ **Order Status Updates**: Track order lifecycle
-- ✅ **Order Details**: View full order information
-
-### **Inventory Management**
-- ✅ **Stock Tracking**: Real-time stock levels
-- ✅ **Low Stock Alerts**: Dashboard notifications for low stock
-- ✅ **Auto Stock Deduction**: Stock reduced automatically on order placement
-- ✅ **Stock Validation**: Prevent orders when stock insufficient
-
----
-
-## 🚴 **Rider Features (Implemented)**
-
-### **Registration & Profile**
-- ✅ **Rider Registration**: Create rider profile linked to user account
-- ✅ **Rider Login**: Authentication for delivery partners
 
 ### **Delivery Dashboard**
+
 - ✅ **Assigned Orders**: View orders assigned to rider
 - ✅ **Order Details**: View order information, delivery address
 - ✅ **Order Status Updates**: Update status:
@@ -171,6 +162,7 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
   - `Delivered` → order completed
 
 ### **Location Tracking**
+
 - ✅ **Live Location Updates**: Auto-update location every 5 seconds when online
 - ✅ **Online/Offline Toggle**: Toggle availability status
 - ✅ **Real-time Broadcasting**: Server-Sent Events (SSE) for location streaming
@@ -179,6 +171,7 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
 - ✅ **Location Storage**: Rider location stored in Convex `riders` table
 
 ### **Notifications**
+
 - ✅ **Order Assignment Notifications**: Receive notifications when assigned to orders
 - ✅ **Real-time Updates**: Convex subscriptions for new assignments
 
@@ -187,32 +180,39 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
 ## 👨‍💼 **Admin Features (Implemented)**
 
 ### **Authentication**
+
 - ✅ **Admin Login**: Secure admin authentication
 
 ### **Dashboard**
+
 - ✅ **Admin Dashboard**: Overview of platform statistics
 
 ### **User Management**
+
 - ✅ **View All Users**: List all users with filters
 - ✅ **Change User Roles**: Promote/demote users (customer ↔ shopkeeper ↔ rider ↔ admin)
 - ✅ **User Activation/Deactivation**: Enable/disable user accounts
 - ✅ **User Details**: View user information
 
 ### **Shopkeeper Management**
+
 - ✅ **Registration Review**: Review shopkeeper applications
 - ✅ **Approve/Reject Registrations**: Manage registration status
 - ✅ **View All Registrations**: Filter by status, view details
 - ✅ **Shopkeeper Toggle**: Enable/disable shopkeeper accounts
 
 ### **Order Management**
+
 - ✅ **View All Orders**: Platform-wide order oversight
 - ✅ **Order Details**: View any order information
 
 ### **Rider Management**
+
 - ✅ **View All Riders**: List all delivery riders
 - ✅ **Rider Status**: View rider online/offline status, assignments
 
 ### **Audit Logs**
+
 - ✅ **Admin Actions**: Track all admin actions in `admin_audit_logs` table
 
 ---
@@ -222,6 +222,7 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
 ### **1. Accurate Location System** (NEW - Just Implemented)
 
 #### **Components**
+
 - **`src/lib/location/gps.ts`**: High-accuracy GPS detection
   - Uses `navigator.geolocation.getCurrentPosition` with high accuracy settings
   - Returns `{ lat, lon, accuracy }`
@@ -244,6 +245,7 @@ MohallaMart is a **multi-tenant, realtime, mobile-first** hyperlocal e-commerce 
   - GPS → OSRM snap → search → manual pick
 
 #### **Database Schema**
+
 ```typescript
 shops.location: {
   lat: number;
@@ -260,12 +262,14 @@ shops.location: {
 ```
 
 #### **API Endpoints**
+
 - `PATCH /api/shopkeeper/location`: Update shop location
 - `GET /api/vendors/nearby`: Get nearby shops with ETA
 
 ### **2. Delivery ETA System**
 
 #### **Components**
+
 - **`src/lib/distance.ts`**: Haversine distance calculation
   - Pure math implementation (no API calls)
   - Returns distance in kilometers
@@ -286,6 +290,7 @@ shops.location: {
   - Returns sorted by distance
 
 #### **UI Integration**
+
 - **`ProductCard`**: Displays ETA badge (`12-22 mins`)
 - **`MobileHeader`**: Dynamic ETA display, auto-refreshes every 2 minutes
 - **`NearbyStoresSection`**: Shows shops with ETA
@@ -293,6 +298,7 @@ shops.location: {
 ### **3. Order Lifecycle Management**
 
 #### **Order Statuses**
+
 1. `pending` → Customer placed order
 2. `accepted_by_shopkeeper` → Shopkeeper accepted
 3. `assigned_to_rider` → Rider assigned manually
@@ -301,11 +307,13 @@ shops.location: {
 6. `cancelled` → Order cancelled
 
 #### **Stock Management**
+
 - Auto stock deduction on order placement
 - Stock validation before order creation
 - Low stock alerts on shopkeeper dashboard
 
 #### **Notifications**
+
 - Order placed → User + Shopkeeper notified
 - Order accepted → User notified
 - Rider assigned → Rider + User notified
@@ -314,12 +322,14 @@ shops.location: {
 ### **4. Real-time Updates**
 
 #### **Convex Subscriptions**
+
 - Orders: Real-time order status updates
 - Notifications: Real-time notification delivery
 - Cart: Real-time cart synchronization
 - Rider location: Real-time location updates (SSE)
 
 #### **Server-Sent Events (SSE)**
+
 - **`/api/ws/rider`**: Real-time rider location broadcasting
   - `POST`: Update rider location
   - `GET`: Subscribe to location updates (SSE stream)
@@ -327,16 +337,19 @@ shops.location: {
 ### **5. Notification System**
 
 #### **Database**
+
 - `notifications` table in Convex
 - Fields: `user_id`, `type`, `title`, `message`, `data`, `is_read`, `is_sent`
 
 #### **Types**
+
 - `ORDER`: Order-related notifications
 - `DELIVERY`: Delivery updates
 - `PAYMENT`: Payment notifications
 - `SYSTEM`: System messages
 
 #### **UI**
+
 - Notification bell with unread count
 - Notification list page (`/notifications`)
 - Real-time updates via Convex subscriptions
@@ -344,12 +357,14 @@ shops.location: {
 ### **6. Background Jobs (Inngest)**
 
 #### **Event-Driven Automation**
+
 - Order created → Trigger notifications, inventory updates
 - Order status changed → Send notifications
 - Stock low → Alert shopkeeper
 - User registered → Welcome email (placeholder)
 
 #### **Integration**
+
 - Inngest webhook: `/api/inngest/route`
 - Event definitions: `src/lib/inngest/events.ts`
 - Job functions: `src/lib/inngest/functions.ts`
@@ -357,6 +372,7 @@ shops.location: {
 ### **7. Search System**
 
 #### **Typesense Integration**
+
 - Fast, typo-tolerant search
 - Product and shop search
 - Search suggestions
@@ -365,6 +381,7 @@ shops.location: {
 ### **8. Payment Integration**
 
 #### **Razorpay**
+
 - Payment method selection in checkout
 - Payment status tracking (`pending`, `paid`, `failed`, `refunded`)
 - Order creation with payment info
@@ -374,6 +391,7 @@ shops.location: {
 ## 📁 **Key File Structure**
 
 ### **Frontend Pages**
+
 ```
 src/app/
 ├── auth/                    # Customer login/signup
@@ -405,6 +423,7 @@ src/app/
 ```
 
 ### **API Routes**
+
 ```
 src/app/api/
 ├── shopkeeper/
@@ -422,6 +441,7 @@ src/app/api/
 ```
 
 ### **Components**
+
 ```
 src/components/
 ├── location/
@@ -438,6 +458,7 @@ src/components/
 ```
 
 ### **Utilities**
+
 ```
 src/lib/
 ├── location/
@@ -452,6 +473,7 @@ src/lib/
 ```
 
 ### **Backend (Convex)**
+
 ```
 convex/
 ├── schema.ts               # Database schema (updated with location)
@@ -470,16 +492,19 @@ convex/
 ## 🎨 **Design System**
 
 ### **Theme Support**
+
 - ✅ Dark/Light theme (all non-admin pages)
 - ✅ CSS variables in `globals.css`
 - ✅ Theme-aware components using Tailwind `dark:` variant
 
 ### **UI Components**
+
 - ✅ Shadcn UI components (Button, Card, Input, Dialog, etc.)
 - ✅ Consistent design system
 - ✅ Mobile-first responsive design
 
 ### **Colors**
+
 - Primary: Forest Green
 - Secondary: Vibrant Orange
 - Accent: Sunny Yellow
@@ -490,6 +515,7 @@ convex/
 ## 📊 **Database Schema Highlights**
 
 ### **Key Tables**
+
 - `users`: Unified user table (all roles)
 - `shops`: Shop information with `location` field (NEW)
 - `products`: Product catalog
@@ -502,6 +528,7 @@ convex/
 - `cart`: Shopping cart items
 
 ### **Indexes**
+
 - Optimized indexes for queries (by_user, by_shop, by_status, etc.)
 - Efficient filtering and sorting
 
@@ -510,6 +537,7 @@ convex/
 ## 🚀 **Recent Additions (Latest Session)**
 
 ### **Accurate Location System**
+
 1. ✅ Updated `convex/schema.ts` with detailed `location` object in `shops` table
 2. ✅ Created `src/lib/location/gps.ts` for high-accuracy GPS
 3. ✅ Created `src/lib/location/osrm.ts` for snap-to-road
@@ -519,12 +547,17 @@ convex/
 7. ✅ Created `src/app/api/shopkeeper/location/route.ts` for location API
 8. ✅ Updated `src/components/LocationModal.tsx` to use shared location services
 9. ✅ Updated `src/components/MapView.tsx` with design token fixes
+10. ✅ Implemented **Coupons Module** (Schema, Backend, UI)
+11. ✅ Implemented **Bulk Product Upload** (CSV parsing, Backend, UI)
+12. ✅ Implemented **Analytics Dashboard** (Charts, Sales Reports)
+13. ✅ Implemented **Review Replies** (Schema, Backend, UI)
 
 ---
 
 ## 📈 **Feature Implementation Status**
 
 Based on `src/app/features/page.tsx`:
+
 - **Total Features**: ~80+ features
 - **Implemented**: ~70+ features (87.5%+)
 - **Pending**: ~10 features (mostly analytics, bulk operations, advanced features)
@@ -580,4 +613,3 @@ Based on `src/app/features/page.tsx`:
 **Last Updated**: Based on current codebase state
 **Status**: Active Development
 **Implementation Rate**: ~87.5%
-

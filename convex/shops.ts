@@ -77,6 +77,17 @@ export const createShop = mutation({
         avg_rider_speed_kmph: v.number(),
       }),
     ),
+    delivery_zones: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          min_distance: v.number(),
+          max_distance: v.number(),
+          delivery_fee: v.number(),
+          min_order_value: v.optional(v.number()),
+        })
+      )
+    ),
   },
   handler: async (ctx, args) => {
     // Get owner name from user if not provided
@@ -116,6 +127,7 @@ export const createShop = mutation({
         business_hours: args.business_hours,
         radius_km: args.radius_km ?? existingShop.radius_km ?? 2,
         delivery_profile: args.delivery_profile ?? existingShop.delivery_profile ?? defaultDeliveryProfile,
+        delivery_zones: args.delivery_zones ?? existingShop.delivery_zones,
         updated_at: Date.now(),
       });
       return existingShop._id;
@@ -135,6 +147,7 @@ export const createShop = mutation({
       business_hours: args.business_hours,
       radius_km: args.radius_km ?? 2, // Default 2km radius
       delivery_profile: args.delivery_profile ?? defaultDeliveryProfile,
+      delivery_zones: args.delivery_zones,
       is_verified: false, // Requires admin verification
       is_active: true,
       rating: 0,
@@ -386,6 +399,17 @@ export const updateShop = mutation({
         avg_rider_speed_kmph: v.number(),
       }),
     ),
+    delivery_zones: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          min_distance: v.number(),
+          max_distance: v.number(),
+          delivery_fee: v.number(),
+          min_order_value: v.optional(v.number()),
+        })
+      )
+    ),
     is_active: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
@@ -412,6 +436,7 @@ export const updateShop = mutation({
           avg_rider_speed_kmph: args.delivery_profile.avg_rider_speed_kmph,
         },
       }),
+      ...(args.delivery_zones && { delivery_zones: args.delivery_zones }),
       ...(args.is_active !== undefined && { is_active: args.is_active }),
       updated_at: Date.now(),
     });

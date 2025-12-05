@@ -54,6 +54,7 @@ const initialForm = {
   categoryId: "",
   tags: "",
   images: [] as string[],
+  variants: [] as { name: string; price: string; stock: string }[],
 };
 
 export default function ProductsContent() {
@@ -163,6 +164,11 @@ export default function ProductsContent() {
         images: parsedImages.length > 0 ? parsedImages : [],
         tags: parsedTags,
         is_featured: false,
+        variants: form.variants.length > 0 ? form.variants.map(v => ({
+          name: v.name,
+          price: Number(v.price) || Number(form.price),
+          stock: Number(v.stock) || 0,
+        })) : undefined,
       });
 
       success("Product added to your shop catalogue.");
@@ -494,6 +500,92 @@ export default function ProductsContent() {
                       onChange={(images) => setForm((prev) => ({ ...prev, images }))}
                       maxImages={5}
                     />
+                  </div>
+                </div>
+
+                <Separator className="bg-border" />
+
+                {/* Variants Section */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Tag className="h-4 w-4 text-primary" />
+                    Product Variants (Optional)
+                  </h3>
+                  <div className="space-y-4">
+                    {form.variants.map((variant, index) => (
+                      <div key={index} className="grid sm:grid-cols-4 gap-4 items-end border p-4 rounded-lg">
+                        <div className="sm:col-span-1">
+                          <Label className="text-xs mb-1.5 block">Variant Name</Label>
+                          <Input
+                            value={variant.name}
+                            onChange={(e) => {
+                              const newVariants = [...form.variants];
+                              newVariants[index].name = e.target.value;
+                              setForm((prev) => ({ ...prev, variants: newVariants }));
+                            }}
+                            placeholder="e.g. Small, Red"
+                            className="h-9"
+                          />
+                        </div>
+                        <div className="sm:col-span-1">
+                          <Label className="text-xs mb-1.5 block">Price (₹)</Label>
+                          <Input
+                            type="number"
+                            value={variant.price}
+                            onChange={(e) => {
+                              const newVariants = [...form.variants];
+                              newVariants[index].price = e.target.value;
+                              setForm((prev) => ({ ...prev, variants: newVariants }));
+                            }}
+                            placeholder="0.00"
+                            className="h-9"
+                          />
+                        </div>
+                        <div className="sm:col-span-1">
+                          <Label className="text-xs mb-1.5 block">Stock</Label>
+                          <Input
+                            type="number"
+                            value={variant.stock}
+                            onChange={(e) => {
+                              const newVariants = [...form.variants];
+                              newVariants[index].stock = e.target.value;
+                              setForm((prev) => ({ ...prev, variants: newVariants }));
+                            }}
+                            placeholder="0"
+                            className="h-9"
+                          />
+                        </div>
+                        <div className="sm:col-span-1">
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              const newVariants = form.variants.filter((_, i) => i !== index);
+                              setForm((prev) => ({ ...prev, variants: newVariants }));
+                            }}
+                            className="w-full"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          variants: [...prev.variants, { name: "", price: "", stock: "" }],
+                        }))
+                      }
+                      className="w-full"
+                    >
+                      <PlusCircle className="h-4 w-4 mr-2" />
+                      Add Variant
+                    </Button>
                   </div>
                 </div>
 

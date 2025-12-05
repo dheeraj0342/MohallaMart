@@ -189,4 +189,48 @@ export const deleteReview = mutation({
   },
 });
 
+// Reply to a review
+export const replyToReview = mutation({
+  args: {
+    id: v.id("reviews"),
+    reply: v.string(),
+    shopkeeper_id: v.id("users"), // Verify ownership
+  },
+  handler: async (ctx, args) => {
+    const review = await ctx.db.get(args.id);
+    if (!review) {
+      throw new Error("Review not found");
+    }
+
+    if (!review.shop_id) {
+      throw new Error("Review is not associated with a shop");
+    }
+
+    // Verify shopkeeper owns the shop
+    const shop = await ctx.db.get(review.shop_id);
+    if (!shop || shop.owner_id !== args.shopkeeper_id) {
+      throw new Error("Unauthorized: You do not own this shop");
+    }
+
+    await ctx.db.patch(args.id, {
+      reply: args.reply,
+      replied_at: Date.now(),
+    });
+
+    // Notify user about reply
+    await ctx.db.insert("notifications", {
+      user_id: review.user_id,
+      title: "Shopkeeper Replied",
+      message: `${shop.name} replied to your review.`,
+      type: "SYSTEM",
+      data: { review_id: args.id },
+      is_read: false,
+      is_sent: false,
+      created_at: Date.now(),
+    });
+
+    return args.id;
+  },
+});
+
 

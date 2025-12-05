@@ -64,8 +64,10 @@ const featureData: FeatureCategory[] = [
       { name: "Inventory Management", status: "implemented", description: "Complete inventory system with stock tracking, low stock alerts, and auto-deduction" },
       { name: "Inventory Alerts", status: "implemented", description: "Low stock and out-of-stock notifications on dashboard" },
       { name: "Rider Assignment", status: "implemented", description: "Manually assign riders to orders with availability checking" },
-      { name: "Sales Analytics", status: "pending", description: "View sales reports and analytics" },
-      { name: "Bulk Product Operations", status: "pending", description: "Import/export products" },
+      { name: "Sales Analytics", status: "implemented", description: "View sales reports and analytics" },
+      { name: "Bulk Product Operations", status: "implemented", description: "Import/export products" },
+      { name: "Coupons Management", status: "implemented", description: "Create and manage discount coupons" },
+      { name: "Review Management", status: "implemented", description: "Reply to customer reviews" },
       { name: "Product Variants", status: "pending", description: "Manage product sizes, colors, etc." },
       { name: "Delivery Zone Management", status: "pending", description: "Set delivery areas and charges" },
     ],
@@ -171,7 +173,7 @@ export default function FeaturesPage() {
 
           {/* Statistics */}
           <div className="flex flex-wrap justify-center gap-6 mb-8">
-            <div className="bg-[var(--success-bg-light)] border-2 border-green-300 dark:border-green-700 rounded-lg px-6 py-4">
+            <div className="bg-(--success-bg-light) border-2 border-green-300 dark:border-green-700 rounded-lg px-6 py-4">
               <div className="text-3xl font-bold text-green-600 dark:text-green-400">{totalImplemented}</div>
               <div className="text-sm text-green-700 dark:text-green-300 font-medium">Implemented</div>
             </div>

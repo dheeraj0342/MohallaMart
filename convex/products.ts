@@ -18,6 +18,16 @@ export const createProduct = mutation({
     images: v.array(v.string()),
     tags: v.array(v.string()),
     is_featured: v.optional(v.boolean()),
+    variants: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          price: v.number(),
+          stock: v.number(),
+          sku: v.optional(v.string()),
+        })
+      )
+    ),
   },
   handler: async (ctx, args) => {
     // Verify ownership
@@ -39,6 +49,7 @@ export const createProduct = mutation({
       unit: args.unit,
       images: args.images,
       tags: args.tags,
+      variants: args.variants,
       is_available: args.stock_quantity > 0,
       is_featured: args.is_featured || false,
       rating: 0,
@@ -235,6 +246,16 @@ export const updateProduct = mutation({
     tags: v.optional(v.array(v.string())),
     is_available: v.optional(v.boolean()),
     is_featured: v.optional(v.boolean()),
+    variants: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          price: v.number(),
+          stock: v.number(),
+          sku: v.optional(v.string()),
+        })
+      )
+    ),
   },
   handler: async (ctx, args) => {
     const product = await ctx.db.get(args.id);
@@ -271,6 +292,7 @@ export const updateProduct = mutation({
         is_available: args.is_available,
       }),
       ...(args.is_featured !== undefined && { is_featured: args.is_featured }),
+      ...(args.variants && { variants: args.variants }),
       updated_at: Date.now(),
     });
 
@@ -466,5 +488,55 @@ export const toggleProductAvailability = mutation({
     });
 
     return args.id;
+  },
+});
+
+// Bulk create products
+export const bulkCreateProducts = mutation({
+  args: {
+    products: v.array(
+      v.object({
+        name: v.string(),
+        description: v.optional(v.string()),
+        shop_id: v.id("shops"),
+        category_id: v.id("categories"),
+        price: v.number(),
+        original_price: v.optional(v.number()),
+        stock_quantity: v.number(),
+        min_order_quantity: v.number(),
+        max_order_quantity: v.number(),
+        unit: v.string(),
+        images: v.array(v.string()),
+        tags: v.array(v.string()),
+      })
+    ),
+    owner_id: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    // Verify ownership for all shops involved (usually just one)
+    const shopIds = [...new Set(args.products.map((p) => p.shop_id))];
+    
+    for (const shopId of shopIds) {
+      const shop = await ctx.db.get(shopId);
+      if (!shop || shop.owner_id !== args.owner_id) {
+        throw new Error("Unauthorized: You can only add products to your own shops");
+      }
+    }
+
+    const insertedIds = [];
+    for (const product of args.products) {
+      const id = await ctx.db.insert("products", {
+        ...product,
+        is_available: product.stock_quantity > 0,
+        is_featured: false,
+        rating: 0,
+        total_sales: 0,
+        created_at: Date.now(),
+        updated_at: Date.now(),
+      });
+      insertedIds.push(id);
+    }
+
+    return insertedIds;
   },
 });

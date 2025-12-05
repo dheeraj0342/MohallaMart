@@ -9,14 +9,15 @@ import { Loader2, Heart, ShoppingBag, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Id } from "@/../convex/_generated/dataModel";
 import { useToast } from "@/hooks/useToast";
 
 export default function WishlistPage() {
-  const { user, addToCart } = useStore();
+  const { user, addToCart, location } = useStore();
   const { success } = useToast();
   const router = useRouter();
+  const [shopEtas, setShopEtas] = useState<Record<string, { minEta: number; maxEta: number }>>({});
 
   const favorites = useQuery(
     api.favorites.getFavorites,
@@ -27,6 +28,37 @@ export default function WishlistPage() {
   useEffect(() => {
     // We wait a bit to ensure user state is settled or use a loading state
   }, [user]);
+
+  // Fetch ETAs for shops
+  useEffect(() => {
+    const loc = location as unknown as { coordinates?: { lat: number; lng: number }; lat?: number; lon?: number } | null;
+    const lat = loc?.coordinates?.lat ?? loc?.lat;
+    const lng = loc?.coordinates?.lng ?? loc?.lon;
+
+    if (!lat || !lng) return;
+
+    const fetchEtas = async () => {
+      try {
+        const res = await fetch(`/api/vendors/nearby?userLat=${lat}&userLon=${lng}&radiusKm=10`);
+        if (res.ok) {
+          const data = await res.json();
+          const etas: Record<string, { minEta: number; maxEta: number }> = {};
+          if (data.vendors && Array.isArray(data.vendors)) {
+            data.vendors.forEach((v: any) => {
+              if (v.eta) {
+                etas[v.id] = v.eta;
+              }
+            });
+          }
+          setShopEtas(etas);
+        }
+      } catch {
+        // Silent error
+      }
+    };
+
+    fetchEtas();
+  }, [location]);
 
   if (!user) {
      return (
@@ -106,6 +138,7 @@ export default function WishlistPage() {
                                         shop_id: product.shop_id as string
                                     }}
                                     onAddToCart={handleAddToCart}
+                                    eta={product.shop_id ? shopEtas[product.shop_id as string] : undefined}
                                 />
                             ))}
                         </div>

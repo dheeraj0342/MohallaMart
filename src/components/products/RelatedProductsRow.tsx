@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { type Product, ProductCard } from "@/components/products/ProductCard";
+import { type Product, ProductCard, type EtaInfo } from "@/components/products/ProductCard";
 
 interface RelatedProductsRowProps {
   title: string;
   products: Product[];
   showRank?: boolean;
   pageSize?: number;
+  eta?: EtaInfo;
 }
 
 export function RelatedProductsRow({
@@ -17,6 +18,7 @@ export function RelatedProductsRow({
   products,
   showRank = false,
   pageSize = 6,
+  eta,
 }: RelatedProductsRowProps) {
   const [page, setPage] = useState(0);
 
@@ -61,6 +63,7 @@ export function RelatedProductsRow({
             <ProductCard
               key={product._id}
               product={product}
+              eta={eta}
               onAddToCart={() => {
                 // no-op: onAddToCart is handled by parent via wrapper
               }}

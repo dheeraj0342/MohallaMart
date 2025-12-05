@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/useToast";
-import { Loader2, Save, MapPin, Settings } from "lucide-react";
+import { Loader2, Save, MapPin, Settings, PlusCircle } from "lucide-react";
 import { useState } from "react";
 
 export default function ShopkeeperSettingsPage() {
@@ -36,6 +36,13 @@ export default function ShopkeeperSettingsPage() {
       buffer_minutes: number;
       avg_rider_speed_kmph: number;
     };
+    delivery_zones?: Array<{
+      name: string;
+      min_distance: number;
+      max_distance: number;
+      delivery_fee: number;
+      min_order_value?: number;
+    }>;
   }> | null | undefined;
 
   const updateShop = useMutation(api.shops.updateShop);
@@ -55,6 +62,9 @@ export default function ShopkeeperSettingsPage() {
   const [avgRiderSpeed, setAvgRiderSpeed] = useState(
     shop?.delivery_profile?.avg_rider_speed_kmph || 20
   );
+  const [deliveryZones, setDeliveryZones] = useState(
+    shop?.delivery_zones || []
+  );
 
   const handleSave = async () => {
     if (!shop) {
@@ -73,10 +83,12 @@ export default function ShopkeeperSettingsPage() {
           buffer_minutes: bufferMinutes,
           avg_rider_speed_kmph: avgRiderSpeed,
         },
+        delivery_zones: deliveryZones,
       });
       success("Settings saved successfully");
-    } catch (err: any) {
-      error(err.message || "Failed to save settings");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to save settings";
+      error(message);
     } finally {
       setIsSaving(false);
     }
@@ -178,6 +190,108 @@ export default function ShopkeeperSettingsPage() {
                     onChange={(e) => setAvgRiderSpeed(Number(e.target.value))}
                   />
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Delivery Zones
+              </CardTitle>
+              <CardDescription>Configure delivery fees based on distance</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {deliveryZones.map((zone, index) => (
+                  <div key={index} className="grid sm:grid-cols-4 gap-4 items-end border p-4 rounded-lg">
+                    <div className="sm:col-span-1">
+                      <Label className="text-xs mb-1.5 block">Zone Name</Label>
+                      <Input
+                        value={zone.name}
+                        onChange={(e) => {
+                          const newZones = [...deliveryZones];
+                          newZones[index].name = e.target.value;
+                          setDeliveryZones(newZones);
+                        }}
+                        placeholder="e.g. Zone A"
+                        className="h-9"
+                      />
+                    </div>
+                    <div className="sm:col-span-1">
+                      <Label className="text-xs mb-1.5 block">Distance Range (km)</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          value={zone.min_distance}
+                          onChange={(e) => {
+                            const newZones = [...deliveryZones];
+                            newZones[index].min_distance = Number(e.target.value);
+                            setDeliveryZones(newZones);
+                          }}
+                          placeholder="Min"
+                          className="h-9"
+                        />
+                        <span className="text-muted-foreground">-</span>
+                        <Input
+                          type="number"
+                          value={zone.max_distance}
+                          onChange={(e) => {
+                            const newZones = [...deliveryZones];
+                            newZones[index].max_distance = Number(e.target.value);
+                            setDeliveryZones(newZones);
+                          }}
+                          placeholder="Max"
+                          className="h-9"
+                        />
+                      </div>
+                    </div>
+                    <div className="sm:col-span-1">
+                      <Label className="text-xs mb-1.5 block">Delivery Fee (₹)</Label>
+                      <Input
+                        type="number"
+                        value={zone.delivery_fee}
+                        onChange={(e) => {
+                          const newZones = [...deliveryZones];
+                          newZones[index].delivery_fee = Number(e.target.value);
+                          setDeliveryZones(newZones);
+                        }}
+                        placeholder="0"
+                        className="h-9"
+                      />
+                    </div>
+                    <div className="sm:col-span-1">
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          const newZones = deliveryZones.filter((_, i) => i !== index);
+                          setDeliveryZones(newZones);
+                        }}
+                        className="w-full"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setDeliveryZones([
+                      ...deliveryZones,
+                      { name: "", min_distance: 0, max_distance: 5, delivery_fee: 0 },
+                    ])
+                  }
+                  className="w-full"
+                >
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  Add Delivery Zone
+                </Button>
               </div>
             </CardContent>
           </Card>

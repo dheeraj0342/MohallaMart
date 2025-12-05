@@ -620,6 +620,7 @@ export default function ProductPdPage() {
             <RelatedProductsRow
               title="Similar products"
               products={similarProducts.map(adaptProductForCard)}
+              eta={productEta || undefined}
             />
           )}
 
@@ -635,6 +636,7 @@ export default function ProductPdPage() {
             <RelatedProductsRow
               title="People also bought"
               products={peopleAlsoBought.map(adaptProductForCard)}
+              eta={productEta || undefined}
             />
           )}
         </div>
