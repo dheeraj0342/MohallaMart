@@ -465,8 +465,13 @@ export function MobileHeader({
                     <button
                       onClick={async () => {
                         setIsUserMenuOpen(false);
-                        await logout();
-                        success("Logged out successfully");
+                        try {
+                          await logout();
+                          success("Logged out successfully");
+                        } catch (err) {
+                          // Logout still clears local state, so show success
+                          success("Logged out successfully");
+                        }
                       }}
                       className="flex items-center w-full px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                     >

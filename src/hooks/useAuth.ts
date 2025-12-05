@@ -143,7 +143,19 @@ export const useAuth = () => {
   }, [storeUser, supabaseUser, dbUser, pathname, router]);
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    try {
+      // Try to sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.warn("Supabase signOut error (non-critical):", error);
+        // Continue with local logout even if Supabase signOut fails
+      }
+    } catch (err) {
+      console.warn("Error during Supabase signOut (non-critical):", err);
+      // Continue with local logout even if Supabase signOut fails
+    }
+    
+    // Always clear local state regardless of Supabase response
     signOut();
     router.push("/");
   };
