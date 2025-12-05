@@ -145,9 +145,20 @@ export default function MapPickerModal({ isOpen, onClose, initial = null }: MapP
         const resolved = await reverseGeocode(finalLat, finalLon);
         setAddress({ city: resolved.city, area: resolved.area, pincode: resolved.pincode });
         success(`Location updated to ${resolved.area}, ${resolved.city}`);
-      } catch (err) {
-        const msg =
-          err instanceof Error ? err.message : "Unable to detect your location. Try again.";
+      } catch (err: any) {
+        let msg = "Unable to detect your location. Try again.";
+        
+        // Handle GeolocationPositionError codes
+        if (err?.code === 1) {
+          msg = "Location permission denied. Please enable location access in your browser settings.";
+        } else if (err?.code === 2) {
+          msg = "Location unavailable. Please check your GPS or network connection.";
+        } else if (err?.code === 3) {
+          msg = "Location request timed out. Please try again.";
+        } else if (err instanceof Error) {
+          msg = err.message;
+        }
+        
         setErrorMessage(msg);
         errorToast(msg);
       } finally {

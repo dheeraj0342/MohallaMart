@@ -5,12 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/useToast";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, MapPin, Package, CheckCircle, Navigation, ShoppingBag, Truck } from "lucide-react";
+import { Loader2, MapPin, Package, CheckCircle, ShoppingBag, Truck } from "lucide-react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/../../convex/_generated/api";
 import { Id } from "@/../../convex/_generated/dataModel";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { getHighAccuracyGPS } from "@/lib/location/gps";
 
 export default function RiderAppPage() {
   const { success, error } = useToast();
@@ -32,9 +33,10 @@ export default function RiderAppPage() {
     assigned_order_id?: Id<"orders">;
   } | null | undefined;
 
-  const assignedOrder = riderProfile?.assigned_order_id
-    ? useQuery(api.orders.getOrder, { id: riderProfile.assigned_order_id })
-    : null;
+  const assignedOrder = useQuery(
+    api.orders.getOrder,
+    riderProfile?.assigned_order_id ? { id: riderProfile.assigned_order_id } : "skip"
+  );
 
   const updateStatus = useMutation(api.riders.updateStatus);
   const updateLocation = useMutation(api.riders.updateLocation);
@@ -52,43 +54,41 @@ export default function RiderAppPage() {
   useEffect(() => {
     if (!isOnline || !riderProfileId) return;
 
-    const interval = setInterval(() => {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const location = {
-            lat: position.coords.latitude,
-            lon: position.coords.longitude,
-          };
+    const interval = setInterval(async () => {
+      try {
+        const position = await getHighAccuracyGPS();
+        const location = {
+          lat: position.lat,
+          lon: position.lon,
+        };
 
-          // Update Convex (persistent storage)
-          try {
-            await updateLocation({
-              id: riderProfileId,
-              location,
-            });
-          } catch (err) {
-            console.error("Failed to update location in Convex:", err);
-          }
-
-          // Also send to WebSocket API for real-time broadcasting
-          try {
-            await fetch("/api/ws/rider", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                riderId: riderProfileId,
-                lat: location.lat,
-                lon: location.lon,
-              }),
-            });
-          } catch (err) {
-            console.error("Failed to broadcast location:", err);
-          }
-        },
-        (err) => {
-          console.error("Geolocation error:", err);
+        // Update Convex (persistent storage)
+        try {
+          await updateLocation({
+            id: riderProfileId,
+            location,
+          });
+        } catch (err) {
+          console.error("Failed to update location in Convex:", err);
         }
-      );
+
+        // Also send to WebSocket API for real-time broadcasting
+        try {
+          await fetch("/api/ws/rider", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              riderId: riderProfileId,
+              lat: location.lat,
+              lon: location.lon,
+            }),
+          });
+        } catch (err) {
+          console.error("Failed to broadcast location:", err);
+        }
+      } catch (err) {
+        console.error("Geolocation error:", err);
+      }
     }, 5000); // Update every 5 seconds
 
     return () => clearInterval(interval);
