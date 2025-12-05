@@ -37,7 +37,7 @@ export default function LoginForm({
   const { error: errorToast, info, success } = useToast();
   const searchParams = useSearchParams();
   const next = searchParams.get("next");
-  const logAttempt = useMutation(api.logs.logLoginAttempt);
+  const syncUser = useMutation(api.users.syncUserWithSupabase);
 
   // Validate Supabase configuration on mount
   useEffect(() => {
@@ -77,11 +77,27 @@ export default function LoginForm({
         errorToast(error.message);
         setLoading(false);
       } else if (data?.user) {
+        // Sync user to Convex (ensure role is set if not already)
+        try {
+          await syncUser({
+            supabaseUserId: data.user.id,
+            name: data.user.user_metadata?.full_name ||
+              data.user.user_metadata?.name ||
+              email.split("@")[0],
+            email: data.user.email!,
+            phone: data.user.user_metadata?.phone,
+            avatar_url: data.user.user_metadata?.avatar_url,
+            provider: data.user.app_metadata?.provider || "email",
+            role: data.user.user_metadata?.role || "customer", // Default to customer if not set
+          });
+        } catch (syncError) {
+          console.error("Failed to sync user:", syncError);
+          // Continue anyway - sync can happen later
+        }
         success("Welcome back! Redirecting...");
-        // Role-based redirect will happen in useAuth hook
         // Small delay to ensure user is synced
         setTimeout(() => {
-        onSuccess?.();
+          onSuccess?.();
         }, 500);
       } else {
         setError("Login failed. Please try again.");
@@ -102,12 +118,6 @@ export default function LoginForm({
       errorToast(errorMessage);
       setLoading(false);
       console.error("Login error:", err);
-      logAttempt({
-        email,
-        error_message: errorMessage,
-        status: "failed",
-        user_agent: navigator.userAgent,
-      }).catch(() => {});
     }
   };
 
@@ -140,10 +150,13 @@ export default function LoginForm({
 
   const handleGoogleLogin = async () => {
     try {
+      const nextUrl = next || "/";
+      // Include role in the redirect URL so callback can set it
+      const redirectTo = `${getEmailRedirectUrl()}?next=${encodeURIComponent(nextUrl)}&role=customer`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${getEmailRedirectUrl()}${next ? `?next=${encodeURIComponent(next)}` : ""}`,
+          redirectTo,
         },
       });
       if (error) {

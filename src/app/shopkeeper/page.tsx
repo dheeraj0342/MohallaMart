@@ -20,6 +20,12 @@ export default function ShopkeeperPage() {
     user ? { id: user.id } : "skip"
   ) as { role?: string; is_active?: boolean } | null | undefined;
 
+  // Check if user has submitted a registration
+  const registration = useQuery(
+    api.registrations.getMyRegistration,
+    user ? { userId: user.id } : "skip"
+  ) as { status?: string } | null | undefined;
+
   useEffect(() => {
     if (user === null) return; // Still initializing auth
     if (!user) {
@@ -28,18 +34,35 @@ export default function ShopkeeperPage() {
     }
     if (dbUser === undefined) return; // Still loading user profile
 
+    const userRole = dbUser?.role;
+    const isActive = dbUser?.is_active;
+    const hasRegistration = registration !== undefined && registration !== null;
+    const registrationStatus = registration?.status;
+
     // Redirect logic
-    if (dbUser?.role === "shop_owner" && dbUser.is_active) {
+    if (userRole === "shop_owner" && isActive) {
+      // Active shopkeeper → dashboard
       router.replace("/shopkeeper/dashboard");
-    } else if (dbUser?.role === "shop_owner") {
+    } else if (userRole === "shop_owner" && !isActive) {
+      // Shopkeeper role but not active → registration page
       router.replace("/shopkeeper/registration");
+    } else if (userRole === "customer" || !userRole) {
+      // Customer or no role → check if they've applied
+      if (hasRegistration && registrationStatus === "submitted") {
+        // Applied but not approved yet → registration status page
+        router.replace("/shopkeeper/registration");
+      } else {
+        // Not applied yet → apply page
+        router.replace("/shopkeeper/apply");
+      }
     } else {
+      // Fallback to apply page
       router.replace("/shopkeeper/apply");
     }
-  }, [user, dbUser, router]);
+  }, [user, dbUser, registration, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[#f9fafb] via-white to-[#f1fff6] dark:from-[#0f1418] dark:via-[#11181d] dark:to-[#1b242b]">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-linear-to-br from-[#f9fafb] via-white to-[#f1fff6] dark:from-[#0f1418] dark:via-[#11181d] dark:to-[#1b242b]">
       <div className="text-center space-y-4">
         <div className="relative inline-flex items-center justify-center h-16 w-16 mx-auto">
           <span className="absolute inset-0 rounded-full border-4 border-green-600/20"></span>

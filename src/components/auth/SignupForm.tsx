@@ -18,6 +18,8 @@ import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
 import { withRetry } from "@/lib/retry";
 import { useSearchParams } from "next/navigation";
+import { useMutation } from "convex/react";
+import { api } from "@/../convex/_generated/api";
 
 interface SignupFormProps {
   onSuccess?: () => void;
@@ -43,6 +45,7 @@ export default function SignupForm({
   const { success, error: errorToast } = useToast();
   const searchParams = useSearchParams();
   const next = searchParams.get("next");
+  const syncUser = useMutation(api.users.syncUserWithSupabase);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -84,7 +87,7 @@ export default function SignupForm({
         setLoading(false);
         return;
       }
-      const { error } = await withRetry(() =>
+      const { data, error } = await withRetry(() =>
         supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -93,6 +96,7 @@ export default function SignupForm({
             data: {
               full_name: formData.fullName,
               phone: formData.phone,
+              role: "customer", // Set role in user metadata
             },
           },
         })
@@ -102,10 +106,36 @@ export default function SignupForm({
         setError(error.message);
         errorToast(error.message);
         setLoading(false);
-      } else {
-        setError("");
-        success("Account created! Please check your email to confirm your account.");
-        onSuccess?.();
+      } else if (data?.user) {
+        // Sync user to Convex with customer role
+        try {
+          await syncUser({
+            supabaseUserId: data.user.id,
+            name: formData.fullName || formData.email.split("@")[0],
+            email: formData.email,
+            phone: formData.phone || undefined,
+            avatar_url: data.user.user_metadata?.avatar_url,
+            role: "customer", // Explicitly set role
+          });
+        } catch (syncError) {
+          console.error("Failed to sync user:", syncError);
+          // Continue anyway - sync can happen later
+        }
+
+        // If email confirmation is required, show message
+        if (data.user.email_confirmed_at) {
+          success("Account created successfully! Redirecting...");
+          setTimeout(() => {
+            onSuccess?.();
+          }, 500);
+        } else {
+          setError("");
+          success("Account created! Please check your email to confirm your account.");
+          // Still redirect - they can use the app after email confirmation
+          setTimeout(() => {
+            onSuccess?.();
+          }, 2000);
+        }
       }
     } catch {
       setError("An unexpected error occurred");
@@ -116,10 +146,13 @@ export default function SignupForm({
 
   const handleGoogleLogin = async () => {
     try {
+      const nextUrl = next || "/";
+      // Include role in the redirect URL so callback can set it
+      const redirectTo = `${getEmailRedirectUrl()}?next=${encodeURIComponent(nextUrl)}&role=customer`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${getEmailRedirectUrl()}${next ? `?next=${encodeURIComponent(next)}` : ""}`,
+          redirectTo,
         },
       });
       if (error) {

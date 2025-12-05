@@ -27,7 +27,6 @@ export default function ShopkeeperLoginForm({
   const searchParams = useSearchParams();
   const next = searchParams.get("next");
   const syncUser = useMutation(api.users.syncUserWithSupabase);
-  const logAttempt = useMutation(api.logs.logLoginAttempt);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,21 +82,18 @@ export default function ShopkeeperLoginForm({
       const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
       setError(errorMessage);
       setLoading(false);
-      logAttempt({
-        email,
-        error_message: errorMessage,
-        status: "failed",
-        user_agent: navigator.userAgent,
-      }).catch(() => {});
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
+      const nextUrl = next || "/shopkeeper";
+      // Include role in the redirect URL so callback can set it for shopkeeper logins
+      const redirectTo = `${getEmailRedirectUrl()}?next=${encodeURIComponent(nextUrl)}&role=shop_owner`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${getEmailRedirectUrl()}${next ? `?next=${encodeURIComponent(next)}` : ""}`,
+          redirectTo,
         },
       });
       if (error) {

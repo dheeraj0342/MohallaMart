@@ -85,8 +85,21 @@ export default function ShopkeeperSignupForm({
           console.error("Failed to sync user:", syncError);
           // Continue anyway - sync can happen later
         }
-        success("Account created! Please check your email to confirm your account.");
-        onSuccess?.();
+
+        // If email confirmation is required, show message
+        if (data.user.email_confirmed_at) {
+          success("Account created successfully! Redirecting...");
+          // Small delay to ensure state is updated
+          setTimeout(() => {
+            onSuccess?.();
+          }, 500);
+        } else {
+          success("Account created! Please check your email to confirm your account. After confirmation, you'll be redirected to apply.");
+          // Still redirect to apply page - they can apply after email confirmation
+          setTimeout(() => {
+            onSuccess?.();
+          }, 2000);
+        }
       }
     } catch {
       setError("An unexpected error occurred");
@@ -97,10 +110,13 @@ export default function ShopkeeperSignupForm({
 
   const handleGoogleLogin = async () => {
     try {
+      const nextUrl = next || "/shopkeeper/apply";
+      // Include role in the redirect URL so callback can set it
+      const redirectTo = `${getEmailRedirectUrl()}?next=${encodeURIComponent(nextUrl)}&role=shop_owner`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${getEmailRedirectUrl()}${next ? `?next=${encodeURIComponent(next)}` : ""}`,
+          redirectTo,
         },
       });
       if (error) {
