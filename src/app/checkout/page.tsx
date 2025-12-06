@@ -203,6 +203,12 @@ export default function CheckoutPage() {
           throw new Error("Razorpay is not loaded. Please refresh the page.");
         }
 
+        // Get user details safely (handle both store User and Supabase User types)
+        const storeUser = useStore.getState().user;
+        const userName = storeUser?.name || dbUser?.name || "";
+        const userEmail = storeUser?.email || dbUser?.email || "";
+        const userPhone = storeUser?.phone || dbUser?.phone || "";
+
         // Initiate Razorpay payment
         const paymentResponse = await fetch("/api/payment/razorpay/initiate", {
           method: "POST",
@@ -211,9 +217,9 @@ export default function CheckoutPage() {
             amount: payableAmount,
             order_id: orderData.orderId,
             customer_id: dbUser._id,
-            customer_name: user.name || "",
-            customer_email: user.email || "",
-            customer_phone: user.phone || "",
+            customer_name: userName,
+            customer_email: userEmail,
+            customer_phone: userPhone,
             description: `Order #${orderData.orderNumber}`,
             callback_url: `${window.location.origin}/checkout/payment-callback`,
           }),
@@ -262,9 +268,9 @@ export default function CheckoutPage() {
             }
           },
           prefill: {
-            name: user.name || "",
-            email: user.email || "",
-            contact: user.phone || "",
+            name: userName,
+            email: userEmail,
+            contact: userPhone,
           },
           theme: {
             color: "#27ae60", // Forest Green
