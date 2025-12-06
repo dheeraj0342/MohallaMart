@@ -7,9 +7,9 @@ import ShopkeeperSignupForm from "@/components/auth/shopkeeper/ShopkeeperSignupF
 function ShopkeeperSignupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/shopkeeper/apply";
-  // After signup, redirect directly to the next page (usually apply)
-  // The user will be authenticated via the callback
+  const next = searchParams.get("next") || "/shopkeeper/registration";
+  // After signup, redirect to registration page first
+  // Flow: Signup → Registration → Apply → Admin Review → Dashboard
   const redirectUrl = next;
 
   return (

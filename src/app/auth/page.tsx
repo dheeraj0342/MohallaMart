@@ -61,9 +61,10 @@ function AuthPageContent() {
       // Block shopkeepers from accessing admin/rider routes
       if (userRole === "shop_owner") {
         if (next.startsWith("/admin") || next.startsWith("/rider")) {
-          redirectUrl = "/shopkeeper/apply";
+          redirectUrl = "/shopkeeper/registration";
         } else if (next === "/" || !next.startsWith("/shopkeeper")) {
-          redirectUrl = "/shopkeeper/apply";
+          // New flow: Signup → Registration → Apply → Admin Review → Dashboard
+          redirectUrl = "/shopkeeper/registration";
         }
       }
 
@@ -98,9 +99,10 @@ function AuthPageContent() {
     // Shopkeeper flow - only if actual role is shop_owner
     if (userRole === "shop_owner") {
       if (next.startsWith("/admin") || next.startsWith("/rider")) {
-        redirectUrl = "/shopkeeper/apply";
+        redirectUrl = "/shopkeeper/registration";
       } else if (next === "/" || !next.startsWith("/shopkeeper")) {
-        redirectUrl = "/shopkeeper/apply";
+        // New flow: Signup → Registration → Apply → Admin Review → Dashboard
+        redirectUrl = "/shopkeeper/registration";
       } else {
         redirectUrl = next;
       }

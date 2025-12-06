@@ -51,7 +51,7 @@ const initialForm = {
   minOrder: "1",
   maxOrder: "10",
   unit: "kg",
-  categoryId: "",
+  categoryId: undefined as Id<"categories"> | undefined,
   tags: "",
   images: [] as string[],
   variants: [] as { name: string; price: string; stock: string }[],
@@ -118,7 +118,7 @@ export default function ProductsContent() {
       error("User not found. Please login again.");
       return;
     }
-    if (!form.categoryId) {
+    if (!form.categoryId || form.categoryId === "") {
       error("Choose a category for this product.");
       return;
     }
@@ -149,12 +149,19 @@ export default function ProductsContent() {
         error("User not found. Please login again.");
         return;
       }
+      // Ensure categoryId is valid before creating product
+      if (!form.categoryId) {
+        error("Please select a category for this product.");
+        setSubmitting(false);
+        return;
+      }
+
       await createProduct({
         name: form.name,
         description: form.description || undefined,
         shop_id: activeShop._id,
         owner_id: dbUser._id,
-        category_id: form.categoryId as Id<"categories">,
+        category_id: form.categoryId,
         price: Number(form.price),
         original_price: form.originalPrice ? Number(form.originalPrice) : undefined,
         stock_quantity: Number(form.stock),
@@ -164,11 +171,13 @@ export default function ProductsContent() {
         images: parsedImages.length > 0 ? parsedImages : [],
         tags: parsedTags,
         is_featured: false,
-        variants: form.variants.length > 0 ? form.variants.map(v => ({
-          name: v.name,
-          price: Number(v.price) || Number(form.price),
-          stock: Number(v.stock) || 0,
-        })) : undefined,
+        variants: form.variants.length > 0 ? form.variants
+          .filter(v => v.name.trim() !== "") // Filter out variants with empty names
+          .map(v => ({
+            name: v.name.trim(),
+            price: Number(v.price) || Number(form.price),
+            stock: Number(v.stock) || 0,
+          })) : undefined,
       });
 
       success("Product added to your shop catalogue.");
@@ -446,9 +455,12 @@ export default function ProductsContent() {
                     Category & Classification
                   </h3>
                   <HierarchicalCategorySelector
-                    value={form.categoryId as Id<"categories"> | undefined}
+                    value={form.categoryId}
                     onChange={(categoryId) =>
-                      setForm((prev) => ({ ...prev, categoryId }))
+                      setForm((prev) => ({
+                        ...prev,
+                        categoryId: categoryId || undefined
+                      }))
                     }
                     label="Product Category"
                     required

@@ -116,23 +116,23 @@ export default function ShopkeeperRegistrationPage() {
       setPickupPincode(registration.pickup_address?.pincode || "");
       setFirstProductName(registration.first_product?.name || "");
       setFirstProductUrl(registration.first_product?.url || "");
-      
+
       if (registration.address?.lat && registration.address?.lon) {
-         setLocationData({
-            lat: registration.address.lat,
-            lon: registration.address.lon,
-            accuracy: registration.address.accuracy || 0,
-            snapped: registration.address.snapped || false,
-            source: (registration.address.source as AccurateLocation["source"]) || "gps",
-            addressText: registration.address.street || "",
-            city: registration.address.city,
-            postcode: registration.address.pincode,
-            village: registration.address.village,
-            hamlet: registration.address.hamlet,
-            county: registration.address.county,
-            stateDistrict: registration.address.stateDistrict,
-            state: registration.address.state,
-         });
+        setLocationData({
+          lat: registration.address.lat,
+          lon: registration.address.lon,
+          accuracy: registration.address.accuracy || 0,
+          snapped: registration.address.snapped || false,
+          source: (registration.address.source as AccurateLocation["source"]) || "gps",
+          addressText: registration.address.street || "",
+          city: registration.address.city,
+          postcode: registration.address.pincode,
+          village: registration.address.village,
+          hamlet: registration.address.hamlet,
+          county: registration.address.county,
+          stateDistrict: registration.address.stateDistrict,
+          state: registration.address.state,
+        });
       }
     }
   }, [registration]);
@@ -290,10 +290,10 @@ export default function ShopkeeperRegistrationPage() {
           account_number: bankAccountNumber,
           ifsc: bankIfsc,
         },
-        address: { 
-          street, 
-          city, 
-          state: stateValue, 
+        address: {
+          street,
+          city,
+          state: stateValue,
           pincode,
           lat: locationData?.lat,
           lon: locationData?.lon,
@@ -324,9 +324,10 @@ export default function ShopkeeperRegistrationPage() {
         submit,
       });
       if (submit) {
-        success("Registration submitted successfully! We will review and notify you.");
+        success("Registration submitted successfully! Redirecting to application page...");
+        // New flow: Registration → Apply → Admin Review → Dashboard
         setTimeout(() => {
-          router.replace("/");
+          router.replace("/shopkeeper/apply");
         }, 2000);
       } else {
         info("Draft saved successfully");
@@ -475,7 +476,7 @@ export default function ShopkeeperRegistrationPage() {
                     }}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="street">
                     Street Address / Landmark <span className="text-destructive">*</span>

@@ -124,7 +124,8 @@ export default function HierarchicalCategorySelector({
       selectedSubCategory,
       selectedSubSubCategory,
     );
-    if (resolved && resolved !== value) {
+    // Only call onChange if resolved is a valid category ID (not empty string)
+    if (resolved && resolved !== "" && resolved !== value) {
       onChange(resolved as Id<"categories">);
     }
   }, [selectedCategory, selectedSubCategory, selectedSubSubCategory, value, onChange]);

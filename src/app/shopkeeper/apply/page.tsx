@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
-import { Store } from "lucide-react";
+import { Store, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function ShopkeeperApplyPage() {
   const router = useRouter();
@@ -16,12 +18,37 @@ export default function ShopkeeperApplyPage() {
   const requestRole = useMutation(api.users.requestShopkeeperRole);
   const [submitting, setSubmitting] = useState(false);
 
+  // Check if registration is complete
+  const registration = useQuery(
+    api.registrations.getMyRegistration,
+    user ? { userId: user.id } : "skip"
+  ) as { status?: string } | null | undefined;
+
+  // Redirect to registration if not complete
+  useEffect(() => {
+    if (user && registration !== undefined) {
+      // If no registration exists or status is "draft", redirect to registration
+      if (!registration || registration.status === "draft") {
+        router.replace("/shopkeeper/registration");
+      }
+      // If registration is already submitted/reviewing/approved, they can apply
+    }
+  }, [user, registration, router]);
+
   const apply = async () => {
     if (submitting) return;
     if (!user) {
-      router.push("/shopkeeper/login?next=/shopkeeper/apply");
+      router.push("/shopkeeper/login?next=/shopkeeper/registration");
       return;
     }
+
+    // Check if registration is complete
+    if (!registration || registration.status === "draft") {
+      error("Please complete your registration first before applying.");
+      router.push("/shopkeeper/registration");
+      return;
+    }
+
     setSubmitting(true);
     try {
       const activeUser = user;
@@ -38,9 +65,12 @@ export default function ShopkeeperApplyPage() {
               (activeUser as { user_metadata?: { full_name?: string; name?: string } }).user_metadata?.name,
           }),
         });
-      } catch {}
-      success("Application submitted! Complete your seller registration next.");
-      router.replace("/shopkeeper/registration");
+      } catch { }
+      success("Application submitted successfully! Your application is now under admin review.");
+      // After applying, show status page (registration page shows status)
+      setTimeout(() => {
+        router.replace("/shopkeeper/registration");
+      }, 2000);
     } catch {
       error("Failed to submit application. Please try again.");
     } finally {
@@ -80,48 +110,96 @@ export default function ShopkeeperApplyPage() {
                   Apply as Shopkeeper
                 </h1>
                 <p className="text-sm text-[#667085] dark:text-[#9aa6b2]">
-                  Submit your application. Access is enabled after admin
-                  approval.
+                  Submit your application for admin review. Access is enabled after approval.
                 </p>
               </div>
-              
-              <div className="space-y-6 text-sm text-[#44525f] dark:text-[#cbd5f5] mb-8">
-                <div className="space-y-4">
-                  <div className="flex gap-4">
-                    <div className="flex-none flex flex-col items-center">
-                      <div className="w-8 h-8 rounded-full bg-primary-brand text-white flex items-center justify-center font-bold text-sm">1</div>
-                      <div className="w-0.5 h-full bg-border mt-2"></div>
+
+              {/* Show warning if registration not complete */}
+              {registration === undefined ? (
+                <div className="mb-6">
+                  <Card className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                            Registration Required
+                          </p>
+                          <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                            Please complete your registration first before applying.
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              ) : !registration || registration.status === "draft" ? (
+                <div className="mb-6">
+                  <Card className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                            Complete Registration First
+                          </p>
+                          <p className="text-xs text-amber-700 dark:text-amber-300 mt-1 mb-3">
+                            You need to complete and submit your registration before applying.
+                          </p>
+                          <Button
+                            onClick={() => router.push("/shopkeeper/registration")}
+                            variant="outline"
+                            size="sm"
+                            className="w-full border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-100 hover:bg-amber-100 dark:hover:bg-amber-900/30"
+                          >
+                            Go to Registration
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              ) : (
+                <div className="space-y-6 text-sm text-[#44525f] dark:text-[#cbd5f5] mb-8">
+                  <div className="space-y-4">
+                    <div className="flex gap-4">
+                      <div className="flex-none flex flex-col items-center">
+                        <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm">
+                          ✓
+                        </div>
+                        <div className="w-0.5 h-full bg-border mt-2"></div>
+                      </div>
+                      <div className="pb-6">
+                        <h3 className="font-semibold text-foreground text-base">Registration Complete</h3>
+                        <p className="text-muted-foreground mt-1">Your business details have been submitted.</p>
+                      </div>
                     </div>
-                    <div className="pb-6">
-                      <h3 className="font-semibold text-foreground text-base">Submit Application</h3>
-                      <p className="text-muted-foreground mt-1">Start your journey by creating your shopkeeper profile.</p>
+                    <div className="flex gap-4">
+                      <div className="flex-none flex flex-col items-center">
+                        <div className="w-8 h-8 rounded-full bg-primary-brand text-white flex items-center justify-center font-bold text-sm">2</div>
+                        <div className="w-0.5 h-full bg-border mt-2"></div>
+                      </div>
+                      <div className="pb-6">
+                        <h3 className="font-semibold text-foreground text-base">Submit Application</h3>
+                        <p className="text-muted-foreground mt-1">Submit your application for admin review.</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="flex-none flex flex-col items-center">
-                      <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground border-2 border-border flex items-center justify-center font-bold text-sm">2</div>
-                      <div className="w-0.5 h-full bg-border mt-2"></div>
-                    </div>
-                    <div className="pb-6">
-                      <h3 className="font-semibold text-foreground text-base">Complete Registration</h3>
-                      <p className="text-muted-foreground mt-1">Provide business details, tax info, and bank account.</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="flex-none flex flex-col items-center">
-                      <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground border-2 border-border flex items-center justify-center font-bold text-sm">3</div>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground text-base">Get Verified & Sell</h3>
-                      <p className="text-muted-foreground mt-1">Once approved, setup your shop and start receiving orders.</p>
+                    <div className="flex gap-4">
+                      <div className="flex-none flex flex-col items-center">
+                        <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground border-2 border-border flex items-center justify-center font-bold text-sm">3</div>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground text-base">Get Verified & Sell</h3>
+                        <p className="text-muted-foreground mt-1">Once approved, setup your shop and start receiving orders.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               <button
                 onClick={apply}
-                disabled={submitting}
+                disabled={submitting || !registration || registration.status === "draft"}
                 className="w-full px-4 py-3 rounded-xl font-semibold bg-primary-brand text-white shadow-lg shadow-primary-brand/20 hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-brand disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "Submitting…" : "Submit Application"}
@@ -138,12 +216,12 @@ export default function ShopkeeperApplyPage() {
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <Link href="/shopkeeper/login?next=/shopkeeper/apply">
+                <Link href="/shopkeeper/login?next=/shopkeeper/registration">
                   <button className="w-full px-4 py-3 rounded-xl font-semibold border-2 border-primary-brand text-primary-brand hover:bg-primary-brand hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-brand">
                     Sign In
                   </button>
                 </Link>
-                <Link href="/shopkeeper/signup?next=/shopkeeper/apply">
+                <Link href="/shopkeeper/signup?next=/shopkeeper/registration">
                   <button className="w-full px-4 py-3 rounded-xl font-semibold bg-secondary-brand text-white shadow-lg shadow-secondary-brand/25 hover:bg-[#f97316] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-brand">
                     Create Account
                   </button>

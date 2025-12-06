@@ -53,8 +53,9 @@ export default function ShopkeeperSignupForm({
         setLoading(false);
         return;
       }
-      const nextUrl = next || "/shopkeeper/apply";
+      const nextUrl = next || "/shopkeeper/registration";
       // Include role in the redirect URL so callback can redirect correctly
+      // Flow: Signup → Registration → Apply → Admin Review → Dashboard
       const emailRedirectTo = `${getEmailRedirectUrl()}?next=${encodeURIComponent(nextUrl)}&role=shop_owner`;
       
       const { data, error } = await withRetry(() =>
@@ -98,8 +99,8 @@ export default function ShopkeeperSignupForm({
             onSuccess?.();
           }, 500);
         } else {
-          success("Account created! Please check your email to confirm your account. After confirmation, you'll be redirected to apply.");
-          // Still redirect to apply page - they can apply after email confirmation
+          success("Account created! Please check your email to confirm your account. After confirmation, you'll be redirected to complete your registration.");
+          // Redirect to registration page - they complete registration first, then apply
           setTimeout(() => {
             onSuccess?.();
           }, 2000);

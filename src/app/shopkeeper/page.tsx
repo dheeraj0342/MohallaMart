@@ -39,25 +39,48 @@ export default function ShopkeeperPage() {
     const hasRegistration = registration !== undefined && registration !== null;
     const registrationStatus = registration?.status;
 
+    // New flow: Signup → Registration → Apply → Admin Review → Dashboard
     // Redirect logic
     if (userRole === "shop_owner" && isActive) {
       // Active shopkeeper → dashboard
       router.replace("/shopkeeper/dashboard");
     } else if (userRole === "shop_owner" && !isActive) {
-      // Shopkeeper role but not active → registration page
-      router.replace("/shopkeeper/registration");
-    } else if (userRole === "customer" || !userRole) {
-      // Customer or no role → check if they've applied
-      if (hasRegistration && registrationStatus === "submitted") {
-        // Applied but not approved yet → registration status page
-        router.replace("/shopkeeper/registration");
+      // Shopkeeper role but not active → check registration status
+      if (hasRegistration) {
+        if (registrationStatus === "submitted" || registrationStatus === "reviewing") {
+          // Registration submitted, waiting for admin review → registration status page
+          router.replace("/shopkeeper/registration");
+        } else if (registrationStatus === "approved") {
+          // Approved but not active yet → registration page (should show approved status)
+          router.replace("/shopkeeper/registration");
+        } else {
+          // Draft or no status → registration page to complete
+          router.replace("/shopkeeper/registration");
+        }
       } else {
-        // Not applied yet → apply page
-        router.replace("/shopkeeper/apply");
+        // No registration → registration page first
+        router.replace("/shopkeeper/registration");
+      }
+    } else if (userRole === "customer" || !userRole) {
+      // Customer or no role → check registration status
+      if (hasRegistration) {
+        if (registrationStatus === "submitted" || registrationStatus === "reviewing") {
+          // Registration submitted, can apply → apply page
+          router.replace("/shopkeeper/apply");
+        } else if (registrationStatus === "draft") {
+          // Registration incomplete → registration page
+          router.replace("/shopkeeper/registration");
+        } else {
+          // No registration or other status → registration page first
+          router.replace("/shopkeeper/registration");
+        }
+      } else {
+        // No registration → registration page first (new flow)
+        router.replace("/shopkeeper/registration");
       }
     } else {
-      // Fallback to apply page
-      router.replace("/shopkeeper/apply");
+      // Fallback to registration page (new flow)
+      router.replace("/shopkeeper/registration");
     }
   }, [user, dbUser, registration, router]);
 

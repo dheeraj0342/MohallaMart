@@ -39,7 +39,7 @@ function validateRedirectUrl(url: string, userRole: string | null | undefined): 
     );
     
     if (isAdminRoute || isRiderRoute) {
-      return "/shopkeeper/apply";
+      return "/shopkeeper/registration";
     }
   }
 
@@ -136,9 +136,9 @@ export async function GET(request: NextRequest) {
       
       // Additional role-based default redirects
       if (userRole === "shop_owner") {
-        // Shopkeeper should go to apply page if redirected to home
+        // Shopkeeper should go to registration page first (new flow: Signup → Registration → Apply → Admin Review → Dashboard)
         if (redirectUrl === "/") {
-          redirectUrl = "/shopkeeper/apply";
+          redirectUrl = "/shopkeeper/registration";
         }
       }
 
