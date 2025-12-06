@@ -59,14 +59,24 @@ export default function CheckoutPage() {
   const payableAmount = subtotal + deliveryFee + tax;
 
   // Get shop ID from products (fetch product details to get shop_id)
-  const productIds = cart.map((item) => item.id as any);
+  // Use productId if available, otherwise fall back to id
+  // Filter out any invalid/undefined IDs
+  const productIds = useMemo(() => {
+    return cart
+      .map((item) => (item.productId || item.id) as string)
+      .filter((id): id is string => Boolean(id && typeof id === "string"));
+  }, [cart]);
+
   const products = useQuery(
     api.products.getProducts,
-    cart.length > 0 ? { ids: productIds } : "skip"
+    cart.length > 0 && productIds.length > 0 ? { ids: productIds as any } : "skip"
   );
 
   // Get shop ID from first product (assuming all items are from same shop)
   const shopId = products && products.length > 0 ? products[0].shop_id : null;
+
+  // Check if products are still loading
+  const isLoadingProducts = cart.length > 0 && productIds.length > 0 && products === undefined;
 
   // Get user ID from Convex
   const dbUser = useQuery(
@@ -133,7 +143,12 @@ export default function CheckoutPage() {
     }
 
     if (!shopId) {
-      error("Invalid shop");
+      error("Unable to determine shop. Please refresh the page and try again.");
+      return;
+    }
+
+    if (!products || products.length === 0) {
+      error("Product information not available. Please refresh the page and try again.");
       return;
     }
 
@@ -151,19 +166,32 @@ export default function CheckoutPage() {
 
     try {
       // First create the order
+      // Use productId if available, otherwise fall back to id
+      // Filter out any items with invalid IDs
+      const orderItems = cart
+        .filter((item) => {
+          const productId = item.productId || item.id;
+          return Boolean(productId && typeof productId === "string");
+        })
+        .map((item) => ({
+          product_id: (item.productId || item.id) as any,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          total_price: item.price * item.quantity,
+        }));
+
+      if (orderItems.length === 0) {
+        throw new Error("No valid products in cart. Please refresh and try again.");
+      }
+
       const orderResponse = await fetch("/api/order/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: dbUser._id,
           shop_id: shopId,
-          items: cart.map((item) => ({
-            product_id: item.id,
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            total_price: item.price * item.quantity,
-          })),
+          items: orderItems,
           subtotal,
           delivery_fee: deliveryFee,
           tax,
@@ -205,8 +233,9 @@ export default function CheckoutPage() {
 
         // Get user details safely (handle both store User and Supabase User types)
         const storeUser = useStore.getState().user;
-        const userName = storeUser?.name || dbUser?.name || "";
-        const userEmail = storeUser?.email || dbUser?.email || "";
+        // user from useAuth can be storeUser (has name) or supabaseUser (name in user_metadata)
+        const userName = storeUser?.name || dbUser?.name || (user && "name" in user ? user.name : (user as any)?.user_metadata?.name) || "";
+        const userEmail = storeUser?.email || dbUser?.email || (user && "email" in user ? user.email : (user as any)?.email) || "";
         const userPhone = storeUser?.phone || dbUser?.phone || "";
 
         // Initiate Razorpay payment
@@ -290,7 +319,8 @@ export default function CheckoutPage() {
         });
       }
     } catch (err: any) {
-      error(err.message || "Failed to place order");
+      console.error("Order placement error:", err);
+      error(err.message || "Failed to place order. Please try again.");
       setIsSubmitting(false);
     }
   };
@@ -468,12 +498,17 @@ export default function CheckoutPage() {
                   className="w-full"
                   size="lg"
                   onClick={handlePlaceOrder}
-                  disabled={isSubmitting || !location?.coordinates}
+                  disabled={isSubmitting || !location?.coordinates || isLoadingProducts || !products || products.length === 0}
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Placing Order...
+                    </>
+                  ) : isLoadingProducts ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Loading...
                     </>
                   ) : (
                     "Place Order"

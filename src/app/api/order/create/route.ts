@@ -27,9 +27,32 @@ export async function POST(request: NextRequest) {
       notes,
     } = body;
 
+    // Validate required fields
+    if (!user_id || !shop_id || !items || items.length === 0) {
+      return NextResponse.json(
+        { error: "Missing required fields: user_id, shop_id, or items" },
+        { status: 400 }
+      );
+    }
+
     // 1. Validate stock availability
     const productIds = items.map((item: { product_id: string }) => item.product_id);
+    
+    if (productIds.length === 0) {
+      return NextResponse.json(
+        { error: "No products in order" },
+        { status: 400 }
+      );
+    }
+
     const products = await fetchQuery(api.products.getProducts, { ids: productIds as any });
+    
+    if (!products || products.length === 0) {
+      return NextResponse.json(
+        { error: "No products found. Please refresh and try again." },
+        { status: 404 }
+      );
+    }
 
     for (const item of items) {
       const product = products.find((p) => p._id === item.product_id);
@@ -131,8 +154,16 @@ export async function POST(request: NextRequest) {
     });
   } catch (err: any) {
     console.error("[Order Create] Error:", err);
+    console.error("[Order Create] Error details:", {
+      message: err.message,
+      stack: err.stack,
+      name: err.name,
+    });
     return NextResponse.json(
-      { error: err.message || "Failed to create order" },
+      { 
+        error: err.message || "Failed to create order",
+        details: process.env.NODE_ENV === "development" ? err.stack : undefined
+      },
       { status: 500 }
     );
   }
