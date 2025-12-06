@@ -473,6 +473,31 @@ export const updatePaymentStatus = mutation({
   },
 });
 
+// Update Razorpay payment details
+export const updateRazorpayPayment = mutation({
+  args: {
+    id: v.id("orders"),
+    razorpay_order_id: v.string(),
+    razorpay_payment_id: v.string(),
+    razorpay_signature: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const order = await ctx.db.get(args.id);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    await ctx.db.patch(args.id, {
+      razorpay_order_id: args.razorpay_order_id,
+      razorpay_payment_id: args.razorpay_payment_id,
+      razorpay_signature: args.razorpay_signature,
+      updated_at: Date.now(),
+    });
+
+    return args.id;
+  },
+});
+
 // Cancel order
 export const cancelOrder = mutation({
   args: {

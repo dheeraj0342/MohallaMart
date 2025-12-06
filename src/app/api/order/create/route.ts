@@ -115,12 +115,16 @@ export async function POST(request: NextRequest) {
       notes,
     });
 
-    // 5. Generate tracking URL
+    // 5. Get order details to retrieve order number
+    const order = await fetchQuery(api.orders.getOrder, { id: orderId as any });
+
+    // 6. Generate tracking URL
     const trackingUrl = `/track/${orderId}`;
 
     return NextResponse.json({
       success: true,
       orderId,
+      orderNumber: order?.order_number || "",
       trackingUrl,
       eta,
       message: "Order created successfully. Awaiting shopkeeper acceptance.",
