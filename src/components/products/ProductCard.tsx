@@ -51,7 +51,7 @@ export function ProductCard({ product, onAddToCart, href, eta }: ProductCardProp
   const isFavorite = useQuery(
     api.favorites.isFavorite,
     user?.id
-      ? { user_id: user.id as Id<"users">, product_id: product._id as Id<"products"> }
+      ? { user_id: user.id, product_id: product._id as Id<"products"> }
       : "skip"
   );
 
@@ -64,7 +64,7 @@ export function ProductCard({ product, onAddToCart, href, eta }: ProductCardProp
 
     try {
       const added = await toggleFavorite({
-        user_id: user.id as Id<"users">,
+        user_id: user.id,
         product_id: product._id as Id<"products">,
       });
       

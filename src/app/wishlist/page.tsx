@@ -21,7 +21,7 @@ export default function WishlistPage() {
 
   const favorites = useQuery(
     api.favorites.getFavorites,
-    user?.id ? { user_id: user.id as Id<"users"> } : "skip"
+    user?.id ? { user_id: user.id } : "skip"
   );
 
   // Simple redirect if not logged in (client-side)

@@ -43,7 +43,7 @@ export function ShopCard({ shop, distance }: ShopCardProps) {
   const isFavorite = useQuery(
     api.favorites.isFavorite,
     user?.id
-      ? { user_id: user.id as Id<"users">, shop_id: shop._id as Id<"shops"> }
+      ? { user_id: user.id, shop_id: shop._id as Id<"shops"> }
       : "skip"
   );
 
@@ -58,7 +58,7 @@ export function ShopCard({ shop, distance }: ShopCardProps) {
 
     try {
       const added = await toggleFavorite({
-        user_id: user.id as Id<"users">,
+        user_id: user.id,
         shop_id: shop._id as Id<"shops">,
       });
       
