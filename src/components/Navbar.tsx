@@ -224,24 +224,27 @@ export default function Navbar() {
       <nav
         role="navigation"
         aria-label="Primary"
-        className={`bg-[#f9f6f2]/95 text-[#212121] dark:text-[#f9f6f2] dark:bg-[#181c1f]/95 shadow-sm dark:shadow-md sticky top-0 z-50 border-b border-[#e0e0e0] dark:border-[#2d333b] backdrop-blur-md transition-all duration-200 ${isScrolled ? "backdrop-saturate-150 shadow-md" : ""
-          }`}
+        className={`sticky top-0 z-50 bg-background/95 backdrop-blur-xl backdrop-saturate-150 border-b border-border transition-all duration-300 ${
+          isScrolled ? "shadow-lg" : "shadow-sm"
+        }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className={`hidden lg:flex justify-between items-center transition-all duration-200 ${isScrolled ? "h-14 sm:h-16" : "h-16 sm:h-20"
-              }`}
+            className={`hidden lg:flex justify-between items-center transition-all duration-200 ${
+              isScrolled ? "h-14 sm:h-16" : "h-16 sm:h-20"
+            }`}
           >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="shrink-0">
                 <Link href="/">
                   <div className="flex items-center cursor-pointer group">
-                    <div className="text-2xl sm:text-3xl mr-1.5 sm:mr-2">🛒</div>
+                    <div className="text-2xl sm:text-3xl mr-1.5 sm:mr-2 group-hover:scale-110 transition-transform">🛒</div>
                     <div className="min-w-0">
-                      <h1 className="text-lg sm:text-xl font-bold text-primary-brand group-hover:text-primary-hover transition-colors leading-tight">
-                        Mohalla<span className="text-secondary-brand">Mart</span>
+                      <h1 className="text-lg sm:text-xl font-bold group-hover:opacity-80 transition-opacity leading-tight poppins-bold">
+                        <span className="text-primary">Mohalla</span>
+                        <span className="text-secondary">Mart</span>
                       </h1>
-                      <p className="text-[10px] sm:text-xs text-[#85786a] dark:text-[#a2a6b2] -mt-0.5 leading-none">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground -mt-0.5 leading-none inter-regular">
                         Groceries in minutes
                       </p>
                     </div>
@@ -254,24 +257,13 @@ export default function Navbar() {
                 <div className="hidden lg:block">
                   <button
                     onClick={() => setIsLocationModalOpen(true)}
-                    className="flex items-center bg-white dark:bg-[#24292e] hover:bg-gray-50 dark:hover:bg-[#2d333b] px-3 py-2 rounded-xl border-2 border-[#e0e0e0] dark:border-[#2d333b] hover:border-primary-brand dark:hover:border-primary-brand transition-all duration-200 hover:shadow-sm group"
+                    className="flex items-center bg-card hover:bg-muted px-3 py-2.5 rounded-xl border-2 border-border hover:border-primary transition-all duration-300 hover:shadow-md group active:scale-95"
                   >
-                    <MapPin className="h-4 w-4 mr-2 text-primary-brand dark:text-primary-brand transition-colors group-hover:scale-110" />
+                    <MapPin className="h-4 w-4 mr-2 text-primary transition-transform group-hover:scale-110" />
                     <div className="text-left min-w-0">
-                      <div className="text-xs text-[#85786a] dark:text-[#a2a6b2] leading-tight">Deliver to</div>
-                      <div className="text-sm font-medium text-[#212121] dark:text-[#f9f6f2] max-w-[140px] truncate leading-tight">
-                        {location
-                          ? (
-                            <>
-                              <span>{location.area}</span>
-                              {location.pincode && (
-                                <span className="ml-1 text-xs text-[#85786a] dark:text-[#a2a6b2] font-normal">
-                                  ({location.pincode})
-                                </span>
-                              )}
-                            </>
-                          )
-                          : "Select Location"}
+                      <div className="text-xs text-muted-foreground leading-tight inter-regular">Deliver to</div>
+                      <div className="text-sm font-medium text-foreground max-w-[140px] truncate leading-tight inter-semibold">
+                        {location ? `${location.area || ""}, ${location.city || ""}` : "Select Location"}
                       </div>
                     </div>
                   </button>
@@ -282,17 +274,17 @@ export default function Navbar() {
             {!isSearchOpen && (
               <div className="hidden lg:flex flex-1 max-w-2xl mx-6">
                 <div className="relative w-full">
-                  <SearchIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[#85786a] dark:text-[#a2a6b2] h-5 w-5 pointer-events-none" />
+                  <SearchIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5 pointer-events-none" />
                   <input
                     type="text"
                     readOnly
                     placeholder="Search for groceries, fruits, vegetables..."
-                    className="w-full pl-11 pr-16 py-3 bg-[#ffffff] dark:bg-[#24292e] border-2 border-[#e0e0e0] dark:border-[#2d333b] rounded-xl text-[#212121] dark:text-[#f9f6f2] placeholder:text-[#85786a] dark:placeholder:text-[#a2a6b2] focus:outline-none focus:ring-2 focus:ring-primary-brand focus:border-primary-brand transition-all duration-200 hover:border-[#c8c8c8] dark:hover:border-[#3d444f] hover:shadow-sm cursor-pointer text-sm"
+                    className="w-full pl-11 pr-16 py-3 bg-card border-2 border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300 hover:border-primary/50 hover:shadow-lg cursor-pointer text-sm inter-regular"
                     onClick={() => setSearchOpen(true)}
                     aria-label="Search"
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center pointer-events-none">
-                    <kbd className="hidden xl:inline-block px-2 py-1 text-xs font-semibold text-[#594a3a] dark:text-[#f9f6f2] bg-[#ffffff] dark:bg-[#181c1f] border border-[#e0e0e0] dark:border-[#2d333b] rounded shadow-sm">
+                    <kbd className="hidden xl:inline-block px-2 py-1 text-xs font-semibold text-foreground bg-card border border-border rounded shadow-sm inter-medium">
                       ⌘M
                     </kbd>
                   </div>
@@ -304,22 +296,22 @@ export default function Navbar() {
               <div className="hidden lg:flex items-center gap-3">
                 {dbUser?.role !== "admin" && (
                   <Link href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}>
-                    <button className="px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all text-primary-brand border-primary-brand hover:bg-primary-brand hover:text-white hover:shadow-md active:scale-95 whitespace-nowrap">
-                      🏪 Register Your Shop
+                    <button className="px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all duration-300 text-primary border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-lg active:scale-95 whitespace-nowrap poppins-semibold">
+                       Register Your Shop
                     </button>
                   </Link>
                 )}
                 {/* Theme toggle */}
                 <button
                   onClick={toggleTheme}
-                  className="p-2.5 rounded-lg hover:bg-muted transition-all hover:scale-110 active:scale-95"
+                  className="p-2.5 rounded-lg hover:bg-muted transition-all duration-300 hover:scale-110 active:scale-95 hover:shadow-md"
                   aria-label="Toggle color theme"
                   title="Toggle dark / light"
                 >
                   {isDark ? (
-                    <Sun className="h-5 w-5 text-yellow-400" />
+                    <Sun className="h-5 w-5 text-secondary" />
                   ) : (
-                    <Moon className="h-5 w-5 text-black" />
+                    <Moon className="h-5 w-5 text-foreground" />
                   )}
                 </button>
                 {/* Notification Bell */}
@@ -329,7 +321,7 @@ export default function Navbar() {
                   <div ref={accountRef} className="relative">
                     <button
                       onClick={() => setIsAccountOpen((v) => !v)}
-                      className="flex items-center text-[#212121] dark:text-[#f9f6f2] px-3 py-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all hover:shadow-sm active:scale-95 border border-transparent hover:border-[#e0e0e0] dark:hover:border-[#2d333b]"
+                      className="flex items-center text-foreground px-3 py-2 rounded-lg hover:bg-muted transition-all duration-300 hover:shadow-md active:scale-95 border border-transparent hover:border-border"
                       aria-haspopup="menu"
                       aria-expanded={isAccountOpen}
                       aria-controls="account-menu"
@@ -345,16 +337,16 @@ export default function Navbar() {
                         <User className="h-5 w-5 mr-2" />
                       )}
                       <div className="text-left min-w-0">
-                        <div className="text-xs text-[#85786a] dark:text-[#a2a6b2] leading-tight">Account</div>
-                        <div className="text-sm font-medium leading-tight truncate max-w-[100px]">{user.name}</div>
+                        <div className="text-xs text-muted-foreground leading-tight inter-regular">Account</div>
+                        <div className="text-sm font-medium leading-tight truncate max-w-[100px] inter-semibold">{user.name}</div>
                       </div>
                     </button>
                     {isAccountOpen && (
-                      <div id="account-menu" className="absolute right-0 mt-2 w-48 bg-card border-2 border-border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div id="account-menu" className="absolute right-0 mt-2 w-48 bg-card border-2 border-border rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                         <Link
                           href="/profile"
                           onClick={() => setIsAccountOpen(false)}
-                          className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border"
+                          className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border transition-colors inter-medium"
                         >
                           <User className="h-4 w-4 mr-2" />
                           My Profile
@@ -362,7 +354,7 @@ export default function Navbar() {
                         <Link
                           href="/wishlist"
                           onClick={() => setIsAccountOpen(false)}
-                          className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border"
+                          className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border transition-colors inter-medium"
                         >
                           <Heart className="h-4 w-4 mr-2" />
                           My Wishlist
@@ -373,7 +365,7 @@ export default function Navbar() {
                             logout();
                             success("Logged out successfully");
                           }}
-                          className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-[#3c1f18] rounded-b-lg transition-colors"
+                          className="flex items-center w-full px-4 py-3 text-sm text-destructive hover:bg-destructive/10 rounded-b-lg transition-colors inter-medium"
                         >
                           <LogOut className="h-4 w-4 mr-2" />
                           Logout
@@ -383,11 +375,11 @@ export default function Navbar() {
                   </div>
                 ) : (
                   <Link href="/auth">
-                    <button className="flex items-center text-[#212121] dark:text-[#f9f6f2] px-4 py-2 rounded-lg border-2 border-[#e0e0e0] dark:border-[#2d333b] hover:bg-[#faffd2] dark:hover:bg-[#3b2f22] transition-all hover:shadow-sm active:scale-95">
+                    <button className="flex items-center text-foreground px-4 py-2 rounded-lg border-2 border-border hover:bg-muted transition-all duration-300 hover:shadow-md active:scale-95">
                       <User className="h-5 w-5 mr-2" />
                       <div className="text-left min-w-0">
-                        <div className="text-xs text-[#85786a] dark:text-[#a2a6b2] leading-tight">Account</div>
-                        <div className="text-sm font-medium leading-tight">Sign In</div>
+                        <div className="text-xs text-muted-foreground leading-tight inter-regular">Account</div>
+                        <div className="text-sm font-medium leading-tight inter-semibold">Sign In</div>
                       </div>
                     </button>
                   </Link>
@@ -396,13 +388,13 @@ export default function Navbar() {
                 {/* Cart Button (opens sidebar) */}
                 <button
                   onClick={() => setIsCartOpen(true)}
-                  className="bg-primary-brand text-white px-5 py-2.5 rounded-lg hover:bg-primary-hover transition-all flex items-center relative shadow-sm hover:shadow-md active:scale-95 border-2 border-transparent hover:border-[#1f8f4e]"
+                  className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg hover:bg-primary/90 transition-all duration-300 flex items-center relative shadow-md hover:shadow-lg active:scale-95 border-2 border-transparent hover:border-primary/50 poppins-semibold"
                   aria-label="Open cart"
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
                   <div className="text-left min-w-0">
-                    <div className="text-xs opacity-90 leading-tight">My Cart</div>
-                    <div className="text-sm font-semibold leading-tight">
+                    <div className="text-xs opacity-90 leading-tight inter-regular">My Cart</div>
+                    <div className="text-sm font-semibold leading-tight poppins-semibold">
                       {mounted && getTotalItems() > 0 ? `${getTotalItems()} items` : "Empty"}
                     </div>
                   </div>
@@ -410,7 +402,7 @@ export default function Navbar() {
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute -top-2 -right-2 bg-secondary-brand text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg ring-2 ring-white dark:ring-[#181c1f]"
+                      className="absolute -top-2 -right-2 bg-secondary text-secondary-foreground text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg ring-2 ring-card inter-bold"
                     >
                       {getTotalItems()}
                     </motion.span>
@@ -420,19 +412,13 @@ export default function Navbar() {
             )}
           </div>
 
-          <MobileHeader
-            location={location}
-            isSearchOpen={isSearchOpen}
-            onOpenSearch={() => setSearchOpen(true)}
+<MobileHeader
+            onMenuClick={toggleMenu}
+            cartCount={getTotalItems()}
+            location={location ? `${location.area || ""}, ${location.city || ""}` : null}
             onOpenLocation={() => setIsLocationModalOpen(true)}
-            toggleTheme={toggleTheme}
-            isDark={isDark}
-            toggleMenu={toggleMenu}
-            isMenuOpen={isMenuOpen}
-            groceryCategories={groceryCategories}
-            pathname={pathname}
-            user={user}
-            dbUser={dbUser}
+            onOpenSearch={() => setSearchOpen(true)}
+            onOpenCart={() => setIsCartOpen(true)}
           />
 
           <AnimatePresence initial={false}>
@@ -443,7 +429,7 @@ export default function Navbar() {
                 animate={{ opacity: 1, y: 0, height: "auto" }}
                 exit={{ opacity: 0, y: -8, height: 0 }}
                 transition={{ duration: 0.18, ease: "easeOut" }}
-                className="hidden lg:block border-t border-[#e0e0e0] dark:border-[#2d333b] mt-0.5 overflow-hidden"
+                className="hidden lg:block border-t border-border/50 mt-0.5 overflow-hidden"
               >
                 <div className="flex items-center justify-between py-2.5">
                   <div className="flex gap-6">
@@ -453,17 +439,17 @@ export default function Navbar() {
                         <Link
                           key={index}
                           href={category.href}
-                          className="group relative flex items-center gap-2 py-1 text-sm font-medium text-[#212121] transition-colors hover:text-primary-brand dark:text-[#f9f6f2] dark:hover:text-primary-brand"
+                          className="group relative flex items-center gap-2 py-1 text-sm font-medium text-foreground transition-colors hover:text-primary inter-medium"
                         >
-                          <Icon className="size-4 text-[#85786a] transition-colors group-hover:text-primary-brand dark:text-[#a2a6b2]" />
+                          <Icon className="size-4 text-muted-foreground transition-colors group-hover:text-primary" />
                           <span>{category.name}</span>
-                          <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 w-0 bg-primary-brand transition-all duration-300 group-hover:w-full" />
+                          <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 w-0 bg-primary transition-all duration-300 group-hover:w-full" />
                         </Link>
                       );
                     })}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="bg-[#ffe066]/90 dark:bg-[#3b2f22] text-[#3b2f22] dark:text-[#ffe066] px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 border border-[#ffd700]/30">
+                    <span className="bg-secondary/10 text-secondary px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 border border-secondary/20 poppins-semibold">
                       🎯 Same Day Delivery Available
                     </span>
                   </div>
@@ -495,20 +481,23 @@ export default function Navbar() {
                   role="dialog"
                   aria-modal="true"
                   aria-label="Mobile navigation"
-                  className="md:hidden fixed top-0 left-0 bottom-0 z-50 w-[85vw] max-w-sm bg-[#fffdf5] dark:bg-[#24292e] border-r border-[#e0e0e0] dark:border-[#2d333b] shadow-xl"
+                  className="md:hidden fixed top-0 left-0 bottom-0 z-50 w-[85vw] max-w-sm bg-card border-r border-border shadow-2xl"
                 >
-                  <div className="px-4 py-4 space-y-3 bg-[#fffdf5] dark:bg-[#24292e]" aria-label="Mobile navigation menu">
-                    <div className="flex items-center justify-between mb-2 border-b border-[#e0e0e0] dark:border-[#2d333b] pb-2">
+                  <div className="px-4 py-4 space-y-3 bg-card" aria-label="Mobile navigation menu">
+                    <div className="flex items-center justify-between mb-2 border-b border-border pb-2">
                       <Link href="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2">
                         <span className="text-2xl">🛒</span>
-                        <span className="text-base font-bold text-[#212121] dark:text-[#f9f6f2]">MohallaMart</span>
+                        <span className="text-base font-bold poppins-bold">
+                          <span className="text-primary">Mohalla</span>
+                          <span className="text-secondary">Mart</span>
+                        </span>
                       </Link>
                       <button
                         onClick={() => setIsMenuOpen(false)}
                         aria-label="Close menu"
-                        className="p-2 rounded-lg hover:bg-[#faffd2] dark:hover:bg-[#3b2f22]"
+                        className="p-2 rounded-lg hover:bg-muted transition-colors"
                       >
-                        <X className="h-5 w-5 text-[#212121] dark:text-[#f9f6f2]" />
+                        <X className="h-5 w-5 text-foreground" />
                       </button>
                     </div>
                     {/* Mobile Location */}
@@ -517,37 +506,25 @@ export default function Navbar() {
                         setIsLocationModalOpen(true);
                         setIsMenuOpen(false);
                       }}
-                      className="flex items-center w-full text-left p-3 bg-white dark:bg-[#24292e] hover:bg-gray-50 dark:hover:bg-[#2d333b] rounded-xl border-2 border-[#e0e0e0] dark:border-[#2d333b] hover:border-primary-brand dark:hover:border-primary-brand transition-all duration-200 group"
+                      className="flex items-center w-full text-left p-3 bg-background hover:bg-muted rounded-xl border-2 border-border hover:border-primary transition-all duration-300 group active:scale-95"
                     >
-                      <MapPin className="h-5 w-5 mr-3 text-primary-brand dark:text-primary-brand transition-colors" />
-                      <div className="text-xs text-neutral-500 dark:text-neutral-400">Deliver to</div>
-                      <div className="text-sm font-medium text-primary-brand dark:text-primary-brand min-w-[80px] truncate">
-                        {location ? (
-                          <>
-                            <span>{location.area}</span>
-                            {location.pincode && (
-                              <span className="ml-1 text-xs text-neutral-500 dark:text-neutral-400 font-normal">
-                                ({location.pincode})
-                              </span>
-                            )}
-                          </>
-                        ) : (
-                          "Select Location"
-                        )}
+                      <MapPin className="h-5 w-5 mr-3 text-primary transition-transform group-hover:scale-110" />
+                      <div>
+                        <div className="text-xs text-muted-foreground inter-regular">Deliver to</div>
+                        <div className="text-sm font-medium text-primary min-w-[80px] truncate inter-semibold">
+                        {location ? `${location.area || ""}, ${location.city || ""}` : "Select Location"}
                       </div>
-
+                      </div>
                     </button>
 
-
-
                     {/* Mobile Actions - minimal */}
-                    <div className="border-t pt-3 space-y-3">
+                    <div className="border-t border-border pt-3 space-y-3">
                       {dbUser?.role !== "admin" && (
                         <Link
                           href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}
                           onClick={() => setIsMenuOpen(false)}
                         >
-                          <button className="flex items-center w-full text-left p-3 bg-[#27ae60] hover:bg-[#1f8f4e] text-white rounded-lg transition-colors">
+                          <button className="flex items-center w-full text-left p-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-300 shadow-md hover:shadow-lg active:scale-95 poppins-semibold">
                             <div className="h-5 w-5 mr-3">🏪</div>
                             <div className="text-sm font-medium">Register Your Shop</div>
                           </button>
@@ -567,16 +544,11 @@ export default function Navbar() {
           onClose={() => setIsLocationModalOpen(false)}
         />
       </nav>
-      <MobileBottomNav
-        pathname={pathname}
-        mounted={mounted}
-        getTotalItems={getTotalItems}
+<MobileBottomNav
+        activeTab="home"
+        cartCount={getTotalItems()}
+        onTabChange={(tab) => console.log('Tab changed to:', tab)}
         onOpenCart={() => setIsCartOpen(true)}
-        isLoggedIn={Boolean(user)}
-        location={location}
-        onOpenLocation={() => setIsLocationModalOpen(true)}
-        dbUser={dbUser || undefined}
-        user={user}
       />
 
       {/* Cart sidebar */}

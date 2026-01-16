@@ -17,7 +17,7 @@ export function RelatedProductsRow({
   title,
   products,
   showRank = false,
-  pageSize = 6,
+  pageSize = 10,
   eta,
 }: RelatedProductsRowProps) {
   const [page, setPage] = useState(0);
@@ -29,34 +29,37 @@ export function RelatedProductsRow({
 
   return (
     <section>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="text-base font-bold text-foreground">{title}</h2>
         {totalPages > 1 && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 rounded-full"
+              className="h-7 w-7 rounded-full"
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0}
               aria-label={`Previous ${title}`}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3.5 w-3.5" />
             </Button>
+            <span className="text-xs text-muted-foreground px-2">
+              {page + 1} / {totalPages}
+            </span>
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 rounded-full"
+              className="h-7 w-7 rounded-full"
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
               disabled={page >= totalPages - 1}
               aria-label={`Next ${title}`}
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         )}
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-6 gap-2 md:gap-3">
         {visible.map((product, index) => {
           const rank = index + 1 + page * pageSize;
           const card = (
@@ -76,7 +79,7 @@ export function RelatedProductsRow({
 
           return (
             <div key={product._id} className="relative">
-              <span className="absolute left-2 top-2 z-10 rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-sm">
+              <span className="absolute left-1 top-1 z-10 rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground shadow-sm">
                 #{rank}
               </span>
               {card}

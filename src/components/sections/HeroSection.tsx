@@ -22,39 +22,24 @@ export default function HeroSection() {
   // Auto-rotate slides every 5 seconds (5000ms)
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % bannerImages.length)
+      setCurrentSlide((prev) => (prev + 1) % 2) // Only 2 slides
     }, 5000)
 
     return () => clearInterval(interval)
   }, [])
-
-  // Select appropriate image based on screen size
   useEffect(() => {
     if (typeof window === "undefined") return
 
     const updateImage = () => {
       const width = window.innerWidth
+      const isSlide1 = currentSlide === 0
+      
       if (width < 640) {
-        // Mobile - rotate between mobile banners
-        setCurrentImage(
-          currentSlide % 2 === 0
-            ? images.banners.mobileBanner
-            : images.banners.mobileBanner2
-        )
+        setCurrentImage(isSlide1 ? images.banners.mobileBanner : images.banners.mobileBanner2)
       } else if (width < 1024) {
-        // Tablet - rotate between tablet banners
-        setCurrentImage(
-          currentSlide % 2 === 0
-            ? images.banners.tabletBanner
-            : images.banners.tabletBanner2
-        )
+        setCurrentImage(isSlide1 ? images.banners.tabletBanner : images.banners.tabletBanner2)
       } else {
-        // Desktop - rotate between desktop banners
-        setCurrentImage(
-          currentSlide % 2 === 0
-            ? images.banners.desktopBanner
-            : images.banners.desktopBanner2
-        )
+        setCurrentImage(isSlide1 ? images.banners.desktopBanner : images.banners.desktopBanner2)
       }
     }
 
@@ -68,10 +53,8 @@ export default function HeroSection() {
       id="home"
       className="relative w-full overflow-hidden bg-background"
     >
-      {/* Hero Banner - Responsive Heights */}
       <div className="relative w-full">
-        {/* Mobile: 250px, Tablet: 350px, Desktop: 450px */}
-        <div className="relative w-full h-[250px] sm:h-[350px] lg:h-[450px] overflow-hidden" style={{ minHeight: "250px" }}>
+        <div className="relative w-full h-[220px] sm:h-[320px] lg:h-[420px] overflow-hidden rounded-none sm:rounded-b-2xl">
           {bannerImages.map((image, index) => {
             return (
               <motion.div
@@ -79,49 +62,44 @@ export default function HeroSection() {
                 initial={{ opacity: 0 }}
                 animate={{
                   opacity: image === currentImage ? 1 : 0,
-                  scale: image === currentImage ? 1 : 1.05,
+                  scale: image === currentImage ? 1 : 1.02,
                 }}
                 transition={{
-                  duration: 0.8,
-                  ease: "easeInOut",
+                  duration: 0.6,
+                  ease: "easeOut",
                 }}
                 className="absolute inset-0 w-full h-full"
-                style={{ height: "100%" }}
               >
                 <Image
                   src={image}
                   alt={`Hero banner ${index + 1}`}
                   fill
                   className="object-cover object-center"
-                  style={{
-                    objectFit: "cover",
-                    width: "100%",
-                    height: "100%"
-                  }}
                   priority={index === 0}
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1920px"
                   quality={90}
                 />
-                {/* Optional overlay for better text readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
               </motion.div>
             )
           })}
-        </div>
-
-        {/* Slide Indicators - Show for all devices */}
-        <div className="flex justify-center gap-2 mt-4 absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
-          {[0, 1].map((index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentSlide(index)}
-              className={`h-2 rounded-full transition-all ${currentSlide % 2 === index
-                ? "w-8 bg-white/90"
-                : "w-2 bg-white/40"
+          
+          {/* Slide Indicators */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 flex items-center gap-2">
+            {[0, 1].map((index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`transition-all duration-300 rounded-full ${
+                  currentSlide === index
+                    ? "w-6 h-2 bg-white"
+                    : "w-2 h-2 bg-white/50 hover:bg-white/70"
                 }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>

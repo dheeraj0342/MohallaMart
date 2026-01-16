@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectTrigger,
@@ -146,55 +144,54 @@ export default function TopRatedProductsSection() {
     success(`${product.name} added to cart!`);
   };
   return (
-    <section id="top-rated" className="pt-4 pb-16 sm:pt-2 sm:pb-8 bg-background">
-      <div className="w-full max-w-7xl mx-auto bg-background text-foreground">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Star className="h-5 w-5 text-primary" />
-            <h2 className="text-2xl font-bold text-foreground">Top Rated Products</h2>
-          </div>
-          {!isLoading && limitedProducts && limitedProducts.length > 0 && (
-            <Badge variant="outline" className="text-sm">
-              {limitedProducts.length} {limitedProducts.length === 1 ? "Product" : "Products"}
-            </Badge>
-          )}
-        </div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-          <Separator className="hidden sm:block flex-1" />
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="flex items-center gap-2 w-full sm:w-64">
-              <span className="text-sm text-muted-foreground whitespace-nowrap">Category</span>
-              <Select
-                value={selectedCategory}
-                onValueChange={(v) => setSelectedCategory(v as Id<"categories"> | "all")}
-              >
-                <SelectTrigger size="sm" aria-label="Filter by category" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  {Array.isArray(categories) &&
-                    categories.map((c) => (
-                      <SelectItem key={c._id} value={c._id as unknown as string}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+    <section id="top-rated" className="py-8 sm:py-12 bg-muted/30">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-yellow-500/10">
+                <Star className="h-4 w-4 text-yellow-500" />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Top Rated Products</h2>
             </div>
-            <label className="hidden sm:inline-flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                className="h-4 w-4 accent-primary"
-                checked={inStockOnly}
-                onChange={(e) => setInStockOnly(e.target.checked)}
-                aria-label="Show in-stock only"
-              />
-              In-stock only
-            </label>
-            <span className="text-sm text-muted-foreground whitespace-nowrap">Sort by</span>
+            {!isLoading && limitedProducts && limitedProducts.length > 0 && (
+              <p className="text-sm text-muted-foreground ml-10">
+                {limitedProducts.length} highly rated products from local stores
+              </p>
+            )}
+          </div>
+        </div>
+        
+        {/* Filters Row */}
+        <div className="flex flex-wrap items-center gap-3 mb-6 pb-4 border-b border-border">
+          {/* Category Filter */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground hidden sm:inline">Category:</span>
+            <Select
+              value={selectedCategory}
+              onValueChange={(v) => setSelectedCategory(v as Id<"categories"> | "all")}
+            >
+              <SelectTrigger className="h-9 w-[140px] sm:w-[160px] text-sm" aria-label="Filter by category">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {Array.isArray(categories) &&
+                  categories.map((c) => (
+                    <SelectItem key={c._id} value={c._id as unknown as string}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Sort Filter */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground hidden sm:inline">Sort:</span>
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
-              <SelectTrigger size="sm" aria-label="Sort products" className="w-full sm:w-auto">
+              <SelectTrigger className="h-9 w-[140px] sm:w-[160px] text-sm" aria-label="Sort products">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -205,27 +202,44 @@ export default function TopRatedProductsSection() {
               </SelectContent>
             </Select>
           </div>
+          
+          {/* In Stock Toggle */}
+          <label className="flex items-center gap-2 text-sm cursor-pointer ml-auto">
+            <input
+              type="checkbox"
+              className="h-4 w-4 accent-primary rounded"
+              checked={inStockOnly}
+              onChange={(e) => setInStockOnly(e.target.checked)}
+              aria-label="Show in-stock only"
+            />
+            <span className="text-muted-foreground">In stock only</span>
+          </label>
         </div>
+        {/* Products */}
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex flex-col space-y-3">
-                <Skeleton className="h-[200px] w-full rounded-xl" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="flex flex-col space-y-3 bg-card rounded-xl border border-border p-3">
+                <Skeleton className="aspect-[4/3] w-full rounded-lg" />
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-3 w-1/2" />
+                  <div className="flex items-center justify-between pt-2">
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-8 w-16 rounded-md" />
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         ) : limitedProducts && limitedProducts.length > 0 ? (
           <>
-            {/* Mobile: horizontal scroll with 2 visible cards */}
-            <div className="sm:hidden flex gap-4 overflow-x-auto no-scrollbar">
+            {/* Mobile: horizontal scroll */}
+            <div className="sm:hidden flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
               {limitedProducts.map((product) => {
                 const adaptedProduct = adaptProductForCard(product);
                 return (
-                  <div key={adaptedProduct._id} className="basis-1/2 shrink-0">
+                  <div key={adaptedProduct._id} className="w-[165px] shrink-0">
                     <ProductCard
                       product={adaptedProduct}
                       onAddToCart={handleAddToCart}
@@ -235,8 +249,9 @@ export default function TopRatedProductsSection() {
                 );
               })}
             </div>
+            
             {/* Desktop: grid */}
-            <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {limitedProducts.map((product) => {
                 const adaptedProduct = adaptProductForCard(product);
                 return (
@@ -249,22 +264,30 @@ export default function TopRatedProductsSection() {
                 );
               })}
             </div>
-            <div className="mt-6 flex justify-end">
-              <Link href="/shops">
-                <Button variant="outline">View all products</Button>
+            
+            {/* View All Button */}
+            <div className="mt-8 flex justify-center">
+              <Link href="/products">
+                <Button variant="outline" className="px-6 inter-semibold hover:bg-primary hover:text-primary-foreground transition-all">
+                  View all products
+                </Button>
               </Link>
             </div>
           </>
         ) : (
-          <Card className="border-border bg-card">
-            <CardContent className="py-12 text-center">
-              <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                No Products Available
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                No products to display yet.
-              </p>
+          <Card className="border-border bg-card border-dashed">
+            <CardContent className="py-16 text-center">
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex items-center justify-center h-16 w-16 rounded-full bg-muted">
+                  <Package className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">No Products Available</h3>
+                  <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                    Products will appear here once stores add their inventory.
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}

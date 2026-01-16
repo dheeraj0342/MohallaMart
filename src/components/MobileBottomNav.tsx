@@ -1,212 +1,105 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { Grid2x2, Home as HomeIcon, ShoppingCart, MoreVertical, MapPin, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  Home,
+  Grid2X2,
+  ShoppingCart,
+  Package,
+  User,
+} from "lucide-react";
 
-interface MobileBottomNavProps {
-  pathname: string | null;
-  mounted: boolean;
-  getTotalItems: () => number;
+export type NavTab = "home" | "categories" | "cart" | "orders" | "profile";
+
+export interface MobileBottomNavProps {
+  activeTab: NavTab;
+  cartCount: number;
+  onTabChange: (tab: NavTab) => void;
   onOpenCart: () => void;
-  isLoggedIn: boolean;
-  location?: any;
-  onOpenLocation?: () => void;
-  dbUser?: { role?: string } | null;
-  user?: any;
 }
+
+const navItems: { id: NavTab; label: string; icon: typeof Home }[] = [
+  { id: "home", label: "Home", icon: Home },
+  { id: "categories", label: "Categories", icon: Grid2X2 },
+  { id: "cart", label: "Cart", icon: ShoppingCart },
+  { id: "orders", label: "Orders", icon: Package },
+  { id: "profile", label: "Profile", icon: User },
+];
 
 export function MobileBottomNav({
-  pathname,
-  mounted,
-  getTotalItems,
+  activeTab,
+  cartCount,
+  onTabChange,
   onOpenCart,
-  isLoggedIn,
-  location,
-  onOpenLocation,
-  dbUser,
-  user,
 }: MobileBottomNavProps) {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
-  const moreMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Close more menu on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent | TouchEvent) => {
-      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
-        setIsMoreMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    document.addEventListener("touchstart", handler);
-    return () => {
-      document.removeEventListener("mousedown", handler);
-      document.removeEventListener("touchstart", handler);
-    };
-  }, []);
+  const [localCartCount, setLocalCartCount] = useState(cartCount);
 
   return (
-    <>
-      <div
-        className={`lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-md transition-all duration-300 ${isScrolled ? "backdrop-blur-xl bg-card/80" : ""
-          }`}
-      >
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-4 gap-1 py-2">
-            <Link
-              href="/"
-              aria-label="Home"
-              className="flex flex-col items-center justify-center gap-1 py-1"
-            >
-              <HomeIcon
-                className={`${pathname === "/"
-                  ? "text-primary"
-                  : "text-muted-foreground"
-                  } h-5 w-5`}
-              />
-              <span
-                className={`text-[11px] ${pathname === "/"
-                  ? "text-primary font-medium"
-                  : "text-muted-foreground"
-                  }`}
-              >
-                Home
-              </span>
-            </Link>
-            <Link
-              href="/category"
-              aria-label="Categories"
-              className="flex flex-col items-center justify-center gap-1 py-1"
-            >
-              <Grid2x2
-                className={`${pathname?.startsWith("/category") || pathname?.startsWith("/shops")
-                  ? "text-primary"
-                  : "text-muted-foreground"
-                  } h-5 w-5`}
-              />
-              <span
-                className={`text-[11px] ${pathname?.startsWith("/category") || pathname?.startsWith("/shops")
-                  ? "text-primary font-medium"
-                  : "text-muted-foreground"
-                  }`}
-              >
-                Categories
-              </span>
-            </Link>
-            <button
-              type="button"
-              onClick={onOpenCart}
-              aria-label="Cart"
-              className="flex flex-col items-center justify-center gap-1 py-1 relative"
-            >
-              <ShoppingCart className="h-5 w-5 text-muted-foreground" />
-              {mounted && getTotalItems() > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-1 right-6 bg-secondary text-secondary-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-md ring-2 ring-background"
-                >
-                  {getTotalItems()}
-                </motion.span>
-              )}
-              <span className="text-[11px] text-muted-foreground">
-                Cart
-              </span>
-            </button>
-            <div ref={moreMenuRef} className="relative">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 h-[64px] bg-white border-t border-[#E0E0E0] shadow-lg pb-safe">
+      <div className="h-full flex items-center justify-around px-2">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isCart = item.id === "cart";
+          const isActive = activeTab === item.id;
+          const count = item.id === "cart" ? cartCount : 0;
+
+          if (isCart) {
+            return (
               <button
-                type="button"
-                onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-                aria-label="More options"
-                className={`flex flex-col items-center justify-center gap-1 py-1 w-full ${isMoreMenuOpen ? "text-primary" : "text-muted-foreground"
-                  }`}
+                key={item.id}
+                onClick={onOpenCart}
+                className="relative flex flex-col items-center justify-center gap-1 px-3 py-2 min-w-[64px] rounded-lg active:scale-95 transition-all"
+                aria-label={`Cart with ${count} items`}
               >
-                <MoreVertical className="h-5 w-5" />
-                <span className="text-[11px]">More</span>
+                <div className="relative">
+                  <Icon
+                    className={`h-6 w-6 transition-colors ${
+                      isActive ? "text-[#0C831F]" : "text-[#666666]"
+                    }`}
+                  />
+                  {count > 0 && (
+                    <span className="absolute -top-2 -right-2 h-5 w-5 bg-[#FF6B00] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                      {count > 99 ? "99+" : count}
+                    </span>
+                  )}
+                </div>
+                <span
+                  className={`text-[11px] font-medium transition-colors ${
+                    isActive ? "text-[#0C831F]" : "text-[#666666]"
+                  }`}
+                >
+                  {item.label}
+                </span>
               </button>
-              <AnimatePresence>
-                {isMoreMenuOpen && (
-                  <>
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 0.5 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="fixed inset-0 z-40 bg-black"
-                      onClick={() => setIsMoreMenuOpen(false)}
-                      aria-hidden="true"
-                    />
-                    <motion.div
-                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute bottom-full right-0 mb-2 w-64 bg-card border-2 border-border rounded-xl shadow-xl z-50 overflow-hidden"
-                    >
-                      <div className="px-4 py-3 border-b border-border">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-semibold text-foreground">Menu</h3>
-                          <button
-                            onClick={() => setIsMoreMenuOpen(false)}
-                            className="p-1 rounded-lg hover:bg-muted transition-colors"
-                            aria-label="Close menu"
-                          >
-                            <X className="h-4 w-4 text-foreground" />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="py-2">
-                        {onOpenLocation && (
-                          <button
-                            onClick={() => {
-                              onOpenLocation();
-                              setIsMoreMenuOpen(false);
-                            }}
-                            className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted transition-colors"
-                          >
-                            <MapPin className="h-4 w-4 mr-3 text-primary" />
-                            <div className="text-left flex-1 min-w-0">
-                              <div className="text-xs text-muted-foreground">Deliver to</div>
-                              <div className="text-sm font-medium truncate">
-                                {location
-                                  ? `${location.area || location.city || "Your location"}${location.pincode ? `, ${location.pincode}` : ""}`
-                                  : "Select Location"}
-                              </div>
-                            </div>
-                          </button>
-                        )}
-                        {dbUser?.role !== "admin" && (
-                          <Link
-                            href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}
-                            onClick={() => setIsMoreMenuOpen(false)}
-                            className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted transition-colors"
-                          >
-                            <span className="h-4 w-4 mr-3 flex items-center justify-center">🏪</span>
-                            <span>Register Your Shop</span>
-                          </Link>
-                        )}
-                      </div>
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
+            );
+          }
+
+          return (
+            <Link
+              key={item.id}
+              href={item.id === "home" ? "/" : `/${item.id}`}
+              onClick={() => onTabChange(item.id)}
+              className="flex flex-col items-center justify-center gap-1 px-3 py-2 min-w-[64px] rounded-lg hover:bg-gray-100 active:scale-95 transition-all"
+              aria-label={item.label}
+              aria-current={isActive ? "page" : undefined}
+            >
+              <Icon
+                className={`h-6 w-6 transition-colors ${
+                  isActive ? "text-[#0C831F]" : "text-[#666666]"
+                }`}
+              />
+              <span
+                className={`text-[11px] font-medium transition-colors ${
+                  isActive ? "text-[#0C831F]" : "text-[#666666]"
+                }`}
+              >
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
       </div>
-    </>
+    </nav>
   );
 }
-
-

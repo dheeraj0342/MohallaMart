@@ -3,8 +3,8 @@
 import Image from "next/image"
 import { useParams } from "next/navigation"
 import { useQuery } from "convex/react"
-import { api } from "@/../../convex/_generated/api"
-import type { Id } from "@/../../convex/_generated/dataModel"
+import { api } from "@/../convex/_generated/api"
+import type { Id } from "@/../convex/_generated/dataModel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -636,6 +636,61 @@ export default function ProductPdPage() {
             <RelatedProductsRow
               title="People also bought"
               products={peopleAlsoBought.map(adaptProductForCard)}
+              eta={productEta || undefined}
+            />
+          )}
+
+          {/* Flash Deals Section */}
+          {relatedPool && relatedPool.length > 0 && (
+            <RelatedProductsRow
+              title="⚡ Flash Deals - Limited Time"
+              products={relatedPool
+                .filter((p) => p.original_price && p.original_price > p.price)
+                .sort((a, b) => {
+                  const discountA = a.original_price ? ((a.original_price - a.price) / a.original_price) * 100 : 0;
+                  const discountB = b.original_price ? ((b.original_price - b.price) / b.original_price) * 100 : 0;
+                  return discountB - discountA;
+                })
+                .slice(0, 10)
+                .map(adaptProductForCard)}
+              eta={productEta || undefined}
+            />
+          )}
+
+          {/* Best Sellers Section */}
+          {relatedPool && relatedPool.length > 0 && (
+            <RelatedProductsRow
+              title="🔥 Best Sellers"
+              products={relatedPool
+                .filter((p) => p.total_sales && p.total_sales > 0)
+                .sort((a, b) => (b.total_sales || 0) - (a.total_sales || 0))
+                .slice(0, 10)
+                .map(adaptProductForCard)}
+              eta={productEta || undefined}
+            />
+          )}
+
+          {/* Top Rated Section */}
+          {relatedPool && relatedPool.length > 0 && (
+            <RelatedProductsRow
+              title="⭐ Top Rated in Quick Commerce"
+              products={relatedPool
+                .filter((p) => p.rating && p.rating >= 4)
+                .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+                .slice(0, 10)
+                .map(adaptProductForCard)}
+              showRank
+              eta={productEta || undefined}
+            />
+          )}
+
+          {/* Trending Now Section */}
+          {relatedPool && relatedPool.length > 0 && (
+            <RelatedProductsRow
+              title="✨ Trending Now"
+              products={relatedPool
+                .slice(0, 10)
+                .map(adaptProductForCard)}
               eta={productEta || undefined}
             />
           )}
