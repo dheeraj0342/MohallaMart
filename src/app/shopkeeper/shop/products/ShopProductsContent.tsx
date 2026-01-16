@@ -19,6 +19,7 @@ import {
   AlertCircle,
   Loader2,
   Store,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,6 +43,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import ShopkeeperFlashDealModal from "@/components/shopkeeper/ShopkeeperFlashDealModal";
 
 type Shop = {
   _id: Id<"shops">;
@@ -70,6 +72,10 @@ type Product = {
   total_sales?: number;
   category_id: Id<"categories">;
   created_at: number;
+  is_flash_deal?: boolean;
+  flash_deal_discount_percent?: number;
+  flash_deal_start_time?: number;
+  flash_deal_end_time?: number;
 };
 
 export default function ShopProductsContent() {
@@ -80,6 +86,8 @@ export default function ShopProductsContent() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("newest");
   const [deleteProductId, setDeleteProductId] = useState<Id<"products"> | null>(null);
+  const [flashDealProductId, setFlashDealProductId] = useState<Id<"products"> | null>(null);
+  const [flashDealLoading, setFlashDealLoading] = useState(false);
 
   const dbUser = useQuery(
     api.users.getUser,
@@ -109,6 +117,7 @@ export default function ShopProductsContent() {
 
   const deleteProduct = useMutation(api.products.deleteProduct);
   const toggleProductAvailability = useMutation(api.products.toggleProductAvailability);
+  const toggleFlashDeal = useMutation(api.products.toggleFlashDeal);
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
@@ -195,6 +204,33 @@ export default function ShopProductsContent() {
     } catch (err) {
       console.error(err);
       error("Failed to update product status. Please try again.");
+    }
+  };
+
+  const handleFlashDealSave = async (productId: Id<"products">, data: any) => {
+    if (!dbUser) return;
+
+    setFlashDealLoading(true);
+    try {
+      await toggleFlashDeal({
+        product_id: productId,
+        owner_id: dbUser._id,
+        is_flash_deal: data.is_flash_deal,
+        flash_deal_discount_percent: data.flash_deal_discount_percent,
+        flash_deal_start_time: data.flash_deal_start_time,
+        flash_deal_end_time: data.flash_deal_end_time,
+      });
+      success(
+        data.is_flash_deal
+          ? "Flash deal enabled successfully"
+          : "Flash deal disabled successfully"
+      );
+      setFlashDealProductId(null);
+    } catch (err: any) {
+      console.error(err);
+      error(err.message || "Failed to update flash deal. Please try again.");
+    } finally {
+      setFlashDealLoading(false);
     }
   };
 
@@ -422,6 +458,12 @@ export default function ShopProductsContent() {
                     Featured
                   </Badge>
                 )}
+                {product.is_flash_deal && (
+                  <Badge className="absolute bottom-2 right-2 bg-accent text-accent-foreground flex items-center gap-1">
+                    <Zap className="h-3 w-3" />
+                    Flash Deal
+                  </Badge>
+                )}
                 {!product.is_available && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                     <Badge variant="destructive" className="text-sm">
@@ -504,6 +546,15 @@ export default function ShopProductsContent() {
                     )}
                   </Button>
                   <Button
+                    variant={product.is_flash_deal ? "default" : "outline"}
+                    size="sm"
+                    className={product.is_flash_deal ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}
+                    onClick={() => setFlashDealProductId(product._id)}
+                    title="Configure flash deal"
+                  >
+                    <Zap className="h-4 w-4" />
+                  </Button>
+                  <Button
                     variant="outline"
                     size="sm"
                     onClick={() => {
@@ -574,6 +625,32 @@ export default function ShopProductsContent() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Flash Deal Modal */}
+      {flashDealProductId && (
+        <ShopkeeperFlashDealModal
+          open={flashDealProductId !== null}
+          onOpenChange={(open) => !open && setFlashDealProductId(null)}
+          productName={
+            filteredProducts.find((p) => p._id === flashDealProductId)?.name || "Product"
+          }
+          isFlashDeal={
+            filteredProducts.find((p) => p._id === flashDealProductId)?.is_flash_deal || false
+          }
+          currentDiscount={
+            filteredProducts.find((p) => p._id === flashDealProductId)
+              ?.flash_deal_discount_percent || 10
+          }
+          currentStartTime={
+            filteredProducts.find((p) => p._id === flashDealProductId)?.flash_deal_start_time
+          }
+          currentEndTime={
+            filteredProducts.find((p) => p._id === flashDealProductId)?.flash_deal_end_time
+          }
+          onSave={(data) => handleFlashDealSave(flashDealProductId, data)}
+          isLoading={flashDealLoading}
+        />
+      )}
     </div>
   );
 }

@@ -106,6 +106,22 @@ export const getProductBySlug = query({
   },
 });
 
+// Get all available products
+export const getAllProducts = query({
+  args: {},
+  handler: async (ctx, args) => {
+    const products = await ctx.db
+      .query("products")
+      .filter((q) => q.eq(q.field("is_available"), true))
+      .collect();
+
+    // Sort by rating (highest first)
+    products.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+
+    return products;
+  },
+});
+
 // Get products by shop
 export const getProductsByShop = query({
   args: {
@@ -538,5 +554,55 @@ export const bulkCreateProducts = mutation({
     }
 
     return insertedIds;
+  },
+});
+
+// Toggle flash deal for a product
+export const toggleFlashDeal = mutation({
+  args: {
+    product_id: v.id("products"),
+    owner_id: v.id("users"),
+    is_flash_deal: v.boolean(),
+    flash_deal_discount_percent: v.optional(v.number()),
+    flash_deal_start_time: v.optional(v.number()),
+    flash_deal_end_time: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    // Get the product
+    const product = await ctx.db.get(args.product_id);
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
+    // Verify ownership through shop
+    const shop = await ctx.db.get(product.shop_id);
+    if (!shop || shop.owner_id !== args.owner_id) {
+      throw new Error("Unauthorized: You can only modify flash deals for your own products");
+    }
+
+    // Validate discount if enabling flash deal
+    if (args.is_flash_deal && args.flash_deal_discount_percent !== undefined) {
+      if (args.flash_deal_discount_percent < 0 || args.flash_deal_discount_percent > 100) {
+        throw new Error("Discount percentage must be between 0 and 100");
+      }
+    }
+
+    // Validate time range if provided
+    if (args.is_flash_deal && args.flash_deal_start_time && args.flash_deal_end_time) {
+      if (args.flash_deal_start_time >= args.flash_deal_end_time) {
+        throw new Error("End time must be after start time");
+      }
+    }
+
+    // Update product with flash deal information
+    await ctx.db.patch(args.product_id, {
+      is_flash_deal: args.is_flash_deal,
+      flash_deal_discount_percent: args.is_flash_deal ? args.flash_deal_discount_percent : undefined,
+      flash_deal_start_time: args.is_flash_deal ? args.flash_deal_start_time : undefined,
+      flash_deal_end_time: args.is_flash_deal ? args.flash_deal_end_time : undefined,
+      updated_at: Date.now(),
+    });
+
+    return { success: true, product_id: args.product_id };
   },
 });
