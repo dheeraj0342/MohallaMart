@@ -50,9 +50,7 @@ export default function TopRatedProductsSection() {
 
   const isLoading = selectedCategory === "all" ? productsAll === undefined : productsByCategory === undefined;
 
-  // Fetch ETAs for shops
   useEffect(() => {
-    // Helper to safely access location coordinates
     const loc = location as unknown as { coordinates?: { lat: number; lng: number }; lat?: number; lon?: number } | null;
     const lat = loc?.coordinates?.lat ?? loc?.lat;
     const lng = loc?.coordinates?.lng ?? loc?.lon;
@@ -130,6 +128,7 @@ export default function TopRatedProductsSection() {
       shop_id: product.shop_id ? String(product.shop_id) : undefined,
     };
   };
+
   const handleAddToCart = (product: Product) => {
     addToCart({
       id: `${product._id}`,
@@ -143,17 +142,17 @@ export default function TopRatedProductsSection() {
     });
     success(`${product.name} added to cart!`);
   };
+
   return (
-    <section id="top-rated" className="py-8 sm:py-12 bg-muted/30">
+    <section id="top-rated" className="py-12 sm:py-16 bg-muted/20">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-2">
               <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-yellow-500/10">
                 <Star className="h-4 w-4 text-yellow-500" />
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Top Rated Products</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Top Rated Products</h2>
             </div>
             {!isLoading && limitedProducts && limitedProducts.length > 0 && (
               <p className="text-sm text-muted-foreground ml-10">
@@ -163,9 +162,7 @@ export default function TopRatedProductsSection() {
           </div>
         </div>
         
-        {/* Filters Row */}
-        <div className="flex flex-wrap items-center gap-3 mb-6 pb-4 border-b border-border">
-          {/* Category Filter */}
+        <div className="flex flex-wrap items-center gap-3 mb-6 pb-4 border-b border-border/30">
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground hidden sm:inline">Category:</span>
             <Select
@@ -187,7 +184,6 @@ export default function TopRatedProductsSection() {
             </Select>
           </div>
           
-          {/* Sort Filter */}
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground hidden sm:inline">Sort:</span>
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
@@ -203,7 +199,6 @@ export default function TopRatedProductsSection() {
             </Select>
           </div>
           
-          {/* In Stock Toggle */}
           <label className="flex items-center gap-2 text-sm cursor-pointer ml-auto">
             <input
               type="checkbox"
@@ -215,11 +210,11 @@ export default function TopRatedProductsSection() {
             <span className="text-muted-foreground">In stock only</span>
           </label>
         </div>
-        {/* Products */}
+
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="flex flex-col space-y-3 bg-card rounded-xl border border-border p-3">
+              <div key={i} className="flex flex-col space-y-3 bg-card rounded-xl border border-border/30 p-3">
                 <Skeleton className="aspect-[4/3] w-full rounded-lg" />
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-3/4" />
@@ -234,12 +229,11 @@ export default function TopRatedProductsSection() {
           </div>
         ) : limitedProducts && limitedProducts.length > 0 ? (
           <>
-            {/* Mobile: horizontal scroll */}
-            <div className="sm:hidden flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
+            <div className="sm:hidden flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 snap-x snap-mandatory">
               {limitedProducts.map((product) => {
                 const adaptedProduct = adaptProductForCard(product);
                 return (
-                  <div key={adaptedProduct._id} className="w-[165px] shrink-0">
+                  <div key={adaptedProduct._id} className="w-[165px] shrink-0 snap-start">
                     <ProductCard
                       product={adaptedProduct}
                       onAddToCart={handleAddToCart}
@@ -250,7 +244,6 @@ export default function TopRatedProductsSection() {
               })}
             </div>
             
-            {/* Desktop: grid */}
             <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {limitedProducts.map((product) => {
                 const adaptedProduct = adaptProductForCard(product);
@@ -265,21 +258,20 @@ export default function TopRatedProductsSection() {
               })}
             </div>
             
-            {/* View All Button */}
             <div className="mt-8 flex justify-center">
               <Link href="/products">
-                <Button variant="outline" className="px-6 inter-semibold hover:bg-primary hover:text-primary-foreground transition-all">
+                <Button variant="outline" className="px-6 font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all">
                   View all products
                 </Button>
               </Link>
             </div>
           </>
         ) : (
-          <Card className="border-border bg-card border-dashed">
+          <Card className="border-border/30 bg-card/50 border-dashed">
             <CardContent className="py-16 text-center">
               <div className="flex flex-col items-center gap-3">
-                <div className="flex items-center justify-center h-16 w-16 rounded-full bg-muted">
-                  <Package className="h-8 w-8 text-muted-foreground" />
+                <div className="flex items-center justify-center h-16 w-16 rounded-2xl bg-muted/20">
+                  <Package className="h-8 w-8 text-muted-foreground/60" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-foreground mb-1">No Products Available</h3>

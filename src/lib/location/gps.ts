@@ -18,43 +18,58 @@ export async function getHighAccuracyGPS(): Promise<HighAccuracyLocation> {
   };
 
   try {
-    // First try with high accuracy
     const position = await getPosition({
       enableHighAccuracy: true,
       timeout: 10000,
       maximumAge: 0,
     });
     
+    const accuracy = Math.max(1, position.coords.accuracy || 50);
+    
     return {
       lat: position.coords.latitude,
       lon: position.coords.longitude,
-      accuracy: position.coords.accuracy,
+      accuracy,
     };
   } catch (error: any) {
-    // If permission denied (code 1), do not retry
-    if (error.code === 1) {
-      throw error;
+    if (error?.code === 1) {
+      throw new Error("Geolocation permission denied");
     }
 
-    // If high accuracy fails (timeout or other error), try low accuracy
-    console.warn("High accuracy geolocation failed, falling back to low accuracy", error);
-    
     try {
       const position = await getPosition({
         enableHighAccuracy: false,
         timeout: 10000,
-        maximumAge: 0,
+        maximumAge: 300000,
       });
+
+      const accuracy = Math.max(1, position.coords.accuracy || 100);
 
       return {
         lat: position.coords.latitude,
         lon: position.coords.longitude,
-        accuracy: position.coords.accuracy,
+        accuracy,
       };
-    } catch (fallbackError) {
-      throw fallbackError;
+    } catch (fallbackError: any) {
+      throw new Error(
+        `Geolocation failed: ${fallbackError?.message || "Unknown error"}`
+      );
     }
   }
 }
+
+export function isValidCoordinates(lat: number, lon: number): boolean {
+  return (
+    typeof lat === "number" &&
+    typeof lon === "number" &&
+    !isNaN(lat) &&
+    !isNaN(lon) &&
+    lat >= -90 &&
+    lat <= 90 &&
+    lon >= -180 &&
+    lon <= 180
+  );
+}
+
 
 

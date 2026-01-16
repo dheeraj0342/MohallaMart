@@ -8,6 +8,8 @@ import InngestProvider from "@/components/InngestProvider";
 import TRPCProvider from "@/components/TRPCProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { PWAServiceWorker, PWAInstallPrompt, RequestNotificationPermission } from "@/components/PWA";
+import { PushNotificationManager, InstallPromptIOS } from "@/components/PushNotifications";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -54,6 +56,15 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "MohallaMart",
+  },
+  formatDetection: {
+    telephone: true,
+  },
+  manifest: "/manifest.json",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -64,7 +75,7 @@ export const metadata: Metadata = {
     siteName: "MohallaMart",
     images: [
       {
-        url: "/og-image.jpg", // Ensure you have an OG image in your public folder
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "MohallaMart - Neighborhood Marketplace",
@@ -79,7 +90,16 @@ export const metadata: Metadata = {
     images: ["/og-image.jpg"],
     creator: "@mohallamart",
   },
-  metadataBase: new URL("https://mohalla.vercel.app"), // Replace with your actual domain
+  icons: {
+    icon: [
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+    shortcut: "/favicon.ico",
+  },
+  metadataBase: new URL("https://mohalla.vercel.app"),
   alternates: {
     canonical: "/",
   },
@@ -98,22 +118,36 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="MohallaMart" />
+        <meta name="theme-color" content="#10b981" />
+        <meta name="color-scheme" content="light dark" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="application-name" content="MohallaMart" />
+        
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
+        
+        <link rel="manifest" href="/manifest.json" />
+        
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  // Theme initialization - prevents FOUC (Flash of Unstyled Content)
                   var theme = localStorage.getItem('theme-preference');
                   var html = document.documentElement;
                   
-                  // If no saved preference, check system preference
                   if (!theme) {
                     var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
                     theme = prefersDark ? 'dark' : 'light';
                   }
                   
-                  // Apply theme immediately
                   if (theme === 'dark') {
                     html.classList.add('dark');
                   } else {
@@ -131,14 +165,18 @@ export default function RootLayout({
         className={`${openSans.variable} ${montserrat.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
+        <PWAServiceWorker />
+        <RequestNotificationPermission />
         <ThemeProvider defaultTheme="light" storageKey="theme-preference">
           <TRPCProvider>
             <ConvexProviderWrapper>
               <InngestProvider>
                 <ConditionalNavbar />
-                  <main className="lg:pt-0 pt-[220px]">{children}</main>
+                <main className="pt-[184px] lg:pt-0">{children}</main>
                 <ConditionalFooter />
                 <Toaster />
+                <PWAInstallPrompt />
+                <InstallPromptIOS />
               </InngestProvider>
             </ConvexProviderWrapper>
           </TRPCProvider>

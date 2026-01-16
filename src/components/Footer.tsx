@@ -3,6 +3,10 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, ArrowRight, ShoppingBag, Zap, Users, Truck } from "lucide-react";
+import Image from "next/image";
+import { Bebas_Neue } from "next/font/google";
+
+const bebasNeue = Bebas_Neue({ subsets: ["latin"], weight: "400" });
 
 const quickLinks = [
   { name: "Home", href: "/" },
@@ -89,19 +93,21 @@ export default function Footer() {
               className="lg:col-span-3"
             >
               {/* Logo */}
-              <div className="mb-6">
-                <Link href="/" className="inline-block">
-                  <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xl">
-                      🛒
-                    </div>
-                    <h3 className="text-xl font-bold poppins-bold">
-                      <span className="text-primary">Mohalla</span>
-                      <span className="text-secondary">Mart</span>
-                    </h3>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="relative h-12 w-12">
+                    <Image
+                      src="/mohallamartLogo.png"
+                      alt="MohallaMart Logo"
+                      fill
+                      className="object-contain"
+                      priority
+                    />
                   </div>
-                </Link>
-              </div>
+                  <h3 className={`text-3xl font-bold tracking-tight ${bebasNeue.className}`}>
+                    <span className="text-primary">Mohalla</span>
+                    <span className="text-secondary">Mart</span>
+                  </h3>
+                </div>
 
               {/* Description */}
               <p className="text-muted-foreground mb-6 leading-relaxed text-sm inter-regular">
@@ -131,7 +137,7 @@ export default function Footer() {
                   href="#"
                   className="inline-flex items-center gap-3 px-4 py-2.5 bg-muted/50 border border-border rounded-lg hover:border-primary hover:bg-muted transition-all hover:shadow-md active:scale-95 group text-sm"
                 >
-                  <span className="text-lg">📱</span>
+                  <Image src="/images/app-store.svg" alt="App Store" width={28} height={28} className="shrink-0" />
                   <div className="text-left flex-1">
                     <div className="text-[10px] text-muted-foreground">Download on</div>
                     <div className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
@@ -143,7 +149,7 @@ export default function Footer() {
                   href="#"
                   className="inline-flex items-center gap-3 px-4 py-2.5 bg-muted/50 border border-border rounded-lg hover:border-primary hover:bg-muted transition-all hover:shadow-md active:scale-95 group text-sm"
                 >
-                  <span className="text-lg">🤖</span>
+                  <Image src="/images/play-store.svg" alt="Google Play" width={28} height={28} className="shrink-0" />
                   <div className="text-left flex-1">
                     <div className="text-[10px] text-muted-foreground">Get it on</div>
                     <div className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">

@@ -15,6 +15,10 @@ import { useQuery } from "convex/react";
 import { api } from "@convex/_generated/api";
 import Link from "next/link";
 import { useThemeContext } from "./ThemeProvider";
+import Image from "next/image";
+import { Bebas_Neue } from "next/font/google";
+
+const bebasNeue = Bebas_Neue({ subsets: ["latin"], weight: "400" });
 
 const getEmojiForCategory = (name: string) => {
   if (!name) return "📦";
@@ -171,7 +175,6 @@ export function MobileHeader({
         isScrolled ? 'shadow-md border-border' : ''
       }`}
     >
-      {/* Top row: Logo, Delivery Status and Icons - Hidden when scrolled */}
       <div 
         className={`px-4 py-3 flex items-center justify-between gap-3 transition-all duration-300 overflow-hidden ${
           isScrolled ? 'max-h-0 py-0 opacity-0' : 'max-h-20 opacity-100'
@@ -181,12 +184,21 @@ export function MobileHeader({
         <div className="flex items-center gap-3 flex-1 min-w-0">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
-            <div className="flex items-center gap-1.5">
-              <div className="flex flex-col leading-none">
-                <h1 className="text-base font-bold poppins-bold">
-                  <span className="text-primary">Mohalla</span>
-                  <span className="text-secondary">Mart</span>
-                </h1>
+            <div className="flex items-center gap-2">
+              <div className="relative w-8 h-8">
+                <Image
+                  src="/mohallamartLogo.png"
+                  alt="MohallaMart Logo"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+                <div className="flex flex-col leading-none">
+                  <h1 className={`text-sm font-extrabold ${bebasNeue.className}`}>
+                    <span className="text-primary">Mohalla</span>
+                    <span className="text-foreground">Mart</span>
+                  </h1>
               </div>
             </div>
           </Link>
@@ -221,7 +233,7 @@ export function MobileHeader({
       </div>
 
       {/* Search bar: Always visible */}
-      <div className={`px-4 transition-all duration-300 ${isScrolled ? 'py-2' : 'pb-3'}`}>
+      <div className={`px-4 transition-all duration-300 ${isScrolled ? 'py-1' : 'pb-1'}`}>
         <div className="flex items-center gap-2">
           <button
             onClick={onOpenSearch}
@@ -249,8 +261,8 @@ export function MobileHeader({
       </div>
 
       {/* Categories scroll: Always visible */}
-      <div className={`px-4 transition-all duration-300 ${isScrolled ? 'pb-2' : 'pb-3'}`}>
-        <div className="flex gap-3 overflow-x-auto no-scrollbar scrollbar-hide py-1">
+      <div className={`px-4 transition-all duration-300 ${isScrolled ? 'pb-0.5' : 'pb-2'}`}>
+        <div className="flex gap-3 overflow-x-auto no-scrollbar scrollbar-hide">
           {categoryChips.map((cat, idx) => (
             <Link
               key={cat.name + idx}

@@ -96,29 +96,26 @@ export default function NearbyStoresSection() {
   }, [page, totalPages])
 
   return (
-    <section id="nearby" className="py-12 sm:py-16 bg-background overflow-hidden">
+    <section id="nearby" className="py-12 sm:py-16 bg-background">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-3 mb-3">
               <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-primary/10">
                 <MapPin className="h-5 w-5 text-primary" />
               </div>
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-foreground poppins-bold">
-                  Stores Near You
-                </h2>
-              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+                Stores Near You
+              </h2>
             </div>
-            <p className="text-sm text-muted-foreground ml-13">
-              <span className="font-semibold text-foreground">{shops.length}</span> {shops.length === 1 ? "store" : "stores"} delivering to your area{location?.city ? ` in ${location.city}` : ""}
-            </p>
+            {!isLoading && shops.length > 0 && (
+              <p className="text-sm text-muted-foreground ml-13">
+                <span className="font-semibold text-foreground">{shops.length}</span> {shops.length === 1 ? "store" : "stores"} delivering to your area{location?.city ? ` in ${location.city}` : ""}
+              </p>
+            )}
           </div>
           <Link href="/shops" className="self-start sm:self-auto">
-            <Button
-              className="bg-primary hover:bg-primary-hover text-primary-foreground font-medium transition-all duration-300 active:scale-95"
-            >
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium transition-all duration-200 active:scale-95">
               View all stores
               <ChevronRight className="h-4 w-4 ml-2" />
             </Button>
@@ -126,49 +123,45 @@ export default function NearbyStoresSection() {
         </div>
 
         {isLoading ? (
-          <div>
-            {/* Mobile: horizontal skeleton */}
-            <div className="sm:hidden flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
+          <>
+            <div className="sm:hidden flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 snap-x snap-mandatory">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Card key={i} className="border-border/50 bg-card/50 overflow-hidden rounded-2xl shadow-sm w-[180px] shrink-0">
-                  <div className="relative h-28 w-full bg-muted/30 animate-pulse rounded-t-2xl" />
+                <Card key={i} className="border-border/30 bg-card/50 overflow-hidden rounded-2xl w-[180px] shrink-0 snap-start">
+                  <div className="relative h-28 w-full bg-muted/20 animate-pulse rounded-t-2xl" />
                   <CardContent className="p-3 space-y-2">
-                    <div className="h-4 w-3/4 bg-muted/30 rounded-lg animate-pulse" />
-                    <div className="h-3 w-1/2 bg-muted/30 rounded-lg animate-pulse" />
-                    <div className="h-3 w-2/3 bg-muted/30 rounded-lg animate-pulse" />
+                    <div className="h-4 w-3/4 bg-muted/20 rounded-lg animate-pulse" />
+                    <div className="h-3 w-1/2 bg-muted/20 rounded-lg animate-pulse" />
+                    <div className="h-3 w-2/3 bg-muted/20 rounded-lg animate-pulse" />
                   </CardContent>
                 </Card>
               ))}
             </div>
-            {/* Desktop: grid skeleton */}
             <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-                <Card key={i} className="border-border/50 bg-card/50 overflow-hidden rounded-2xl shadow-sm">
-                  <div className="relative h-44 w-full bg-muted/30 animate-pulse rounded-t-2xl" />
+                <Card key={i} className="border-border/30 bg-card/50 overflow-hidden rounded-2xl">
+                  <div className="relative h-44 w-full bg-muted/20 animate-pulse rounded-t-2xl" />
                   <CardContent className="p-4 space-y-3">
-                    <div className="h-5 w-3/4 bg-muted/30 rounded-lg animate-pulse" />
-                    <div className="h-4 w-full bg-muted/30 rounded-lg animate-pulse" />
-                    <div className="h-3 w-2/3 bg-muted/30 rounded-lg animate-pulse" />
-                    <div className="flex items-center justify-between pt-2 border-t border-border/30">
-                      <div className="h-3 w-16 bg-muted/30 rounded-lg animate-pulse" />
-                      <div className="h-3 w-12 bg-muted/30 rounded-lg animate-pulse" />
+                    <div className="h-5 w-3/4 bg-muted/20 rounded-lg animate-pulse" />
+                    <div className="h-4 w-full bg-muted/20 rounded-lg animate-pulse" />
+                    <div className="h-3 w-2/3 bg-muted/20 rounded-lg animate-pulse" />
+                    <div className="flex items-center justify-between pt-2 border-t border-border/20">
+                      <div className="h-3 w-16 bg-muted/20 rounded-lg animate-pulse" />
+                      <div className="h-3 w-12 bg-muted/20 rounded-lg animate-pulse" />
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
-          </div>
+          </>
         ) : shops.length > 0 ? (
           <>
-            {/* Mobile: horizontal scroll with improved cards */}
-            <div className="sm:hidden flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
+            <div className="sm:hidden flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 snap-x snap-mandatory">
               {shops.map((shop) => {
                 const coordinates = shop.address?.coordinates
                 const distance = coordinates && userCoordinates ? calculateDistanceKm(userCoordinates, coordinates) : null
                 return (
-                  <Link key={shop._id} href={`/shop/${generateSlug(shop.name)}`} className="group w-[180px] shrink-0">
-                    <Card className="h-full overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/40 active:scale-[0.98]">
-                      {/* Image */}
+                  <Link key={shop._id} href={`/shop/${generateSlug(shop.name)}`} className="group w-[180px] shrink-0 snap-start">
+                    <Card className="h-full overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300 hover:shadow-md hover:border-primary/40 active:scale-[0.98]">
                       <div className="relative h-28 w-full bg-gradient-to-br from-muted/20 to-muted/10 overflow-hidden">
                         {shop.logo_url ? (
                           <Image
@@ -184,14 +177,12 @@ export default function NearbyStoresSection() {
                             <Store className="h-10 w-10 text-primary/40" />
                           </div>
                         )}
-                        {/* Rating badge */}
                         {shop.rating && shop.rating > 0 && (
                           <Badge className="absolute top-2 right-2 flex items-center gap-1 rounded-lg bg-primary/90 backdrop-blur-sm text-primary-foreground px-2 py-1 text-[11px] font-semibold">
                             <Star className="h-3 w-3 fill-current" />
                             {shop.rating.toFixed(1)}
                           </Badge>
                         )}
-                        {/* Active indicator */}
                         {shop.is_active && (
                           <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/90 text-primary-foreground text-[10px] font-semibold">
                             <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
@@ -199,7 +190,6 @@ export default function NearbyStoresSection() {
                           </div>
                         )}
                       </div>
-                      {/* Content */}
                       <CardContent className="p-3 space-y-1.5">
                         <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-1 group-hover:text-primary transition-colors">
                           {shop.name}
@@ -221,15 +211,13 @@ export default function NearbyStoresSection() {
               })}
             </div>
             
-            {/* Desktop: grid with improved cards */}
             <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {visibleShops.map((shop) => {
                 const coordinates = shop.address?.coordinates
                 const distance = coordinates && userCoordinates ? calculateDistanceKm(userCoordinates, coordinates) : null
                 return (
                   <Link key={shop._id} href={`/shop/${generateSlug(shop.name)}`} className="group">
-                    <Card className="h-full overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm transition-all duration-300 hover:shadow-lg hover:border-primary/40 hover:-translate-y-1">
-                      {/* Image */}
+                    <Card className="h-full overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300 hover:shadow-lg hover:border-primary/40 hover:-translate-y-1">
                       <div className="relative h-44 w-full bg-gradient-to-br from-muted/20 to-muted/10 overflow-hidden">
                         {shop.logo_url ? (
                           <Image
@@ -245,14 +233,12 @@ export default function NearbyStoresSection() {
                             <Store className="h-16 w-16 text-primary/40" />
                           </div>
                         )}
-                        {/* Rating badge */}
                         {shop.rating && shop.rating > 0 && (
                           <Badge className="absolute top-3 right-3 flex items-center gap-1.5 rounded-lg bg-primary/90 backdrop-blur-sm text-primary-foreground px-2.5 py-1 text-xs font-semibold">
                             <Star className="h-3.5 w-3.5 fill-current" />
                             {shop.rating.toFixed(1)}
                           </Badge>
                         )}
-                        {/* Active indicator */}
                         {shop.is_active && (
                           <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/90 text-primary-foreground text-[11px] font-semibold">
                             <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
@@ -261,7 +247,6 @@ export default function NearbyStoresSection() {
                         )}
                       </div>
                       
-                      {/* Content */}
                       <CardContent className="p-4 space-y-2.5">
                         <div>
                           <h3 className="font-semibold text-foreground text-base leading-snug line-clamp-1 group-hover:text-primary transition-colors">
@@ -279,7 +264,7 @@ export default function NearbyStoresSection() {
                           <span className="line-clamp-1">{shop.address.city}, {shop.address.state}</span>
                         </div>
                         
-                        <div className="flex items-center justify-between pt-3 border-t border-border/30">
+                        <div className="flex items-center justify-between pt-3 border-t border-border/20">
                           {distance !== null ? (
                             <div className="flex items-center gap-1.5 text-sm font-semibold text-primary">
                               <Navigation className="h-3.5 w-3.5" />
@@ -299,13 +284,13 @@ export default function NearbyStoresSection() {
                 )
               })}
             </div>
-            {/* Pagination */}
+            
             {shops.length > PAGE_SIZE && (
               <div className="mt-10 flex items-center justify-center gap-3">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-10 px-4 rounded-lg border-border/50 hover:bg-muted/50"
+                  className="h-10 px-4 rounded-lg border-border/50 hover:bg-muted/50 transition-colors"
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
                   aria-label="Previous page"
@@ -323,6 +308,8 @@ export default function NearbyStoresSection() {
                           ? "bg-primary text-primary-foreground shadow-md" 
                           : "hover:bg-muted/50 text-muted-foreground border border-border/30"
                       }`}
+                      aria-label={`Go to page ${i + 1}`}
+                      aria-current={page === i ? "page" : undefined}
                     >
                       {i + 1}
                     </button>
@@ -332,7 +319,7 @@ export default function NearbyStoresSection() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-10 px-4 rounded-lg border-border/50 hover:bg-muted/50"
+                  className="h-10 px-4 rounded-lg border-border/50 hover:bg-muted/50 transition-colors"
                   onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                   disabled={page >= totalPages - 1}
                   aria-label="Next page"
@@ -343,20 +330,20 @@ export default function NearbyStoresSection() {
             )}
           </>
         ) : (
-          <Card className="border-border/50 bg-card/50 border-dashed">
+          <Card className="border-border/30 bg-card/50 border-dashed">
             <CardContent className="py-16 text-center">
               <div className="flex flex-col items-center gap-4">
-                <div className="flex items-center justify-center h-16 w-16 rounded-2xl bg-muted/30">
+                <div className="flex items-center justify-center h-16 w-16 rounded-2xl bg-muted/20">
                   <Store className="h-8 w-8 text-muted-foreground/60" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2 poppins-semibold">No stores nearby</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No stores nearby</h3>
                   <p className="text-sm text-muted-foreground max-w-sm mx-auto">
                     We couldn't find any stores in your area. Try changing your location or check back later.
                   </p>
                 </div>
                 <Button 
-                  className="mt-3 bg-primary hover:bg-primary-hover text-primary-foreground font-medium"
+                  className="mt-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium transition-all"
                   onClick={() => window.location.reload()}
                 >
                   Refresh

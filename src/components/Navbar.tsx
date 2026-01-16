@@ -35,6 +35,10 @@ import { MobileHeader } from "./MobileHeader";
 import { MobileBottomNav } from "./MobileBottomNav";
 import NotificationBell from "./NotificationBell";
 import { useThemeContext } from "./ThemeProvider";
+import Image from "next/image";
+import { Bebas_Neue } from "next/font/google";
+
+const bebasNeue = Bebas_Neue({ subsets: ["latin"], weight: "400" });
 
 const categoryIconMap: Record<string, LucideIcon> = {
   All: Grid2x2,
@@ -144,15 +148,7 @@ export default function Navbar() {
     try {
       const newTheme = theme === 'light' ? 'dark' : 'light';
       toggleTheme();
-      // Show toast notification with the NEW theme
       info(`${newTheme === 'dark' ? 'Dark' : 'Light'} mode enabled`);
-      
-      // Debug: Log to console
-      console.log('Theme toggled:', { 
-        from: theme, 
-        to: newTheme,
-        htmlClass: document.documentElement.className 
-      });
     } catch (error) {
       console.error('Theme toggle error:', error);
     }
@@ -227,14 +223,21 @@ export default function Navbar() {
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="shrink-0">
                 <Link href="/">
-                  <div className="flex items-center cursor-pointer group">
-                    <div className="text-2xl sm:text-3xl mr-1.5 sm:mr-2 group-hover:scale-110 transition-transform">🛒</div>
+                  <div className="flex items-center cursor-pointer group gap-2">
+                    <Image
+                      src="/mohallamartLogo.png"
+                      alt="MohallaMart logo"
+                      width={48}
+                      height={48}
+                      priority
+                      className="h-10 w-10 sm:h-12 sm:w-12 object-contain rounded-xl border border-border bg-card transition-transform duration-200 group-hover:scale-105 group-hover:border-primary"
+                    />
                     <div className="min-w-0">
-                      <h1 className="text-lg sm:text-xl font-bold group-hover:opacity-80 transition-opacity leading-tight poppins-bold">
+                      <h1 className={`text-lg sm:text-xl font-extrabold group-hover:text-primary transition-colors duration-200 leading-tight ${bebasNeue.className}`}>
                         <span className="text-primary">Mohalla</span>
                         <span className="text-secondary">Mart</span>
                       </h1>
-                      <p className="text-[10px] sm:text-xs text-muted-foreground -mt-0.5 leading-none inter-regular">
+                      <p className="text-xs text-muted-foreground leading-tight inter-regular">
                         Groceries in minutes
                       </p>
                     </div>
@@ -262,14 +265,14 @@ export default function Navbar() {
             </div>
 
             {!isSearchOpen && (
-              <div className="hidden lg:flex flex-1 max-w-2xl mx-6">
-                <div className="relative w-full">
+              <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
+                <div className="relative w-full border border-border bg-card rounded-xl shadow-sm focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30 transition-colors">
                   <SearchIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5 pointer-events-none" />
                   <input
                     type="text"
                     readOnly
                     placeholder="Search for groceries, fruits, vegetables..."
-                    className="w-full pl-11 pr-16 py-3 bg-card border-2 border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300 hover:border-primary/50 hover:shadow-lg cursor-pointer text-sm inter-regular"
+                    className="w-full pl-11 pr-16 py-3 bg-transparent rounded-xl text-foreground placeholder:text-foreground/70 focus:outline-none focus:ring-0 focus:border-0 transition-all duration-300 hover:shadow-md cursor-pointer text-sm inter-regular border-0"
                     onClick={() => setSearchOpen(true)}
                     aria-label="Search"
                   />
@@ -285,16 +288,16 @@ export default function Navbar() {
             {mounted && (
               <div className="hidden lg:flex items-center gap-3">
                 {dbUser?.role !== "admin" && (
-                  <Link href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}>
-                    <button className="px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all duration-300 text-primary border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-lg active:scale-95 whitespace-nowrap poppins-semibold">
-                       Register Your Shop
+                    <Link href={user ? "/shopkeeper/apply" : "/shopkeeper/signup"}>
+                    <button className="px-4 py-2.5 rounded-lg border-2 text-sm font-semibold transition-all duration-300 text-primary border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-md active:scale-95 whitespace-nowrap poppins-semibold">
+                        Register Your Shop
                     </button>
                   </Link>
                 )}
-                {/* Theme toggle */}
+                 {/* Theme toggle */}
                 <button
                   onClick={handleToggleTheme}
-                  className="p-2.5 rounded-lg hover:bg-muted transition-all duration-300 hover:scale-110 active:scale-95 hover:shadow-md"
+                  className="p-2.5 rounded-lg hover:bg-muted transition-all duration-300 hover:scale-110 active:scale-95 hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary"
                   aria-label="Toggle color theme"
                   title="Toggle dark / light"
                 >
@@ -311,7 +314,7 @@ export default function Navbar() {
                   <div ref={accountRef} className="relative">
                     <button
                       onClick={() => setIsAccountOpen((v) => !v)}
-                      className="flex items-center text-foreground px-3 py-2 rounded-lg hover:bg-muted transition-all duration-300 hover:shadow-md active:scale-95 border border-transparent hover:border-border"
+                      className="flex items-center text-foreground px-3 py-2.5 rounded-lg hover:bg-muted transition-all duration-300 hover:shadow-md active:scale-95 border border-transparent hover:border-border/50 focus-visible:ring-2 focus-visible:ring-primary"
                       aria-haspopup="menu"
                       aria-expanded={isAccountOpen}
                       aria-controls="account-menu"
@@ -332,11 +335,11 @@ export default function Navbar() {
                       </div>
                     </button>
                     {isAccountOpen && (
-                      <div id="account-menu" className="absolute right-0 mt-2 w-48 bg-card border-2 border-border rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div id="account-menu" className="absolute right-0 mt-3 w-48 bg-card border-2 border-border rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                         <Link
                           href="/profile"
                           onClick={() => setIsAccountOpen(false)}
-                          className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border transition-colors inter-medium"
+                          className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border/50 transition-colors inter-medium"
                         >
                           <User className="h-4 w-4 mr-2" />
                           My Profile
@@ -344,7 +347,7 @@ export default function Navbar() {
                         <Link
                           href="/wishlist"
                           onClick={() => setIsAccountOpen(false)}
-                          className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border transition-colors inter-medium"
+                          className="flex items-center w-full px-4 py-3 text-sm text-foreground hover:bg-muted border-b border-border/50 transition-colors inter-medium"
                         >
                           <Heart className="h-4 w-4 mr-2" />
                           My Wishlist
@@ -355,7 +358,7 @@ export default function Navbar() {
                             logout();
                             success("Logged out successfully");
                           }}
-                          className="flex items-center w-full px-4 py-3 text-sm text-destructive hover:bg-destructive/10 rounded-b-lg transition-colors inter-medium"
+                          className="flex items-center w-full px-4 py-3 text-sm text-destructive hover:bg-destructive/10 rounded-b-lg transition-colors inter-medium focus-visible:ring-2 focus-visible:ring-primary"
                         >
                           <LogOut className="h-4 w-4 mr-2" />
                           Logout
@@ -375,10 +378,10 @@ export default function Navbar() {
                   </Link>
                 )}
 
-                {/* Cart Button (opens sidebar) */}
+                 {/* Cart Button (opens sidebar) */}
                 <button
                   onClick={() => setIsCartOpen(true)}
-                  className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg hover:bg-primary/90 transition-all duration-300 flex items-center relative shadow-md hover:shadow-lg active:scale-95 border-2 border-transparent hover:border-primary/50 poppins-semibold"
+                  className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg hover:bg-primary/90 transition-all duration-300 flex items-center relative shadow-md hover:shadow-lg active:scale-95 border border-transparent hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary poppins-semibold"
                   aria-label="Open cart"
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
