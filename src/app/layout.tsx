@@ -7,6 +7,7 @@ import ConvexProviderWrapper from "@/components/ConvexProvider";
 import InngestProvider from "@/components/InngestProvider";
 import TRPCProvider from "@/components/TRPCProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -102,13 +103,24 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
+                  // Theme initialization - prevents FOUC (Flash of Unstyled Content)
+                  var theme = localStorage.getItem('theme-preference');
                   var html = document.documentElement;
-                  var originalClasses = html.className;
-                  html.className = html.className.replace(/\\bchromane-[^\\s]+/g, '');
-                  setTimeout(function() {
-                    html.className = originalClasses;
-                  }, 100);
+                  
+                  // If no saved preference, check system preference
+                  if (!theme) {
+                    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    theme = prefersDark ? 'dark' : 'light';
+                  }
+                  
+                  // Apply theme immediately
+                  if (theme === 'dark') {
+                    html.classList.add('dark');
+                  } else {
+                    html.classList.remove('dark');
+                  }
                 } catch (e) {
+                  console.error('Theme initialization error:', e);
                 }
               })();
             `,
@@ -119,16 +131,18 @@ export default function RootLayout({
         className={`${openSans.variable} ${montserrat.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
-        <TRPCProvider>
-          <ConvexProviderWrapper>
-            <InngestProvider>
-              <ConditionalNavbar />
-                <main className="lg:pt-0 pt-[220px]">{children}</main>
-              <ConditionalFooter />
-              <Toaster />
-            </InngestProvider>
-          </ConvexProviderWrapper>
-        </TRPCProvider>
+        <ThemeProvider defaultTheme="light" storageKey="theme-preference">
+          <TRPCProvider>
+            <ConvexProviderWrapper>
+              <InngestProvider>
+                <ConditionalNavbar />
+                  <main className="lg:pt-0 pt-[220px]">{children}</main>
+                <ConditionalFooter />
+                <Toaster />
+              </InngestProvider>
+            </ConvexProviderWrapper>
+          </TRPCProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

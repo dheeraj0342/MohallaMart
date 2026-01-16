@@ -38,11 +38,13 @@ export const useTheme = (): UseThemeReturn => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setThemeState(newTheme);
     applyTheme(newTheme);
+    localStorage.setItem('theme-preference', newTheme);
   };
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
     applyTheme(newTheme);
+    localStorage.setItem('theme-preference', newTheme);
   };
 
   return { theme, toggleTheme, setTheme, isLoaded };

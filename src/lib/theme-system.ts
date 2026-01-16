@@ -149,11 +149,16 @@ export const getPalette = (theme: Theme): ColorPalette => {
  */
 export const applyTheme = (theme: Theme): void => {
   const html = document.documentElement;
+  console.log('applyTheme called:', { theme, beforeClass: html.className });
+  
   if (theme === 'dark') {
     html.classList.add('dark');
   } else {
     html.classList.remove('dark');
   }
+  
+  console.log('applyTheme after:', { theme, afterClass: html.className, classList: Array.from(html.classList) });
+  
   // Store preference
   localStorage.setItem('theme-preference', theme);
 };

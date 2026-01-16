@@ -7,11 +7,14 @@ import {
   ShoppingCart,
   ChevronDown,
   User,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { useQuery } from "convex/react";
 import { api } from "@convex/_generated/api";
 import Link from "next/link";
+import { useThemeContext } from "./ThemeProvider";
 
 const getEmojiForCategory = (name: string) => {
   if (!name) return "📦";
@@ -105,6 +108,7 @@ export function MobileHeader({
   const [isScrolled, setIsScrolled] = useState(false);
   const { location: storeLocation } = useStore();
   const categories = useQuery(api.categories.getAllCategories, { is_active: true });
+  const { theme, toggleTheme } = useThemeContext();
 
   const fallbackCategories = useMemo(
     () => [
@@ -190,8 +194,11 @@ export function MobileHeader({
           
         </div>
 
-        {/* Right: User and Cart Icons */}
+        {/* Right: Theme Toggle, User and Cart Icons */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Theme Toggle Button */}
+         
+          
           {/* Delivery Info */}
           <button
             onClick={onOpenLocation}
@@ -215,15 +222,30 @@ export function MobileHeader({
 
       {/* Search bar: Always visible */}
       <div className={`px-4 transition-all duration-300 ${isScrolled ? 'py-2' : 'pb-3'}`}>
-        <button
-          onClick={onOpenSearch}
-          className="relative w-full flex items-center gap-3 px-4 py-2.5 bg-muted/50 border border-border rounded-xl text-left transition-all active:scale-[0.98] hover:bg-muted"
-        >
-          <Search className="w-4.5 h-4.5 text-muted-foreground flex-shrink-0" strokeWidth={2.5} />
-          <span className="text-[14px] text-muted-foreground font-medium">
-            Search "milk", "eggs" or "bread"
-          </span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onOpenSearch}
+            className="relative flex-1 flex items-center gap-3 px-4 py-2.5 bg-muted/50 border border-border rounded-xl text-left transition-all active:scale-[0.98] hover:bg-muted"
+          >
+            <Search className="w-4.5 h-4.5 text-muted-foreground flex-shrink-0" strokeWidth={2.5} />
+            <span className="text-[14px] text-muted-foreground font-medium truncate">
+              Search "milk", "eggs" or "bread"
+            </span>
+          </button>
+          
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            className="p-2.5 rounded-xl bg-card hover:bg-muted border border-border hover:border-primary transition-all duration-300 active:scale-95 group flex-shrink-0"
+            aria-label="Toggle theme"
+          >
+            {theme === 'light' ? (
+              <Moon className="w-5 h-5 text-foreground group-hover:text-primary transition-colors" strokeWidth={2.5} />
+            ) : (
+              <Sun className="w-5 h-5 text-foreground group-hover:text-primary transition-colors" strokeWidth={2.5} />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Categories scroll: Always visible */}

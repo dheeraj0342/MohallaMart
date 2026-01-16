@@ -115,7 +115,7 @@ export default function CategoriesPage() {
                   transition={{ delay: index * 0.05 }}
                 >
                   <Link
-                    href={`/shops?category=${encodeURIComponent(category.name)}`}
+                    href={`/category?category=${encodeURIComponent(category.name)}`}
                     className="group block"
                   >
                     <div
@@ -168,7 +168,7 @@ export default function CategoriesPage() {
             {categories.slice(0, 4).map((category) => (
               <Link
                 key={category._id}
-                href={`/shops?category=${encodeURIComponent(category.name)}`}
+                href={`/category?category=${encodeURIComponent(category.name)}`}
                 className="flex items-center gap-3 p-4 bg-card border border-border rounded-xl hover:border-primary transition-all hover:shadow-md active:scale-95"
               >
                 <span className="text-3xl">{getEmojiForCategory(category.name)}</span>

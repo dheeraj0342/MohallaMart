@@ -34,6 +34,7 @@ import { api } from "@convex/_generated/api";
 import { MobileHeader } from "./MobileHeader";
 import { MobileBottomNav } from "./MobileBottomNav";
 import NotificationBell from "./NotificationBell";
+import { useThemeContext } from "./ThemeProvider";
 
 const categoryIconMap: Record<string, LucideIcon> = {
   All: Grid2x2,
@@ -53,12 +54,14 @@ export default function Navbar() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpenState] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [isDark, setIsDark] = useState<boolean | null>(null);
   const [showDesktopCategories, setShowDesktopCategories] = useState(true);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const accountRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
+  
+  // Use centralized theme context
+  const { theme, toggleTheme } = useThemeContext();
 
   const { location, getTotalItems, user, setSearchOpen } = useStore();
   const { logout } = useAuth();
@@ -73,30 +76,6 @@ export default function Navbar() {
       }
     );
     setMounted(true);
-    try {
-      const saved = localStorage.getItem("theme");
-      if (saved === "dark") {
-        setIsDark(true);
-        document.documentElement.classList.add("dark");
-        document.documentElement.classList.remove("light");
-      } else if (saved === "light") {
-        setIsDark(false);
-        document.documentElement.classList.add("light");
-        document.documentElement.classList.remove("dark");
-      } else {
-        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-        setIsDark(prefersDark);
-        if (prefersDark) {
-          document.documentElement.classList.add("dark");
-          document.documentElement.classList.remove("light");
-        } else {
-          document.documentElement.classList.add("light");
-          document.documentElement.classList.remove("dark");
-        }
-      }
-    } catch {
-      // ignore (SSR safety)
-    }
     return unsubscribe;
   }, []);
 
@@ -161,23 +140,21 @@ export default function Navbar() {
     }
   }, [location, prevLocation, mounted, success]);
 
-  const toggleTheme = () => {
+  const handleToggleTheme = () => {
     try {
-      const next = !isDark;
-      setIsDark(next);
-      if (next) {
-        document.documentElement.classList.add("dark");
-        document.documentElement.classList.remove("light");
-        localStorage.setItem("theme", "dark");
-        info("Dark mode enabled");
-      } else {
-        document.documentElement.classList.add("light");
-        document.documentElement.classList.remove("dark");
-        localStorage.setItem("theme", "light");
-        info("Light mode enabled");
-      }
-    } catch {
-      // noop
+      const newTheme = theme === 'light' ? 'dark' : 'light';
+      toggleTheme();
+      // Show toast notification with the NEW theme
+      info(`${newTheme === 'dark' ? 'Dark' : 'Light'} mode enabled`);
+      
+      // Debug: Log to console
+      console.log('Theme toggled:', { 
+        from: theme, 
+        to: newTheme,
+        htmlClass: document.documentElement.className 
+      });
+    } catch (error) {
+      console.error('Theme toggle error:', error);
     }
   };
 
@@ -209,10 +186,10 @@ export default function Navbar() {
 
   const groceryCategories: Category[] = useMemo(() => (
     [
-      { name: "All", href: "/shops", icon: Grid2x2 },
+      { name: "All", href: "/category", icon: Grid2x2 },
       ...dbCategories.map((cat) => ({
         name: cat.name,
-        href: `/shops?category=${encodeURIComponent(cat.name)}`,
+        href: `/category?category=${encodeURIComponent(cat.name)}`,
         icon: categoryIconMap[cat.name] || Grid2x2,
         id: cat._id,
       })),
@@ -316,12 +293,12 @@ export default function Navbar() {
                 )}
                 {/* Theme toggle */}
                 <button
-                  onClick={toggleTheme}
+                  onClick={handleToggleTheme}
                   className="p-2.5 rounded-lg hover:bg-muted transition-all duration-300 hover:scale-110 active:scale-95 hover:shadow-md"
                   aria-label="Toggle color theme"
                   title="Toggle dark / light"
                 >
-                  {isDark ? (
+                  {theme === 'dark' ? (
                     <Sun className="h-5 w-5 text-secondary" />
                   ) : (
                     <Moon className="h-5 w-5 text-foreground" />
