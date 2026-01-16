@@ -175,7 +175,7 @@ export default function SearchBar() {
       {isSearchOpen && (
         <motion.div
           ref={searchRef}
-          className="fixed inset-0 z-[9999] flex items-start justify-center  px-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-start justify-center px-4 bg-black/50 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -194,7 +194,7 @@ export default function SearchBar() {
             transition={{ duration: 0.2 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <Card className="bg-card border border-border shadow-xl overflow-hidden rounded-xl focus-within:ring-1 focus-within:ring-ring">
+            <Card className="bg-card border-2 border-border shadow-xl overflow-hidden rounded-xl focus-within:ring-2 focus-within:ring-primary">
               {/* Search Input */}
               <div className="relative p-4 border-b border-border">
                 <div className="relative flex items-center">
@@ -206,7 +206,7 @@ export default function SearchBar() {
                     onChange={(e) => handleSearch(e.target.value)}
                     onFocus={() => setSearchOpen(true)}
                     placeholder="Search for products, shops, categories..."
-                    className="pl-10 pr-20 h-12 text-base bg-background text-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+                    className="pl-10 pr-20 h-12 text-base bg-background text-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
                   />
                   <div className="absolute right-3 flex items-center gap-2">
                     {query && (
@@ -214,7 +214,7 @@ export default function SearchBar() {
                         variant="ghost"
                         size="sm"
                         onClick={clearSearch}
-                        className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+                        className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
                         aria-label="Clear search"
                       >
                         <X className="h-4 w-4" />
@@ -224,7 +224,7 @@ export default function SearchBar() {
                       variant="ghost"
                       size="sm"
                       onClick={closeSearch}
-                      className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+                      className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
                       aria-label="Close search"
                     >
                       <X className="h-5 w-5" />
@@ -267,7 +267,7 @@ export default function SearchBar() {
                           {products.map((product) => (
                             <button
                               key={product._id}
-                              className="w-full p-3 rounded-lg border border-border bg-card hover:bg-muted/60 text-left transition-colors group focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+                              className="w-full p-3 rounded-lg border border-border bg-card hover:bg-muted text-left transition-colors group focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
                               onClick={() =>
                                 handleProductClick(
                                   product._id,
@@ -318,14 +318,14 @@ export default function SearchBar() {
                                 {product.stock_quantity > 0 ? (
                                   <Badge
                                     variant="outline"
-                                    className="text-xs bg-[var(--success-bg-light)] text-[var(--success-fg)] border-[var(--success-border)]"
+                                    className="text-xs bg-success/10 text-success border-success/20"
                                   >
                                     In Stock
                                   </Badge>
                                 ) : (
                                   <Badge
                                     variant="outline"
-                                    className="text-xs bg-[var(--error-bg-light)] text-[var(--error-fg)] border-[var(--error-border)]"
+                                    className="text-xs bg-destructive/10 text-destructive border-destructive/20"
                                   >
                                     Out of Stock
                                   </Badge>
@@ -350,7 +350,7 @@ export default function SearchBar() {
                           {shops.map((shop) => (
                             <button
                               key={shop._id}
-                              className="w-full p-3 rounded-lg border border-border bg-card hover:bg-muted/60 text-left transition-colors group focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+                              className="w-full p-3 rounded-lg border border-border bg-card hover:bg-muted text-left transition-colors group focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
                               onClick={() => handleShopClick(shop.name)}
                             >
                               <div className="flex items-center gap-3">
@@ -383,7 +383,7 @@ export default function SearchBar() {
                                     {shop.rating && shop.rating > 0 && (
                                       <Badge
                                         variant="outline"
-                                        className="text-xs bg-secondary text-secondary-foreground border-border"
+                                        className="text-xs bg-secondary/10 text-secondary-foreground border-secondary/20"
                                       >
                                         ⭐ {shop.rating.toFixed(1)}
                                       </Badge>
@@ -429,7 +429,7 @@ export default function SearchBar() {
                           {popularCategories.map((category) => (
                             <button
                               key={category.id}
-                              className="p-3 rounded-lg border border-border bg-card hover:bg-muted/60 text-left transition-colors group focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+                              className="p-3 rounded-lg border border-border bg-card hover:bg-muted text-left transition-colors group focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
                               onClick={() => handleCategoryClick(category.name)}
                             >
                               <div className="font-medium text-foreground group-hover:text-primary transition-colors">
@@ -453,7 +453,7 @@ export default function SearchBar() {
                         {trendingSearches.map((trend, index) => (
                           <button
                             key={index}
-                            className="w-full p-2 rounded-lg hover:bg-muted/60 text-left transition-colors group focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+                            className="w-full p-2 rounded-lg hover:bg-muted text-left transition-colors group focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
                             onClick={() => {
                               setQuery(trend);
                               setSearchQuery(trend);
