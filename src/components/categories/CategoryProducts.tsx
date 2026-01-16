@@ -1,12 +1,12 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { api } from "@/../convex/_generated/api";
+import { api } from "@convex/_generated/api";
+import type { Id } from "@convex/_generated/dataModel";
 import { ProductCard, type Product } from "@/components/products/ProductCard";
 import { useStore } from "@/store/useStore";
 import { useToast } from "@/hooks/useToast";
 import { Loader2 } from "lucide-react";
-import type { Id } from "@/../convex/_generated/dataModel";
 
 interface CategoryProductsProps {
   categoryId: Id<"categories">;
@@ -43,8 +43,8 @@ export function CategoryProducts({
 
   const handleAddToCart = (product: Product) => {
     addToCart({
-      id: product._id,
-      productId: product._id,
+      id: `${product._id}`,
+      productId: product._id as Id<"products">,
       name: `${product.name} (${product.unit})`,
       price: product.price,
       ...(product.images && product.images.length > 0 && {

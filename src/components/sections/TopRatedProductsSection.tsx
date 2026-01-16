@@ -132,8 +132,8 @@ export default function TopRatedProductsSection() {
   };
   const handleAddToCart = (product: Product) => {
     addToCart({
-      id: product._id,
-      productId: product._id,
+      id: `${product._id}`,
+      productId: product._id as Id<"products">,
       name: `${product.name} (${product.unit})`,
       price: product.price,
       ...(product.images && product.images.length > 0 && {

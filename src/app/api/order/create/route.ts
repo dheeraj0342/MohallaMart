@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchMutation, fetchQuery } from "convex/nextjs";
-import { api } from "@/../../convex/_generated/api";
+import { api } from "@convex/_generated/api";
 import { haversineDistanceKm } from "@/lib/distance";
 import { calculateEtaMinutes, DEFAULT_STORE_PROFILE } from "@/lib/eta";
 import { isPeakHour } from "@/lib/time";

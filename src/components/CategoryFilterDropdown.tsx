@@ -2,8 +2,8 @@
 
 import { useMemo, useCallback } from "react";
 import { useQuery } from "convex/react";
-import { api } from "@/../convex/_generated/api";
-import type { Id } from "@/../convex/_generated/dataModel";
+import { api } from "@convex/_generated/api";
+import type { Id } from "@convex/_generated/dataModel";
 import {
   Select,
   SelectContent,
@@ -22,7 +22,9 @@ interface CategoryWithLevel {
 
 interface CategoryFilterDropdownProps {
   value?: Id<"categories"> | "all";
-  onChange: (categoryId: Id<"categories"> | "all") => void;
+  onChange?: (categoryId: Id<"categories"> | "all") => void;
+  onCategorySelect?: (category: { name: string; _id: string }) => void;
+  selectedCategory?: string;
   label?: string;
   placeholder?: string;
   showAllOption?: boolean;
@@ -31,6 +33,8 @@ interface CategoryFilterDropdownProps {
 export default function CategoryFilterDropdown({
   value,
   onChange,
+  onCategorySelect,
+  selectedCategory,
   label = "Filter by Category",
   placeholder = "All Categories",
   showAllOption = true,
@@ -55,7 +59,7 @@ export default function CategoryFilterDropdown({
   ) as CategoryWithLevel[] | null | undefined;
 
   // Get selected category details
-  const selectedCategory = useMemo(() => {
+  const selectedCategoryObj = useMemo(() => {
     if (!value || !allCategories) return null;
     return allCategories.find((cat) => cat._id === value);
   }, [value, allCategories]);
@@ -104,12 +108,12 @@ export default function CategoryFilterDropdown({
       )}
       <Select
         value={value || "all"}
-        onValueChange={(val) => onChange(val as Id<"categories"> | "all")}
+        onValueChange={(val) => onChange?.(val as Id<"categories"> | "all")}
       >
         <SelectTrigger className="w-full bg-background border-border">
           <SelectValue placeholder={placeholder}>
-            {selectedCategory
-              ? getCategoryPath(selectedCategory._id)
+            {selectedCategoryObj
+              ? getCategoryPath(selectedCategoryObj._id)
               : placeholder}
           </SelectValue>
         </SelectTrigger>

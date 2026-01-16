@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "convex/react";
-import { api } from "@/../../convex/_generated/api";
+import { api } from "@convex/_generated/api";
 import { Loader2, MapPin, Package, Navigation, CheckCircle2, Clock, Truck } from "lucide-react";
 import dynamic from "next/dynamic";
 import { haversineDistanceKm } from "@/lib/distance";

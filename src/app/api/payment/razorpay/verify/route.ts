@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { razorpayService } from "@/lib/razorpay";
 import { fetchMutation } from "convex/nextjs";
-import { api } from "@/../../convex/_generated/api";
+import { api } from "@convex/_generated/api";
 
 /**
  * POST /api/payment/razorpay/verify

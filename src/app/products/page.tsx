@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
-import { api } from "@/../convex/_generated/api";
+import { api } from "@convex/_generated/api";
 import { useStore } from "@/store/useStore";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Package, Loader2, ShoppingBag, Filter, ChevronDown } from "lucide-react
 import CategoryFilterDropdown from "@/components/CategoryFilterDropdown";
 import { ProductCard } from "@/components/products/ProductCard";
 import type { Product } from "@/components/products/ProductCard";
-import type { Id } from "@/../convex/_generated/dataModel";
+import type { Id } from "@convex/_generated/dataModel";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -33,7 +33,7 @@ function calculateDistanceKm(pointA: LatLng, pointB: LatLng): number {
   return R * c;
 }
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { location, user } = useStore();
@@ -288,5 +288,13 @@ export default function ProductsPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProductsContent />
+    </Suspense>
   );
 }

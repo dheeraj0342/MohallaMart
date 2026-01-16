@@ -146,7 +146,7 @@ export default function AnalyticsContent() {
                   />
                   <Tooltip
                     contentStyle={{ borderRadius: "8px" }}
-                    formatter={(value: number) => [`₹${value}`, "Revenue"]}
+                    formatter={(value: number | undefined) => [`₹${value ?? 0}`, "Revenue"]}
                   />
                   <Bar
                     dataKey="sales"

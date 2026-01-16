@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { fetchQuery } from "convex/nextjs";
-import { api } from "@/../../convex/_generated/api";
-import type { Id } from "@/../../convex/_generated/dataModel";
+import { api } from "@convex/_generated/api";
+import type { Id } from "@convex/_generated/dataModel";
 
 const STATUS_MAP: Record<string, "pending" | "accepted_by_shopkeeper" | "assigned_to_rider" | "out_for_delivery" | "delivered" | "cancelled"> = {
   PLACED: "pending",
