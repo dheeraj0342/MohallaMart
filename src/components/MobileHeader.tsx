@@ -167,8 +167,8 @@ export function MobileHeader({
 
   return (
     <header 
-      className={`lg:hidden fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-green-primary/5 via-purple-primary/5 to-green-primary/5 dark:from-green-primary/10 dark:via-purple-primary/10 dark:to-green-primary/10 backdrop-blur-xl border-b border-border shadow-lg transition-all duration-300 ${
-        isScrolled ? 'shadow-xl' : ''
+      className={`lg:hidden fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50 shadow-sm transition-all duration-300 ${
+        isScrolled ? 'shadow-md border-border' : ''
       }`}
     >
       {/* Top row: Logo, Delivery Status and Icons - Hidden when scrolled */}

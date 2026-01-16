@@ -34,8 +34,8 @@ export function MobileBottomNav({
   onOpenCart,
 }: MobileBottomNavProps) {
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-purple-primary/5 via-green-primary/5 to-purple-primary/5 dark:from-purple-primary/10 dark:via-green-primary/10 dark:to-purple-primary/10 backdrop-blur-xl border-t border-border shadow-2xl pb-safe">
-      <div className="h-16 flex items-center justify-around px-2">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border/50 shadow-lg pb-safe">
+      <div className="h-20 flex items-center justify-around px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isCart = item.id === "cart";
@@ -47,35 +47,35 @@ export function MobileBottomNav({
               <button
                 key={item.id}
                 onClick={onOpenCart}
-                className={`relative flex flex-col items-center justify-center gap-1 px-4 py-2 min-w-[68px] rounded-xl transition-all duration-200 active:scale-95 ${
+                className={`relative flex flex-col items-center justify-center gap-1.5 px-3 py-2 min-w-[72px] rounded-2xl transition-all duration-300 active:scale-95 ${
                   isActive 
-                    ? "bg-primary/10" 
-                    : "hover:bg-muted"
+                    ? "bg-primary/15" 
+                    : "hover:bg-muted/60 active:bg-muted/50"
                 }`}
                 aria-label={`Cart with ${count} items`}
               >
                 <div className="relative">
                   <Icon
-                    className={`h-6 w-6 transition-colors duration-200 ${
+                    className={`h-6 w-6 transition-colors duration-300 ${
                       isActive ? "text-primary" : "text-muted-foreground"
                     }`}
                     strokeWidth={isActive ? 2.5 : 2}
                   />
                   {count > 0 && (
-                    <span className="absolute -top-2 -right-2 h-5 w-5 bg-red-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-lg border-2 border-background animate-in zoom-in">
+                    <span className="absolute -top-2.5 -right-2.5 h-5 w-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center shadow-md border-2 border-background animate-pulse">
                       {count > 99 ? "99+" : count}
                     </span>
                   )}
                 </div>
                 <span
-                  className={`text-[11px] font-semibold transition-colors duration-200 ${
+                  className={`text-[10px] font-semibold transition-colors duration-300 leading-tight ${
                     isActive ? "text-primary" : "text-muted-foreground"
                   }`}
                 >
                   {item.label}
                 </span>
                 {isActive && (
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary rounded-t-full" />
+                  <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full" />
                 )}
               </button>
             );
@@ -86,29 +86,29 @@ export function MobileBottomNav({
               key={item.id}
               href={item.id === "home" ? "/" : `/${item.id}`}
               onClick={() => onTabChange(item.id)}
-              className={`relative flex flex-col items-center justify-center gap-1 px-4 py-2 min-w-[68px] rounded-xl transition-all duration-200 active:scale-95 ${
+              className={`relative flex flex-col items-center justify-center gap-1.5 px-3 py-2 min-w-[72px] rounded-2xl transition-all duration-300 active:scale-95 ${
                 isActive 
-                  ? "bg-primary/10" 
-                  : "hover:bg-muted"
+                  ? "bg-primary/15" 
+                  : "hover:bg-muted/60 active:bg-muted/50"
               }`}
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
             >
               <Icon
-                className={`h-6 w-6 transition-colors duration-200 ${
+                className={`h-6 w-6 transition-colors duration-300 ${
                   isActive ? "text-primary" : "text-muted-foreground"
                 }`}
                 strokeWidth={isActive ? 2.5 : 2}
               />
               <span
-                className={`text-[11px] font-semibold transition-colors duration-200 ${
+                className={`text-[10px] font-semibold transition-colors duration-300 leading-tight ${
                   isActive ? "text-primary" : "text-muted-foreground"
                 }`}
               >
                 {item.label}
               </span>
               {isActive && (
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary rounded-t-full" />
+                <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full" />
               )}
             </Link>
           );
