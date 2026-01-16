@@ -123,7 +123,7 @@ export default function RootLayout({
           <ConvexProviderWrapper>
             <InngestProvider>
               <ConditionalNavbar />
-                <main className="lg:pt-0 pt-[56px]">{children}</main>
+                <main className="lg:pt-0 pt-[104px]">{children}</main>
               <ConditionalFooter />
               <Toaster />
             </InngestProvider>
