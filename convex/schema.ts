@@ -162,6 +162,11 @@ export default defineSchema({
     is_featured: v.boolean(),
     rating: v.optional(v.number()),
     total_sales: v.number(),
+    // Flash Deal fields
+    is_flash_deal: v.optional(v.boolean()),
+    flash_deal_discount_percent: v.optional(v.number()), // e.g., 20 for 20% off
+    flash_deal_start_time: v.optional(v.number()), // Timestamp
+    flash_deal_end_time: v.optional(v.number()), // Timestamp
     created_at: v.number(),
     updated_at: v.number(),
   })
