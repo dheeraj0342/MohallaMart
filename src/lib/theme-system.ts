@@ -44,21 +44,21 @@ export const LIGHT_MODE: ColorPalette = {
     foreground: '#ffffff',
   },
   accent: {
-    orange: { primary: '#ff6b35', light: '#ffe5d3' },
-    red: { primary: '#ef4444', light: '#fee2e2' },
-    blue: { primary: '#3b82f6' },
+    orange: { primary: '#ff6b00', light: '#ffe5d3' },
+    red: { primary: '#e23744', light: '#fee2e2' },
+    blue: { primary: '#2196f3' },
   },
   neutral: {
-    bg: { primary: '#ffffff', secondary: '#f8fafc' },
+    bg: { primary: '#ffffff', secondary: '#f8f9fa' },
     text: { primary: '#1a1a1a', secondary: '#666666' },
-    border: '#e2e8f0',
+    border: '#e0e0e0',
   },
 };
 
 export const DARK_MODE: ColorPalette = {
   green: {
-    primary: '#10b981',
-    dark: '#059669',
+    primary: '#34d399',
+    dark: '#10b981',
     light: '#1e293b',
     foreground: '#ffffff',
   },
@@ -69,9 +69,9 @@ export const DARK_MODE: ColorPalette = {
     foreground: '#ffffff',
   },
   accent: {
-    orange: { primary: '#ff8a50', light: '#3d2817' },
-    red: { primary: '#f87171', light: '#3f1f1f' },
-    blue: { primary: '#60a5fa' },
+    orange: { primary: '#ff8533', light: '#3d2817' },
+    red: { primary: '#ff5252', light: '#3f1f1f' },
+    blue: { primary: '#42a5f5' },
   },
   neutral: {
     bg: { primary: '#121212', secondary: '#1e1e1e' },

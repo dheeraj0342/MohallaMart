@@ -1,15 +1,88 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
-  Menu,
   MapPin,
   Search,
   ShoppingCart,
-  Clock,
   ChevronDown,
+  User,
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
+import { useQuery } from "convex/react";
+import { api } from "@convex/_generated/api";
+import Link from "next/link";
+
+const getEmojiForCategory = (name: string) => {
+  if (!name) return "📦";
+  const n = name.toLowerCase().trim();
+  
+  // Vegetables & Produce
+  if (n.includes("vegetable") || n.includes("veggie") || n.includes("produce")) return "🥦";
+  
+  // Fruits
+  if (n.includes("fruit")) return "🍎";
+  
+  // Dairy & Milk
+  if (n.includes("dairy") || n.includes("milk") || n.includes("cheese") || n.includes("yogurt")) return "🥛";
+  
+  // Snacks & Chips
+  if (n.includes("snack") || n.includes("chip") || n.includes("crisp") || n.includes("namkeen")) return "🍿";
+  
+  // Beverages & Drinks
+  if (n.includes("drink") || n.includes("beverage") || n.includes("juice") || n.includes("soda") || n.includes("water")) return "🥤";
+  
+  // Bakery & Bread
+  if (n.includes("bakery") || n.includes("bread") || n.includes("bun") || n.includes("cake") || n.includes("pastry")) return "🍞";
+  
+  // Meat & Protein
+  if (n.includes("meat") || n.includes("chicken") || n.includes("fish") || n.includes("egg") || n.includes("protein")) return "🍗";
+  
+  // Personal Care & Hygiene
+  if (n.includes("personal") || n.includes("care") || n.includes("hygiene") || n.includes("soap") || n.includes("shampoo")) return "🧴";
+  
+  // Home & Household
+  if (n.includes("home") || n.includes("household") || n.includes("cleaning") || n.includes("detergent")) return "🏠";
+  
+  // Baby Products
+  if (n.includes("baby") || n.includes("infant") || n.includes("diaper")) return "👶";
+  
+  // Pet Supplies
+  if (n.includes("pet") || n.includes("dog") || n.includes("cat")) return "🐾";
+  
+  // Frozen Foods
+  if (n.includes("frozen") || n.includes("ice cream")) return "❄️";
+  
+  // Electronics & Gadgets
+  if (n.includes("electronic") || n.includes("mobile") || n.includes("phone") || n.includes("gadget") || n.includes("laptop")) return "📱";
+  
+  // Fashion & Clothing
+  if (n.includes("fashion") || n.includes("clothing") || n.includes("apparel") || n.includes("wear") || n.includes("shirt")) return "👕";
+  
+  // Beauty & Cosmetics
+  if (n.includes("beauty") || n.includes("cosmetic") || n.includes("makeup")) return "💄";
+  
+  // Grocery & General
+  if (n.includes("grocery") || n.includes("fresh") || n.includes("organic")) return "🛒";
+  
+  // Cafe & Coffee
+  if (n.includes("cafe") || n.includes("coffee") || n.includes("tea")) return "☕";
+  
+  // Toys & Games
+  if (n.includes("toy") || n.includes("game") || n.includes("play")) return "🧸";
+  
+  // Stationery & Books
+  if (n.includes("stationery") || n.includes("book") || n.includes("pen") || n.includes("paper")) return "📚";
+  
+  // Health & Pharmacy
+  if (n.includes("health") || n.includes("pharmacy") || n.includes("medicine") || n.includes("medical")) return "💊";
+  
+  // All/Everything
+  if (n.includes("all") || n === "all") return "🏪";
+  
+  // Default fallback
+  return "📦";
+};
 
 export interface MobileHeaderProps {
   onMenuClick: () => void;
@@ -29,93 +102,148 @@ export function MobileHeader({
   onOpenCart,
 }: MobileHeaderProps) {
   const [mounted, setMounted] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { location: storeLocation } = useStore();
+  const categories = useQuery(api.categories.getAllCategories, { is_active: true });
+
+  const fallbackCategories = useMemo(
+    () => [
+      { name: "Vegetables", iconEmoji: "🥦" },
+      { name: "Fruits", iconEmoji: "🍎" },
+      { name: "Dairy", iconEmoji: "🥛" },
+      { name: "Snacks", iconEmoji: "🍿" },
+      { name: "Beverages", iconEmoji: "🥤" },
+      { name: "Bakery", iconEmoji: "🍞" },
+      { name: "Meat", iconEmoji: "🍗" },
+      { name: "Personal Care", iconEmoji: "🧴" },
+      { name: "Home Care", iconEmoji: "🏠" },
+      { name: "Baby Care", iconEmoji: "👶" },
+    ],
+    [],
+  );
+
+  const categoryChips = useMemo(() => {
+    if (Array.isArray(categories) && categories.length) {
+      return categories.slice(0, 12).map((c) => ({
+        name: c.name ?? "",
+        iconEmoji: getEmojiForCategory(c.name ?? ""),
+      }));
+    }
+    return fallbackCategories;
+  }, [categories, fallbackCategories]);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Delivery time copy (could be wired to ETA service)
-  const deliveryTime = "8 minutes";
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Show compact header when scrolling down past 50px
+      if (currentScrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+      
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const deliveryTime = "8 MINS";
   const displayLocation = location || storeLocation?.area || "Select Location";
 
   if (!mounted) return null;
 
   return (
-    <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-[#E0E0E0]">
-      {/* Top row */}
-      <div className="px-4 h-14 flex items-center justify-between">
-        {/* Menu */}
-        <button
-          onClick={onMenuClick}
-          className="p-2 -ml-2 hover:bg-gray-100 rounded-lg active:scale-95 transition-transform flex-shrink-0"
-          aria-label="Open menu"
-        >
-          <Menu className="w-6 h-6 text-[#1A1A1A]" strokeWidth={2} />
-        </button>
+    <header 
+      className={`lg:hidden fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-green-primary/5 via-purple-primary/5 to-green-primary/5 dark:from-green-primary/10 dark:via-purple-primary/10 dark:to-green-primary/10 backdrop-blur-xl border-b border-border shadow-lg transition-all duration-300 ${
+        isScrolled ? 'shadow-xl' : ''
+      }`}
+    >
+      {/* Top row: Logo, Delivery Status and Icons - Hidden when scrolled */}
+      <div 
+        className={`px-4 py-3 flex items-center justify-between gap-3 transition-all duration-300 overflow-hidden ${
+          isScrolled ? 'max-h-0 py-0 opacity-0' : 'max-h-20 opacity-100'
+        }`}
+      >
+        {/* Left: Logo + Delivery Info */}
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {/* Logo */}
+          <Link href="/" className="flex-shrink-0">
+            <div className="flex items-center gap-1.5">
+              <div className="flex flex-col leading-none">
+                <h1 className="text-base font-bold poppins-bold">
+                  <span className="text-primary">Mohalla</span>
+                  <span className="text-secondary">Mart</span>
+                </h1>
+              </div>
+            </div>
+          </Link>
 
-        {/* Location */}
-        <button
-          onClick={onOpenLocation}
-          className="flex items-start gap-2 flex-1 mx-3 py-1 hover:bg-gray-50 rounded-lg px-2 transition-colors"
-          aria-label="Select delivery location"
-        >
-          <MapPin
-            className="w-5 h-5 text-[#54B226] mt-0.5 flex-shrink-0"
-            strokeWidth={2}
-            fill="#54B226"
-          />
-          <div className="flex-1 text-left min-w-0">
+          
+        </div>
+
+        {/* Right: User and Cart Icons */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Delivery Info */}
+          <button
+            onClick={onOpenLocation}
+            className="flex flex-col items-start min-w-0 flex-1"
+          >
             <div className="flex items-center gap-1">
-              <span className="text-sm font-semibold text-[#1A1A1A] truncate">
+              <span className="text-[13px] font-extrabold text-foreground uppercase tracking-tight">
+                Delivery in {deliveryTime}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-foreground" strokeWidth={3} />
+            </div>
+            <div className="flex items-center gap-1 w-full">
+              <MapPin className="w-3 h-3 text-primary flex-shrink-0" strokeWidth={2.5} />
+              <span className="text-[11px] text-muted-foreground truncate font-medium">
                 {displayLocation}
               </span>
-              <ChevronDown className="w-4 h-4 text-gray-600 flex-shrink-0" strokeWidth={2} />
             </div>
-            <p className="text-[11px] text-[#666666] font-medium flex items-center gap-1 mt-0.5">
-              <Clock className="h-3.5 w-3.5 text-[#54B226]" strokeWidth={2} />
-              Delivery in {deliveryTime}
-            </p>
-          </div>
-        </button>
-
-        {/* Search & Cart */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onOpenSearch}
-            className="p-2 hover:bg-gray-100 rounded-lg active:scale-95 transition-transform flex-shrink-0"
-            aria-label="Search"
-          >
-            <Search className="w-5 h-5 text-[#1A1A1A]" strokeWidth={2} />
-          </button>
-
-          <button
-            onClick={onOpenCart}
-            className="p-2 hover:bg-gray-100 rounded-lg active:scale-95 transition-transform relative flex-shrink-0"
-            aria-label={`Cart with ${cartCount} items`}
-          >
-            <ShoppingCart className="w-5 h-5 text-[#1A1A1A]" strokeWidth={2} />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#E23744] text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                {cartCount > 99 ? "99+" : cartCount}
-              </span>
-            )}
           </button>
         </div>
       </div>
 
-      {/* Search bar */}
-      <div className="px-4 pb-3 pt-1">
+      {/* Search bar: Always visible */}
+      <div className={`px-4 transition-all duration-300 ${isScrolled ? 'py-2' : 'pb-3'}`}>
         <button
           onClick={onOpenSearch}
-          className="relative w-full text-left"
-          aria-label="Search products"
+          className="relative w-full flex items-center gap-3 px-4 py-2.5 bg-muted/50 border border-border rounded-xl text-left transition-all active:scale-[0.98] hover:bg-muted"
         >
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={2} />
-          <span className="block w-full pl-10 pr-4 py-2.5 bg-gray-100 rounded-lg text-sm text-[#1A1A1A] placeholder-gray-500 border border-transparent focus:outline-none focus:ring-2 focus:ring-[#54B226] focus:bg-white transition-all">
-            Search for "milk"
+          <Search className="w-4.5 h-4.5 text-muted-foreground flex-shrink-0" strokeWidth={2.5} />
+          <span className="text-[14px] text-muted-foreground font-medium">
+            Search "milk", "eggs" or "bread"
           </span>
         </button>
+      </div>
+
+      {/* Categories scroll: Always visible */}
+      <div className={`px-4 transition-all duration-300 ${isScrolled ? 'pb-2' : 'pb-3'}`}>
+        <div className="flex gap-3 overflow-x-auto no-scrollbar scrollbar-hide py-1">
+          {categoryChips.map((cat, idx) => (
+            <Link
+              key={cat.name + idx}
+              href={`/shops?category=${encodeURIComponent(cat.name)}`}
+              className="flex-shrink-0 flex flex-col items-center gap-1.5 w-16 active:scale-95 transition-transform"
+            >
+              <div className="w-14 h-14 bg-green-bg dark:bg-green-bg/20 rounded-2xl flex items-center justify-center text-2xl shadow-sm border border-green-primary/10 hover:border-green-primary/30 transition-colors">
+                <span>{cat.iconEmoji}</span>
+              </div>
+              <span className="text-[10px] font-bold text-foreground text-center leading-tight line-clamp-2">
+                {cat.name}
+              </span>
+            </Link>
+          ))}
+        </div>
       </div>
     </header>
   );

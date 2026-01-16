@@ -6,360 +6,247 @@
 @custom-variant light (&:is(.light *));
 
 /* ============================================
-   MODERN COLOR SYSTEM - LIGHT MODE
+   TAILWIND CSS V4 THEME MAPPING
+   ============================================ */
+@theme {
+  /* Colors - Map CSS variables to Tailwind utilities */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  
+  /* Brand Colors */
+  --color-green-primary: var(--green-primary);
+  --color-green-hover: var(--green-hover);
+  --color-green-bg: var(--green-bg);
+  --color-purple-primary: var(--purple-primary);
+  --color-purple-hover: var(--purple-hover);
+  --color-purple-bg: var(--purple-bg);
+  --color-orange-primary: var(--orange-primary);
+  --color-orange-bg: var(--orange-bg);
+  --color-red-primary: var(--red-primary);
+  --color-red-bg: var(--red-bg);
+  --color-blue-primary: var(--blue-primary);
+
+  /* Fonts */
+  --font-primary: var(--font-open-sans);
+  --font-secondary: var(--font-montserrat);
+  
+  /* Radius */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+/* ============================================
+   LIGHT MODE COLOR SYSTEM
    ============================================ */
 :root {
-  /* Font Families */
-  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-secondary: 'Poppins', 'Inter', sans-serif;
-  --font-mono: 'SF Mono', 'Monaco', monospace;
+  color-scheme: light;
   
-  /* ========== PRIMARY PALETTES ========== */
-  /* GREEN PALETTE - Fresh/Grocery Focus */
-  --green-primary: #10b981;          /* Primary Green */
-  --green-dark: #059669;             /* Hover/Pressed */
-  --green-light: #d1fae5;            /* Background */
-  --green-foreground: #ffffff;
+  /* Fonts */
+  --font-primary: var(--font-open-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  --font-secondary: var(--font-montserrat, 'Poppins', 'Inter', sans-serif);
+  
+  /* GREEN PALETTE - Grocery/Fresh Products */
+  --green-primary: #10b981;      /* Primary green for CTAs */
+  --green-hover: #059669;        /* Hover/pressed state */
+  --green-bg: #d1fae5;           /* Light background */
   
   /* PURPLE PALETTE - Premium/Modern */
-  --purple-primary: #8b5cf6;         /* Primary Purple */
-  --purple-dark: #7c3aed;            /* Hover/Pressed */
-  --purple-light: #ede9fe;           /* Background */
-  --purple-foreground: #ffffff;
+  --purple-primary: #8b5cf6;     /* Primary purple */
+  --purple-hover: #7c3aed;       /* Hover/pressed state */
+  --purple-bg: #ede9fe;          /* Light background */
   
-  /* ========== ACCENT COLORS ========== */
-  /* Orange - CTAs & Urgency */
-  --orange-primary: #ff6b35;         /* CTA Primary */
-  --orange-light: #ffe5d3;           /* CTA Background */
+  /* ACCENT COLORS */
+  --orange-primary: #ff6b00;     /* CTAs and urgency */
+  --orange-bg: #ffe5d3;          /* Orange background */
+  --red-primary: #e23744;        /* Discounts and alerts */
+  --red-bg: #fee2e2;             /* Red background */
+  --blue-primary: #2196f3;       /* Informational */
   
-  /* Red - Discounts & Alerts */
-  --red-primary: #ef4444;            /* Alert/Discount */
-  --red-light: #fee2e2;              /* Alert Background */
+  /* NEUTRAL COLORS */
+  --bg-primary: #ffffff;         /* Main background */
+  --bg-secondary: #f8f9fa;       /* Secondary/elevated background */
+  --text-primary: #1a1a1a;       /* Primary text */
+  --text-secondary: #666666;     /* Secondary text */
+  --border-color: #e0e0e0;       /* Borders and dividers */
   
-  /* Blue - Informational */
-  --blue-primary: #3b82f6;           /* Info */
-  
-  /* ========== NEUTRAL COLORS ========== */
-  /* Backgrounds */
-  --bg-primary: #ffffff;             /* Main Background */
-  --bg-secondary: #f8fafc;           /* Secondary Background */
-  
-  /* Text */
-  --text-primary: #1a1a1a;           /* Primary Text */
-  --text-secondary: #666666;         /* Secondary Text */
-  
-  /* Borders & Dividers */
-  --border: #e2e8f0;                 /* Border Color */
-  
-  /* ========== LEGACY COMPATIBILITY ========== */
-  --primary: #10b981;
-  --primary-foreground: #ffffff;
-  --secondary: #8b5cf6;
-  --secondary-foreground: #ffffff;
-  
+  /* SHADCN/UI COMPATIBILITY */
   --background: #ffffff;
   --foreground: #1a1a1a;
+  --primary: #10b981;
+  --primary-foreground: #ffffff;
+  --primary-hover: #059669;
+  --secondary: #8b5cf6;
+  --secondary-foreground: #ffffff;
+  --secondary-hover: #7c3aed;
   --card: #ffffff;
   --card-foreground: #1a1a1a;
-  --popover: #ffffff;
-  --popover-foreground: #1a1a1a;
-  --muted: #f8fafc;
+  --muted: #f8f9fa;
   --muted-foreground: #666666;
-  --accent: #ff6b35;
+  --accent: #ff6b00;
   --accent-foreground: #ffffff;
-  --destructive: #ef4444;
+  --destructive: #e23744;
   --destructive-foreground: #ffffff;
-  --input: #f8fafc;
+  --border: #e0e0e0;
+  --input: #f8f9fa;
   --ring: #10b981;
   --radius: 0.5rem;
 
   /* Chart Colors */
   --chart-1: #10b981;
-  --chart-2: #ff6b35;
-  --chart-3: #ef4444;
-  --chart-4: #3b82f6;
+  --chart-2: #ff6b00;
+  --chart-3: #e23744;
+  --chart-4: #2196f3;
   --chart-5: #8b5cf6;
-
-  /* Sidebar */
-  --sidebar: #ffffff;
-  --sidebar-foreground: #1a1a1a;
-  --sidebar-primary: #10b981;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f8fafc;
-  --sidebar-accent-foreground: #1a1a1a;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: #10b981;
 }
 
 /* ============================================
-   DARK MODE
+   DARK MODE COLOR SYSTEM
    ============================================ */
 .dark {
-  /* ========== PRIMARY PALETTES ========== */
+  color-scheme: dark;
+  
   /* GREEN PALETTE - Brightened for dark mode (+20%) */
-  --green-primary: #10b981;          /* Main green stays same (well-balanced) */
-  --green-dark: #059669;             /* Hover remains */
-  --green-light: #1e293b;            /* Dark card background */
-  --green-foreground: #ffffff;
+  --green-primary: #34d399;      /* Brighter green (was #10b981) */
+  --green-hover: #10b981;        /* Original green as hover */
+  --green-bg: #1e293b;           /* Dark card background */
   
   /* PURPLE PALETTE - Brightened for dark mode (+20%) */
-  --purple-primary: #a78bfa;         /* Brighter purple */
-  --purple-dark: #c4b5fd;            /* Lighter hover */
-  --purple-light: #2d1b69;           /* Dark card background */
-  --purple-foreground: #ffffff;
+  --purple-primary: #a78bfa;     /* Brighter purple (was #8b5cf6) */
+  --purple-hover: #c4b5fd;       /* Even lighter for hover */
+  --purple-bg: #2d1b69;          /* Dark card background */
   
-  /* ========== ACCENT COLORS ========== */
-  /* Orange - Brightened for dark mode (+15%) */
-  --orange-primary: #ff8a50;         /* Brighter orange */
-  --orange-light: #3d2817;           /* Dark background */
+  /* ACCENT COLORS - Brightened for dark mode */
+  --orange-primary: #ff8533;     /* Brighter orange (was #ff6b00) */
+  --orange-bg: #3d2817;          /* Dark background */
+  --red-primary: #ff5252;        /* Brighter red (was #e23744) */
+  --red-bg: #3f1f1f;             /* Dark background */
+  --blue-primary: #42a5f5;       /* Brighter blue (was #2196f3) */
   
-  /* Red - Brightened for dark mode (+15%) */
-  --red-primary: #f87171;            /* Brighter red */
-  --red-light: #3f1f1f;              /* Dark background */
+  /* NEUTRAL COLORS */
+  --bg-primary: #121212;         /* True black background */
+  --bg-secondary: #1e1e1e;       /* Elevated/card background */
+  --text-primary: #ffffff;       /* Primary text */
+  --text-secondary: #b3b3b3;     /* Secondary text */
+  --border-color: #2d2d2d;       /* Visible borders on dark */
   
-  /* Blue - Brightened for dark mode (+15%) */
-  --blue-primary: #60a5fa;           /* Brighter blue */
-  
-  /* ========== NEUTRAL COLORS ========== */
-  /* Backgrounds */
-  --bg-primary: #121212;             /* Main Background */
-  --bg-secondary: #1e1e1e;           /* Secondary/Elevated */
-  
-  /* Text */
-  --text-primary: #ffffff;           /* Primary Text */
-  --text-secondary: #b3b3b3;         /* Secondary Text */
-  
-  /* Borders & Dividers */
-  --border: #2d2d2d;                 /* Border Color */
-  
-  /* ========== LEGACY COMPATIBILITY ========== */
-  --primary: #10b981;
-  --primary-foreground: #ffffff;
-  --secondary: #a78bfa;
-  --secondary-foreground: #000000;
-  
+  /* SHADCN/UI COMPATIBILITY */
   --background: #121212;
   --foreground: #ffffff;
+  --primary: #34d399;
+  --primary-foreground: #000000;
+  --primary-hover: #10b981;
+  --secondary: #a78bfa;
+  --secondary-foreground: #000000;
+  --secondary-hover: #c4b5fd;
   --card: #1e1e1e;
   --card-foreground: #ffffff;
-  --popover: #1e1e1e;
-  --popover-foreground: #ffffff;
-  --primary: #10b981;
-  --primary-foreground: #0a0a0a;
-  --secondary: #a78bfa;
-  --secondary-foreground: #0a0a0a;
   --muted: #2d2d2d;
   --muted-foreground: #b3b3b3;
-  --accent: #ff8a50;
-  --accent-foreground: #121212;
-  --destructive: #f87171;
-  --destructive-foreground: #121212;
+  --accent: #ff8533;
+  --accent-foreground: #000000;
+  --destructive: #ff5252;
+  --destructive-foreground: #000000;
   --border: #2d2d2d;
   --input: #2d2d2d;
-  --ring: #10b981;
-  --chart-1: #10b981;
-  --chart-2: #ff8a50;
-  --chart-3: #f87171;
-  --chart-4: #60a5fa;
+  --ring: #34d399;
+  
+  /* Chart Colors */
+  --chart-1: #34d399;
+  --chart-2: #ff8533;
+  --chart-3: #ff5252;
+  --chart-4: #42a5f5;
   --chart-5: #a78bfa;
-  --sidebar: #1e1e1e;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #10b981;
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #2d2d2d;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #2d2d2d;
-  --sidebar-ring: #10b981;
+}
+
+/* ============================================
+   PREFERS COLOR SCHEME SUPPORT
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    
+    --green-primary: #34d399;
+    --green-hover: #10b981;
+    --green-bg: #1e293b;
+    --purple-primary: #a78bfa;
+    --purple-hover: #c4b5fd;
+    --purple-bg: #2d1b69;
+    --orange-primary: #ff8533;
+    --orange-bg: #3d2817;
+    --red-primary: #ff5252;
+    --red-bg: #3f1f1f;
+    --blue-primary: #42a5f5;
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --border-color: #2d2d2d;
+    --background: #121212;
+    --foreground: #ffffff;
+    --primary: #34d399;
+    --primary-foreground: #000000;
+    --primary-hover: #10b981;
+    --secondary: #a78bfa;
+    --secondary-foreground: #000000;
+    --secondary-hover: #c4b5fd;
+    --card: #1e1e1e;
+    --card-foreground: #ffffff;
+    --muted: #2d2d2d;
+    --muted-foreground: #b3b3b3;
+    --accent: #ff8533;
+    --accent-foreground: #000000;
+    --destructive: #ff5252;
+    --destructive-foreground: #000000;
+    --border: #2d2d2d;
+    --input: #2d2d2d;
+    --ring: #34d399;
+    --chart-1: #34d399;
+    --chart-2: #ff8533;
+    --chart-3: #ff5252;
+    --chart-4: #42a5f5;
+    --chart-5: #a78bfa;
+  }
 }
 
 /* ============================================
    BASE STYLES
    ============================================ */
-body {
-  font-family: var(--font-primary);
-  background-color: var(--background);
-  color: var(--foreground);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-secondary);
-  font-weight: 600;
-  color: var(--foreground);
-}
-
 @layer base {
   * {
     border-color: var(--border);
+    outline-color: var(--ring);
   }
+  
   body {
+    font-family: var(--font-primary);
     background-color: var(--background);
     color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-}
-
-/* ============================================
-   TYPOGRAPHY UTILITIES
-   ============================================ */
-/* Inter Variable Font Classes */
-.inter-regular {
-  font-family: "Inter", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.inter-medium {
-  font-family: "Inter", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 500;
-  font-style: normal;
-}
-
-.inter-semibold {
-  font-family: "Inter", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 600;
-  font-style: normal;
-}
-
-.inter-bold {
-  font-family: "Inter", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 700;
-  font-style: normal;
-}
-
-/* Poppins Font Classes */
-.poppins-thin {
-  font-family: "Poppins", sans-serif;
-  font-weight: 100;
-  font-style: normal;
-}
-
-.poppins-extralight {
-  font-family: "Poppins", sans-serif;
-  font-weight: 200;
-  font-style: normal;
-}
-
-.poppins-light {
-  font-family: "Poppins", sans-serif;
-  font-weight: 300;
-  font-style: normal;
-}
-
-.poppins-regular {
-  font-family: "Poppins", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.poppins-medium {
-  font-family: "Poppins", sans-serif;
-  font-weight: 500;
-  font-style: normal;
-}
-
-.poppins-semibold {
-  font-family: "Poppins", sans-serif;
-  font-weight: 600;
-  font-style: normal;
-}
-
-.poppins-bold {
-  font-family: "Poppins", sans-serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.poppins-extrabold {
-  font-family: "Poppins", sans-serif;
-  font-weight: 800;
-  font-style: normal;
-}
-
-.poppins-black {
-  font-family: "Poppins", sans-serif;
-  font-weight: 900;
-  font-style: normal;
-}
-
-.poppins-thin-italic {
-  font-family: "Poppins", sans-serif;
-  font-weight: 100;
-  font-style: italic;
-}
-
-.poppins-extralight-italic {
-  font-family: "Poppins", sans-serif;
-  font-weight: 200;
-  font-style: italic;
-}
-
-.poppins-light-italic {
-  font-family: "Poppins", sans-serif;
-  font-weight: 300;
-  font-style: italic;
-}
-
-.poppins-regular-italic {
-  font-family: "Poppins", sans-serif;
-  font-weight: 400;
-  font-style: italic;
-}
-
-.poppins-medium-italic {
-  font-family: "Poppins", sans-serif;
-  font-weight: 500;
-  font-style: italic;
-}
-
-.poppins-semibold-italic {
-  font-family: "Poppins", sans-serif;
-  font-weight: 600;
-  font-style: italic;
-}
-
-.poppins-bold-italic {
-  font-family: "Poppins", sans-serif;
-  font-weight: 700;
-  font-style: italic;
-}
-
-.poppins-extrabold-italic {
-  font-family: "Poppins", sans-serif;
-  font-weight: 800;
-  font-style: italic;
-}
-
-.poppins-black-italic {
-  font-family: "Poppins", sans-serif;
-  font-weight: 900;
-  font-style: italic;
-}
-
-/* Font weight utilities */
-.font-regular { font-weight: 400; }
-.font-medium { font-weight: 500; }
-.font-semibold { font-weight: 600; }
-.font-bold { font-weight: 700; }
-
-/* Better text rendering */
-p, li, span {
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Prevent layout shift during font loading */
-.font-loading {
-  visibility: hidden;
-}
-
-.fonts-loaded {
-  visibility: visible;
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-secondary);
+    font-weight: 600;
+  }
 }
 
 /* ============================================
@@ -385,34 +272,20 @@ p, li, span {
   background: var(--primary-hover);
 }
 
-.dark ::-webkit-scrollbar-track {
-  background: var(--neutral-800);
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-color: var(--neutral-800);
-}
-
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--primary) var(--muted);
 }
 
-.dark * {
-  scrollbar-color: var(--primary) var(--neutral-800);
-}
-
-/* Hide scrollbars on specific containers while preserving scroll */
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-.no-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* Hide vertical scrollbar on small screens */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @media (max-width: 1023px) {
   ::-webkit-scrollbar {
     width: 0px;
@@ -421,26 +294,8 @@ p, li, span {
   }
   
   * {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-  }
-  
-  html {
-    -ms-overflow-style: none;
     scrollbar-width: none;
-  }
-  
-  html::-webkit-scrollbar {
-    display: none;
-  }
-  
-  body {
     -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  
-  body::-webkit-scrollbar {
-    display: none;
   }
 }
 
@@ -448,17 +303,12 @@ p, li, span {
    SELECTION STYLING
    ============================================ */
 ::selection {
-  background-color: var(--accent-brand);
-  color: var(--neutral-900);
-}
-
-.dark ::selection {
   background-color: var(--accent);
-  color: var(--neutral-900);
+  color: var(--background);
 }
 
 /* ============================================
-   FOCUS STATES & ACCESSIBILITY
+   FOCUS STATES
    ============================================ */
 *:focus-visible {
   outline: 2px solid var(--ring);
@@ -482,7 +332,7 @@ input[type="url"],
 input[type="search"],
 textarea,
 select {
-  background-color: var(--background);
+  background-color: var(--input);
   color: var(--foreground);
   border-color: var(--border);
 }
@@ -499,7 +349,6 @@ input[type="radio"] {
   cursor: pointer;
 }
 
-/* Hide scrollbar for category navigation */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }

@@ -13,7 +13,7 @@ import type { Id } from "@/../convex/_generated/dataModel";
 
 import { ShopCard } from "@/components/shops/ShopCard";
 
-const DELIVERY_RADIUS_KM = 10; // Increased radius for shop listing page
+const DELIVERY_RADIUS_KM = 10;
 
 interface LatLng {
   lat: number;
@@ -181,14 +181,16 @@ function ShopsPageContent() {
 
   const handleCategoryChange = (categoryId: Id<"categories"> | "all") => {
     setSelectedCategoryId(categoryId);
-    const params = new URLSearchParams(searchParams.toString());
-    if (categoryId && categoryId !== "all") {
-      params.set("categoryId", categoryId);
+    
+    if (categoryId === "all") {
+      router.push("/shops");
     } else {
-      params.delete("categoryId");
-      params.delete("category");
+      // Find category name by ID
+      const category = allCategories?.find((cat) => cat._id === categoryId);
+      if (category) {
+        router.push(`/shops?category=${encodeURIComponent(category.name)}`);
+      }
     }
-    router.push(`/shops?${params.toString()}`);
   };
 
   if (allShops === undefined) {
