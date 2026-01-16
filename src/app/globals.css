@@ -3,232 +3,234 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant light (&:is(.light *));
 
 /* ============================================
-   COLOR SYSTEM - Light Mode
+   FONT FAMILY VARIABLES
+   ============================================ 
+   Fonts loaded via <link> in layout.tsx head
+   Inter: Variable font with optical sizing
+   Poppins: Full weight range (100-900)
    ============================================ */
 :root {
-  /* Brand Colors */
-  --color-primary: #27ae60;
-  --color-primary-hover: #1f8f4e;
-  --color-secondary: #ffeb3b;
-  --color-secondary-hover: #f5d020;
-  --color-accent: #faffd2;
-  --color-accent-hover: #f0e88c;
-  --color-tertiary: #ff8152;
-  --color-tertiary-hover: #e76b3f;
-
-  /* Semantic Colors */
-  --color-success: #27ae60;
-  --color-warning: #ffb74d;
-  --color-error: #b83d0f;
-  --color-info: #2b6cb0;
-
-  /* Neutral Palette */
-  --neutral-50: #f9f6f2;
-  --neutral-100: #f2f2f2;
-  --neutral-200: #e0e0e0;
-  --neutral-300: #c8c8c8;
-  --neutral-400: #a79f94;
-  --neutral-500: #85786a;
-  --neutral-600: #6b5c4b;
-  --neutral-700: #594a3a;
-  --neutral-800: #3b2f22;
-  --neutral-900: #242015;
-  --neutral-950: #18140c;
-
-  /* Printing Blacks */
-  --standard-black: #111111;
-  --rich-black: #050304;
-  --pure-black: #000000;
-
-  /* Brand Aliases */
+  /* Performance-optimized font stacks */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  --font-secondary: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Courier New', monospace;
+  
+  /* PALETTE SELECTION: GREEN (Active) */
+  
+  /* PRIMARY COLORS - 60% of design (Base Layer) */
+  --color-primary: #10b981;           /* Emerald Green - Main brand color */
+  --color-primary-dark: #047857;      /* Deep Emerald - Interactive states */
+  --color-primary-light: #d1fae5;     /* Light Mint - Backgrounds & hover states */
+  
+  /* ACCENT COLORS - 30% of design (Action Layer) */
+  --color-orange: #f97316;            /* Vibrant Orange - CTAs, urgency, promotions */
+  --color-orange-light: #fed7aa;      /* Light Orange - Light backgrounds, hover */
+  --color-red: #dc2626;               /* Bright Red - Discounts, alerts, stock-out */
+  --color-red-light: #fee2e2;         /* Light Red - Error backgrounds, attention */
+  --color-blue: #3b82f6;              /* Informational Blue - Status, info messages */
+  
+  /* NEUTRAL COLORS - 10% of design (Structure Layer) */
+  --neutral-white: #ffffff;           /* Pure White - Primary background */
+  --neutral-bg: #f9fafb;              /* Off-White - Secondary background, cards */
+  --neutral-text-primary: #1f2937;    /* Dark Gray - Primary text (WCAG AA: 15.6:1) */
+  --neutral-text-secondary: #6b7280;  /* Medium Gray - Secondary text (WCAG AA: 7.5:1) */
+  --neutral-border: #e5e7eb;          /* Light Gray - Dividers, borders */
+  
+  /* SEMANTIC COLORS - Functional purposes */
+  --color-success: #10b981;
+  --color-warning: #f97316;
+  --color-error: #dc2626;
+  --color-info: #3b82f6;
+  
+  /* BRAND ALIASES */
   --primary-brand: var(--color-primary);
-  --primary-hover: var(--color-primary-hover);
-  --secondary-brand: var(--color-secondary);
-  --secondary-hover: var(--color-secondary-hover);
-  --accent-brand: var(--color-accent);
-  --tertiary-brand: var(--color-tertiary);
-  --tertiary-hover: var(--color-tertiary-hover);
+  --primary-hover: var(--color-primary-dark);
+  --secondary-brand: var(--color-orange);
+  --accent-brand: var(--color-primary-light);
+  --tertiary-brand: var(--color-red);
 
-  /* Shadcn UI Theme Variables - Light Mode */
-  --background: #ffffff;
-  --foreground: #000000;
-  --card: #ffffff;
-  --card-foreground: #000000;
-  --popover: #ffffff;
-  --popover-foreground: #000000;
+  /* SHADCN UI THEME VARIABLES - Light Mode */
+  --background: var(--neutral-white);
+  --foreground: var(--neutral-text-primary);
+  --card: var(--neutral-bg);
+  --card-foreground: var(--neutral-text-primary);
+  --popover: var(--neutral-white);
+  --popover-foreground: var(--neutral-text-primary);
   --primary: var(--color-primary);
-  --primary-foreground: #ffffff;
-  --secondary: var(--color-accent);
-  --secondary-foreground: #000000;
-  --muted: #f2f2f2;
-  --muted-foreground: #6b5c4b;
-  --accent: var(--color-accent);
-  --accent-foreground: #000000;
-  --destructive: var(--color-error);
-  --destructive-foreground: #ffffff;
-  --border: var(--neutral-300);
-  --input: var(--neutral-200);
+  --primary-foreground: var(--neutral-white);
+  --secondary: var(--color-orange);
+  --secondary-foreground: var(--neutral-white);
+  --muted: var(--neutral-bg);
+  --muted-foreground: var(--neutral-text-secondary);
+  --accent: var(--color-orange);
+  --accent-foreground: var(--neutral-white);
+  --destructive: var(--color-red);
+  --destructive-foreground: var(--neutral-white);
+  --border: var(--neutral-border);
+  --input: var(--neutral-bg);
   --ring: var(--color-primary);
   --radius: 0.625rem;
 
-  --text-heading: var(--foreground);
-  --text-body: var(--neutral-900);
-  --text-caption: var(--neutral-600);
+  --text-heading: var(--neutral-text-primary);
+  --text-body: var(--neutral-text-primary);
+  --text-caption: var(--neutral-text-secondary);
 
   /* Chart Colors */
   --chart-1: var(--color-primary);
-  --chart-2: var(--color-secondary);
-  --chart-3: #fa638c;
-  --chart-4: #3b7dd8;
-  --chart-5: var(--color-error);
+  --chart-2: var(--color-orange);
+  --chart-3: var(--color-red);
+  --chart-4: var(--color-blue);
+  --chart-5: var(--color-primary-dark);
 
   /* Sidebar */
-  --sidebar: #ffffff;
-  --sidebar-foreground: var(--neutral-700);
+  --sidebar: var(--neutral-white);
+  --sidebar-foreground: var(--neutral-text-primary);
   --sidebar-primary: var(--color-primary);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f0f9f4;
-  --sidebar-accent-foreground: var(--color-primary-hover);
-  --sidebar-border: var(--neutral-200);
+  --sidebar-primary-foreground: var(--neutral-white);
+  --sidebar-accent: var(--color-primary-light);
+  --sidebar-accent-foreground: var(--color-primary-dark);
+  --sidebar-border: var(--neutral-border);
   --sidebar-ring: var(--color-primary);
 
   /* Links */
-  --link: #2b6cb0;
-  --link-hover: #1e4e8c;
+  --link: var(--color-primary);
+  --link-hover: var(--color-primary-dark);
 
-  /* Status Colors - Light Mode */
-  --success-bg-light: #e6f4ec;
-  --success-fg: #1f8f4e;
-  --success-border: #27ae60;
-  --warning-bg-light: #fff8e1;
-  --warning-fg: #a15c07;
-  --warning-border: #ffb74d;
-  --info-bg-light: #eef3ff;
-  --info-fg: #2b6cb0;
-  --info-border: #2b6cb0;
-  --error-bg-light: #fff1eb;
-  --error-fg: var(--color-error);
-  --error-border: #ffb199;
-  --error-text: var(--color-error);
+  /* Status Colors */
+  --success-bg-light: #d1fae5;
+  --success-fg: #047857;
+  --success-border: #10b981;
+  --warning-bg-light: #fed7aa;
+  --warning-fg: #b45309;
+  --warning-border: #f97316;
+  --info-bg-light: #dbeafe;
+  --info-fg: #1e40af;
+  --info-border: #3b82f6;
+  --error-bg-light: #fee2e2;
+  --error-fg: #991b1b;
+  --error-border: #dc2626;
+  --error-text: var(--color-red);
 }
 
 /* ============================================
    DARK MODE - Class-based Override
    ============================================ */
 .dark {
-  --background: #000000;
-  --foreground: #ffffff;
-  --card: #0a0a0a;
-  --card-foreground: #ffffff;
-  --popover: #0a0a0a;
-  --popover-foreground: #ffffff;
-  --primary: #27ae60;
-  --primary-foreground: #ffffff;
-  --secondary: var(--neutral-800);
-  --secondary-foreground: #ffffff;
-  --muted: #1a1a1a;
-  --muted-foreground: #a79f94;
-  --accent: #1f2f25;
-  --accent-foreground: #ffffff;
-  --destructive: #ff8152;
-  --destructive-foreground: #ffffff;
-  --border: var(--neutral-700);
-  --input: var(--neutral-800);
-  --ring: #27ae60;
-  --text-heading: #ffffff;
-  --text-body: #f9f6f2;
-  --text-caption: var(--muted-foreground);
-  --chart-1: #27ae60;
-  --chart-2: #ffe066;
-  --chart-3: #fa638c;
-  --chart-4: #6ca414;
-  --chart-5: #a2a6b2;
-  --sidebar: var(--pure-black);
-  --sidebar-foreground: #f9f6f2;
-  --sidebar-primary: #27ae60;
-  --sidebar-primary-foreground: #181c1f;
-  --sidebar-accent: #1f2f25;
-  --sidebar-accent-foreground: #8fd8a5;
-  --sidebar-border: #2d333b;
-  --sidebar-ring: #27ae60;
-  --tertiary-brand: #ff8152;
-  --tertiary-hover: #fa638c;
-  --link: #a2c5ff;
-  --link-hover: #cbd7ff;
-  --success-bg-light: #1f2f25;
-  --success-fg: #8fd8a5;
-  --success-border: #27ae60;
-  --warning-bg-light: #3b2f22;
-  --warning-fg: #ffd38a;
-  --warning-border: #ffb74d;
-  --info-bg-light: #1e2a3a;
-  --info-fg: #a2c5ff;
-  --info-border: #2b6cb0;
-  --error-bg-light: #3c1f18;
-  --error-fg: #ffb199;
-  --error-border: #ff8152;
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --card: #1e293b;
+  --card-foreground: #f1f5f9;
+  --popover: #1e293b;
+  --popover-foreground: #f1f5f9;
+  --primary: #10b981;
+  --primary-foreground: #0f172a;
+  --secondary: #fb923c;
+  --secondary-foreground: #0f172a;
+  --muted: #334155;
+  --muted-foreground: #cbd5e1;
+  --accent: #f97316;
+  --accent-foreground: #0f172a;
+  --destructive: #ef5350;
+  --destructive-foreground: #0f172a;
+  --border: #334155;
+  --input: #1e293b;
+  --ring: #10b981;
+  --text-heading: #f1f5f9;
+  --text-body: #e2e8f0;
+  --text-caption: #cbd5e1;
+  --chart-1: #10b981;
+  --chart-2: #fb923c;
+  --chart-3: #ef5350;
+  --chart-4: #60a5fa;
+  --chart-5: #06b6d4;
+  --sidebar: #1e293b;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-primary: #10b981;
+  --sidebar-primary-foreground: #0f172a;
+  --sidebar-accent: #064e3b;
+  --sidebar-accent-foreground: #6ee7b7;
+  --sidebar-border: #334155;
+  --sidebar-ring: #10b981;
+  --tertiary-brand: #ef5350;
+  --tertiary-hover: #f44336;
+  --link: #6ee7b7;
+  --link-hover: #a7f3d0;
+  --success-bg-light: #064e3b;
+  --success-fg: #6ee7b7;
+  --success-border: #10b981;
+  --warning-bg-light: #78350f;
+  --warning-fg: #fbbf24;
+  --warning-border: #f97316;
+  --info-bg-light: #0c2340;
+  --info-fg: #93c5fd;
+  --info-border: #3b82f6;
+  --error-bg-light: #7f1d1d;
+  --error-fg: #fca5a5;
+  --error-border: #ef5350;
 }
 
 /* ============================================
    LIGHT MODE - Class-based Override
    ============================================ */
 .light {
-  --background: #ffffff;
-  --foreground: #000000;
-  --card: #ffffff;
-  --card-foreground: #000000;
-  --popover: #ffffff;
-  --popover-foreground: #000000;
+  --background: var(--neutral-white);
+  --foreground: var(--neutral-text-primary);
+  --card: var(--neutral-bg);
+  --card-foreground: var(--neutral-text-primary);
+  --popover: var(--neutral-white);
+  --popover-foreground: var(--neutral-text-primary);
   --primary: var(--color-primary);
-  --primary-foreground: #ffffff;
-  --secondary: var(--color-accent);
-  --secondary-foreground: #000000;
-  --muted: #f2f2f2;
-  --muted-foreground: #6b5c4b;
-  --accent: var(--color-accent);
-  --accent-foreground: #000000;
-  --destructive: var(--color-error);
-  --destructive-foreground: #ffffff;
-  --border: var(--neutral-300);
-  --input: var(--neutral-200);
+  --primary-foreground: var(--neutral-white);
+  --secondary: var(--color-orange);
+  --secondary-foreground: var(--neutral-white);
+  --muted: var(--neutral-bg);
+  --muted-foreground: var(--neutral-text-secondary);
+  --accent: var(--color-primary-light);
+  --accent-foreground: var(--color-primary-dark);
+  --destructive: var(--color-red);
+  --destructive-foreground: var(--neutral-white);
+  --border: var(--neutral-border);
+  --input: var(--neutral-bg);
   --ring: var(--color-primary);
-  --text-heading: var(--foreground);
-  --text-body: var(--neutral-900);
-  --text-caption: var(--neutral-600);
-  --sidebar: #ffffff;
-  --sidebar-foreground: var(--neutral-700);
+  --text-heading: var(--neutral-text-primary);
+  --text-body: var(--neutral-text-primary);
+  --text-caption: var(--neutral-text-secondary);
+  --sidebar: var(--neutral-white);
+  --sidebar-foreground: var(--neutral-text-primary);
   --sidebar-primary: var(--color-primary);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f0f9f4;
-  --sidebar-accent-foreground: var(--color-primary-hover);
-  --sidebar-border: var(--neutral-200);
+  --sidebar-primary-foreground: var(--neutral-white);
+  --sidebar-accent: var(--color-primary-light);
+  --sidebar-accent-foreground: var(--color-primary-dark);
+  --sidebar-border: var(--neutral-border);
   --sidebar-ring: var(--color-primary);
-  --tertiary-brand: var(--color-tertiary);
-  --tertiary-hover: var(--color-tertiary-hover);
-  --link: #2b6cb0;
-  --link-hover: #1e4e8c;
-  --success-bg-light: #e6f4ec;
-  --success-fg: #1f8f4e;
-  --success-border: #27ae60;
-  --warning-bg-light: #fff8e1;
-  --warning-fg: #a15c07;
-  --warning-border: #ffb74d;
-  --info-bg-light: #eef3ff;
-  --info-fg: #2b6cb0;
-  --info-border: #2b6cb0;
-  --error-bg-light: #fff1eb;
-  --error-fg: var(--color-error);
-  --error-border: #ffb199;
+  --tertiary-brand: var(--color-red);
+  --tertiary-hover: #b91c1c;
+  --link: var(--color-primary);
+  --link-hover: var(--color-primary-dark);
+  --success-bg-light: #d1fae5;
+  --success-fg: #047857;
+  --success-border: #10b981;
+  --warning-bg-light: #fed7aa;
+  --warning-fg: #b45309;
+  --warning-border: #f97316;
+  --info-bg-light: #dbeafe;
+  --info-fg: #1e40af;
+  --info-border: #3b82f6;
+  --error-bg-light: #fee2e2;
+  --error-fg: #991b1b;
+  --error-border: #dc2626;
 }
 
 /* ============================================
    TAILWIND THEME INTEGRATION
    ============================================ */
 @theme inline {
-  --font-sans: var(--font-open-sans), system-ui, sans-serif;
-  --font-heading: var(--font-montserrat), var(--font-open-sans), sans-serif;
+  --font-sans: var(--font-primary);
+  --font-heading: var(--font-secondary);
+  --font-mono: var(--font-mono);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-heading: var(--text-heading);
@@ -279,11 +281,15 @@
    BASE STYLES
    ============================================ */
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-primary);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
   background-color: var(--background);
   color: var(--text-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 h1,
@@ -292,19 +298,215 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-heading);
+  font-family: var(--font-secondary);
   font-weight: 600;
   line-height: 1.2;
+  letter-spacing: -0.02em;
   color: var(--text-heading);
+}
+
+/* Specific heading sizes with optimized spacing */
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+}
+
+h2 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+}
+
+h3 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 600;
+}
+
+h4 {
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+  font-weight: 600;
+}
+
+h5 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+h6 {
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 html {
   scroll-behavior: smooth;
   color-scheme: light;
+  font-feature-settings: 'liga' 1, 'calt' 1; /* Enable ligatures */
 }
 
 html.dark {
   color-scheme: dark;
+}
+
+/* ============================================
+   TYPOGRAPHY UTILITIES
+   ============================================ */
+/* Inter Variable Font Classes */
+.inter-regular {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.inter-medium {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.inter-semibold {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.inter-bold {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Poppins Font Classes */
+.poppins-thin {
+  font-family: "Poppins", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.poppins-extralight {
+  font-family: "Poppins", sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.poppins-light {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.poppins-regular {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.poppins-medium {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.poppins-semibold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.poppins-bold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.poppins-extrabold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.poppins-black {
+  font-family: "Poppins", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.poppins-thin-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.poppins-extralight-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.poppins-light-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.poppins-regular-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.poppins-medium-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.poppins-semibold-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.poppins-bold-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.poppins-extrabold-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.poppins-black-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+
+/* Font weight utilities */
+.font-regular { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+/* Better text rendering */
+p, li, span {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent layout shift during font loading */
+.font-loading {
+  visibility: hidden;
+}
+
+.fonts-loaded {
+  visibility: visible;
 }
 
 /* ============================================
