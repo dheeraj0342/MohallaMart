@@ -30,7 +30,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useQuery } from "convex/react";
-import { api } from "@/../convex/_generated/api";
+import { api } from "@convex/_generated/api";
 import { MobileHeader } from "./MobileHeader";
 import { MobileBottomNav } from "./MobileBottomNav";
 import NotificationBell from "./NotificationBell";
@@ -221,10 +221,23 @@ export default function Navbar() {
 
   return (
     <>
+      {/* Mobile Header - visible only on small screens */}
+      <div className="lg:hidden">
+        <MobileHeader
+          onMenuClick={() => setIsMenuOpen(true)}
+          cartCount={getTotalItems()}
+          location={location ? `${location.area || ""}, ${location.city || ""}` : null}
+          onOpenLocation={() => setIsLocationModalOpen(true)}
+          onOpenSearch={() => setSearchOpen(true)}
+          onOpenCart={() => setIsCartOpen(true)}
+        />
+      </div>
+
+      {/* Desktop Navbar */}
       <nav
         role="navigation"
         aria-label="Primary"
-        className={`sticky top-0 z-50 bg-background/95 backdrop-blur-xl backdrop-saturate-150 border-b border-border transition-all duration-300 ${
+        className={`sticky top-0 z-50 bg-background/95 backdrop-blur-xl backdrop-saturate-150 border-b border-border transition-all duration-300 hidden lg:block ${
           isScrolled ? "shadow-lg" : "shadow-sm"
         }`}
       >
@@ -544,12 +557,16 @@ export default function Navbar() {
           onClose={() => setIsLocationModalOpen(false)}
         />
       </nav>
-<MobileBottomNav
-        activeTab="home"
-        cartCount={getTotalItems()}
-        onTabChange={(tab) => console.log('Tab changed to:', tab)}
-        onOpenCart={() => setIsCartOpen(true)}
-      />
+
+      {/* Mobile Bottom Navigation */}
+      <div className="lg:hidden">
+        <MobileBottomNav
+          activeTab="home"
+          cartCount={getTotalItems()}
+          onTabChange={(tab) => console.log('Tab changed to:', tab)}
+          onOpenCart={() => setIsCartOpen(true)}
+        />
+      </div>
 
       {/* Cart sidebar */}
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
