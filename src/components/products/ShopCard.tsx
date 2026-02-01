@@ -16,7 +16,7 @@ import {
   Shield,
   Truck
 } from "lucide-react";
-import type { Product } from "./ProductCard";
+import type { Product } from "./ZeptoCard";
 import { EtaBadge, type EtaInfo } from "./EtaBadge";
 
 interface ShopProductCardProps {
