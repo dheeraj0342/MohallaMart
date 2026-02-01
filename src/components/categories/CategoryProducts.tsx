@@ -3,7 +3,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
-import { ProductCard, type Product } from "@/components/products/ProductCard";
+import { ZeptoCard as ProductCard, type Product } from "@/components/products/ZeptoCard";
 import { useStore } from "@/store/useStore";
 import { useToast } from "@/hooks/useToast";
 import { Loader2 } from "lucide-react";

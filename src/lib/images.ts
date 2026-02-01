@@ -15,12 +15,20 @@ export const images = {
 
   // Banner Carousel Images
   banners: {
+    // Desktop
     desktopBanner: `${basePath}/banners/DesktopBanner.png`,
     desktopBanner2: `${basePath}/banners/DesktopBanner2.png`,
-    mobileBanner: `${basePath}/banners/MobileBanner.png`,
-    mobileBanner2: `${basePath}/banners/MobileBanner2.png`,
+    desktopBanner3: `${basePath}/banners/herobanner.jpg`,
+
+    // Tablet
     tabletBanner: `${basePath}/banners/TabletBanner.png`,
     tabletBanner2: `${basePath}/banners/TabletBanner2.png`,
+    tabletBanner3: `${basePath}/banners/herobanner.jpg`,
+
+    // Mobile
+    mobileBanner: `${basePath}/banners/MobileBanner.png`,
+    mobileBanner2: `${basePath}/banners/MobileBanner2.png`,
+    mobileBanner3: `${basePath}/banners/herobanner.jpg`,
   },
 
   // Background Images

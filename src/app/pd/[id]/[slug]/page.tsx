@@ -12,7 +12,7 @@ import { Loader2, Package, ShoppingCart, Heart, Star } from "lucide-react"
 import { useStore } from "@/store/useStore"
 import { useToast } from "@/hooks/useToast"
 import { useState, useEffect } from "react"
-import { type Product } from "@/components/products/ProductCard"
+import { type Product } from "@/components/products/ZeptoCard"
 import { RelatedProductsRow } from "@/components/products/RelatedProductsRow"
 import ImageModal from "@/components/ImageModal"
 import { EtaBadge, type EtaInfo } from "@/components/products/EtaBadge"
@@ -104,7 +104,7 @@ export default function ProductPdPage() {
     const fetchProductEta = async () => {
       try {
         const response = await fetch(
-          `/api/vendors/nearby?userLat=${lat}&userLon=${lng}&radiusKm=2`
+          `/api/vendors/nearby?userLat=${lat}&userLon=${lng}&radiusKm=10`
         )
         if (response.ok) {
           const data = await response.json()
@@ -523,7 +523,7 @@ export default function ProductPdPage() {
                                 {review.user?.name || "Customer"}
                               </p>
                               {review.is_verified && (
-                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--success-bg-light)] text-[var(--success-fg)] border border-[var(--success-border)]">
+                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-(--success-bg-light) text-(--success-fg) border border-(--success-border)">
                                   Verified purchase
                                 </span>
                               )}

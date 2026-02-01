@@ -48,7 +48,7 @@ export default function ShopPage() {
     const fetchShopEta = async () => {
       try {
         const response = await fetch(
-          `/api/vendors/nearby?userLat=${lat}&userLon=${lng}&radiusKm=2`
+          `/api/vendors/nearby?userLat=${lat}&userLon=${lng}&radiusKm=10`
         )
         if (response.ok) {
           const data = await response.json()

@@ -1,3 +1,4 @@
+// Rebuild trigger
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";

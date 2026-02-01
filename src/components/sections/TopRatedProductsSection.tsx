@@ -17,7 +17,7 @@ import Link from "next/link";
 import type { Id } from "@/../convex/_generated/dataModel";
 import { useStore } from "@/store/useStore";
 import { useToast } from "@/hooks/useToast";
-import { ProductCard, type Product } from "@/components/products/ProductCard";
+import { ZeptoCard, type Product } from "@/components/products/ZeptoCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TopRatedProductsSection() {
@@ -234,7 +234,7 @@ export default function TopRatedProductsSection() {
                 const adaptedProduct = adaptProductForCard(product);
                 return (
                   <div key={adaptedProduct._id} className="w-[165px] shrink-0 snap-start">
-                    <ProductCard
+                    <ZeptoCard
                       product={adaptedProduct}
                       onAddToCart={handleAddToCart}
                       eta={adaptedProduct.shop_id ? shopEtas[adaptedProduct.shop_id] : undefined}
@@ -248,7 +248,7 @@ export default function TopRatedProductsSection() {
               {limitedProducts.map((product) => {
                 const adaptedProduct = adaptProductForCard(product);
                 return (
-                  <ProductCard
+                  <ZeptoCard
                     key={adaptedProduct._id}
                     product={adaptedProduct}
                     onAddToCart={handleAddToCart}

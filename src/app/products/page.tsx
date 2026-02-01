@@ -9,8 +9,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Package, Loader2, ShoppingBag, Filter, ChevronDown } from "lucide-react";
 import CategoryFilterDropdown from "@/components/CategoryFilterDropdown";
-import { ProductCard } from "@/components/products/ProductCard";
-import type { Product } from "@/components/products/ProductCard";
+import { ZeptoCard } from "@/components/products/ZeptoCard";
+import type { Product } from "@/components/products/ZeptoCard";
 import type { Id } from "@convex/_generated/dataModel";
 
 const ITEMS_PER_PAGE = 12;
@@ -237,7 +237,7 @@ function ProductsContent() {
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {paginatedProducts.map((product) => (
-                <ProductCard
+                <ZeptoCard
                   key={product._id}
                   product={product}
                   onAddToCart={handleAddToCart}

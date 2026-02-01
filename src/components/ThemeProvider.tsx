@@ -25,35 +25,11 @@ export function ThemeProvider({
   storageKey = 'theme-preference',
   ...props
 }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    // Initialize with default theme on server
-    if (typeof window === 'undefined') return defaultTheme;
-    
-    // On client, sync with what the script already applied
-    const stored = localStorage.getItem(storageKey) as Theme | null;
-    if (stored) return stored;
-    
-    const systemTheme = getSystemTheme();
-    return systemTheme;
-  });
+  const [theme, setThemeState] = useState<Theme>('light');
 
   useEffect(() => {
-    console.log('[ThemeProvider] Mount effect running');
-    // Sync theme state with DOM on mount
-    const stored = localStorage.getItem(storageKey) as Theme | null;
-    const systemTheme = getSystemTheme();
-    const initialTheme = stored || systemTheme;
-    
-    console.log('[ThemeProvider] Initial sync:', { stored, systemTheme, initialTheme, currentTheme: theme });
-    
-    // Apply theme on mount to ensure consistency
-    applyTheme(initialTheme);
-    
-    // Only update state if different from current state
-    if (initialTheme !== theme) {
-      setThemeState(initialTheme);
-    }
-  }, [storageKey]);
+    applyTheme('light');
+  }, []);
 
   const setTheme = (newTheme: Theme) => {
     console.log('[ThemeProvider] setTheme called:', { from: theme, to: newTheme });

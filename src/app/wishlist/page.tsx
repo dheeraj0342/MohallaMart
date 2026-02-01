@@ -3,7 +3,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 import { useStore } from "@/store/useStore";
-import { ProductCard } from "@/components/products/ProductCard";
+import { ZeptoCard } from "@/components/products/ZeptoCard";
 import { ShopCard } from "@/components/shops/ShopCard";
 import { Loader2, Heart, ShoppingBag, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -130,7 +130,7 @@ export default function WishlistPage() {
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
                             {products.map((product) => (
-                                <ProductCard
+                                <ZeptoCard
                                     key={product._id}
                                     product={{
                                         ...product,

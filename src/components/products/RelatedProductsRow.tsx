@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { type Product, ProductCard, type EtaInfo } from "@/components/products/ProductCard";
+import { type Product, ZeptoCard as ProductCard, type EtaInfo } from "@/components/products/ZeptoCard";
 
 interface RelatedProductsRowProps {
   title: string;

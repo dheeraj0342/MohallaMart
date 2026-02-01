@@ -122,7 +122,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="MohallaMart" />
         <meta name="theme-color" content="#10b981" />
-        <meta name="color-scheme" content="light dark" />
+        <meta name="color-scheme" content="light" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="MohallaMart" />
         
@@ -140,19 +140,9 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  var theme = localStorage.getItem('theme-preference');
                   var html = document.documentElement;
-                  
-                  if (!theme) {
-                    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    theme = prefersDark ? 'dark' : 'light';
-                  }
-                  
-                  if (theme === 'dark') {
-                    html.classList.add('dark');
-                  } else {
-                    html.classList.remove('dark');
-                  }
+                  html.classList.remove('dark');
+                  localStorage.setItem('theme-preference', 'light');
                 } catch (e) {
                   console.error('Theme initialization error:', e);
                 }

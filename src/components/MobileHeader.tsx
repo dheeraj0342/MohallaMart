@@ -7,14 +7,11 @@ import {
   ShoppingCart,
   ChevronDown,
   User,
-  Moon,
-  Sun,
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { useQuery } from "convex/react";
 import { api } from "@convex/_generated/api";
 import Link from "next/link";
-import { useThemeContext } from "./ThemeProvider";
 import Image from "next/image";
 import { Bebas_Neue } from "next/font/google";
 
@@ -100,7 +97,7 @@ export interface MobileHeaderProps {
   onOpenCart: () => void;
 }
 
-export function MobileHeader({
+export function ZeptoMobileHeader({
   onMenuClick,
   cartCount,
   location,
@@ -112,7 +109,6 @@ export function MobileHeader({
   const [isScrolled, setIsScrolled] = useState(false);
   const { location: storeLocation } = useStore();
   const categories = useQuery(api.categories.getAllCategories, { is_active: true });
-  const { theme, toggleTheme } = useThemeContext();
 
   const fallbackCategories = useMemo(
     () => [
@@ -183,7 +179,7 @@ export function MobileHeader({
         {/* Left: Logo + Delivery Info */}
         <div className="flex items-center gap-3 flex-1 min-w-0">
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0">
+          <Link href="/" className="shrink-0">
             <div className="flex items-center gap-2">
               <div className="relative w-8 h-8">
                 <Image
@@ -207,7 +203,7 @@ export function MobileHeader({
         </div>
 
         {/* Right: Theme Toggle, User and Cart Icons */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Theme Toggle Button */}
          
           
@@ -223,7 +219,7 @@ export function MobileHeader({
               <ChevronDown className="w-3.5 h-3.5 text-foreground" strokeWidth={3} />
             </div>
             <div className="flex items-center gap-1 w-full">
-              <MapPin className="w-3 h-3 text-primary flex-shrink-0" strokeWidth={2.5} />
+              <MapPin className="w-3 h-3 text-primary shrink-0" strokeWidth={2.5} />
               <span className="text-[11px] text-muted-foreground truncate font-medium">
                 {displayLocation}
               </span>
@@ -239,24 +235,13 @@ export function MobileHeader({
             onClick={onOpenSearch}
             className="relative flex-1 flex items-center gap-3 px-4 py-2.5 bg-muted/50 border border-border rounded-xl text-left transition-all active:scale-[0.98] hover:bg-muted"
           >
-            <Search className="w-4.5 h-4.5 text-muted-foreground flex-shrink-0" strokeWidth={2.5} />
+            <Search className="w-4.5 h-4.5 text-muted-foreground shrink-0" strokeWidth={2.5} />
             <span className="text-[14px] text-muted-foreground font-medium truncate">
               Search "milk", "eggs" or "bread"
             </span>
           </button>
           
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            className="p-2.5 rounded-xl bg-card hover:bg-muted border border-border hover:border-primary transition-all duration-300 active:scale-95 group flex-shrink-0"
-            aria-label="Toggle theme"
-          >
-            {theme === 'light' ? (
-              <Moon className="w-5 h-5 text-foreground group-hover:text-primary transition-colors" strokeWidth={2.5} />
-            ) : (
-              <Sun className="w-5 h-5 text-foreground group-hover:text-primary transition-colors" strokeWidth={2.5} />
-            )}
-          </button>
+
         </div>
       </div>
 
@@ -267,7 +252,7 @@ export function MobileHeader({
             <Link
               key={cat.name + idx}
               href={`/shops?category=${encodeURIComponent(cat.name)}`}
-              className="flex-shrink-0 flex flex-col items-center gap-1.5 w-16 active:scale-95 transition-transform"
+              className="shrink-0 flex flex-col items-center gap-1.5 w-16 active:scale-95 transition-transform"
             >
               <div className="w-14 h-14 bg-green-bg dark:bg-green-bg/20 rounded-2xl flex items-center justify-center text-2xl shadow-sm border border-green-primary/10 hover:border-green-primary/30 transition-colors">
                 <span>{cat.iconEmoji}</span>

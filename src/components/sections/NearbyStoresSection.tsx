@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { MapPin, Navigation, Package, Star, Store, ChevronLeft, ChevronRight } from "lucide-react"
 import { generateSlug } from "@/lib/utils"
 
-const DELIVERY_RADIUS_KM = 2
+const DELIVERY_RADIUS_KM = 10
 const PAGE_SIZE = 6
 
 interface LatLng {
