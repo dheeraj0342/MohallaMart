@@ -123,29 +123,27 @@ function AuthPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <AnimatePresence mode="wait">
-          {isLogin ? (
-            <LoginForm
-              key="login"
-              onSuccess={handleAuthSuccess}
-              onSwitchToSignup={() => setIsLogin(false)}
-              initialError={errorMsg}
-              role={role}
-            />
-          ) : (
-            <SignupForm
-              key="signup"
-              onSuccess={handleAuthSuccess}
-              onSwitchToLogin={() => setIsLogin(true)}
-              initialError={errorMsg}
-              role={role}
-            />
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
+    <>
+      <AnimatePresence mode="wait">
+        {isLogin ? (
+          <LoginForm
+            key="login"
+            onSuccess={handleAuthSuccess}
+            onSwitchToSignup={() => setIsLogin(false)}
+            initialError={errorMsg}
+            role={role}
+          />
+        ) : (
+          <SignupForm
+            key="signup"
+            onSuccess={handleAuthSuccess}
+            onSwitchToLogin={() => setIsLogin(true)}
+            initialError={errorMsg}
+            role={role}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 

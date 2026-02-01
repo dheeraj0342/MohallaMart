@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Open_Sans, Montserrat } from "next/font/google";
 import "./globals.css";
-import ConditionalNavbar from "@/components/ConditionalNavbar";
-import ConditionalFooter from "@/components/ConditionalFooter";
+import ConditionalLayout from "@/components/ConditionalLayout";
 import ConvexProviderWrapper from "@/components/ConvexProvider";
 import InngestProvider from "@/components/InngestProvider";
 import TRPCProvider from "@/components/TRPCProvider";
@@ -161,9 +160,9 @@ export default function RootLayout({
           <TRPCProvider>
             <ConvexProviderWrapper>
               <InngestProvider>
-                <ConditionalNavbar />
-                <main className="pt-[184px] lg:pt-0">{children}</main>
-                <ConditionalFooter />
+                <ConditionalLayout>
+                  {children}
+                </ConditionalLayout>
                 <Toaster />
                 <PWAInstallPrompt />
                 <InstallPromptIOS />

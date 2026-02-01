@@ -10,10 +10,11 @@ import {
   Lock,
   Loader2,
   ShoppingBag,
-  Phone,
   Globe,
+  ArrowRight,
+  CheckCircle2,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
 import { useSearchParams } from "next/navigation";
@@ -43,7 +44,6 @@ export default function LoginForm({
   const next = searchParams.get("next");
   const syncUser = useMutation(api.users.syncUserWithSupabase);
 
-  // Validate Supabase configuration on mount
   useEffect(() => {
     const config = validateSupabaseConfig();
     if (!config.valid && config.error) {
@@ -59,29 +59,19 @@ export default function LoginForm({
 
     try {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        const m = "Please enter a valid email address";
-        setError(m);
-        errorToast(m);
-        setLoading(false);
-        return;
+        throw new Error("Please enter a valid email address");
       }
       if (password.length < 6) {
-        const m = "Password must be at least 6 characters";
-        setError(m);
-        errorToast(m);
-        setLoading(false);
-        return;
+        throw new Error("Password must be at least 6 characters");
       }
+      
       const { data, error } = await withRetry(() =>
         supabase.auth.signInWithPassword({ email, password })
       );
 
-      if (error) {
-        setError(error.message);
-        errorToast(error.message);
-        setLoading(false);
-      } else if (data?.user) {
-        // Sync user to Convex (ensure role is set if not already)
+      if (error) throw error;
+
+      if (data?.user) {
         try {
           await syncUser({
             supabaseUserId: data.user.id,
@@ -92,43 +82,29 @@ export default function LoginForm({
             phone: data.user.user_metadata?.phone,
             avatar_url: data.user.user_metadata?.avatar_url,
             provider: data.user.app_metadata?.provider || "email",
-            role: data.user.user_metadata?.role || "customer", // Default to customer if not set
+            role: data.user.user_metadata?.role || "customer",
           });
         } catch (syncError) {
           console.error("Failed to sync user:", syncError);
-          // Continue anyway - sync can happen later
         }
         success("Welcome back! Redirecting...");
-        // Small delay to ensure user is synced
-        setTimeout(() => {
-          onSuccess?.();
-        }, 500);
+        setTimeout(() => onSuccess?.(), 500);
       } else {
-        setError("Login failed. Please try again.");
-        errorToast("Login failed. Please try again.");
-        setLoading(false);
+        throw new Error("Login failed. Please try again.");
       }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message.includes("Failed to fetch") ||
-            err.message.includes("NetworkError") ||
-            err.message.includes("fetch")
-            ? "Unable to connect to the server. Please check your internet connection and ensure Supabase is properly configured."
-            : err.message
-          : "An unexpected error occurred. Please try again.";
-
-      setError(errorMessage);
-      errorToast(errorMessage);
+    } catch (err: any) {
+      const message = err.message || "An unexpected error occurred.";
+      setError(message);
+      errorToast(message);
       setLoading(false);
-      console.error("Login error:", err);
     }
   };
 
   const handleForgotPassword = async () => {
     if (!email) {
-      setError("Please enter your email address first");
-      errorToast("Please enter your email address first");
+      const msg = "Please enter your email address first";
+      setError(msg);
+      errorToast(msg);
       return;
     }
 
@@ -144,7 +120,7 @@ export default function LoginForm({
         errorToast(error.message);
       } else {
         setError("");
-        info("Password reset link sent! Please check your email.");
+        info("Password reset link sent! Check your email.");
       }
     } catch {
       setError("Failed to send reset email");
@@ -155,17 +131,12 @@ export default function LoginForm({
   const handleGoogleLogin = async () => {
     try {
       const nextUrl = next || "/";
-      // Include role in the redirect URL so callback can set it
       const redirectTo = `${getEmailRedirectUrl()}?next=${encodeURIComponent(nextUrl)}&role=customer`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: {
-          redirectTo,
-        },
+        options: { redirectTo },
       });
-      if (error) {
-        errorToast(error.message);
-      }
+      if (error) errorToast(error.message);
     } catch (err) {
       console.error("Google login error:", err);
       errorToast("Failed to initiate Google login");
@@ -173,190 +144,212 @@ export default function LoginForm({
   };
 
   return (
-    <div className="min-h-screen grid md:grid-cols-2 bg-background">
-      {/* Left - Branding */}
-      <div className="hidden md:flex flex-col justify-between p-12 text-primary-foreground bg-primary">
-        <div>
-          <Link href="/" className="inline-flex items-center space-x-2">
-            <div className="h-10 w-10 rounded-full bg-white/15 flex items-center justify-center">
-              <ShoppingBag className="h-5 w-5" />
+    <div className="min-h-screen grid lg:grid-cols-2 overflow-hidden bg-background">
+      {/* Visual Side */}
+      <motion.div 
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="hidden lg:flex relative flex-col justify-between p-16 overflow-hidden bg-[#0A0A0A] text-white"
+      >
+        {/* Abstract Background with Gradient Mesh */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] rounded-full bg-indigo-600/20 blur-[120px]" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-violet-600/20 blur-[100px]" />
+          <div className="absolute top-[40%] left-[40%] w-[40%] h-[40%] rounded-full bg-fuchsia-600/10 blur-[80px]" />
+          
+          {/* Subtle Grid Pattern Overlay */}
+          <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-[0.03]" />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10">
+          <Link href="/" className="inline-flex items-center gap-3 group">
+            <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-white/20 to-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+              <ShoppingBag className="h-6 w-6 text-white" />
             </div>
-            <span className="text-2xl font-semibold">MohallaMart</span>
+            <span className="text-2xl font-bold tracking-tight">MohallaMart</span>
           </Link>
         </div>
-        <div>
-          <h2 className="text-4xl font-bold mb-3">Welcome back!</h2>
-          <p className="text-white/90 max-w-md">
-            Sign in to continue shopping for fresh groceries and daily essentials.
-          </p>
-        </div>
-        <div className="text-sm text-white/80">© 2025 MohallaMart</div>
-      </div>
 
-      {/* Right - Form */}
-      <div className="flex items-center justify-center p-6 sm:p-10 lg:p-12">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
+        <div className="relative z-10 max-w-lg space-y-6">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="text-5xl font-bold leading-tight tracking-tight"
+          >
+            Welcome back to <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 animate-gradient-x">
+              smarter shopping.
+            </span>
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="text-lg text-white/60 leading-relaxed"
+          >
+            Experience the future of local commerce. Fresh groceries, 
+            lightning-fast delivery, and premium quality - all in one place.
+          </motion.p>
+          
+          {/* Feature List */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="flex gap-6 pt-4"
+          >
+            {[
+              { label: "10-20 Min Delivery", icon: "⚡" },
+              { label: "Quality Guarantee", icon: "🛡️" },
+              { label: "Best Prices", icon: "🏷️" }
+            ].map((feature, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm font-medium text-white/80 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-sm">
+                <span>{feature.icon}</span>
+                <span>{feature.label}</span>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+
+        <div className="relative z-10 text-sm text-white/40 font-medium">
+          © 2025 MohallaMart Technologies Inc.
+        </div>
+      </motion.div>
+
+      {/* Login Form Side */}
+      <div className="flex items-center justify-center p-6 sm:p-12 lg:p-24 bg-background">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
-          className="w-full max-w-md"
+          transition={{ duration: 0.4 }}
+          className="w-full max-w-[420px]"
         >
-          <div className="text-center mb-8 md:hidden">
-            <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-primary text-white shadow-lg shadow-primary/30 mb-2">
-              <ShoppingBag className="h-6 w-6" />
+          <div className="text-center mb-10">
+            <div className="lg:hidden inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-primary/10 text-primary mb-6">
+              <ShoppingBag className="h-7 w-7" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground">Sign In</h2>
-            <p className="text-muted-foreground text-sm">
+            <h1 className="text-3xl font-bold text-foreground tracking-tight mb-3">Sign In</h1>
+            <p className="text-muted-foreground">
               Enter your credentials to access your account
             </p>
           </div>
 
-          <form
-            onSubmit={handleLogin}
-            className="space-y-5 bg-card rounded-3xl p-6 sm:p-7 border border-border shadow-xl"
-            aria-busy={loading}
-            noValidate
-          >
-            {error && (
-              <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-300 px-4 py-3 rounded-lg text-sm" aria-live="assertive">
-                {error}
-              </div>
-            )}
+          <form onSubmit={handleLogin} className="space-y-6" noValidate>
+            <AnimatePresence mode="wait">
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2 border border-red-100 dark:border-red-900/50"
+                >
+                  <div className="h-1.5 w-1.5 rounded-full bg-red-500 shrink-0" />
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-semibold text-foreground mb-2"
-              >
-                Email
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-muted-foreground" />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground ml-1">Email Address</label>
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-secondary/30 hover:bg-secondary/50 focus:bg-background border-transparent focus:border-primary/50 transition-all duration-200 rounded-2xl py-3 pl-12 pr-4 outline-none ring-2 ring-transparent focus:ring-primary/20 text-foreground placeholder:text-muted-foreground/70"
+                    placeholder="name@example.com"
+                    required
+                  />
                 </div>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full pl-12 pr-4 py-3 bg-muted border-2 border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                  autoComplete="email"
-                  placeholder="you@example.com"
-                />
               </div>
-            </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-semibold text-foreground"
-                >
-                  Password
-                </label>
-                <button
-                  type="button"
-                  onClick={handleForgotPassword}
-                  className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
-                >
-                  Forgot password?
-                </button>
-              </div>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-muted-foreground" />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between ml-1">
+                  <label className="text-sm font-medium text-foreground">Password</label>
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                  >
+                    Forgot Password?
+                  </button>
                 </div>
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full pl-12 pr-12 py-3 bg-muted border-2 border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted-foreground hover:text-primary transition-colors"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-secondary/30 hover:bg-secondary/50 focus:bg-background border-transparent focus:border-primary/50 transition-all duration-200 rounded-2xl py-3 pl-12 pr-12 outline-none ring-2 ring-transparent focus:ring-primary/20 text-foreground placeholder:text-muted-foreground/70"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-3.5 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
               </div>
             </div>
 
             <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               type="submit"
               disabled={loading}
-              whileHover={{ scale: loading ? 1 : 1.02 }}
-              whileTap={{ scale: loading ? 1 : 0.98 }}
-              className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold shadow-lg hover:bg-primary/90 transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-2xl transition-all shadow-lg shadow-primary/25 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
             >
               {loading ? (
-                <span className="inline-flex items-center">
-                  <Loader2 className="h-5 w-5 animate-spin mr-2" aria-hidden="true" /> Signing
-                  in...
-                </span>
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                "Sign In"
+                <>
+                  <span>Sign In</span>
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </>
               )}
             </motion.button>
-
-            <div className="text-center text-sm text-muted-foreground">
-              Don&apos;t have an account?{" "}
-              <button
-                onClick={onSwitchToSignup}
-                className="text-primary hover:text-primary/80 font-semibold transition-colors"
-              >
-                Create one
-              </button>
-            </div>
-
-            {/* Social Login - Only show for customers */}
-            {role === "customer" && (
-              <>
-                {/* Divider */}
-                <div className="relative my-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-border"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-card text-muted-foreground">
-                      Or continue with
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={handleGoogleLogin}
-                    className="relative h-12 border-2 border-border rounded-xl bg-card hover:bg-muted text-foreground flex items-center justify-center gap-2 font-medium text-sm transition-all"
-                  >
-                    <Globe className="h-5 w-5" />
-                    <span>Google</span>
-                  </button>
-                  <button
-                    type="button"
-                    disabled
-                    className="relative h-12 border-2 border-border rounded-xl bg-muted text-foreground cursor-not-allowed opacity-60 flex items-center justify-center gap-2 font-medium text-sm transition-all"
-                  >
-                    <Phone className="h-5 w-5" />
-                    <span>Phone</span>
-                    <span className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                      Soon
-                    </span>
-                  </button>
-                </div>
-              </>
-            )}
           </form>
+
+          {role === "customer" && (
+            <div className="mt-8">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border/60"></div>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-4 text-muted-foreground font-medium">Or continue with</span>
+                </div>
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={handleGoogleLogin}
+                  className="flex-1 h-12 bg-card hover:bg-secondary/80 border border-border hover:border-border/80 rounded-2xl flex items-center justify-center gap-2 transition-all font-medium text-sm text-foreground"
+                >
+                  <Globe className="h-4 w-4" />
+                  Google
+                </button>
+              </div>
+            </div>
+          )}
+
+          <p className="mt-8 text-center text-sm text-muted-foreground">
+            New here?{" "}
+            <button
+              onClick={onSwitchToSignup}
+              className="font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
+              Create an account
+            </button>
+          </p>
         </motion.div>
       </div>
     </div>
