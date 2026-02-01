@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { X, Smartphone, Download, Share } from "lucide-react";
 
 export function PWAInstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
@@ -37,60 +38,46 @@ export function PWAInstallPrompt() {
   if (!showPrompt) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 bg-gradient-to-br from-card via-card to-primary/5 backdrop-blur-xl rounded-2xl shadow-2xl border-2 border-primary/20 p-5 z-50 md:bottom-6 md:left-6 md:right-auto md:max-w-md animate-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-start gap-4">
-        <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-            className="w-6 h-6 text-primary-foreground"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-            />
-          </svg>
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-lg text-foreground leading-tight">Install MohallaMart</h3>
-          <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
-            Add to home screen for faster access and a better shopping experience
-          </p>
-        </div>
+    <div className="fixed bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-96 z-50 animate-in slide-in-from-bottom-10 fade-in duration-500">
+      <div className="relative overflow-hidden bg-background/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl p-5">
+        
+        {/* Close Button */}
         <button
           onClick={handleDismiss}
-          className="flex-shrink-0 w-8 h-8 rounded-full hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-all flex items-center justify-center active:scale-95"
-          aria-label="Dismiss install prompt"
+          className="absolute top-3 right-3 p-1 rounded-full text-muted-foreground/70 hover:text-foreground hover:bg-muted/50 transition-colors"
+          aria-label="Dismiss"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2.5}
-            stroke="currentColor"
-            className="w-4 h-4"
+          <X className="h-4 w-4" />
+        </button>
+
+        <div className="flex gap-4">
+          <div className="shrink-0">
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/20">
+              <Download className="h-6 w-6 text-white" />
+            </div>
+          </div>
+          <div className="flex-1 pt-0.5">
+            <h3 className="font-bold text-base text-foreground leading-none mb-1.5">Install App</h3>
+            <p className="text-sm text-muted-foreground leading-snug">
+              Add MohallaMart to your home screen for the best experience.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-3 mt-5">
+          <button
+            onClick={handleDismiss}
+            className="flex-1 h-10 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-      <div className="flex gap-3 mt-5">
-        <button
-          onClick={handleDismiss}
-          className="flex-1 px-5 py-2.5 border-2 border-border/50 rounded-xl text-sm font-semibold text-foreground hover:bg-muted/70 hover:border-border transition-all active:scale-95"
-        >
-          Maybe Later
-        </button>
-        <button
-          onClick={handleInstall}
-          className="flex-1 px-5 py-2.5 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl hover:from-primary/90 hover:to-primary/80 transition-all active:scale-95"
-        >
-          Install Now
-        </button>
+            Not now
+          </button>
+          <button
+            onClick={handleInstall}
+            className="flex-1 h-10 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
+          >
+            Install
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -99,7 +86,6 @@ export function PWAInstallPrompt() {
 export function PWAServiceWorker() {
   useEffect(() => {
     if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
-      console.warn("[PWA] Service Worker not supported");
       return;
     }
 
@@ -108,7 +94,6 @@ export function PWAServiceWorker() {
         const registration = await navigator.serviceWorker.register("/sw.js", {
           scope: "/",
         });
-        console.log("[PWA] Service worker registered successfully");
 
         // Check for updates periodically
         const updateInterval = setInterval(() => {
@@ -122,7 +107,6 @@ export function PWAServiceWorker() {
         navigator.serviceWorker.addEventListener("controllerchange", () => {
           if (!isRefreshing) {
             isRefreshing = true;
-            console.log("[PWA] New service worker activated, reloading");
             window.location.reload();
           }
         });
@@ -145,13 +129,7 @@ export function RequestNotificationPermission() {
 
     const requestPermission = () => {
       if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission()
-          .then((permission) => {
-            console.log("[PWA] Notification permission:", permission);
-          })
-          .catch((err) => {
-            console.error("[PWA] Notification request error:", err);
-          });
+        Notification.requestPermission().catch(console.error);
       }
     };
 
@@ -163,4 +141,3 @@ export function RequestNotificationPermission() {
 
   return null;
 }
-
