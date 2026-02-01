@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mohallamart-v1';
+const CACHE_NAME = 'mohallamart-v3';
 const RUNTIME_CACHE = 'mohallamart-runtime-v1';
 const ASSETS_TO_CACHE = [
   '/',
@@ -59,6 +59,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // BYPASS SERVICE WORKER FOR AUTHENTICATION FLOWS
+  // This is critical for Google Login and other OAuth providers to work correctly
+  if (
+    url.pathname.includes('/auth/') || 
+    url.searchParams.has('code') || 
+    url.searchParams.has('state') ||
+    url.pathname.includes('/login') ||
+    url.pathname.includes('/signup')
+  ) {
+    return; // Let the browser handle these requests directly
+  }
+
   // API requests - Network first, cache fallback
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(networkFirstStrategy(request));
@@ -91,11 +103,13 @@ async function networkFirstStrategy(request) {
       ),
     ]);
     
-    if (response.ok) {
-      const cache = await caches.open(RUNTIME_CACHE);
-      cache.put(request, response.clone()).catch(() => {});
+    if (response) {
+      if (response.ok) {
+        const cache = await caches.open(RUNTIME_CACHE);
+        cache.put(request, response.clone()).catch(() => {});
+      }
+      return response;
     }
-    return response;
   } catch (error) {
     const cached = await caches.match(request);
     if (cached) {
@@ -146,7 +160,7 @@ async function navigationStrategy(request) {
       ),
     ]);
     
-    if (response.ok) {
+    if (response) {
       return response;
     }
   } catch (error) {
