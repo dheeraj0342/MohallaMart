@@ -40,6 +40,15 @@
   --color-red-bg: #fee2e2;
   --color-blue-primary: #2196f3;
 
+  /* Sidebar (admin & shopkeeper) */
+  --color-sidebar: #f1f5f9;
+  --color-sidebar-foreground: #1e293b;
+  --color-sidebar-accent: #10b981;
+  --color-sidebar-accent-foreground: #ffffff;
+  --color-sidebar-primary: #0f766e;
+  --color-sidebar-border: #e2e8f0;
+  --color-sidebar-ring: #10b981;
+
   /* Radius */
   --radius-lg: 0.5rem;
   --radius-md: calc(0.5rem - 2px);
@@ -81,6 +90,15 @@
   --color-red-primary: #ff5252;
   --color-red-bg: #3f1f1f;
   --color-blue-primary: #42a5f5;
+
+  /* Sidebar (admin & shopkeeper) - dark */
+  --color-sidebar: #1e293b;
+  --color-sidebar-foreground: #f1f5f9;
+  --color-sidebar-accent: #10b981;
+  --color-sidebar-accent-foreground: #ffffff;
+  --color-sidebar-primary: #34d399;
+  --color-sidebar-border: #334155;
+  --color-sidebar-ring: #34d399;
 }
 
 /* ============================================

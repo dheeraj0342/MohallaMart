@@ -131,6 +131,11 @@ export default function CheckoutPage() {
   }, [location, shop]);
 
   const handlePlaceOrder = async () => {
+    // Validation checks
+    if (isSubmitting) {
+      return; // Prevent multiple submissions
+    }
+
     if (!user) {
       error("Please login to place order");
       router.push("/auth?next=/checkout");
@@ -142,8 +147,8 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!shopId) {
-      error("Unable to determine shop. Please refresh the page and try again.");
+    if (isLoadingProducts) {
+      error("Product data is still loading. Please wait a moment and try again.");
       return;
     }
 
@@ -152,13 +157,23 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!street || !city || !pincode || !state) {
+    if (!shopId) {
+      error("Unable to determine shop. Please refresh the page and try again.");
+      return;
+    }
+
+    if (!street?.trim() || !city?.trim() || !pincode?.trim() || !state?.trim()) {
       error("Please fill in all address fields");
       return;
     }
 
     if (!location?.coordinates) {
       error("Please select a delivery location on the map");
+      return;
+    }
+
+    if (cart.length === 0) {
+      error("Your cart is empty. Please add items before checking out.");
       return;
     }
 
@@ -197,24 +212,28 @@ export default function CheckoutPage() {
           tax,
           total_amount: payableAmount,
           delivery_address: {
-            street,
-            city,
-            pincode,
-            state,
+            street: street.trim(),
+            city: city.trim(),
+            pincode: pincode.trim(),
+            state: state.trim(),
             coordinates: {
               lat: location.coordinates.lat,
               lng: location.coordinates.lng,
             },
           },
           payment_method: paymentMethod,
-          notes: notes || undefined,
+          notes: notes?.trim() || undefined,
         }),
       });
 
       const orderData = await orderResponse.json();
 
       if (!orderResponse.ok) {
-        throw new Error(orderData.error || "Failed to place order");
+        throw new Error(orderData.error || "Failed to create order. Please try again.");
+      }
+
+      if (!orderData.orderId) {
+        throw new Error("Order ID not returned from server. Please contact support.");
       }
 
       // If cash payment, redirect to tracking
@@ -228,36 +247,49 @@ export default function CheckoutPage() {
       // If Razorpay payment, initiate payment
       if (paymentMethod === "razorpay") {
         if (!razorpayLoaded.current || !window.Razorpay) {
-          throw new Error("Razorpay is not loaded. Please refresh the page.");
+          throw new Error("Payment system is not loaded. Please refresh the page and try again.");
         }
 
-        // Get user details safely (handle both store User and Supabase User types)
+        // Get user details safely
         const storeUser = useStore.getState().user;
-        // user from useAuth can be storeUser (has name) or supabaseUser (name in user_metadata)
-        const userName = storeUser?.name || dbUser?.name || (user && "name" in user ? user.name : (user as any)?.user_metadata?.name) || "";
+        const userName = storeUser?.name || dbUser?.name || (user && "name" in user ? user.name : (user as any)?.user_metadata?.name) || "Customer";
         const userEmail = storeUser?.email || dbUser?.email || (user && "email" in user ? user.email : (user as any)?.email) || "";
         const userPhone = storeUser?.phone || dbUser?.phone || "";
 
+        if (!userEmail) {
+          throw new Error("User email is required for payment. Please update your profile.");
+        }
+
         // Initiate Razorpay payment
-        const paymentResponse = await fetch("/api/payment/razorpay/initiate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: payableAmount,
-            order_id: orderData.orderId,
-            customer_id: dbUser._id,
-            customer_name: userName,
-            customer_email: userEmail,
-            customer_phone: userPhone,
-            description: `Order #${orderData.orderNumber}`,
-            callback_url: `${window.location.origin}/checkout/payment-callback`,
-          }),
-        });
+        let paymentData: any = null;
+        try {
+          const paymentResponse = await fetch("/api/payment/razorpay/initiate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              amount: payableAmount,
+              order_id: orderData.orderId,
+              customer_id: dbUser._id,
+              customer_name: userName,
+              customer_email: userEmail,
+              customer_phone: userPhone,
+              description: `Order #${orderData.orderNumber || orderData.orderId}`,
+              callback_url: `${window.location.origin}/checkout/payment-callback`,
+            }),
+          });
 
-        const paymentData = await paymentResponse.json();
+          paymentData = await paymentResponse.json();
 
-        if (!paymentResponse.ok) {
-          throw new Error(paymentData.error || "Failed to initiate payment");
+          if (!paymentResponse.ok) {
+            throw new Error(paymentData.error || "Failed to initiate payment. Please try again.");
+          }
+
+          if (!paymentData.razorpay_order_id || !paymentData.key_id) {
+            throw new Error("Invalid payment response from server. Please contact support.");
+          }
+        } catch (paymentInitError: any) {
+          console.error("Payment initiation error:", paymentInitError);
+          throw new Error(paymentInitError.message || "Failed to initialize payment gateway. Please try again.");
         }
 
         // Open Razorpay checkout
@@ -266,11 +298,22 @@ export default function CheckoutPage() {
           amount: paymentData.amount,
           currency: paymentData.currency,
           name: "MohallaMart",
-          description: `Order #${orderData.orderNumber}`,
+          description: `Order #${orderData.orderNumber || orderData.orderId}`,
           order_id: paymentData.razorpay_order_id,
           handler: async (response: any) => {
             try {
+              console.log("[Checkout] Payment successful response from Razorpay:", {
+                order_id: response.razorpay_order_id,
+                payment_id: response.razorpay_payment_id,
+                signature: response.razorpay_signature?.substring(0, 10) + "...",
+              });
+
+              if (!response.razorpay_order_id || !response.razorpay_payment_id || !response.razorpay_signature) {
+                throw new Error("Invalid payment response from Razorpay. Missing payment credentials.");
+              }
+
               // Verify payment
+              console.log("[Checkout] Verifying payment with backend...");
               const verifyResponse = await fetch("/api/payment/razorpay/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -284,16 +327,40 @@ export default function CheckoutPage() {
 
               const verifyData = await verifyResponse.json();
 
-              if (!verifyResponse.ok || !verifyData.success) {
-                error("Payment verification failed. Please contact support.");
-                return;
+              console.log("[Checkout] Payment verification response:", {
+                status: verifyResponse.status,
+                success: verifyData.success,
+                payment_status: verifyData.payment_status,
+                error: verifyData.error,
+              });
+
+              if (!verifyResponse.ok) {
+                console.error("[Checkout] Verification API returned error status:", verifyResponse.status);
+                throw new Error(
+                  verifyData.error ||
+                  `Payment verification failed (${verifyResponse.status}). Please contact support.`
+                );
               }
 
-              success("Payment successful! Order placed.");
+              if (!verifyData.success) {
+                console.error("[Checkout] Verification returned success=false:", verifyData);
+                throw new Error(
+                  verifyData.error ||
+                  "Payment could not be verified. Please check your account or contact support."
+                );
+              }
+
+              console.log("[Checkout] Payment verified successfully");
+              success("Payment successful! Your order has been placed.");
               clearCart();
               router.push(orderData.trackingUrl || `/track/${orderData.orderId}`);
-            } catch (err: any) {
-              error(err.message || "Failed to verify payment");
+            } catch (verifyErr: any) {
+              console.error("[Checkout] Payment verification error:", {
+                message: verifyErr.message,
+                stack: verifyErr.stack,
+              });
+              error(verifyErr.message || "Failed to verify payment. Please contact support.");
+              setIsSubmitting(false);
             }
           },
           prefill: {
@@ -314,12 +381,22 @@ export default function CheckoutPage() {
         const razorpay = new window.Razorpay(options);
         razorpay.open();
         razorpay.on("payment.failed", (response: any) => {
-          error("Payment failed. Please try again.");
+          console.error("[Checkout] Payment failed event from Razorpay:", {
+            error_code: response?.error?.code,
+            error_description: response?.error?.description,
+            error_reason: response?.error?.reason,
+            error_source: response?.error?.source,
+            error_step: response?.error?.step,
+            error_message: response?.error?.message,
+          });
+          error(
+            `Payment failed: ${response?.error?.description || response?.error?.message || "Unknown error"}. Please try again.`
+          );
           setIsSubmitting(false);
         });
       }
     } catch (err: any) {
-      console.error("Order placement error:", err);
+      console.error("Checkout error:", err);
       error(err.message || "Failed to place order. Please try again.");
       setIsSubmitting(false);
     }

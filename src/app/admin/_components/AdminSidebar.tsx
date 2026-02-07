@@ -62,12 +62,12 @@ export default function AdminSidebar() {
       {/* HEADER */}
       <SidebarHeader>
         <div className="flex items-center gap-2 sm:gap-3 px-2 py-2 sm:py-3 min-w-0">
-          <div className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-[var(--sidebar-accent)] text-[var(--sidebar-primary)]">
+          <div className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-blue-600 text-white dark:bg-blue-500 dark:text-white">
             <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5" />
           </div>
           <div className="flex-1 min-w-0 leading-tight text-sm">
-            <p className="font-semibold truncate text-[var(--sidebar-foreground)]">Admin Console</p>
-            <p className="text-[var(--sidebar-foreground)]/70 text-xs truncate">MohallaMart</p>
+            <p className="font-semibold truncate text-sidebar-foreground">Admin Console</p>
+            <p className="text-sidebar-foreground/70 text-xs truncate">MohallaMart</p>
           </div>
         </div>
       </SidebarHeader>
