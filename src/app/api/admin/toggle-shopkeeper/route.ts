@@ -4,6 +4,8 @@ import { api } from "@/../convex/_generated/api";
 import { sendEvent } from "@/lib/inngest";
 import { isAdminAuthenticated } from "@/lib/adminAuth";
 
+//admin check
+
 export async function POST(request: NextRequest) {
   try {
     // Check if admin is authenticated

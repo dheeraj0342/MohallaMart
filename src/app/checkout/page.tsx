@@ -78,10 +78,10 @@ export default function CheckoutPage() {
   // Check if products are still loading
   const isLoadingProducts = cart.length > 0 && productIds.length > 0 && products === undefined;
 
-  // Get user ID from Convex
+  // Get user from Convex by Supabase id (reliable after auth sync)
   const dbUser = useQuery(
-    api.users.getUserByEmail,
-    user?.email ? { email: user.email } : "skip"
+    api.users.getUser,
+    user?.id ? { id: user.id } : "skip"
   );
 
   // Get shop details for ETA preview (must call hook unconditionally)
@@ -142,8 +142,12 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!dbUser) {
-      error("User not found. Please try again.");
+    if (dbUser === undefined) {
+      error("Loading your account. Please wait a moment and try again.");
+      return;
+    }
+    if (dbUser === null) {
+      error("Account not synced. Please refresh the page or log out and log in again.");
       return;
     }
 
@@ -163,12 +167,7 @@ export default function CheckoutPage() {
     }
 
     if (!street?.trim() || !city?.trim() || !pincode?.trim() || !state?.trim()) {
-      error("Please fill in all address fields");
-      return;
-    }
-
-    if (!location?.coordinates) {
-      error("Please select a delivery location on the map");
+      error("Please fill in all address fields (street, city, pincode, state)");
       return;
     }
 
@@ -200,6 +199,25 @@ export default function CheckoutPage() {
         throw new Error("No valid products in cart. Please refresh and try again.");
       }
 
+      const deliveryAddress: {
+        street: string;
+        city: string;
+        pincode: string;
+        state: string;
+        coordinates?: { lat: number; lng: number };
+      } = {
+        street: street.trim(),
+        city: city.trim(),
+        pincode: pincode.trim(),
+        state: state.trim(),
+      };
+      if (location?.coordinates) {
+        deliveryAddress.coordinates = {
+          lat: location.coordinates.lat,
+          lng: location.coordinates.lng,
+        };
+      }
+
       const orderResponse = await fetch("/api/order/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -211,16 +229,7 @@ export default function CheckoutPage() {
           delivery_fee: deliveryFee,
           tax,
           total_amount: payableAmount,
-          delivery_address: {
-            street: street.trim(),
-            city: city.trim(),
-            pincode: pincode.trim(),
-            state: state.trim(),
-            coordinates: {
-              lat: location.coordinates.lat,
-              lng: location.coordinates.lng,
-            },
-          },
+          delivery_address: deliveryAddress,
           payment_method: paymentMethod,
           notes: notes?.trim() || undefined,
         }),
@@ -575,14 +584,20 @@ export default function CheckoutPage() {
                   className="w-full"
                   size="lg"
                   onClick={handlePlaceOrder}
-                  disabled={isSubmitting || !location?.coordinates || isLoadingProducts || !products || products.length === 0}
+                  disabled={
+                    isSubmitting ||
+                    isLoadingProducts ||
+                    dbUser === undefined ||
+                    !products ||
+                    products.length === 0
+                  }
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Placing Order...
                     </>
-                  ) : isLoadingProducts ? (
+                  ) : isLoadingProducts || dbUser === undefined ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Loading...

@@ -35,6 +35,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!delivery_address || typeof delivery_address !== "object") {
+      return NextResponse.json(
+        { error: "Delivery address is required" },
+        { status: 400 }
+      );
+    }
+    const { street: addrStreet, city: addrCity, pincode: addrPincode, state: addrState } = delivery_address;
+    if (!addrStreet?.trim() || !addrCity?.trim() || !addrPincode?.trim() || !addrState?.trim()) {
+      return NextResponse.json(
+        { error: "Address must include street, city, pincode, and state" },
+        { status: 400 }
+      );
+    }
+
     // 1. Validate stock availability
     const productIds = items.map((item: { product_id: string }) => item.product_id);
     
@@ -55,7 +69,8 @@ export async function POST(request: NextRequest) {
     }
 
     for (const item of items) {
-      const product = products.find((p) => p._id === item.product_id);
+      const productIdStr = String(item.product_id);
+      const product = products.find((p) => String(p._id) === productIdStr);
       if (!product) {
         return NextResponse.json(
           { error: `Product ${item.name} not found` },

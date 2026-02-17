@@ -5,6 +5,7 @@ import { useQuery } from "convex/react"
 import { useParams } from "next/navigation"
 import Image from "next/image"
 import { api } from "@/../convex/_generated/api"
+import type { Id } from "@/../convex/_generated/dataModel"
 import { Loader2, Store, MapPin, Phone, Mail, Star, Package, Clock, ShoppingCart } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -83,6 +84,7 @@ export default function ShopPage() {
   }) => {
     addToCart({
       id: product._id,
+      productId: product._id as Id<"products">,
       name: `${product.name} (${product.unit})`,
       price: product.price,
       ...(product.images && product.images.length > 0 && { image: product.images[0] }),
