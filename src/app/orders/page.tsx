@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Loader2, Package } from "lucide-react";
+import { Loader2, Package, Navigation } from "lucide-react";
 import { format } from "date-fns";
 import type { Id } from "@/../convex/_generated/dataModel";
 
@@ -282,16 +282,26 @@ export default function OrdersPage() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
                     <div className="text-sm text-muted-foreground">
                       Latest status:{" "}
                       <span className="text-foreground font-medium">
                         {STATUS_DISPLAY[order.status]?.label || order.status}
                       </span>
                     </div>
-                    <Button asChild variant="outline">
-                      <Link href={`/orders/${order._id}`}>View Details</Link>
-                    </Button>
+                    <div className="flex gap-2">
+                      {["pending", "accepted_by_shopkeeper", "assigned_to_rider", "out_for_delivery"].includes(order.status) && (
+                        <Button asChild variant="default" size="sm">
+                          <Link href={`/track/${order._id}`}>
+                            <Navigation className="h-4 w-4 mr-1" />
+                            Track
+                          </Link>
+                        </Button>
+                      )}
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/orders/${order._id}`}>View Details</Link>
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

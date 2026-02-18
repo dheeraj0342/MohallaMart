@@ -75,6 +75,7 @@ export default function ShopkeeperOrdersPage() {
 
   const acceptOrder = useMutation(api.orders.acceptOrder);
   const assignRider = useMutation(api.orders.assignRider);
+  const updateOrderStatus = useMutation(api.orders.updateOrderStatus);
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; icon: any; label: string }> = {
@@ -136,6 +137,24 @@ export default function ShopkeeperOrdersPage() {
   const openAssignDialog = (orderId: Id<"orders">) => {
     setSelectedOrderId(orderId);
     setIsAssignDialogOpen(true);
+  };
+
+  const handleMarkOutForDelivery = async (orderId: Id<"orders">) => {
+    try {
+      await updateOrderStatus({ id: orderId, status: "out_for_delivery" });
+      success("Order marked as out for delivery");
+    } catch (err: any) {
+      error(err.message || "Failed to update order status");
+    }
+  };
+
+  const handleMarkDelivered = async (orderId: Id<"orders">) => {
+    try {
+      await updateOrderStatus({ id: orderId, status: "delivered" });
+      success("Order marked as delivered");
+    } catch (err: any) {
+      error(err.message || "Failed to update order status");
+    }
   };
 
   if (!orders) {
@@ -280,9 +299,29 @@ export default function ShopkeeperOrdersPage() {
                           </DialogContent>
                         </Dialog>
                       )}
+                      {order.status === "assigned_to_rider" && (
+                        <Button
+                          onClick={() => handleMarkOutForDelivery(order._id)}
+                          variant="default"
+                          size="sm"
+                        >
+                          <Truck className="h-4 w-4 mr-2" />
+                          Out for Delivery
+                        </Button>
+                      )}
+                      {order.status === "out_for_delivery" && (
+                        <Button
+                          onClick={() => handleMarkDelivered(order._id)}
+                          variant="default"
+                          size="sm"
+                        >
+                          <CheckCircle2 className="h-4 w-4 mr-2" />
+                          Mark Delivered
+                        </Button>
+                      )}
                       <Button asChild variant="outline" size="sm">
                         <Link href={`/track/${order._id}`}>
-                          View Details
+                          Track
                         </Link>
                       </Button>
                     </div>
