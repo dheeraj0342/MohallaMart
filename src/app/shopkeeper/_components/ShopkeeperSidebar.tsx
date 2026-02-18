@@ -13,6 +13,7 @@ import {
   ShoppingBag,
   Ticket,
   FileSpreadsheet,
+  Settings,
 } from "lucide-react";
 
 import {
@@ -39,6 +40,7 @@ const NAV = [
       { href: "/shopkeeper/shop/products", label: "Shop Products", icon: ShoppingBag },
       { href: "/shopkeeper/coupons", label: "Coupons", icon: Ticket },
       { href: "/shopkeeper/products/bulk", label: "Bulk Upload", icon: FileSpreadsheet },
+      { href: "/shopkeeper/settings", label: "Settings", icon: Settings },
     ],
   },
   {

@@ -13,13 +13,105 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/useToast";
 import { useQuery } from "convex/react";
 import { api } from "@/../convex/_generated/api";
-import { Loader2, MapPin, CreditCard, Clock, Wallet } from "lucide-react";
+import { Loader2, MapPin, CreditCard, Clock, Wallet, AlertCircle, Info } from "lucide-react";
 import LocationModal from "@/components/LocationModal";
+import { haversineDistanceKm } from "@/lib/distance";
 
 declare global {
   interface Window {
     Razorpay: any;
   }
+}
+
+type DeliveryZone = {
+  name: string;
+  min_distance: number;
+  max_distance: number;
+  delivery_fee: number;
+  min_order_value?: number;
+};
+
+type DeliveryInfo = {
+  fee: number;
+  zoneName: string | null;
+  reason: string;
+  /** true when customer is outside the shop's delivery area */
+  unserviceable: boolean;
+  /** minimum order value required for this zone (if any) */
+  minOrderValue?: number;
+  distanceKm?: number;
+};
+
+function resolveDeliveryInfo(
+  shop: {
+    radius_km?: number;
+    address?: { coordinates?: { lat: number; lng: number } };
+    delivery_zones?: DeliveryZone[];
+  } | null | undefined,
+  customerLocation: { lat: number; lng: number } | null,
+  subtotal: number,
+): DeliveryInfo {
+  const FLAT_FEE = 40;
+  const FREE_THRESHOLD = 199;
+
+  // No location data → fall back to flat fee, don't block
+  if (!customerLocation || !shop?.address?.coordinates) {
+    return {
+      fee: subtotal >= FREE_THRESHOLD ? 0 : FLAT_FEE,
+      zoneName: null,
+      reason: subtotal >= FREE_THRESHOLD ? "Free delivery" : "Standard delivery fee",
+      unserviceable: false,
+    };
+  }
+
+  const distanceKm = haversineDistanceKm(
+    shop.address.coordinates.lat,
+    shop.address.coordinates.lng,
+    customerLocation.lat,
+    customerLocation.lng,
+  );
+
+  // Check outer delivery radius
+  if (shop.radius_km && distanceKm > shop.radius_km) {
+    return {
+      fee: 0,
+      zoneName: null,
+      reason: `Your location is ${distanceKm.toFixed(1)} km away — outside the ${shop.radius_km} km delivery area`,
+      unserviceable: true,
+      distanceKm,
+    };
+  }
+
+  // Match delivery zone
+  if (shop.delivery_zones && shop.delivery_zones.length > 0) {
+    const zone = shop.delivery_zones.find(
+      (z) => distanceKm >= z.min_distance && distanceKm <= z.max_distance,
+    );
+
+    if (zone) {
+      const hasMinOrder = zone.min_order_value && zone.min_order_value > 0;
+      return {
+        fee: zone.delivery_fee,
+        zoneName: zone.name,
+        reason: `${zone.name} (${zone.min_distance}–${zone.max_distance} km)`,
+        unserviceable: false,
+        minOrderValue: hasMinOrder ? zone.min_order_value : undefined,
+        distanceKm,
+      };
+    }
+
+    // Customer is within radius but no zone covers this distance → flat fee
+  }
+
+  // Default flat fee
+  const isFree = subtotal >= FREE_THRESHOLD;
+  return {
+    fee: isFree ? 0 : FLAT_FEE,
+    zoneName: null,
+    reason: isFree ? "Free delivery" : "Standard delivery fee",
+    unserviceable: false,
+    distanceKm,
+  };
 }
 
 /**
@@ -52,12 +144,6 @@ export default function CheckoutPage() {
     return { subtotal: sub, totalItems: count };
   }, [cart]);
 
-  const FREE_THRESHOLD = 199;
-  const DELIVERY_FEE = 40;
-  const deliveryFee = subtotal >= FREE_THRESHOLD ? 0 : DELIVERY_FEE;
-  const tax = subtotal * 0.05; // 5% tax
-  const payableAmount = subtotal + deliveryFee + tax;
-
   // Get shop ID from products (fetch product details to get shop_id)
   // Use productId if available, otherwise fall back to id
   // Filter out any invalid/undefined IDs
@@ -84,11 +170,30 @@ export default function CheckoutPage() {
     user?.id ? { id: user.id } : "skip"
   );
 
-  // Get shop details for ETA preview (must call hook unconditionally)
+  // Get shop details for ETA preview and delivery zone calculation
   const shop = useQuery(
     api.shops.getShop,
     shopId ? { id: shopId as any } : "skip"
   );
+
+  // Resolve customer coordinates from location store
+  const customerCoords = useMemo<{ lat: number; lng: number } | null>(() => {
+    if (!location) return null;
+    const lat = (location as any)?.coordinates?.lat ?? (location as any)?.lat;
+    const lng = (location as any)?.coordinates?.lng ?? (location as any)?.lon ?? (location as any)?.lng;
+    if (lat && lng) return { lat, lng };
+    return null;
+  }, [location]);
+
+  // Delivery fee resolved from zone configuration
+  const deliveryInfo = useMemo<DeliveryInfo>(
+    () => resolveDeliveryInfo(shop, customerCoords, subtotal),
+    [shop, customerCoords, subtotal],
+  );
+
+  const deliveryFee = deliveryInfo.fee;
+  const tax = subtotal * 0.05; // 5% tax
+  const payableAmount = subtotal + deliveryFee + tax;
 
   // Load Razorpay script
   useEffect(() => {
@@ -111,16 +216,17 @@ export default function CheckoutPage() {
 
   // Calculate ETA preview when location and shop are available
   useEffect(() => {
-    if (!location?.coordinates || !shop?.address?.coordinates) {
+    if (!customerCoords || !shop?.address?.coordinates) {
       setEta(null);
       return;
     }
 
-    // Simple ETA preview (full calculation happens in API)
-    const distanceKm = Math.sqrt(
-      Math.pow(location.coordinates.lat - shop.address.coordinates.lat, 2) +
-      Math.pow(location.coordinates.lng - shop.address.coordinates.lng, 2)
-    ) * 111; // Rough conversion to km
+    const distanceKm = haversineDistanceKm(
+      shop.address.coordinates.lat,
+      shop.address.coordinates.lng,
+      customerCoords.lat,
+      customerCoords.lng,
+    );
 
     // Simple estimate: 5 min prep + 3 min/km travel
     const estimatedMinutes = Math.round(5 + distanceKm * 3);
@@ -128,13 +234,11 @@ export default function CheckoutPage() {
       minEta: Math.max(10, estimatedMinutes - 5),
       maxEta: estimatedMinutes + 5,
     });
-  }, [location, shop]);
+  }, [customerCoords, shop]);
 
   const handlePlaceOrder = async () => {
-    // Validation checks
-    if (isSubmitting) {
-      return; // Prevent multiple submissions
-    }
+    // Prevent multiple submissions
+    if (isSubmitting) return;
 
     if (!user) {
       error("Please login to place order");
@@ -176,12 +280,28 @@ export default function CheckoutPage() {
       return;
     }
 
+    // Serviceability check
+    if (deliveryInfo.unserviceable) {
+      error(deliveryInfo.reason);
+      return;
+    }
+
+    // Min order value check for matched zone
+    if (
+      deliveryInfo.minOrderValue &&
+      deliveryInfo.minOrderValue > 0 &&
+      subtotal < deliveryInfo.minOrderValue
+    ) {
+      error(
+        `Minimum order of ₹${deliveryInfo.minOrderValue} required for ${deliveryInfo.zoneName ?? "this zone"}. Add ₹${(deliveryInfo.minOrderValue - subtotal).toFixed(2)} more to proceed.`
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       // First create the order
-      // Use productId if available, otherwise fall back to id
-      // Filter out any items with invalid IDs
       const orderItems = cart
         .filter((item) => {
           const productId = item.productId || item.id;
@@ -211,11 +331,8 @@ export default function CheckoutPage() {
         pincode: pincode.trim(),
         state: state.trim(),
       };
-      if (location?.coordinates) {
-        deliveryAddress.coordinates = {
-          lat: location.coordinates.lat,
-          lng: location.coordinates.lng,
-        };
+      if (customerCoords) {
+        deliveryAddress.coordinates = customerCoords;
       }
 
       const orderResponse = await fetch("/api/order/create", {
@@ -311,18 +428,11 @@ export default function CheckoutPage() {
           order_id: paymentData.razorpay_order_id,
           handler: async (response: any) => {
             try {
-              console.log("[Checkout] Payment successful response from Razorpay:", {
-                order_id: response.razorpay_order_id,
-                payment_id: response.razorpay_payment_id,
-                signature: response.razorpay_signature?.substring(0, 10) + "...",
-              });
-
               if (!response.razorpay_order_id || !response.razorpay_payment_id || !response.razorpay_signature) {
                 throw new Error("Invalid payment response from Razorpay. Missing payment credentials.");
               }
 
               // Verify payment
-              console.log("[Checkout] Verifying payment with backend...");
               const verifyResponse = await fetch("/api/payment/razorpay/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -336,15 +446,7 @@ export default function CheckoutPage() {
 
               const verifyData = await verifyResponse.json();
 
-              console.log("[Checkout] Payment verification response:", {
-                status: verifyResponse.status,
-                success: verifyData.success,
-                payment_status: verifyData.payment_status,
-                error: verifyData.error,
-              });
-
               if (!verifyResponse.ok) {
-                console.error("[Checkout] Verification API returned error status:", verifyResponse.status);
                 throw new Error(
                   verifyData.error ||
                   `Payment verification failed (${verifyResponse.status}). Please contact support.`
@@ -352,22 +454,17 @@ export default function CheckoutPage() {
               }
 
               if (!verifyData.success) {
-                console.error("[Checkout] Verification returned success=false:", verifyData);
                 throw new Error(
                   verifyData.error ||
                   "Payment could not be verified. Please check your account or contact support."
                 );
               }
 
-              console.log("[Checkout] Payment verified successfully");
               success("Payment successful! Your order has been placed.");
               clearCart();
               router.push(orderData.trackingUrl || `/track/${orderData.orderId}`);
             } catch (verifyErr: any) {
-              console.error("[Checkout] Payment verification error:", {
-                message: verifyErr.message,
-                stack: verifyErr.stack,
-              });
+              console.error("[Checkout] Payment verification error:", verifyErr);
               error(verifyErr.message || "Failed to verify payment. Please contact support.");
               setIsSubmitting(false);
             }
@@ -390,14 +487,6 @@ export default function CheckoutPage() {
         const razorpay = new window.Razorpay(options);
         razorpay.open();
         razorpay.on("payment.failed", (response: any) => {
-          console.error("[Checkout] Payment failed event from Razorpay:", {
-            error_code: response?.error?.code,
-            error_description: response?.error?.description,
-            error_reason: response?.error?.reason,
-            error_source: response?.error?.source,
-            error_step: response?.error?.step,
-            error_message: response?.error?.message,
-          });
           error(
             `Payment failed: ${response?.error?.description || response?.error?.message || "Unknown error"}. Please try again.`
           );
@@ -444,10 +533,42 @@ export default function CheckoutPage() {
                   onClick={() => setIsLocationModalOpen(true)}
                   className="w-full"
                 >
-                  {location?.coordinates
-                    ? `Location: ${location.coordinates.lat.toFixed(4)}, ${location.coordinates.lng.toFixed(4)}`
+                  {customerCoords
+                    ? `Location: ${customerCoords.lat.toFixed(4)}, ${customerCoords.lng.toFixed(4)}`
                     : "Select Location on Map"}
                 </Button>
+
+                {/* Serviceability / zone info */}
+                {customerCoords && shop !== undefined && (
+                  <div
+                    className={`flex items-start gap-2 p-3 rounded-lg text-sm ${
+                      deliveryInfo.unserviceable
+                        ? "bg-destructive/10 border border-destructive/20 text-destructive"
+                        : "bg-muted/50 border border-border text-muted-foreground"
+                    }`}
+                  >
+                    {deliveryInfo.unserviceable ? (
+                      <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                    ) : (
+                      <Info className="h-4 w-4 mt-0.5 shrink-0" />
+                    )}
+                    <div className="flex-1">
+                      <span>{deliveryInfo.reason}</span>
+                      {deliveryInfo.distanceKm !== undefined && !deliveryInfo.unserviceable && (
+                        <span className="ml-1 opacity-70">
+                          ({deliveryInfo.distanceKm.toFixed(1)} km away)
+                        </span>
+                      )}
+                      {deliveryInfo.minOrderValue && deliveryInfo.minOrderValue > 0 && subtotal < deliveryInfo.minOrderValue && (
+                        <p className="mt-1 text-amber-600 dark:text-amber-400 font-medium">
+                          Min order ₹{deliveryInfo.minOrderValue} required for this zone.
+                          Add ₹{(deliveryInfo.minOrderValue - subtotal).toFixed(2)} more.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <Label htmlFor="street">Street Address</Label>
                   <Input
@@ -552,9 +673,16 @@ export default function CheckoutPage() {
                     <span>₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Delivery Fee</span>
+                    <span className="flex items-center gap-1">
+                      Delivery Fee
+                      {deliveryInfo.zoneName && (
+                        <span className="text-xs text-muted-foreground">({deliveryInfo.zoneName})</span>
+                      )}
+                    </span>
                     <span>
-                      {deliveryFee === 0 ? (
+                      {deliveryInfo.unserviceable ? (
+                        <span className="text-destructive text-sm">N/A</span>
+                      ) : deliveryFee === 0 ? (
                         <span className="text-green-600">FREE</span>
                       ) : (
                         `₹${deliveryFee.toFixed(2)}`
@@ -562,7 +690,7 @@ export default function CheckoutPage() {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Tax</span>
+                    <span>Tax (5%)</span>
                     <span>₹{tax.toFixed(2)}</span>
                   </div>
                 </div>
@@ -572,11 +700,11 @@ export default function CheckoutPage() {
                     <span>₹{payableAmount.toFixed(2)}</span>
                   </div>
                 </div>
-                {eta && (
+                {eta && !deliveryInfo.unserviceable && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-4">
                     <Clock className="h-4 w-4" />
                     <span>
-                      Estimated delivery: {eta.minEta}-{eta.maxEta} minutes
+                      Estimated delivery: {eta.minEta}–{eta.maxEta} minutes
                     </span>
                   </div>
                 )}
@@ -589,7 +717,8 @@ export default function CheckoutPage() {
                     isLoadingProducts ||
                     dbUser === undefined ||
                     !products ||
-                    products.length === 0
+                    products.length === 0 ||
+                    deliveryInfo.unserviceable
                   }
                 >
                   {isSubmitting ? (
@@ -602,6 +731,8 @@ export default function CheckoutPage() {
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Loading...
                     </>
+                  ) : deliveryInfo.unserviceable ? (
+                    "Outside Delivery Area"
                   ) : (
                     "Place Order"
                   )}
@@ -615,9 +746,8 @@ export default function CheckoutPage() {
       <LocationModal
         isOpen={isLocationModalOpen}
         onClose={() => setIsLocationModalOpen(false)}
-        initial={location?.coordinates ? { lat: location.coordinates.lat, lon: location.coordinates.lng } : null}
+        initial={customerCoords ? { lat: customerCoords.lat, lon: customerCoords.lng } : null}
       />
     </div>
   );
 }
-
