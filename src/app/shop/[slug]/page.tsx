@@ -6,7 +6,7 @@ import { useParams } from "next/navigation"
 import Image from "next/image"
 import { api } from "@/../convex/_generated/api"
 import type { Id } from "@/../convex/_generated/dataModel"
-import { Loader2, Store, MapPin, Phone, Mail, Star, Package, Clock, ShoppingCart, Truck } from "lucide-react"
+import { Loader2, Store, MapPin, Phone, Mail, Star, Package, Clock, ShoppingCart } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
@@ -352,37 +352,6 @@ export default function ShopPage() {
                             {shopEta.minEta}-{shopEta.maxEta} mins
                           </div>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Delivery Zones */}
-                    {(shop as any).delivery_zones && (shop as any).delivery_zones.length > 0 && (
-                      <div className="pb-2 border-b border-border">
-                        <div className="flex items-center gap-2 mb-2 text-sm text-muted-foreground">
-                          <Truck className="h-4 w-4 text-primary shrink-0" />
-                          <span>Delivery Fees</span>
-                        </div>
-                        <div className="space-y-1.5">
-                          {(shop as any).delivery_zones.map((zone: any, idx: number) => (
-                            <div key={idx} className="flex items-center justify-between text-xs">
-                              <div className="flex flex-col">
-                                <span className="font-medium text-foreground">{zone.name}</span>
-                                <span className="text-muted-foreground">{zone.min_distance}–{zone.max_distance} km</span>
-                                {zone.min_order_value && zone.min_order_value > 0 && (
-                                  <span className="text-muted-foreground">Min order ₹{zone.min_order_value}</span>
-                                )}
-                              </div>
-                              <span className={`font-semibold ${zone.delivery_fee === 0 ? "text-green-600" : "text-foreground"}`}>
-                                {zone.delivery_fee === 0 ? "FREE" : `₹${zone.delivery_fee}`}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                        {(shop as any).radius_km && (
-                          <p className="text-xs text-muted-foreground mt-2">
-                            Delivers up to {(shop as any).radius_km} km
-                          </p>
-                        )}
                       </div>
                     )}
 
